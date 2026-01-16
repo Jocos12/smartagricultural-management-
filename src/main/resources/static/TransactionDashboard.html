@@ -1,0 +1,2825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction Management - AgriGuard AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+   <style>
+
+
+
+
+       :root {
+    --primary-green: #22c55e;
+    --primary-dark: #16a34a;
+    --secondary-green: #10b981;
+    --accent-green: #34d399;
+    --light-green: #dcfce7;
+    --dark-green: #166534;
+    --success-color: #22c55e;
+    --warning-color: #f59e0b;
+    --error-color: #ef4444;
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8f9fa;
+    --bg-sidebar: #e8f5e8;
+    --text-primary: #333333;
+    --text-secondary: #666666;
+    --border-color: #e0e0e0;
+    --hover-bg: rgba(34, 197, 94, 0.1);
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 8px 25px rgba(34, 197, 94, 0.15);
+    --gradient-primary: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+    --gradient-bg: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%);
+    --card-bg: #ffffff;
+    --modal-bg: rgba(0, 0, 0, 0.5);
+}
+
+.dark-mode {
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #2d2d2d;
+    --bg-sidebar: #1f2937;
+    --text-primary: #ffffff;
+    --text-secondary: #cccccc;
+    --border-color: #404040;
+    --hover-bg: rgba(34, 197, 94, 0.2);
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    --card-bg: #374151;
+    --gradient-bg: linear-gradient(135deg, #1f2937 0%, #374151 50%, #4b5563 100%);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: var(--gradient-bg);
+    color: var(--text-primary);
+    transition: all 0.3s ease;
+    overflow-x: hidden;
+}
+
+.dashboard-container {
+    display: flex;
+    height: 100vh;
+}
+
+.sidebar {
+    width: 280px;
+    background: var(--bg-sidebar);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: fixed;
+    height: 100vh;
+    z-index: 1000;
+    box-shadow: var(--shadow);
+}
+
+.sidebar.collapsed {
+    width: 70px;
+}
+
+.sidebar-header {
+    padding: 20px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo, .logo-fallback {
+    width: 45px;
+    height: 45px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--gradient-primary);
+    color: white;
+    font-size: 24px;
+    box-shadow: var(--shadow);
+}
+
+.logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.company-info {
+    flex: 1;
+    transition: opacity 0.3s ease;
+}
+
+.company-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+}
+
+.company-tagline {
+    font-size: 11px;
+    color: var(--primary-green);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.sidebar.collapsed .company-info {
+    opacity: 0;
+    width: 0;
+}
+
+.sidebar-nav {
+    flex: 1;
+    padding: 20px 0;
+    overflow-y: auto;
+}
+
+.nav-section {
+    margin-bottom: 30px;
+}
+
+.nav-section-title {
+    padding: 0 20px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--primary-green);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: opacity 0.3s ease;
+}
+
+.sidebar.collapsed .nav-section-title {
+    opacity: 0;
+    height: 0;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-menu {
+    list-style: none;
+}
+
+.nav-item {
+    margin-bottom: 4px;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    padding: 14px 20px;
+    color: var(--text-primary);
+    text-decoration: none;
+    border-radius: 0 25px 25px 0;
+    margin-right: 20px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.nav-link i {
+    width: 22px;
+    margin-right: 14px;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.nav-link span {
+    transition: opacity 0.3s ease;
+    white-space: nowrap;
+    font-weight: 500;
+}
+
+.sidebar.collapsed .nav-link span {
+    opacity: 0;
+}
+
+.nav-link:hover {
+    background: var(--hover-bg);
+    color: var(--primary-green);
+    transform: translateX(5px);
+}
+
+.nav-item.active .nav-link {
+    background: var(--gradient-primary);
+    color: white;
+    box-shadow: var(--shadow);
+}
+
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    margin-left: 280px;
+    transition: margin-left 0.3s ease;
+}
+
+.main-content.sidebar-collapsed {
+    margin-left: 70px;
+}
+
+.header {
+    background: var(--card-bg);
+    border-bottom: 1px solid var(--border-color);
+    padding: 0 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 80px;
+    box-shadow: var(--shadow);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.sidebar-toggle {
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    font-size: 20px;
+    cursor: pointer;
+    padding: 12px;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.sidebar-toggle:hover {
+    background: var(--hover-bg);
+    color: var(--primary-green);
+}
+
+.greeting-section {
+    display: flex;
+    flex-direction: column;
+}
+
+.greeting-text {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.current-date {
+    font-size: 14px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.search-container {
+    position: relative;
+    width: 400px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 12px 50px 12px 20px;
+    border: 2px solid var(--border-color);
+    border-radius: 25px;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    font-size: 15px;
+    transition: all 0.3s ease;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--primary-green);
+    box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
+}
+
+.search-icon {
+    position: absolute;
+    right: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.theme-toggle {
+    background: var(--card-bg);
+    border: 2px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 12px 16px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.theme-toggle:hover {
+    background: var(--hover-bg);
+    border-color: var(--primary-green);
+}
+
+.notification-btn {
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    font-size: 20px;
+    cursor: pointer;
+    position: relative;
+    padding: 12px;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.notification-btn:hover {
+    background: var(--hover-bg);
+    color: var(--primary-green);
+}
+
+.notification-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: var(--error-color);
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+}
+
+.profile-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    padding: 8px 16px;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.profile-section:hover {
+    background: var(--hover-bg);
+}
+
+.profile-avatar {
+    width: 45px;
+    height: 45px;
+    background: var(--gradient-primary);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 16px;
+    box-shadow: var(--shadow);
+}
+
+.profile-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.profile-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.profile-role {
+    font-size: 12px;
+    color: var(--primary-green);
+    font-weight: 500;
+}
+
+.logout-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 20px;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--error-color);
+}
+
+.content {
+    flex: 1;
+    padding: 32px;
+    background: var(--bg-secondary);
+    overflow-y: auto;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
+.stat-card {
+    background: var(--card-bg);
+    padding: 24px;
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    transition: all 0.3s ease;
+    border: 1px solid var(--border-color);
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.stat-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: white;
+    margin-bottom: 12px;
+}
+
+.stat-icon.transactions { background: linear-gradient(135deg, #22c55e, #16a34a); }
+.stat-icon.revenue { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+.stat-icon.pending { background: linear-gradient(135deg, #f59e0b, #d97706); }
+.stat-icon.completed { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+
+.stat-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.stat-label {
+    font-size: 14px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.charts-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
+.chart-card {
+    background: var(--card-bg);
+    padding: 24px;
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+}
+
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.chart-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.chart-container {
+    position: relative;
+    height: 300px;
+}
+
+.table-section {
+    background: var(--card-bg);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    margin-bottom: 32px;
+}
+
+.table-header {
+    padding: 24px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.table-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.table-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-primary {
+    background: var(--gradient-primary);
+    color: white;
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
+}
+
+.btn-secondary {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+    background: var(--hover-bg);
+    border-color: var(--primary-green);
+}
+
+.btn-info {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    color: white;
+}
+
+.btn-info:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+}
+
+.btn-danger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+}
+
+.filter-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th,
+.data-table td {
+    padding: 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.data-table th {
+    background: var(--bg-secondary);
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.data-table td {
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+.data-table tr:hover {
+    background: var(--hover-bg);
+}
+
+.status-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-pending { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+.status-confirmed { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+.status-delivered { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
+.status-paid { background: rgba(34, 197, 94, 0.1); color: #22c55e; }
+.status-cancelled { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+.status-disputed { background: rgba(236, 72, 153, 0.1); color: #ec4899; }
+
+.action-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.action-btn {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.action-btn-view { background: rgba(34, 197, 94, 0.1); color: #22c55e; }
+.action-btn-view:hover { background: #22c55e; color: white; }
+
+.action-btn-edit { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+.action-btn-edit:hover { background: #3b82f6; color: white; }
+
+.action-btn-delete { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+.action-btn-delete:hover { background: #ef4444; color: white; }
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--modal-bg);
+    backdrop-filter: blur(5px);
+}
+
+.modal.show {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background: var(--card-bg);
+    border-radius: 16px;
+    padding: 32px;
+    width: 90%;
+    max-width: 800px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-lg);
+}
+
+.modal-large {
+    max-width: 1000px;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.modal-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.modal-close:hover {
+    background: var(--hover-bg);
+    color: var(--primary-green);
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 14px;
+    color: var(--text-primary);
+    background: var(--bg-secondary);
+    transition: all 0.3s ease;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+    outline: none;
+    border-color: var(--primary-green);
+    box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
+}
+
+.form-textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.loading-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+}
+
+.loading-overlay.show {
+    display: flex;
+}
+
+.loader {
+    border: 8px solid #f3f3f3;
+    border-top: 8px solid var(--primary-green);
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 3000;
+}
+
+.toast {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 12px;
+    box-shadow: var(--shadow-lg);
+    border-left: 4px solid;
+    animation: slideInRight 0.3s ease;
+    max-width: 400px;
+}
+
+.toast.success { border-left-color: var(--success-color); }
+.toast.error { border-left-color: var(--error-color); }
+.toast.warning { border-left-color: var(--warning-color); }
+.toast.info { border-left-color: var(--primary-green); }
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.toast-message {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.content-section {
+    display: none;
+}
+
+.content-section.active {
+    display: block;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-secondary);
+}
+
+.empty-state i {
+    font-size: 64px;
+    margin-bottom: 20px;
+    opacity: 0.5;
+}
+
+.empty-state p {
+    font-size: 18px;
+    margin-top: 12px;
+}
+
+::-webkit-scrollbar {
+    width: 16px;
+    height: 16px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #22c55e 0%, #16a34a 50%, #15803d 100%);
+    border-radius: 10px;
+    border: 3px solid #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #16a34a 0%, #15803d 50%, #166534 100%);
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+    .main-content {
+        margin-left: 0;
+    }
+    .search-container {
+        width: 200px;
+    }
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+    .charts-section {
+        grid-template-columns: 1fr;
+    }
+}
+
+   </style>
+</head>
+<body>
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loader"></div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<div class="dashboard-container">
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <img src="images/logo.jpeg" alt="AgriGuard AI" onerror="this.outerHTML='<div class=\'logo-fallback\'>🌾</div>'">
+            </div>
+            <div class="company-info">
+                <div class="company-name">AgriGuard AI</div>
+                <div class="company-tagline">Transaction System</div>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-section">
+                <h3 class="nav-section-title">Main</h3>
+                <ul class="nav-menu">
+                    <li class="nav-item active">
+                        <a class="nav-link" onclick="showSection('dashboard')">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="showSection('transactions')">
+                            <i class="fas fa-exchange-alt"></i>
+                            <span>Transactions</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="showSection('analytics')">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>Analytics</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="nav-section">
+                <h3 class="nav-section-title">Reports</h3>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="showSection('reports')">
+                            <i class="fas fa-file-alt"></i>
+                            <span>Generate Reports</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+
+    <div class="main-content" id="mainContent">
+        <header class="header">
+            <div class="header-left">
+                <button class="sidebar-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="greeting-section">
+                    <div class="greeting-text" id="greetingText">Good Morning!</div>
+                    <div class="current-date" id="currentDate"></div>
+                </div>
+            </div>
+
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search transactions..." id="globalSearch" onkeyup="handleGlobalSearch()">
+                <i class="fas fa-search search-icon"></i>
+            </div>
+
+            <div class="header-right">
+                <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                    <span>Dark Mode</span>
+                </button>
+                <button class="notification-btn">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge" id="notificationCount">0</span>
+                </button>
+                <div class="profile-section">
+                    <div class="profile-avatar">U</div>
+                    <div class="profile-info">
+                        <div class="profile-name">User</div>
+                        <div class="profile-role">Admin</div>
+                    </div>
+                    <button class="logout-btn" onclick="handleLogout()" title="Logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="content">
+            <!-- Dashboard Section -->
+            <div id="dashboardSection" class="content-section active">
+                <div class="dashboard-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon transactions">
+                            <i class="fas fa-exchange-alt"></i>
+                        </div>
+                        <div class="stat-value" id="totalTransactions">0</div>
+                        <div class="stat-label">Total Transactions</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon revenue">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="stat-value" id="totalRevenue">0</div>
+                        <div class="stat-label">Total Revenue (RWF)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon pending">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-value" id="pendingCount">0</div>
+                        <div class="stat-label">Pending</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon completed">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-value" id="completedCount">0</div>
+                        <div class="stat-label">Completed</div>
+                    </div>
+                </div>
+
+                <div class="charts-section">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Transaction Status Distribution</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="statusChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Monthly Revenue Trend</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="revenueChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-section">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Payment Methods</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="paymentMethodChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Top Crops by Transaction Value</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="cropRevenueChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transactions Section -->
+            <div id="transactionsSection" class="content-section">
+                <div class="table-section">
+                    <div class="table-header">
+                        <h2 class="table-title">Transaction Management</h2>
+                        <div class="table-actions">
+                            <button class="btn btn-primary" onclick="showAddTransactionModal()">
+                                <i class="fas fa-plus"></i>
+                                New Transaction
+                            </button>
+                            <button class="btn btn-secondary" onclick="loadAllTransactions()">
+                                <i class="fas fa-sync-alt"></i>
+                                Refresh
+                            </button>
+                            <button class="btn btn-info" onclick="exportTransactionsToExcel()">
+                                <i class="fas fa-file-excel"></i>
+                                Export Excel
+                            </button>
+                        </div>
+                    </div>
+                    <div style="padding: 0 24px 24px;">
+                        <div class="filter-row">
+                            <select class="form-select" id="filterStatus" onchange="applyFilters()">
+                                <option value="">All Status</option>
+                                <option value="PENDING">Pending</option>
+                                <option value="CONFIRMED">Confirmed</option>
+                                <option value="DELIVERED">Delivered</option>
+                                <option value="PAID">Paid</option>
+                                <option value="CANCELLED">Cancelled</option>
+                                <option value="DISPUTED">Disputed</option>
+                            </select>
+                            <select class="form-select" id="filterPaymentMethod" onchange="applyFilters()">
+                                <option value="">All Payment Methods</option>
+                                <option value="CASH">Cash</option>
+                                <option value="BANK_TRANSFER">Bank Transfer</option>
+                                <option value="MOBILE_MONEY">Mobile Money</option>
+                                <option value="CHECK">Check</option>
+                                <option value="CREDIT">Credit</option>
+                            </select>
+                            <input type="text" class="search-input" placeholder="Search transactions..." id="transactionSearch" onkeyup="searchTransactions()">
+                        </div>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table class="data-table">
+                            <thead>
+                            <tr>
+                                <th>Transaction Code</th>
+                                <th>Farmer</th>
+                                <th>Buyer</th>
+                                <th>Crop</th>
+                                <th>Quantity</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody id="transactionTableBody">
+                            <tr>
+                                <td colspan="9" class="empty-state">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                    <p>Loading transactions...</p>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Section -->
+            <div id="analyticsSection" class="content-section">
+                <div class="charts-section">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Daily Transaction Volume</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="dailyVolumeChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Top Farmers by Revenue</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="topFarmersChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="charts-section">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Top Buyers by Purchase Volume</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="topBuyersChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Transaction Success Rate</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="successRateChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports Section -->
+            <div id="reportsSection" class="content-section">
+                <div class="chart-card" style="margin-bottom: 24px;">
+                    <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 20px; color: var(--text-primary);">Report Configuration</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 20px;">
+                        <div>
+                            <label style="display: block; font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px;">Report Type</label>
+                            <select class="form-select" id="reportType" onchange="toggleDateRange()">
+                                <option value="all">All Transactions</option>
+                                <option value="weekly">Weekly Report</option>
+                                <option value="monthly">Monthly Report</option>
+                                <option value="yearly">Yearly Report</option>
+                                <option value="custom">Custom Range</option>
+                            </select>
+                        </div>
+                        <div id="customDateRange" style="display: none;">
+                            <label style="display: block; font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px;">Date Range</label>
+                            <div style="display: flex; gap: 8px;">
+                                <input type="date" class="form-input" id="startDate">
+                                <input type="date" class="form-input" id="endDate">
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 12px; margin-top: 20px;">
+                        <button class="btn btn-primary" onclick="generatePDFReport()">
+                            <i class="fas fa-file-pdf"></i>
+                            Generate PDF Report
+                        </button>
+                        <button class="btn btn-info" onclick="generateExcelReport()">
+                            <i class="fas fa-file-excel"></i>
+                            Generate Excel Report
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Transaction Modal -->
+<div class="modal" id="transactionModal">
+    <div class="modal-content modal-large">
+        <div class="modal-header">
+            <h2 class="modal-title" id="transactionModalTitle">New Transaction</h2>
+            <button class="modal-close" onclick="closeTransactionModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <form id="transactionForm" onsubmit="submitTransactionForm(event)">
+            <input type="hidden" id="transactionId" name="transactionId">
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Farmer *</label>
+                    <select class="form-select" id="farmerId" name="farmerId" required>
+                        <option value="">Select Farmer</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Buyer *</label>
+                    <select class="form-select" id="buyerId" name="buyerId" required>
+                        <option value="">Select Buyer</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Crop *</label>
+                    <select class="form-select" id="cropId" name="cropId" required>
+                        <option value="">Select Crop</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Crop Production</label>
+                    <select class="form-select" id="cropProductionId" name="cropProductionId">
+                        <option value="">Select Crop Production (Optional)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Quantity *</label>
+                    <input type="number" step="0.01" class="form-input" id="quantity" name="quantity" required min="0.01" onchange="calculateTotal()">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Unit</label>
+                    <input type="text" class="form-input" id="unit" name="unit" value="KG">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Price per Unit (RWF) *</label>
+                    <input type="number" step="0.01" class="form-input" id="pricePerUnit" name="pricePerUnit" required min="0.01" onchange="calculateTotal()">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Total Amount (RWF)</label>
+                    <input type="number" step="0.01" class="form-input" id="totalAmount" name="totalAmount" readonly>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Payment Method *</label>
+                    <select class="form-select" id="paymentMethod" name="paymentMethod" required>
+                        <option value="">Select Method</option>
+                        <option value="CASH">Cash</option>
+                        <option value="BANK_TRANSFER">Bank Transfer</option>
+                        <option value="MOBILE_MONEY">Mobile Money</option>
+                        <option value="CHECK">Check</option>
+                        <option value="CREDIT">Credit</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Delivery Date</label>
+                    <input type="date" class="form-input" id="deliveryDate" name="deliveryDate">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Delivery Location</label>
+                    <input type="text" class="form-input" id="deliveryLocation" name="deliveryLocation">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Notes</label>
+                <textarea class="form-textarea" id="notes" name="notes" rows="3"></textarea>
+            </div>
+
+            <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px;">
+                <button type="button" class="btn btn-secondary" onclick="closeTransactionModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary" id="transactionSubmitBtn">
+                    <i class="fas fa-save"></i>
+                    Save Transaction
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+
+
+<script src="js/SessionTracker.js"></script>
+<script src="js/user_session_handler.js"></script>
+<script >
+
+
+
+
+
+    // Transaction Management System JavaScript
+const TRANSACTION_API_BASE = 'http://localhost:1010/api/transactions';
+const USER_API_BASE = 'http://localhost:1010/api/users';
+const CROP_API_BASE = 'http://localhost:1010/api/v1/crops';
+const CROP_PRODUCTION_API_BASE = 'http://localhost:1010/api/v1/crop-productions';
+
+let allTransactions = [];
+let allFarmers = [];
+let allBuyers = [];
+let allCrops = [];
+let allCropProductions = [];
+let charts = {};
+let sessionHandler = null;
+let currentUser = null;
+let currentEditingId = null;
+
+const DEBUG = true;
+function log(msg, data) { if (DEBUG) console.log(`[TRANSACTION] ${msg}`, data || ''); }
+
+
+
+
+
+
+function populateCropDropdown() {
+    const cropSelect = document.getElementById('cropId');
+
+    if (!cropSelect) {
+        log('Crop select element not found!');
+        return;
+    }
+
+    // Clear existing options
+    cropSelect.innerHTML = '<option value="">Select Crop</option>';
+
+    if (!allCrops || allCrops.length === 0) {
+        cropSelect.innerHTML += '<option value="" disabled>No crops available</option>';
+        log('No crops to populate');
+        return;
+    }
+
+    // Add each crop as an option
+    allCrops.forEach(crop => {
+        const option = document.createElement('option');
+        option.value = crop.id;
+        option.textContent = crop.cropName || 'Unnamed Crop';
+        cropSelect.appendChild(option);
+    });
+
+    log('Crop dropdown populated with', allCrops.length, 'crops');
+}
+
+function populateCropProductionDropdown() {
+    const cpSelect = document.getElementById('cropProductionId');
+
+    if (!cpSelect) {
+        log('Crop production select element not found!');
+        return;
+    }
+
+    // Clear existing options
+    cpSelect.innerHTML = '<option value="">Select Crop Production (Optional)</option>';
+
+    if (!allCropProductions || allCropProductions.length === 0) {
+        cpSelect.innerHTML += '<option value="" disabled>No crop productions available</option>';
+        log('No crop productions to populate');
+        return;
+    }
+
+    // Add each crop production as an option
+    allCropProductions.forEach(cp => {
+        const option = document.createElement('option');
+        option.value = cp.id;
+        option.textContent = cp.productionCode || 'Unnamed Production';
+        cpSelect.appendChild(option);
+    });
+
+    log('Crop production dropdown populated with', allCropProductions.length, 'productions');
+}
+
+
+
+document.addEventListener('DOMContentLoaded', async function() {
+    log('Initializing Transaction System');
+
+    // Initialiser tous les tableaux à vide pour éviter les erreurs
+    allTransactions = [];
+    allFarmers = [];
+    allBuyers = [];
+    allCrops = [];
+    allCropProductions = [];
+
+    if (!initializeSession()) return;
+
+    updateUIWithUser();
+    startSessionMonitoring();
+    updateDateTime();
+    setInterval(updateDateTime, 60000);
+    loadSavedTheme();
+
+    showLoading(true);
+
+    try {
+        // Charger les données de manière séquentielle avec gestion d'erreur individuelle
+        try {
+            await loadUsers();
+        } catch (error) {
+            log('Error loading users, continuing...', error);
+        }
+
+        try {
+            await loadCrops();
+        } catch (error) {
+            log('Error loading crops, continuing...', error);
+        }
+
+        try {
+            await loadCropProductions();
+        } catch (error) {
+            log('Error loading crop productions, continuing...', error);
+        }
+
+        try {
+            await loadAllTransactions();
+        } catch (error) {
+            log('Error loading transactions, continuing...', error);
+        }
+
+        // Vérifier les dropdowns
+        const cropSelect = document.getElementById('cropId');
+        const cpSelect = document.getElementById('cropProductionId');
+
+        log('Crop dropdown options:', cropSelect ? cropSelect.options.length : 'not found');
+        log('Crop production dropdown options:', cpSelect ? cpSelect.options.length : 'not found');
+
+        // Initialiser les graphiques seulement si on a des données
+        if (allTransactions.length > 0) {
+            initializeCharts();
+        } else {
+            log('No transactions loaded, skipping chart initialization');
+        }
+
+        log('Initialization complete');
+
+    } catch (error) {
+        log('Initialization error:', error);
+        console.error('Full initialization error:', error);
+        showToast('Error loading data: ' + error.message, 'error');
+    } finally {
+        showLoading(false);
+    }
+});
+
+
+
+
+
+
+function debugDropdowns() {
+    console.log('=== Dropdown Debug Info ===');
+    console.log('Crops loaded:', Array.isArray(allCrops) ? allCrops.length : 'NOT AN ARRAY');
+    console.log('Crop productions loaded:', Array.isArray(allCropProductions) ? allCropProductions.length : 'NOT AN ARRAY');
+    console.log('Transactions loaded:', Array.isArray(allTransactions) ? allTransactions.length : 'NOT AN ARRAY');
+    console.log('Farmers loaded:', Array.isArray(allFarmers) ? allFarmers.length : 'NOT AN ARRAY');
+    console.log('Buyers loaded:', Array.isArray(allBuyers) ? allBuyers.length : 'NOT AN ARRAY');
+
+    const cropSelect = document.getElementById('cropId');
+    const cpSelect = document.getElementById('cropProductionId');
+
+    console.log('Crop select exists:', !!cropSelect);
+    console.log('Crop select options:', cropSelect ? cropSelect.options.length : 'N/A');
+
+    console.log('Crop production select exists:', !!cpSelect);
+    console.log('Crop production select options:', cpSelect ? cpSelect.options.length : 'N/A');
+
+    if (Array.isArray(allCrops) && allCrops.length > 0) {
+        console.log('Sample crop:', allCrops[0]);
+    }
+
+    if (Array.isArray(allCropProductions) && allCropProductions.length > 0) {
+        console.log('Sample crop production:', allCropProductions[0]);
+    }
+
+    if (Array.isArray(allTransactions) && allTransactions.length > 0) {
+        console.log('Sample transaction:', allTransactions[0]);
+    }
+
+    // Test API directement
+    console.log('--- Testing API Calls ---');
+    fetch(`${TRANSACTION_API_BASE}?page=0&size=5`)
+        .then(r => r.json())
+        .then(d => console.log('Transaction API Response:', d))
+        .catch(e => console.error('Transaction API Error:', e));
+}
+
+window.debugDropdowns = debugDropdowns;
+
+
+
+
+
+
+function initializeSession() {
+    log('Initializing session');
+    try {
+        sessionHandler = UserSessionHandler.getInstance();
+        currentUser = sessionHandler.getCurrentUser();
+
+        if (!currentUser) {
+            log('No user session');
+            window.location.href = '/login.html';
+            return false;
+        }
+
+        log('Session loaded:', currentUser);
+        return true;
+    } catch (error) {
+        log('Session error:', error);
+        window.location.href = '/login.html';
+        return false;
+    }
+}
+
+function updateUIWithUser() {
+    if (!currentUser) return;
+
+    const hour = new Date().getHours();
+    let greeting = hour < 12 ? 'Good Morning' : hour < 18 ? 'Good Afternoon' : 'Good Evening';
+
+    document.getElementById('greetingText').textContent = `${greeting}, ${currentUser.fullName}!`;
+    document.querySelector('.profile-name').textContent = currentUser.fullName;
+    document.querySelector('.profile-role').textContent = formatRole(currentUser.role);
+
+    const initials = currentUser.fullName.split(' ').map(n => n[0]).join('').toUpperCase();
+    document.querySelector('.profile-avatar').textContent = initials;
+}
+
+function formatRole(role) {
+    return role ? role.split('_').map(w => w.charAt(0) + w.slice(1).toLowerCase()).join(' ') : 'User';
+}
+
+function startSessionMonitoring() {
+    setInterval(() => {
+        if (sessionHandler && sessionHandler.isAuthenticated()) {
+            trackActivity();
+        } else {
+            handleSessionExpired();
+        }
+    }, 30000);
+
+    ['click', 'keypress', 'mousemove'].forEach(evt => {
+        document.addEventListener(evt, trackActivity, { passive: true });
+    });
+}
+
+function trackActivity() {
+    if (currentUser && window.sessionTracker) {
+        window.sessionTracker.updateLastActivity(currentUser.userId || currentUser.id);
+    }
+}
+
+function handleSessionExpired() {
+    showToast('Session expired. Please login again.', 'warning');
+    setTimeout(() => {
+        if (sessionHandler) sessionHandler.logout();
+        else window.location.href = '/login.html';
+    }, 2000);
+}
+
+function handleLogout() {
+    if (confirm('Are you sure you want to logout?')) {
+        if (currentUser && window.sessionTracker) {
+            window.sessionTracker.endSession(currentUser.userId || currentUser.id);
+        }
+        if (sessionHandler) sessionHandler.logout();
+        else window.location.href = '/login.html';
+    }
+}
+
+// Load Data Functions
+async function loadUsers() {
+    log('Loading users');
+    try {
+        const [farmersRes, buyersRes] = await Promise.all([
+            fetch(`${USER_API_BASE}/farmers`),
+            fetch(`${USER_API_BASE}/buyers`)
+        ]);
+
+        allFarmers = await farmersRes.json();
+        allBuyers = await buyersRes.json();
+
+        log('Farmers loaded:', allFarmers.length);
+        log('Buyers loaded:', allBuyers.length);
+
+        populateUserDropdowns();
+    } catch (error) {
+        log('Error loading users:', error);
+        throw error;
+    }
+}
+
+function populateUserDropdowns() {
+    const farmerSelect = document.getElementById('farmerId');
+    const buyerSelect = document.getElementById('buyerId');
+
+    farmerSelect.innerHTML = '<option value="">Select Farmer</option>';
+    allFarmers.forEach(farmer => {
+        farmerSelect.innerHTML += `<option value="${farmer.id}">${farmer.fullName}</option>`;
+    });
+
+    buyerSelect.innerHTML = '<option value="">Select Buyer</option>';
+    allBuyers.forEach(buyer => {
+        buyerSelect.innerHTML += `<option value="${buyer.id}">${buyer.fullName}</option>`;
+    });
+}
+
+
+
+async function loadCrops() {
+    log('Loading crops');
+    try {
+        const response = await fetch(`${CROP_API_BASE}/all`);
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        // Check if response is wrapped in ApiResponse structure
+        if (data.success && data.data) {
+            allCrops = data.data;
+        } else if (Array.isArray(data)) {
+            allCrops = data;
+        } else {
+            throw new Error('Unexpected data format from crops API');
+        }
+
+        log('Crops loaded:', allCrops.length);
+
+        // Populate dropdown immediately
+        populateCropDropdown();
+
+    } catch (error) {
+        log('Error loading crops:', error);
+        console.error('Crop loading error details:', error);
+        showToast('Error loading crops: ' + error.message, 'error');
+        // Set empty array to prevent further errors
+        allCrops = [];
+    }
+}
+
+
+
+async function loadCropProductions() {
+    log('Loading crop productions');
+    try {
+        const response = await fetch(`${CROP_PRODUCTION_API_BASE}/all`);
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        // Check if response is wrapped in ApiResponse structure
+        if (data.success && data.data) {
+            allCropProductions = data.data;
+        } else if (Array.isArray(data)) {
+            allCropProductions = data;
+        } else {
+            throw new Error('Unexpected data format from crop productions API');
+        }
+
+        log('Crop productions loaded:', allCropProductions.length);
+
+        // Populate dropdown immediately
+        populateCropProductionDropdown();
+
+    } catch (error) {
+        log('Error loading crop productions:', error);
+        console.error('Crop production loading error details:', error);
+        showToast('Error loading crop productions: ' + error.message, 'error');
+        // Set empty array to prevent further errors
+        allCropProductions = [];
+    }
+}
+
+
+
+
+async function loadAllTransactions() {
+    log('Loading transactions');
+    try {
+        const response = await fetch(`${TRANSACTION_API_BASE}/all`);
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        // CORRECTION: Gérer différents formats de réponse
+        if (data.content && Array.isArray(data.content)) {
+            // Format Spring Page
+            allTransactions = data.content;
+        } else if (Array.isArray(data)) {
+            // Format Array direct
+            allTransactions = data;
+        } else if (data.success && data.data) {
+            // Format ApiResponse
+            if (Array.isArray(data.data)) {
+                allTransactions = data.data;
+            } else if (data.data.content && Array.isArray(data.data.content)) {
+                allTransactions = data.data.content;
+            } else {
+                allTransactions = [];
+            }
+        } else {
+            // Format inconnu, initialiser à tableau vide
+            allTransactions = [];
+            log('Unknown data format, initialized to empty array');
+        }
+
+        log('Transactions loaded:', allTransactions.length);
+
+        // CORRECTION: Vérifier que allTransactions est un tableau
+        if (!Array.isArray(allTransactions)) {
+            console.error('allTransactions is not an array!', allTransactions);
+            allTransactions = [];
+        }
+
+        updateStatistics();
+        renderTransactionTable(allTransactions);
+        updateNotificationCount();
+
+    } catch (error) {
+        log('Error loading transactions:', error);
+        console.error('Transaction loading error details:', error);
+
+        // CORRECTION: Initialiser à tableau vide en cas d'erreur
+        allTransactions = [];
+
+        document.getElementById('transactionTableBody').innerHTML = `
+            <tr><td colspan="9" class="empty-state">
+                <i class="fas fa-exclamation-circle"></i>
+                <p>Error loading transactions: ${error.message}</p>
+                <p style="font-size: 12px; color: #666;">Please check if the backend server is running</p>
+            </td></tr>
+        `;
+
+        // Mettre à jour les statistiques avec un tableau vide
+        updateStatistics();
+    }
+}
+
+
+function updateStatistics() {
+    // CORRECTION: Vérification de sécurité
+    if (!Array.isArray(allTransactions)) {
+        console.error('updateStatistics: allTransactions is not an array');
+        allTransactions = [];
+    }
+
+    const total = allTransactions.length;
+    const totalRevenue = allTransactions.reduce((sum, t) => {
+        return sum + (parseFloat(t.totalAmount) || 0);
+    }, 0);
+    const pending = allTransactions.filter(t => t.status === 'PENDING').length;
+    const completed = allTransactions.filter(t => t.status === 'PAID').length;
+
+    // Mise à jour sécurisée des éléments DOM
+    const totalTransactionsEl = document.getElementById('totalTransactions');
+    const totalRevenueEl = document.getElementById('totalRevenue');
+    const pendingCountEl = document.getElementById('pendingCount');
+    const completedCountEl = document.getElementById('completedCount');
+
+    if (totalTransactionsEl) totalTransactionsEl.textContent = total;
+    if (totalRevenueEl) totalRevenueEl.textContent = formatCurrency(totalRevenue);
+    if (pendingCountEl) pendingCountEl.textContent = pending;
+    if (completedCountEl) completedCountEl.textContent = completed;
+
+    log('Statistics updated:', { total, totalRevenue, pending, completed });
+}
+
+
+
+
+function updateNotificationCount() {
+    // CORRECTION: Vérification de sécurité
+    if (!Array.isArray(allTransactions)) {
+        allTransactions = [];
+    }
+
+    const pending = allTransactions.filter(t => t.status === 'PENDING').length;
+    const notificationEl = document.getElementById('notificationCount');
+
+    if (notificationEl) {
+        notificationEl.textContent = pending;
+    }
+}
+
+
+
+function renderTransactionTable(transactions) {
+    const tbody = document.getElementById('transactionTableBody');
+
+    if (!tbody) {
+        log('Transaction table body not found');
+        return;
+    }
+
+    // CORRECTION: Vérifier que transactions est un tableau
+    if (!Array.isArray(transactions)) {
+        console.error('renderTransactionTable: transactions is not an array', transactions);
+        transactions = [];
+    }
+
+    if (transactions.length === 0) {
+        tbody.innerHTML = `
+            <tr><td colspan="9" class="empty-state">
+                <i class="fas fa-inbox"></i>
+                <p>No transactions found</p>
+                <p style="font-size: 12px; color: #666;">Create your first transaction to get started</p>
+            </td></tr>
+        `;
+        return;
+    }
+
+    tbody.innerHTML = transactions.map(t => {
+        // Vérification de sécurité pour chaque transaction
+        if (!t) return '';
+
+        const farmer = allFarmers.find(f => f.id === t.farmerId);
+        const buyer = allBuyers.find(b => b.id === t.buyerId);
+        const crop = allCrops.find(c => c.id === t.cropId);
+
+        return `
+            <tr>
+                <td><strong>${t.transactionCode || 'N/A'}</strong></td>
+                <td>${farmer ? farmer.fullName : 'Unknown'}</td>
+                <td>${buyer ? buyer.fullName : 'Unknown'}</td>
+                <td>${crop ? crop.cropName : 'Unknown'}</td>
+                <td>${t.quantity || 0} ${t.unit || 'KG'}</td>
+                <td>${formatCurrency(t.totalAmount || 0)}</td>
+                <td>${getStatusBadge(t.status)}</td>
+                <td>${formatDate(t.transactionDate)}</td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="action-btn action-btn-view" onclick="viewTransaction('${t.id}')" title="View">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="action-btn action-btn-edit" onclick="editTransaction('${t.id}')" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="action-btn action-btn-delete" onclick="deleteTransaction('${t.id}')" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join('');
+
+    log('Transaction table rendered with', transactions.length, 'transactions');
+}
+
+
+
+
+function getStatusBadge(status) {
+    const statusMap = {
+        'PENDING': 'status-pending',
+        'CONFIRMED': 'status-confirmed',
+        'DELIVERED': 'status-delivered',
+        'PAID': 'status-paid',
+        'CANCELLED': 'status-cancelled',
+        'DISPUTED': 'status-disputed'
+    };
+
+    return `<span class="status-badge ${statusMap[status] || ''}">${status || 'Unknown'}</span>`;
+}
+
+function formatCurrency(amount) {
+    return new Intl.NumberFormat('en-RW', {
+        style: 'currency',
+        currency: 'RWF',
+        minimumFractionDigits: 0
+    }).format(amount || 0);
+}
+
+function formatDate(dateString) {
+    if (!dateString) return 'N/A';
+    return new Date(dateString).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+}
+
+
+
+// Transaction CRUD Operations
+
+// Update the showAddTransactionModal to ensure clean state
+function showAddTransactionModal() {
+    log('Opening add transaction modal');
+
+    // Reset editing mode
+    currentEditingId = null;
+
+    // Update modal title
+    document.getElementById('transactionModalTitle').textContent = 'New Transaction';
+
+    // Reset form
+    document.getElementById('transactionForm').reset();
+
+    // Show the modal
+    document.getElementById('transactionModal').classList.add('show');
+
+    console.log('Modal opened in CREATE mode');
+}
+
+
+
+
+
+function closeTransactionModal() {
+    document.getElementById('transactionModal').classList.remove('show');
+    document.getElementById('transactionForm').reset();
+    currentEditingId = null;
+    console.log('Modal closed and state reset');
+}
+
+function calculateTotal() {
+    const qty = parseFloat(document.getElementById('quantity').value) || 0;
+    const price = parseFloat(document.getElementById('pricePerUnit').value) || 0;
+    document.getElementById('totalAmount').value = (qty * price).toFixed(2);
+}
+
+
+
+// UPDATED: submitTransactionForm to properly handle chart reinitialization
+async function submitTransactionForm(event) {
+    event.preventDefault();
+    log('Submitting transaction form');
+
+    const formData = {
+        farmerId: document.getElementById('farmerId').value,
+        buyerId: document.getElementById('buyerId').value,
+        cropId: document.getElementById('cropId').value,
+        quantity: parseFloat(document.getElementById('quantity').value),
+        unit: document.getElementById('unit').value || 'KG',
+        pricePerUnit: parseFloat(document.getElementById('pricePerUnit').value),
+        totalAmount: parseFloat(document.getElementById('totalAmount').value),
+        paymentMethod: document.getElementById('paymentMethod').value,
+        notes: document.getElementById('notes').value || null
+    };
+
+    const cropProductionId = document.getElementById('cropProductionId').value;
+    if (cropProductionId) {
+        formData.cropProductionId = cropProductionId;
+    }
+
+    const deliveryDate = document.getElementById('deliveryDate').value;
+    if (deliveryDate) {
+        formData.deliveryDate = deliveryDate;
+    }
+
+    const deliveryLocation = document.getElementById('deliveryLocation').value;
+    if (deliveryLocation) {
+        formData.deliveryLocation = deliveryLocation;
+    }
+
+    console.log('Payload being sent:', JSON.stringify(formData, null, 2));
+
+    try {
+        showLoading(true);
+        let response;
+
+        if (currentEditingId) {
+            formData.id = currentEditingId;
+            console.log('UPDATE mode - ID:', currentEditingId);
+
+            response = await fetch(`${TRANSACTION_API_BASE}/${currentEditingId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+        } else {
+            console.log('CREATE mode - No ID in payload');
+            delete formData.id;
+
+            response = await fetch(TRANSACTION_API_BASE, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+        }
+
+        console.log('Response status:', response.status);
+
+        if (response.ok) {
+            const result = await response.json();
+            console.log('Success response:', result);
+
+            showToast(
+                currentEditingId ? 'Transaction updated successfully' : 'Transaction created successfully',
+                'success'
+            );
+
+            closeTransactionModal();
+            await loadAllTransactions();
+
+            // FIXED: Only reinitialize charts if we have data
+            if (allTransactions.length > 0) {
+                // Destroy all charts first to prevent canvas reuse errors
+                destroyAllCharts();
+
+                // Wait a bit before reinitializing
+                setTimeout(() => {
+                    initializeCharts();
+                }, 200);
+            }
+        } else {
+            let errorMessage = 'Operation failed';
+            try {
+                const errorData = await response.json();
+                errorMessage = errorData.message || errorData.error || errorMessage;
+            } catch (e) {
+                errorMessage = await response.text() || errorMessage;
+            }
+
+            console.error('Error response:', errorMessage);
+            showToast('Error: ' + errorMessage, 'error');
+        }
+    } catch (error) {
+        console.error('Submit error:', error);
+        showToast('Network error: ' + error.message, 'error');
+    } finally {
+        showLoading(false);
+    }
+}
+
+
+
+
+// Also update the editTransaction function to properly set currentEditingId
+async function editTransaction(id) {
+    log('Editing transaction:', id);
+    try {
+        showLoading(true);
+        const response = await fetch(`${TRANSACTION_API_BASE}/${id}`);
+
+        if (!response.ok) {
+            throw new Error('Failed to load transaction');
+        }
+
+        const transaction = await response.json();
+        console.log('Loaded transaction for editing:', transaction);
+
+        // Set the editing mode
+        currentEditingId = id;
+
+        // Update modal title
+        document.getElementById('transactionModalTitle').textContent = 'Edit Transaction';
+
+        // Populate form fields
+        document.getElementById('farmerId').value = transaction.farmerId || '';
+        document.getElementById('buyerId').value = transaction.buyerId || '';
+        document.getElementById('cropId').value = transaction.cropId || '';
+        document.getElementById('cropProductionId').value = transaction.cropProductionId || '';
+        document.getElementById('quantity').value = transaction.quantity || '';
+        document.getElementById('unit').value = transaction.unit || 'KG';
+        document.getElementById('pricePerUnit').value = transaction.pricePerUnit || '';
+        document.getElementById('totalAmount').value = transaction.totalAmount || '';
+        document.getElementById('paymentMethod').value = transaction.paymentMethod || '';
+
+        // Handle date field properly
+        if (transaction.deliveryDate) {
+            // If it's a datetime string, extract just the date part
+            const dateStr = transaction.deliveryDate.split('T')[0];
+            document.getElementById('deliveryDate').value = dateStr;
+        } else {
+            document.getElementById('deliveryDate').value = '';
+        }
+
+        document.getElementById('deliveryLocation').value = transaction.deliveryLocation || '';
+        document.getElementById('notes').value = transaction.notes || '';
+
+        // Show the modal
+        document.getElementById('transactionModal').classList.add('show');
+
+    } catch (error) {
+        console.error('Edit error:', error);
+        showToast('Error loading transaction: ' + error.message, 'error');
+    } finally {
+        showLoading(false);
+    }
+}
+
+
+
+
+
+
+
+async function viewTransaction(id) {
+    await editTransaction(id);
+    document.querySelectorAll('#transactionForm input, #transactionForm select, #transactionForm textarea').forEach(el => {
+        el.disabled = true;
+    });
+    document.getElementById('transactionSubmitBtn').style.display = 'none';
+    document.getElementById('transactionModalTitle').textContent = 'View Transaction Details';
+}
+
+async function deleteTransaction(id) {
+    if (!confirm('Are you sure you want to delete this transaction?')) return;
+
+    try {
+        showLoading(true);
+        const response = await fetch(`${TRANSACTION_API_BASE}/${id}`, {
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            showToast('Transaction deleted successfully', 'success');
+            await loadAllTransactions();
+            initializeCharts();
+        } else {
+            showToast('Error deleting transaction', 'error');
+        }
+    } catch (error) {
+        log('Delete error:', error);
+        showToast('Error deleting transaction', 'error');
+    } finally {
+        showLoading(false);
+    }
+}
+
+// Filter and Search Functions
+function applyFilters() {
+    const status = document.getElementById('filterStatus').value;
+    const paymentMethod = document.getElementById('filterPaymentMethod').value;
+
+    let filtered = [...allTransactions];
+
+    if (status) {
+        filtered = filtered.filter(t => t.status === status);
+    }
+
+    if (paymentMethod) {
+        filtered = filtered.filter(t => t.paymentMethod === paymentMethod);
+    }
+
+    renderTransactionTable(filtered);
+}
+
+function searchTransactions() {
+    const searchTerm = document.getElementById('transactionSearch').value.toLowerCase();
+    const filtered = allTransactions.filter(t => {
+        const farmer = allFarmers.find(f => f.id === t.farmerId);
+        const buyer = allBuyers.find(b => b.id === t.buyerId);
+        const crop = allCrops.find(c => c.id === t.cropId);
+
+        return (t.transactionCode || '').toLowerCase().includes(searchTerm) ||
+               (farmer ? farmer.fullName.toLowerCase().includes(searchTerm) : false) ||
+               (buyer ? buyer.fullName.toLowerCase().includes(searchTerm) : false) ||
+               (crop ? crop.cropName.toLowerCase().includes(searchTerm) : false);
+    });
+
+    renderTransactionTable(filtered);
+}
+
+function handleGlobalSearch() {
+    searchTransactions();
+}
+
+
+
+
+function initializeCharts() {
+    log('Initializing charts');
+
+    // Destroy all existing charts first
+    destroyAllCharts();
+
+    // Small delay to ensure canvas cleanup
+    setTimeout(() => {
+        initializeStatusChart();
+        initializeRevenueChart();
+        initializePaymentMethodChart();
+        initializeCropRevenueChart();
+        initializeDailyVolumeChart();
+        initializeTopFarmersChart();
+        initializeTopBuyersChart();
+        initializeSuccessRateChart();
+    }, 100);
+}
+
+// Helper function to destroy all charts
+function destroyAllCharts() {
+    Object.keys(charts).forEach(key => {
+        if (charts[key]) {
+            try {
+                charts[key].destroy();
+            } catch (e) {
+                console.warn(`Error destroying chart ${key}:`, e);
+            }
+            charts[key] = null;
+        }
+    });
+}
+
+function initializeStatusChart() {
+    const ctx = document.getElementById('statusChart');
+    if (!ctx) return;
+
+    const statusCounts = {
+        'PENDING': 0,
+        'CONFIRMED': 0,
+        'DELIVERED': 0,
+        'PAID': 0,
+        'CANCELLED': 0,
+        'DISPUTED': 0
+    };
+
+    allTransactions.forEach(t => {
+        if (statusCounts.hasOwnProperty(t.status)) {
+            statusCounts[t.status]++;
+        }
+    });
+
+    // Destroy existing chart
+    if (charts.status) {
+        charts.status.destroy();
+        charts.status = null;
+    }
+
+    charts.status = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(statusCounts),
+            datasets: [{
+                data: Object.values(statusCounts),
+                backgroundColor: ['#f59e0b', '#3b82f6', '#8b5cf6', '#22c55e', '#ef4444', '#ec4899']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+}
+
+function initializeRevenueChart() {
+    const ctx = document.getElementById('revenueChart');
+    if (!ctx) return;
+
+    const monthlyData = {};
+    allTransactions.forEach(t => {
+        if (t.transactionDate) {
+            const month = new Date(t.transactionDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
+            monthlyData[month] = (monthlyData[month] || 0) + (parseFloat(t.totalAmount) || 0);
+        }
+    });
+
+    const sortedMonths = Object.keys(monthlyData).sort((a, b) => new Date(a) - new Date(b));
+
+    if (charts.revenue) {
+        charts.revenue.destroy();
+        charts.revenue = null;
+    }
+
+    charts.revenue = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: sortedMonths,
+            datasets: [{
+                label: 'Revenue (RWF)',
+                data: sortedMonths.map(m => monthlyData[m]),
+                borderColor: '#22c55e',
+                backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+}
+
+function initializePaymentMethodChart() {
+    const ctx = document.getElementById('paymentMethodChart');
+    if (!ctx) return;
+
+    const methodCounts = {};
+    allTransactions.forEach(t => {
+        methodCounts[t.paymentMethod] = (methodCounts[t.paymentMethod] || 0) + 1;
+    });
+
+    if (charts.paymentMethod) {
+        charts.paymentMethod.destroy();
+        charts.paymentMethod = null;
+    }
+
+    charts.paymentMethod = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: Object.keys(methodCounts),
+            datasets: [{
+                data: Object.values(methodCounts),
+                backgroundColor: ['#22c55e', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+}
+
+function initializeCropRevenueChart() {
+    const ctx = document.getElementById('cropRevenueChart');
+    if (!ctx) return;
+
+    const cropRevenue = {};
+    allTransactions.forEach(t => {
+        const crop = allCrops.find(c => c.id === t.cropId);
+        if (crop) {
+            cropRevenue[crop.cropName] = (cropRevenue[crop.cropName] || 0) + (parseFloat(t.totalAmount) || 0);
+        }
+    });
+
+    const sorted = Object.entries(cropRevenue).sort((a, b) => b[1] - a[1]).slice(0, 10);
+
+    if (charts.cropRevenue) {
+        charts.cropRevenue.destroy();
+        charts.cropRevenue = null;
+    }
+
+    charts.cropRevenue = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: sorted.map(s => s[0]),
+            datasets: [{
+                label: 'Revenue (RWF)',
+                data: sorted.map(s => s[1]),
+                backgroundColor: '#22c55e'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+}
+
+function initializeDailyVolumeChart() {
+    const ctx = document.getElementById('dailyVolumeChart');
+    if (!ctx) return;
+
+    const dailyData = {};
+    allTransactions.slice(-30).forEach(t => {
+        if (t.transactionDate) {
+            const date = new Date(t.transactionDate).toLocaleDateString();
+            dailyData[date] = (dailyData[date] || 0) + 1;
+        }
+    });
+
+    if (charts.dailyVolume) {
+        charts.dailyVolume.destroy();
+        charts.dailyVolume = null;
+    }
+
+    charts.dailyVolume = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(dailyData),
+            datasets: [{
+                label: 'Transactions',
+                data: Object.values(dailyData),
+                backgroundColor: '#3b82f6'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true, ticks: { precision: 0 } }
+            }
+        }
+    });
+}
+
+// FIXED: Changed from 'horizontalBar' to 'bar' with indexAxis: 'y'
+function initializeTopFarmersChart() {
+    const ctx = document.getElementById('topFarmersChart');
+    if (!ctx) return;
+
+    const farmerRevenue = {};
+    allTransactions.forEach(t => {
+        const farmer = allFarmers.find(f => f.id === t.farmerId);
+        if (farmer) {
+            farmerRevenue[farmer.fullName] = (farmerRevenue[farmer.fullName] || 0) + (parseFloat(t.totalAmount) || 0);
+        }
+    });
+
+    const sorted = Object.entries(farmerRevenue).sort((a, b) => b[1] - a[1]).slice(0, 10);
+
+    if (charts.topFarmers) {
+        charts.topFarmers.destroy();
+        charts.topFarmers = null;
+    }
+
+    charts.topFarmers = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: sorted.map(s => s[0]),
+            datasets: [{
+                label: 'Revenue (RWF)',
+                data: sorted.map(s => s[1]),
+                backgroundColor: '#22c55e'
+            }]
+        },
+        options: {
+            indexAxis: 'y', // This makes it horizontal
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { beginAtZero: true }
+            }
+        }
+    });
+}
+
+// FIXED: Changed from 'horizontalBar' to 'bar' with indexAxis: 'y'
+function initializeTopBuyersChart() {
+    const ctx = document.getElementById('topBuyersChart');
+    if (!ctx) return;
+
+    const buyerVolume = {};
+    allTransactions.forEach(t => {
+        const buyer = allBuyers.find(b => b.id === t.buyerId);
+        if (buyer) {
+            buyerVolume[buyer.fullName] = (buyerVolume[buyer.fullName] || 0) + 1;
+        }
+    });
+
+    const sorted = Object.entries(buyerVolume).sort((a, b) => b[1] - a[1]).slice(0, 10);
+
+    if (charts.topBuyers) {
+        charts.topBuyers.destroy();
+        charts.topBuyers = null;
+    }
+
+    charts.topBuyers = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: sorted.map(s => s[0]),
+            datasets: [{
+                label: 'Purchases',
+                data: sorted.map(s => s[1]),
+                backgroundColor: '#3b82f6'
+            }]
+        },
+        options: {
+            indexAxis: 'y', // This makes it horizontal
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { beginAtZero: true, ticks: { precision: 0 } }
+            }
+        }
+    });
+}
+
+function initializeSuccessRateChart() {
+    const ctx = document.getElementById('successRateChart');
+    if (!ctx) return;
+
+    const completed = allTransactions.filter(t => t.status === 'PAID').length;
+    const failed = allTransactions.filter(t => t.status === 'CANCELLED' || t.status === 'DISPUTED').length;
+    const pending = allTransactions.filter(t => t.status === 'PENDING' || t.status === 'CONFIRMED' || t.status === 'DELIVERED').length;
+
+    if (charts.successRate) {
+        charts.successRate.destroy();
+        charts.successRate = null;
+    }
+
+    charts.successRate = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Completed', 'Failed', 'Pending'],
+            datasets: [{
+                data: [completed, failed, pending],
+                backgroundColor: ['#22c55e', '#ef4444', '#f59e0b']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+}
+
+// Report Functions
+function toggleDateRange() {
+    const reportType = document.getElementById('reportType').value;
+    const customRange = document.getElementById('customDateRange');
+    customRange.style.display = reportType === 'custom' ? 'block' : 'none';
+}
+
+async function generatePDFReport() {
+    log('Generating PDF report');
+    const reportType = document.getElementById('reportType').value;
+
+    if (allTransactions.length === 0) {
+        showToast('No data to generate report', 'warning');
+        return;
+    }
+
+    showLoading(true);
+
+    try {
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF();
+
+        let filtered = filterByReportType(reportType);
+        let title = getReportTitle(reportType);
+
+        pdf.setFontSize(20);
+        pdf.text(title, 105, 20, { align: 'center' });
+
+        pdf.setFontSize(12);
+        pdf.text(`Generated: ${new Date().toLocaleDateString()}`, 105, 30, { align: 'center' });
+        pdf.text(`Total Transactions: ${filtered.length}`, 105, 38, { align: 'center' });
+
+        const totalRevenue = filtered.reduce((sum, t) => sum + (parseFloat(t.totalAmount) || 0), 0);
+        pdf.text(`Total Revenue: ${formatCurrency(totalRevenue)}`, 105, 46, { align: 'center' });
+
+        let yPos = 60;
+        pdf.setFontSize(10);
+
+        filtered.slice(0, 50).forEach((t, idx) => {
+            if (yPos > 270) {
+                pdf.addPage();
+                yPos = 20;
+            }
+
+            const farmer = allFarmers.find(f => f.id === t.farmerId);
+            const buyer = allBuyers.find(b => b.id === t.buyerId);
+            const crop = allCrops.find(c => c.id === t.cropId);
+
+            pdf.text(`${idx + 1}. ${t.transactionCode}`, 20, yPos);
+            pdf.text(`Farmer: ${farmer ? farmer.fullName : 'Unknown'}`, 30, yPos + 6);
+            pdf.text(`Buyer: ${buyer ? buyer.fullName : 'Unknown'}`, 30, yPos + 12);
+            pdf.text(`Crop: ${crop ? crop.cropName : 'Unknown'}`, 30, yPos + 18);
+            pdf.text(`Amount: ${formatCurrency(t.totalAmount)} | Status: ${t.status}`, 30, yPos + 24);
+
+            yPos += 32;
+        });
+
+        pdf.save(`transaction_report_${reportType}_${Date.now()}.pdf`);
+        showToast('PDF report generated successfully', 'success');
+    } catch (error) {
+        log('PDF error:', error);
+        showToast('Error generating PDF report', 'error');
+    } finally {
+        showLoading(false);
+    }
+}
+
+async function generateExcelReport() {
+    log('Generating Excel report');
+    const reportType = document.getElementById('reportType').value;
+
+    if (allTransactions.length === 0) {
+        showToast('No data to export', 'warning');
+        return;
+    }
+
+    const filtered = filterByReportType(reportType);
+
+    const exportData = filtered.map(t => {
+        const farmer = allFarmers.find(f => f.id === t.farmerId);
+        const buyer = allBuyers.find(b => b.id === t.buyerId);
+        const crop = allCrops.find(c => c.id === t.cropId);
+
+        return {
+            'Transaction Code': t.transactionCode || 'N/A',
+            'Farmer': farmer ? farmer.fullName : 'Unknown',
+            'Buyer': buyer ? buyer.fullName : 'Unknown',
+            'Crop': crop ? crop.cropName : 'Unknown',
+            'Quantity': t.quantity || 0,
+            'Unit': t.unit || 'KG',
+            'Price per Unit': t.pricePerUnit || 0,
+            'Total Amount': t.totalAmount || 0,
+            'Payment Method': t.paymentMethod || 'N/A',
+            'Status': t.status || 'N/A',
+            'Date': formatDate(t.transactionDate)
+        };
+    });
+
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Transactions');
+    XLSX.writeFile(wb, `transactions_${reportType}_${Date.now()}.xlsx`);
+
+    showToast('Excel file exported successfully', 'success');
+}
+
+function exportTransactionsToExcel() {
+    generateExcelReport();
+}
+
+function filterByReportType(reportType) {
+    const now = new Date();
+    let filtered = [...allTransactions];
+
+    if (reportType === 'weekly') {
+        const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        filtered = allTransactions.filter(t => new Date(t.transactionDate) >= weekAgo);
+    } else if (reportType === 'monthly') {
+        const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+        filtered = allTransactions.filter(t => new Date(t.transactionDate) >= monthAgo);
+    } else if (reportType === 'yearly') {
+        const yearAgo = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+        filtered = allTransactions.filter(t => new Date(t.transactionDate) >= yearAgo);
+    } else if (reportType === 'custom') {
+        const startDate = new Date(document.getElementById('startDate').value);
+        const endDate = new Date(document.getElementById('endDate').value);
+        filtered = allTransactions.filter(t => {
+            const date = new Date(t.transactionDate);
+            return date >= startDate && date <= endDate;
+        });
+    }
+
+    return filtered;
+}
+
+function getReportTitle(reportType) {
+    const titles = {
+        'all': 'All Transactions Report',
+        'weekly': 'Weekly Transactions Report',
+        'monthly': 'Monthly Transactions Report',
+        'yearly': 'Yearly Transactions Report',
+        'custom': 'Custom Range Transactions Report'
+    };
+    return titles[reportType] || 'Transactions Report';
+}
+
+// UI Functions
+function showSection(sectionName) {
+    log('Showing section:', sectionName);
+
+    document.querySelectorAll('.content-section').forEach(section => {
+        section.classList.remove('active');
+    });
+
+    const section = document.getElementById(sectionName + 'Section');
+    if (section) {
+        section.classList.add('active');
+    }
+
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    event.target.closest('.nav-item').classList.add('active');
+
+    if (sectionName === 'transactions') {
+        loadAllTransactions();
+    }
+}
+
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('mainContent');
+
+    sidebar.classList.toggle('collapsed');
+    mainContent.classList.toggle('sidebar-collapsed');
+}
+
+function toggleTheme() {
+    document.body.classList.toggle('dark-mode');
+    const isDark = document.body.classList.contains('dark-mode');
+
+    document.getElementById('themeToggle').innerHTML = isDark
+        ? '<i class="fas fa-sun"></i><span>Light Mode</span>'
+        : '<i class="fas fa-moon"></i><span>Dark Mode</span>';
+
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+}
+
+function loadSavedTheme() {
+    if (localStorage.getItem('theme') === 'dark') {
+        document.body.classList.add('dark-mode');
+        document.getElementById('themeToggle').innerHTML = '<i class="fas fa-sun"></i><span>Light Mode</span>';
+    }
+}
+
+function updateDateTime() {
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+
+    const dateEl = document.getElementById('currentDate');
+    if (dateEl) dateEl.textContent = dateStr;
+
+    if (currentUser) {
+        const hour = now.getHours();
+        let greeting = hour < 12 ? 'Good Morning' : hour < 18 ? 'Good Afternoon' : 'Good Evening';
+        const greetingEl = document.getElementById('greetingText');
+        if (greetingEl) greetingEl.textContent = `${greeting}, ${currentUser.fullName}!`;
+    }
+}
+
+function showLoading(show) {
+    document.getElementById('loadingOverlay').classList.toggle('show', show);
+}
+
+function showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `<p class="toast-message">${message}</p>`;
+
+    document.getElementById('toastContainer').appendChild(toast);
+
+    setTimeout(() => {
+        toast.remove();
+    }, 5000);
+}
+
+log('Transaction System JavaScript loaded successfully');
+
+</script>
+</body>
+</html>

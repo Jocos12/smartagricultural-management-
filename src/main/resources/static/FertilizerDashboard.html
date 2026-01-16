@@ -1,0 +1,3245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fertilizer Management - AgriGuard AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --primary-green: #22c55e;
+            --primary-dark: #16a34a;
+            --secondary-green: #10b981;
+            --accent-green: #34d399;
+            --light-green: #dcfce7;
+            --dark-green: #166534;
+            --forest-green: #065f46;
+            --success-color: #22c55e;
+            --warning-color: #f59e0b;
+            --error-color: #ef4444;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-sidebar: #e8f5e8;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --border-color: #e0e0e0;
+            --hover-bg: rgba(34, 197, 94, 0.1);
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 8px 25px rgba(34, 197, 94, 0.15);
+            --gradient-primary: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+            --gradient-bg: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%);
+            --card-bg: #ffffff;
+            --modal-bg: rgba(0, 0, 0, 0.5);
+        }
+
+        .dark-mode {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --bg-sidebar: #1f2937;
+            --text-primary: #ffffff;
+            --text-secondary: #cccccc;
+            --border-color: #404040;
+            --hover-bg: rgba(34, 197, 94, 0.2);
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            --card-bg: #374151;
+            --gradient-bg: linear-gradient(135deg, #1f2937 0%, #374151 50%, #4b5563 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--gradient-bg);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            overflow-x: hidden;
+        }
+
+        .dashboard-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: var(--bg-sidebar);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: fixed;
+            height: 100vh;
+            z-index: 1000;
+            box-shadow: var(--shadow);
+        }
+
+        .sidebar.collapsed {
+            width: 70px;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+          .logo {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--gradient-primary);
+            color: white;
+            font-size: 24px;
+            box-shadow: var(--shadow);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .company-info {
+            flex: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .company-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .company-tagline {
+            font-size: 11px;
+            color: var(--primary-green);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .sidebar.collapsed .company-info {
+            opacity: 0;
+            width: 0;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 20px 0;
+            overflow-y: auto;
+        }
+
+        .nav-section {
+            margin-bottom: 30px;
+        }
+
+        .nav-section-title {
+            padding: 0 20px 10px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--primary-green);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar.collapsed .nav-section-title {
+            opacity: 0;
+            height: 0;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 4px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 14px 20px;
+            color: var(--text-primary);
+            text-decoration: none;
+            border-radius: 0 25px 25px 0;
+            margin-right: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(34, 197, 94, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .nav-link:hover::before {
+            left: 100%;
+        }
+
+        .nav-link i {
+            width: 22px;
+            margin-right: 14px;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .nav-link span {
+            transition: opacity 0.3s ease;
+            white-space: nowrap;
+            font-weight: 500;
+        }
+
+        .sidebar.collapsed .nav-link span {
+            opacity: 0;
+        }
+
+        .sidebar.collapsed .nav-link {
+            margin-right: 0;
+            border-radius: 0;
+            justify-content: center;
+        }
+
+        .nav-link:hover {
+            background: var(--hover-bg);
+            color: var(--primary-green);
+            transform: translateX(5px);
+        }
+
+        .nav-item.active .nav-link {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: var(--shadow);
+        }
+
+        .nav-item.active .nav-link:hover {
+            background: var(--gradient-primary);
+            color: white;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            margin-left: 280px;
+            transition: margin-left 0.3s ease;
+        }
+
+        .main-content.sidebar-collapsed {
+            margin-left: 70px;
+        }
+
+        .header {
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 80px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .sidebar-toggle {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 12px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-toggle:hover {
+            background: var(--hover-bg);
+            color: var(--primary-green);
+            transform: scale(1.1);
+        }
+
+        .greeting-section {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .greeting-text {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .current-date {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .search-container {
+            position: relative;
+            width: 400px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 50px 12px 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 25px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 15px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-green);
+            box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 18px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .theme-toggle {
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 12px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .theme-toggle:hover {
+            background: var(--hover-bg);
+            border-color: var(--primary-green);
+            transform: translateY(-2px);
+        }
+
+        .notification-btn {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 20px;
+            cursor: pointer;
+            position: relative;
+            padding: 12px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .notification-btn:hover {
+            background: var(--hover-bg);
+            color: var(--primary-green);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: var(--error-color);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-5px); }
+            60% { transform: translateY(-3px); }
+        }
+
+        .notification-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 10px;
+            width: 350px;
+            max-height: 400px;
+            overflow-y: auto;
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+            display: none;
+            z-index: 1000;
+        }
+
+        .notification-dropdown.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .notification-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .notification-item {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .notification-item:hover {
+            background: var(--hover-bg);
+        }
+
+        .notification-item.unread {
+            background: rgba(34, 197, 94, 0.05);
+        }
+
+        .notification-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .notification-message {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .notification-time {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .profile-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .profile-section:hover {
+            background: var(--hover-bg);
+        }
+
+        .profile-avatar {
+            width: 45px;
+            height: 45px;
+            background: var(--gradient-primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+        }
+
+        .profile-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .profile-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .profile-role {
+            font-size: 12px;
+            color: var(--primary-green);
+            font-weight: 500;
+            text-transform: capitalize;
+        }
+
+        .logout-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            margin-left: 12px;
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error-color);
+            transform: scale(1.1);
+        }
+
+        .content {
+            flex: 1;
+            padding: 32px;
+            background: var(--bg-secondary);
+            overflow-y: auto;
+            min-height: calc(100vh - 80px);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            margin-bottom: 12px;
+        }
+
+        .stat-icon.total { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+        .stat-icon.organic { background: linear-gradient(135deg, #22c55e, #16a34a); }
+        .stat-icon.npk { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+        .stat-icon.cost { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .stat-icon.high-effectiveness { background: linear-gradient(135deg, #10b981, #047857); }
+        .stat-icon.expired { background: linear-gradient(135deg, #ef4444, #dc2626); }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .charts-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .chart-card {
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .chart-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+
+        .table-section {
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            margin-bottom: 32px;
+        }
+
+        .table-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .table-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--hover-bg);
+            border-color: var(--primary-green);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+        }
+
+        .btn-info:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .data-table th {
+            background: var(--bg-secondary);
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .data-table td {
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .data-table tr:hover {
+            background: var(--hover-bg);
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-expired {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error-color);
+        }
+
+        .status-expiring-soon {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning-color);
+        }
+
+        .status-good {
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--success-color);
+        }
+
+        .type-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .type-organic { background: linear-gradient(135deg, #10b981, #047857); color: white; }
+        .type-npk { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; }
+        .type-nitrogen { background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; }
+        .type-phosphate { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; }
+        .type-potash { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
+        .type-micronutrients { background: linear-gradient(135deg, #06b6d4, #0891b2); color: white; }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .action-btn-edit {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+        }
+
+        .action-btn-edit:hover {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .action-btn-delete {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        .action-btn-delete:hover {
+            background: #ef4444;
+            color: white;
+        }
+
+        .action-btn-view {
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+        }
+
+        .action-btn-view:hover {
+            background: #22c55e;
+            color: white;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--modal-bg);
+            backdrop-filter: blur(5px);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 32px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: var(--hover-bg);
+            color: var(--primary-green);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .form-input,
+        .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            color: var(--text-primary);
+            background: var(--bg-secondary);
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: var(--primary-green);
+            box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 3000;
+        }
+
+        .toast {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            box-shadow: var(--shadow-lg);
+            border-left: 4px solid;
+            animation: slideInRight 0.3s ease;
+            max-width: 400px;
+        }
+
+        .toast.success { border-left-color: var(--success-color); }
+        .toast.error { border-left-color: var(--error-color); }
+        .toast.warning { border-left-color: var(--warning-color); }
+        .toast.info { border-left-color: var(--primary-green); }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .toast-message {
+            color: var(--text-primary);
+            font-weight: 500;
+            margin: 0;
+        }
+
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loading-overlay.show {
+            display: flex;
+        }
+
+        .loader {
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid var(--primary-green);
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state i {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            font-size: 18px;
+            margin-top: 12px;
+        }
+
+        .prediction-card {
+            background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+            color: white;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+            margin-bottom: 24px;
+        }
+
+        .prediction-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .prediction-value {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .prediction-description {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .filter-section {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+        }
+
+        .filter-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-green);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
+
+        @media (max-width: 1200px) {
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .header {
+                padding: 0 16px;
+            }
+
+            .search-container {
+                width: 200px;
+            }
+
+            .content {
+                padding: 20px 16px;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .greeting-text {
+                font-size: 18px;
+            }
+
+            .profile-info {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loader"></div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<div class="dashboard-container">
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <img src="images/logo.jpeg" alt="AgriGuard AI Logo" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;">
+            </div>
+            <div class="company-info">
+                <div class="company-name">AgriGuard AI</div>
+                <div class="company-tagline">Smart Agriculture</div>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-section">
+                <h3 class="nav-section-title">Main</h3>
+                <ul class="nav-menu">
+                    <li class="nav-item active">
+                        <a class="nav-link" onclick="showSection('dashboard')">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="showSection('fertilizers')">
+                            <i class="fas fa-seedling"></i>
+                            <span>All Fertilizers</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="showSection('predictions')">
+                            <i class="fas fa-brain"></i>
+                            <span>Predictions</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="nav-section">
+                <h3 class="nav-section-title">Analytics</h3>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="showSection('reports')">
+                            <i class="fas fa-file-alt"></i>
+                            <span>Reports</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="showSection('analysis')">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>Analysis</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+
+
+            <div class="nav-section">
+                <h3 class="nav-section-title">Quick Links</h3>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a class="nav-link" href="CropDashboard.html">
+                            <i class="fas fa-seedling"></i>
+                            <span>Crop Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="CropProductionDashboard.html">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>Crop Production</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="FarmDashboard.html">
+                            <i class="fas fa-home"></i>
+                            <span>Farm Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="adminDashboard.html">
+                            <i class="fas fa-flask"></i>
+                            <span>Users Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="InventoryDashboard.html">
+                            <i class="fas fa-boxes"></i>
+                            <span>Inventory Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="IrrigationDashboard.html">
+                            <i class="fas fa-tint"></i>
+                            <span>Irrigation Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="ProductPrediction.html">
+                            <i class="fas fa-brain"></i>
+                            <span>Product Prediction</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="WhatsApp.html">
+                            <i class="fab fa-whatsapp"></i>
+                            <span>WhatsApp</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+
+    <div class="main-content" id="mainContent">
+        <header class="header">
+            <div class="header-left">
+                <button class="sidebar-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="greeting-section">
+                    <div class="greeting-text" id="greetingText">Good Morning!</div>
+                    <div class="current-date" id="currentDate"></div>
+                </div>
+            </div>
+
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search fertilizers..." id="globalSearch" onkeyup="handleGlobalSearch()">
+                <i class="fas fa-search search-icon"></i>
+            </div>
+
+            <div class="header-right">
+                <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                    <span>Dark Mode</span>
+                </button>
+                <div style="position: relative;">
+                    <button class="notification-btn" onclick="toggleNotifications()">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge" id="notificationCount">0</span>
+                    </button>
+                    <div class="notification-dropdown" id="notificationDropdown">
+                        <div class="notification-header">Notifications</div>
+                        <div id="notificationList"></div>
+                    </div>
+                </div>
+                <div class="profile-section">
+                    <div class="profile-avatar">U</div>
+                    <div class="profile-info">
+                        <div class="profile-name">User</div>
+                        <div class="profile-role">Role</div>
+                    </div>
+                    <button class="logout-btn" onclick="handleLogout()" title="Logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="content">
+            <!-- Dashboard Section -->
+            <div id="dashboardSection" class="content-section active">
+                <div class="dashboard-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon total">
+                            <i class="fas fa-flask"></i>
+                        </div>
+                        <div class="stat-value" id="totalFertilizers">0</div>
+                        <div class="stat-label">Total Fertilizers</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon organic">
+                            <i class="fas fa-leaf"></i>
+                        </div>
+                        <div class="stat-value" id="organicFertilizers">0</div>
+                        <div class="stat-label">Organic Fertilizers</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon npk">
+                            <i class="fas fa-atom"></i>
+                        </div>
+                        <div class="stat-value" id="npkFertilizers">0</div>
+                        <div class="stat-label">NPK Fertilizers</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon cost">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="stat-value" id="totalCost">$0</div>
+                        <div class="stat-label">Total Cost</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon high-effectiveness">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="stat-value" id="highEffectiveness">0</div>
+                        <div class="stat-label">High Effectiveness</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon expired">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="stat-value" id="expiredCount">0</div>
+                        <div class="stat-label">Expired/Expiring</div>
+                    </div>
+                </div>
+
+                <div class="charts-section">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Fertilizer Type Distribution</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="typeDistributionChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Cost Analysis by Type</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="costAnalysisChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Effectiveness Rating Distribution</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="effectivenessChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Monthly Usage Trend</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="usageTrendChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fertilizers Section -->
+            <div id="fertilizersSection" class="content-section">
+                <div class="filter-section">
+                    <h3 style="margin-bottom: 16px; color: var(--text-primary);">Filter Fertilizers</h3>
+                    <div class="filter-row">
+                        <div class="form-group">
+                            <label class="form-label">Fertilizer Type</label>
+                            <select class="form-select" id="filterType" onchange="applyFilters()">
+                                <option value="">All Types</option>
+                                <option value="ORGANIC">Organic</option>
+                                <option value="NPK">NPK</option>
+                                <option value="NITROGEN">Nitrogen</option>
+                                <option value="PHOSPHATE">Phosphate</option>
+                                <option value="POTASH">Potash</option>
+                                <option value="MICRONUTRIENTS">Micronutrients</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Application Method</label>
+                            <select class="form-select" id="filterMethod" onchange="applyFilters()">
+                                <option value="">All Methods</option>
+                                <option value="BROADCAST">Broadcast</option>
+                                <option value="BAND">Band</option>
+                                <option value="FOLIAR">Foliar</option>
+                                <option value="FERTIGATION">Fertigation</option>
+                                <option value="SPOT">Spot</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Effectiveness Rating</label>
+                            <select class="form-select" id="filterEffectiveness" onchange="applyFilters()">
+                                <option value="">All Ratings</option>
+                                <option value="5">5 Stars</option>
+                                <option value="4">4 Stars</option>
+                                <option value="3">3 Stars</option>
+                                <option value="2">2 Stars</option>
+                                <option value="1">1 Star</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Date Range</label>
+                            <select class="form-select" id="filterDateRange" onchange="applyFilters()">
+                                <option value="">All Time</option>
+                                <option value="today">Today</option>
+                                <option value="week">This Week</option>
+                                <option value="month">This Month</option>
+                                <option value="year">This Year</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary" onclick="clearFilters()">
+                        <i class="fas fa-times"></i>
+                        Clear Filters
+                    </button>
+                </div>
+
+                <div class="table-section">
+                    <div class="table-header">
+                        <h2 class="table-title">Fertilizer Usage Records</h2>
+                        <div class="table-actions">
+                            <button class="btn btn-primary" onclick="showAddFertilizerModal()">
+                                <i class="fas fa-plus"></i>
+                                Add Fertilizer
+                            </button>
+                            <button class="btn btn-secondary" onclick="loadAllFertilizers()">
+                                <i class="fas fa-sync-alt"></i>
+                                Refresh
+                            </button>
+                            <button class="btn btn-info" onclick="exportToExcel()">
+                                <i class="fas fa-file-excel"></i>
+                                Export Excel
+                            </button>
+                        </div>
+                    </div>
+                    <div style="padding: 0 24px 24px;">
+                        <input type="text" class="search-input" placeholder="Search fertilizers..." id="fertilizersSearch" onkeyup="searchInTable('fertilizersTableBody', 'fertilizersSearch')">
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table class="data-table">
+                            <thead>
+                            <tr>
+                                <th>Fertilizer Name</th>
+                                <th>Type</th>
+                                <th>Quantity</th>
+                                <th>Cost</th>
+                                <th>Application Date</th>
+                                <th>Effectiveness</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody id="fertilizersTableBody">
+                            <tr>
+                                <td colspan="8" class="empty-state">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                    <p>Loading fertilizers...</p>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Predictions Section -->
+            <div id="predictionsSection" class="content-section">
+                <div class="prediction-card">
+                    <div class="prediction-title">Predicted Monthly Cost</div>
+                    <div class="prediction-value" id="predictedCost">$0</div>
+                    <div class="prediction-description">Based on current usage patterns and historical data</div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon total">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="stat-value" id="predictedUsage">0</div>
+                        <div class="stat-label">Predicted Usage (kg)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon organic">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                        <div class="stat-value" id="recommendedType">N/A</div>
+                        <div class="stat-label">Recommended Type</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon cost">
+                            <i class="fas fa-percentage"></i>
+                        </div>
+                        <div class="stat-value" id="efficiencyScore">0%</div>
+                        <div class="stat-label">Efficiency Score</div>
+                    </div>
+                </div>
+
+                <div class="charts-section">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Usage Prediction (Next 6 Months)</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="predictionChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Cost Trend Analysis</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="costTrendChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports Section -->
+            <div id="reportsSection" class="content-section">
+                <div class="chart-card" style="margin-bottom: 24px;">
+                    <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 20px; color: var(--text-primary);">Report Configuration</h3>
+                    <div class="filter-row">
+                        <div class="form-group">
+                            <label class="form-label">Report Type</label>
+                            <select class="form-select" id="reportType">
+                                <option value="all">All Fertilizers</option>
+                                <option value="type">By Type</option>
+                                <option value="cost">Cost Analysis</option>
+                                <option value="effectiveness">Effectiveness Report</option>
+                                <option value="expiry">Expiry Report</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Time Period</label>
+                            <select class="form-select" id="reportPeriod">
+                                <option value="today">Today</option>
+                                <option value="week">This Week</option>
+                                <option value="month">This Month</option>
+                                <option value="quarter">This Quarter</option>
+                                <option value="year">This Year</option>
+                                <option value="all">All Time</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Format</label>
+                            <select class="form-select" id="reportFormat">
+                                <option value="pdf">PDF</option>
+                                <option value="excel">Excel</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 12px; margin-top: 20px;">
+                        <button class="btn btn-primary" onclick="generateReport()">
+                            <i class="fas fa-file-download"></i>
+                            Generate Report
+                        </button>
+                        <button class="btn btn-info" onclick="previewReport()">
+                            <i class="fas fa-eye"></i>
+                            Preview Report
+                        </button>
+                    </div>
+                </div>
+
+                <div id="reportPreview" class="table-section" style="display: none;">
+                    <div class="table-header">
+                        <h2 class="table-title">Report Preview</h2>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table class="data-table">
+                            <thead id="reportPreviewHeader"></thead>
+                            <tbody id="reportPreviewBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analysis Section -->
+            <div id="analysisSection" class="content-section">
+                <div class="charts-section" style="grid-template-columns: 1fr;">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Quantity vs Cost Scatter Plot</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="scatterPlotChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Application Method Comparison</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="methodComparisonChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Effectiveness Histogram</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="histogramChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Supplier Performance</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="supplierChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Add/Edit Fertilizer Modal -->
+<div class="modal" id="fertilizerModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title" id="fertilizerModalTitle">Add Fertilizer</h2>
+            <button class="modal-close" onclick="closeFertilizerModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <form id="fertilizerForm" onsubmit="submitFertilizerForm(event)">
+            <input type="hidden" id="fertilizerId" name="fertilizerId">
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Crop Production *</label>
+                    <select class="form-select" id="cropProductionId" name="cropProductionId" required>
+                        <option value="">Select Crop Production</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Fertilizer Type *</label>
+                    <select class="form-select" id="fertilizerType" name="fertilizerType" required>
+                        <option value="">Select Type</option>
+                        <option value="ORGANIC">Organic</option>
+                        <option value="NPK">NPK</option>
+                        <option value="NITROGEN">Nitrogen</option>
+                        <option value="PHOSPHATE">Phosphate</option>
+                        <option value="POTASH">Potash</option>
+                        <option value="MICRONUTRIENTS">Micronutrients</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Fertilizer Name *</label>
+                    <input type="text" class="form-input" id="fertilizerName" name="fertilizerName" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Brand</label>
+                    <input type="text" class="form-input" id="brand" name="brand">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Composition (NPK Ratios)</label>
+                <input type="text" class="form-input" id="composition" name="composition" placeholder="e.g., 10-10-10">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Quantity *</label>
+                    <input type="number" step="0.01" class="form-input" id="quantity" name="quantity" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Unit *</label>
+                    <select class="form-select" id="unit" name="unit" required>
+                        <option value="">Select Unit</option>
+                        <option value="KG">Kilograms</option>
+                        <option value="TONNES">Tonnes</option>
+                        <option value="LITERS">Liters</option>
+                        <option value="BAGS">Bags</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Application Date *</label>
+                    <input type="date" class="form-input" id="applicationDate" name="applicationDate" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Application Method *</label>
+                    <select class="form-select" id="applicationMethod" name="applicationMethod" required>
+                        <option value="">Select Method</option>
+                        <option value="BROADCAST">Broadcast</option>
+                        <option value="BAND">Band</option>
+                        <option value="FOLIAR">Foliar</option>
+                        <option value="FERTIGATION">Fertigation</option>
+                        <option value="SPOT">Spot</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Application Stage</label>
+                <input type="text" class="form-input" id="applicationStage" name="applicationStage" placeholder="e.g., PLANTING, VEGETATIVE">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Cost Per Unit</label>
+                    <input type="number" step="0.01" class="form-input" id="costPerUnit" name="costPerUnit">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Total Cost</label>
+                    <input type="number" step="0.01" class="form-input" id="totalCost" name="totalCost" readonly>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Supplier</label>
+                    <input type="text" class="form-input" id="supplier" name="supplier">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Batch Number</label>
+                    <input type="text" class="form-input" id="batchNumber" name="batchNumber">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Expiry Date</label>
+                <input type="date" class="form-input" id="expiryDate" name="expiryDate">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Weather Conditions</label>
+                    <input type="text" class="form-input" id="weatherConditions" name="weatherConditions">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Soil Conditions</label>
+                    <input type="text" class="form-input" id="soilConditions" name="soilConditions">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Operator Name</label>
+                    <input type="text" class="form-input" id="operatorName" name="operatorName">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Effectiveness Rating (1-5)</label>
+                    <input type="number" min="1" max="5" class="form-input" id="effectivenessRating" name="effectivenessRating">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Notes</label>
+                <textarea class="form-input" id="notes" name="notes" rows="3" style="resize: vertical;"></textarea>
+            </div>
+
+            <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px;">
+                <button type="button" class="btn btn-secondary" onclick="closeFertilizerModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary" id="fertilizerSubmitBtn">
+                    <i class="fas fa-save"></i>
+                    Save Fertilizer
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="js/SessionTracker.js"></script>
+<script src="js/user_session_handler.js"></script>
+<script>
+    const API_BASE_URL = 'http://localhost:1010/api/fertilizer-usages';
+    let allFertilizers = [];
+    let charts = {};
+    let currentEditingFertilizerId = null;
+    let sessionHandler = null;
+    let currentLoggedInUser = null;
+
+    function initializeSessionHandler() {
+        try {
+            sessionHandler = UserSessionHandler.getInstance();
+            currentLoggedInUser = sessionHandler.getCurrentUser();
+
+            if (!currentLoggedInUser) {
+                console.warn('No user session found, redirecting to login');
+                window.location.href = '/login.html';
+                return false;
+            }
+
+            console.log('Session loaded for user:', currentLoggedInUser.fullName);
+            return true;
+        } catch (error) {
+            console.error('Error initializing session:', error);
+            window.location.href = '/login.html';
+            return false;
+        }
+    }
+
+    function updateUIWithCurrentUser() {
+        if (!currentLoggedInUser) return;
+
+        const greetingText = document.getElementById('greetingText');
+        if (greetingText) {
+            const hour = new Date().getHours();
+            let greeting = 'Good Morning';
+            if (hour >= 12 && hour < 18) greeting = 'Good Afternoon';
+            else if (hour >= 18) greeting = 'Good Evening';
+            greetingText.textContent = `${greeting}, ${currentLoggedInUser.fullName}!`;
+        }
+
+        const profileName = document.querySelector('.profile-name');
+        if (profileName) {
+            profileName.textContent = currentLoggedInUser.fullName;
+        }
+
+        const profileRole = document.querySelector('.profile-role');
+        if (profileRole) {
+            profileRole.textContent = formatRole(currentLoggedInUser.role);
+        }
+
+        const profileAvatar = document.querySelector('.profile-avatar');
+        if (profileAvatar && currentLoggedInUser.fullName) {
+            const initials = currentLoggedInUser.fullName
+                .split(' ')
+                .map(n => n[0])
+                .join('')
+                .toUpperCase();
+            profileAvatar.textContent = initials;
+        }
+
+        if (currentLoggedInUser.photo || currentLoggedInUser.profileImageUrl) {
+            const photoUrl = currentLoggedInUser.photo || currentLoggedInUser.profileImageUrl;
+            if (profileAvatar) {
+                profileAvatar.style.backgroundImage = `url(${photoUrl})`;
+                profileAvatar.style.backgroundSize = 'cover';
+                profileAvatar.textContent = '';
+            }
+        }
+    }
+
+    function formatRole(role) {
+        if (!role) return 'User';
+        return role.split('_')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+            .join(' ');
+    }
+
+    function trackUserActivity() {
+        if (!currentLoggedInUser || !window.sessionTracker) return;
+        const userId = currentLoggedInUser.userId || currentLoggedInUser.id;
+        window.sessionTracker.updateLastActivity(userId);
+    }
+
+    function startSessionMonitoring() {
+        setInterval(() => {
+            if (sessionHandler && sessionHandler.isAuthenticated()) {
+                trackUserActivity();
+            } else {
+                console.warn('Session expired or invalid');
+                handleSessionExpired();
+            }
+        }, 30000);
+
+        const activityEvents = ['click', 'keypress', 'mousemove', 'scroll'];
+        activityEvents.forEach(eventType => {
+            document.addEventListener(eventType, () => {
+                trackUserActivity();
+            }, { passive: true });
+        });
+    }
+
+    function handleSessionExpired() {
+        showToast('Your session has expired. Please login again.', 'warning');
+        setTimeout(() => {
+            if (sessionHandler) {
+                sessionHandler.logout();
+            } else {
+                window.location.href = '/login.html';
+            }
+        }, 2000);
+    }
+
+    function handleLogout() {
+        if (confirm('Are you sure you want to logout?')) {
+            if (currentLoggedInUser && window.sessionTracker) {
+                const userId = currentLoggedInUser.userId || currentLoggedInUser.id;
+                window.sessionTracker.endSession(userId);
+            }
+
+            if (sessionHandler) {
+                sessionHandler.logout();
+            } else {
+                window.location.href = '/login.html';
+            }
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeDashboard();
+        updateDateTime();
+        setInterval(updateDateTime, 60000);
+        loadSavedTheme();
+        setupAutoCalculation();
+    });
+
+    async function initializeDashboard() {
+        if (!initializeSessionHandler()) {
+            return;
+        }
+
+        updateUIWithCurrentUser();
+        startSessionMonitoring();
+
+        showLoading(true);
+        try {
+            await Promise.all([
+                loadStatistics(),
+                loadAllFertilizers(),
+                loadNotifications()
+            ]);
+            initializeCharts();
+            calculatePredictions();
+        } catch (error) {
+            console.error('Error initializing dashboard:', error);
+            showToast('Error loading dashboard data', 'error');
+        } finally {
+            showLoading(false);
+        }
+    }
+
+    async function loadStatistics() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/statistics/count/total`);
+            const data = await response.json();
+
+            document.getElementById('totalFertilizers').textContent = data.totalCount || 0;
+
+            const organicResponse = await fetch(`${API_BASE_URL}/organic`);
+            const organicData = await organicResponse.json();
+            document.getElementById('organicFertilizers').textContent = organicData.length || 0;
+
+            const npkResponse = await fetch(`${API_BASE_URL}/type/NPK`);
+            const npkData = await npkResponse.json();
+            document.getElementById('npkFertilizers').textContent = npkData.content?.length || 0;
+
+            const expiredResponse = await fetch(`${API_BASE_URL}/expired`);
+            const expiredData = await expiredResponse.json();
+            document.getElementById('expiredCount').textContent = expiredData.length || 0;
+        } catch (error) {
+            console.error('Error loading statistics:', error);
+        }
+    }
+
+    async function loadAllFertilizers() {
+        try {
+            const response = await fetch(`${API_BASE_URL}`);
+            if (!response.ok) throw new Error('Failed to load fertilizers');
+
+            const data = await response.json();
+            allFertilizers = data.content || [];
+            renderFertilizersTable(allFertilizers);
+            updateCostStatistics();
+            updateEffectivenessStatistics();
+        } catch (error) {
+            console.error('Error loading fertilizers:', error);
+            document.getElementById('fertilizersTableBody').innerHTML = `
+                <tr>
+                    <td colspan="8" class="empty-state">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <p>Error loading fertilizers. Please try again.</p>
+                    </td>
+                </tr>
+            `;
+        }
+    }
+
+    function updateCostStatistics() {
+        const totalCost = allFertilizers.reduce((sum, f) => sum + (parseFloat(f.totalCost) || 0), 0);
+        document.getElementById('totalCost').textContent = `$${totalCost.toFixed(2)}`;
+    }
+
+    function updateEffectivenessStatistics() {
+        const highEffective = allFertilizers.filter(f => f.effectivenessRating >= 4).length;
+        document.getElementById('highEffectiveness').textContent = highEffective;
+    }
+
+    function renderFertilizersTable(fertilizers) {
+        const tbody = document.getElementById('fertilizersTableBody');
+
+        if (!fertilizers || fertilizers.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="8" class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>No fertilizers found</p>
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        tbody.innerHTML = fertilizers.map(fertilizer => {
+            const applicationDate = fertilizer.applicationDate ? new Date(fertilizer.applicationDate).toLocaleDateString() : 'N/A';
+            const expiryStatus = getExpiryStatus(fertilizer.expiryDate);
+            const effectiveness = fertilizer.effectivenessRating ? '⭐'.repeat(fertilizer.effectivenessRating) : 'Not Rated';
+
+            return `
+                <tr>
+                    <td>
+                        <div style="font-weight: 600;">${fertilizer.fertilizerName || 'N/A'}</div>
+                        <div style="font-size: 12px; color: var(--text-secondary);">${fertilizer.brand || ''}</div>
+                    </td>
+                    <td><span class="type-badge type-${(fertilizer.fertilizerType || 'organic').toLowerCase()}">${fertilizer.fertilizerType || 'N/A'}</span></td>
+                    <td>${fertilizer.quantity || 0} ${fertilizer.unit || ''}</td>
+                    <td>$${(fertilizer.totalCost || 0).toFixed(2)}</td>
+                    <td>${applicationDate}</td>
+                    <td>${effectiveness}</td>
+                    <td><span class="status-badge status-${expiryStatus.class}">${expiryStatus.text}</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="action-btn action-btn-view" onclick="viewFertilizer('${fertilizer.id}')" title="View Details">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="action-btn action-btn-edit" onclick="editFertilizer('${fertilizer.id}')" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="action-btn action-btn-delete" onclick="deleteFertilizer('${fertilizer.id}')" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    function getExpiryStatus(expiryDate) {
+        if (!expiryDate) return { class: 'good', text: 'No Expiry' };
+
+        const expiry = new Date(expiryDate);
+        const today = new Date();
+        const daysUntilExpiry = Math.floor((expiry - today) / (1000 * 60 * 60 * 24));
+
+        if (daysUntilExpiry < 0) return { class: 'expired', text: 'Expired' };
+        if (daysUntilExpiry <= 30) return { class: 'expiring-soon', text: 'Expiring Soon' };
+        return { class: 'good', text: 'Good' };
+    }
+
+    function initializeCharts() {
+        initializeTypeDistributionChart();
+        initializeCostAnalysisChart();
+        initializeEffectivenessChart();
+        initializeUsageTrendChart();
+        initializeScatterPlotChart();
+        initializeMethodComparisonChart();
+        initializeHistogramChart();
+        initializeSupplierChart();
+    }
+
+    function initializeTypeDistributionChart() {
+        const ctx = document.getElementById('typeDistributionChart');
+        if (!ctx) return;
+
+        const typeCounts = {};
+        allFertilizers.forEach(f => {
+            const type = f.fertilizerType || 'Unknown';
+            typeCounts[type] = (typeCounts[type] || 0) + 1;
+        });
+
+        if (charts.typeDistribution) charts.typeDistribution.destroy();
+
+        charts.typeDistribution = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(typeCounts),
+                datasets: [{
+                    data: Object.values(typeCounts),
+                    backgroundColor: ['#22c55e', '#3b82f6', '#8b5cf6', '#f59e0b', '#ef4444', '#06b6d4']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    }
+
+    function initializeCostAnalysisChart() {
+        const ctx = document.getElementById('costAnalysisChart');
+        if (!ctx) return;
+
+        const costByType = {};
+        allFertilizers.forEach(f => {
+            const type = f.fertilizerType || 'Unknown';
+            costByType[type] = (costByType[type] || 0) + (parseFloat(f.totalCost) || 0);
+        });
+
+        if (charts.costAnalysis) charts.costAnalysis.destroy();
+
+        charts.costAnalysis = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(costByType),
+                datasets: [{
+                    label: 'Total Cost ($)',
+                    data: Object.values(costByType),
+                    backgroundColor: '#22c55e'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+
+    function initializeEffectivenessChart() {
+        const ctx = document.getElementById('effectivenessChart');
+        if (!ctx) return;
+
+        const ratingCounts = [0, 0, 0, 0, 0];
+        allFertilizers.forEach(f => {
+            if (f.effectivenessRating) {
+                ratingCounts[f.effectivenessRating - 1]++;
+            }
+        });
+
+        if (charts.effectiveness) charts.effectiveness.destroy();
+
+        charts.effectiveness = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars'],
+                datasets: [{
+                    label: 'Count',
+                    data: ratingCounts,
+                    backgroundColor: ['#ef4444', '#f59e0b', '#eab308', '#22c55e', '#10b981']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function initializeUsageTrendChart() {
+        const ctx = document.getElementById('usageTrendChart');
+        if (!ctx) return;
+
+        const monthlyUsage = {};
+        allFertilizers.forEach(f => {
+            if (f.applicationDate) {
+                const month = new Date(f.applicationDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
+                monthlyUsage[month] = (monthlyUsage[month] || 0) + (parseFloat(f.quantity) || 0);
+            }
+        });
+
+        const sortedMonths = Object.keys(monthlyUsage).sort((a, b) => new Date(a) - new Date(b));
+        const last6Months = sortedMonths.slice(-6);
+
+        if (charts.usageTrend) charts.usageTrend.destroy();
+
+        charts.usageTrend = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: last6Months,
+                datasets: [{
+                    label: 'Usage (kg)',
+                    data: last6Months.map(m => monthlyUsage[m]),
+                    borderColor: '#22c55e',
+                    backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+    }
+
+    function initializeScatterPlotChart() {
+        const ctx = document.getElementById('scatterPlotChart');
+        if (!ctx) return;
+
+        const scatterData = allFertilizers.map(f => ({
+            x: parseFloat(f.quantity) || 0,
+            y: parseFloat(f.totalCost) || 0
+        }));
+
+        if (charts.scatter) charts.scatter.destroy();
+
+        charts.scatter = new Chart(ctx, {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: 'Quantity vs Cost',
+                    data: scatterData,
+                    backgroundColor: 'rgba(34, 197, 94, 0.6)',
+                    borderColor: '#22c55e'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Quantity (kg)'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Cost ($)'
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function initializeMethodComparisonChart() {
+        const ctx = document.getElementById('methodComparisonChart');
+        if (!ctx) return;
+
+        const methodCounts = {};
+        allFertilizers.forEach(f => {
+            const method = f.applicationMethod || 'Unknown';
+            methodCounts[method] = (methodCounts[method] || 0) + 1;
+        });
+
+        if (charts.methodComparison) charts.methodComparison.destroy();
+
+        charts.methodComparison = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(methodCounts),
+                datasets: [{
+                    label: 'Applications',
+                    data: Object.values(methodCounts),
+                    backgroundColor: ['#22c55e', '#3b82f6', '#8b5cf6', '#f59e0b', '#ef4444']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y'
+            }
+        });
+    }
+
+    function initializeHistogramChart() {
+        const ctx = document.getElementById('histogramChart');
+        if (!ctx) return;
+
+        const effectivenessData = allFertilizers
+            .filter(f => f.effectivenessRating)
+            .map(f => f.effectivenessRating);
+
+        const histogram = [0, 0, 0, 0, 0];
+        effectivenessData.forEach(rating => {
+            histogram[rating - 1]++;
+        });
+
+        if (charts.histogram) charts.histogram.destroy();
+
+        charts.histogram = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['1', '2', '3', '4', '5'],
+                datasets: [{
+                    label: 'Frequency',
+                    data: histogram,
+                    backgroundColor: '#22c55e'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Effectiveness Rating'
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function initializeSupplierChart() {
+        const ctx = document.getElementById('supplierChart');
+        if (!ctx) return;
+
+        const supplierStats = {};
+        allFertilizers.forEach(f => {
+            if (f.supplier) {
+                if (!supplierStats[f.supplier]) {
+                    supplierStats[f.supplier] = { count: 0, totalCost: 0 };
+                }
+                supplierStats[f.supplier].count++;
+                supplierStats[f.supplier].totalCost += parseFloat(f.totalCost) || 0;
+            }
+        });
+
+        const topSuppliers = Object.entries(supplierStats)
+            .sort((a, b) => b[1].count - a[1].count)
+            .slice(0, 5);
+
+        if (charts.supplier) charts.supplier.destroy();
+
+        charts.supplier = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: topSuppliers.map(s => s[0]),
+                datasets: [
+                    {
+                        label: 'Orders',
+                        data: topSuppliers.map(s => s[1].count),
+                        backgroundColor: '#22c55e',
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'Total Cost ($)',
+                        data: topSuppliers.map(s => s[1].totalCost),
+                        backgroundColor: '#3b82f6',
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        grid: {
+                            drawOnChartArea: false
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function calculatePredictions() {
+        if (allFertilizers.length === 0) return;
+
+        const totalCost = allFertilizers.reduce((sum, f) => sum + (parseFloat(f.totalCost) || 0), 0);
+        const avgMonthlyCost = totalCost / Math.max(1, getMonthsSpan());
+        const predictedMonthlyCost = avgMonthlyCost * 1.1;
+
+        document.getElementById('predictedCost').textContent = `$${predictedMonthlyCost.toFixed(2)}`;
+
+        const totalQuantity = allFertilizers.reduce((sum, f) => sum + (parseFloat(f.quantity) || 0), 0);
+        const avgMonthlyUsage = totalQuantity / Math.max(1, getMonthsSpan());
+        document.getElementById('predictedUsage').textContent = Math.round(avgMonthlyUsage * 1.1);
+
+        const typeCounts = {};
+        allFertilizers.forEach(f => {
+            const type = f.fertilizerType || 'Unknown';
+            typeCounts[type] = (typeCounts[type] || 0) + 1;
+        });
+        const recommendedType = Object.entries(typeCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || 'N/A';
+        document.getElementById('recommendedType').textContent = recommendedType;
+
+        const highEffective = allFertilizers.filter(f => f.effectivenessRating >= 4).length;
+        const efficiency = (highEffective / Math.max(1, allFertilizers.length)) * 100;
+        document.getElementById('efficiencyScore').textContent = `${efficiency.toFixed(1)}%`;
+
+        initializePredictionCharts();
+    }
+
+    function getMonthsSpan() {
+        if (allFertilizers.length === 0) return 1;
+
+        const dates = allFertilizers
+            .filter(f => f.applicationDate)
+            .map(f => new Date(f.applicationDate));
+
+        if (dates.length === 0) return 1;
+
+        const earliest = new Date(Math.min(...dates));
+        const latest = new Date(Math.max(...dates));
+        const months = (latest.getFullYear() - earliest.getFullYear()) * 12 + (latest.getMonth() - earliest.getMonth());
+
+        return Math.max(1, months);
+    }
+
+    function initializePredictionCharts() {
+        const predictionCtx = document.getElementById('predictionChart');
+        if (predictionCtx) {
+            const historicalData = getMonthlyUsageData();
+            const predictedData = predictFutureUsage(historicalData, 6);
+
+            if (charts.prediction) charts.prediction.destroy();
+
+            charts.prediction = new Chart(predictionCtx, {
+                type: 'line',
+                data: {
+                    labels: [...Object.keys(historicalData).slice(-6), ...Array.from({length: 6}, (_, i) => `Month +${i+1}`)],
+                    datasets: [
+                        {
+                            label: 'Historical',
+                            data: [...Object.values(historicalData).slice(-6), ...Array(6).fill(null)],
+                            borderColor: '#22c55e',
+                            backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Predicted',
+                            data: [...Array(6).fill(null), ...predictedData],
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            borderDash: [5, 5],
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+
+        const costTrendCtx = document.getElementById('costTrendChart');
+        if (costTrendCtx) {
+            const costData = getMonthlyCostData();
+            const predictedCosts = predictFutureCosts(costData, 6);
+
+            if (charts.costTrend) charts.costTrend.destroy();
+
+            charts.costTrend = new Chart(costTrendCtx, {
+                type: 'line',
+                data: {
+                    labels: [...Object.keys(costData).slice(-6), ...Array.from({length: 6}, (_, i) => `Month +${i+1}`)],
+                    datasets: [
+                        {
+                            label: 'Historical Cost',
+                            data: [...Object.values(costData).slice(-6), ...Array(6).fill(null)],
+                            borderColor: '#22c55e',
+                            backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Predicted Cost',
+                            data: [...Array(6).fill(null), ...predictedCosts],
+                            borderColor: '#f59e0b',
+                            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                            borderDash: [5, 5],
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+    }
+
+    function getMonthlyUsageData() {
+        const monthlyData = {};
+        allFertilizers.forEach(f => {
+            if (f.applicationDate) {
+                const month = new Date(f.applicationDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
+                monthlyData[month] = (monthlyData[month] || 0) + (parseFloat(f.quantity) || 0);
+            }
+        });
+        return monthlyData;
+    }
+
+    function getMonthlyCostData() {
+        const monthlyData = {};
+        allFertilizers.forEach(f => {
+            if (f.applicationDate) {
+                const month = new Date(f.applicationDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
+                monthlyData[month] = (monthlyData[month] || 0) + (parseFloat(f.totalCost) || 0);
+            }
+        });
+        return monthlyData;
+    }
+
+    function predictFutureUsage(historicalData, months) {
+        const values = Object.values(historicalData).slice(-6);
+        if (values.length === 0) return Array(months).fill(0);
+
+        const avg = values.reduce((sum, v) => sum + v, 0) / values.length;
+        const trend = values.length > 1 ? (values[values.length - 1] - values[0]) / values.length : 0;
+
+        return Array.from({length: months}, (_, i) => Math.max(0, avg + trend * (i + 1)));
+    }
+
+    function predictFutureCosts(historicalData, months) {
+        const values = Object.values(historicalData).slice(-6);
+        if (values.length === 0) return Array(months).fill(0);
+
+        const avg = values.reduce((sum, v) => sum + v, 0) / values.length;
+        const trend = values.length > 1 ? (values[values.length - 1] - values[0]) / values.length : 0;
+
+        return Array.from({length: months}, (_, i) => Math.max(0, avg + trend * (i + 1)));
+    }
+
+    async function loadNotifications() {
+        try {
+            const expiringSoonResponse = await fetch(`${API_BASE_URL}/expiring-soon/30`);
+            const expiringSoon = await expiringSoonResponse.json();
+
+            const lowEffectivenessResponse = await fetch(`${API_BASE_URL}/effectiveness/low/2`);
+            const lowEffectiveness = await lowEffectivenessResponse.json();
+
+            const notifications = [];
+
+            expiringSoon.forEach(f => {
+                notifications.push({
+                    title: 'Fertilizer Expiring Soon',
+                    message: `${f.fertilizerName} expires on ${new Date(f.expiryDate).toLocaleDateString()}`,
+                    time: 'Just now',
+                    unread: true
+                });
+            });
+
+            lowEffectiveness.forEach(f => {
+                notifications.push({
+                    title: 'Low Effectiveness Alert',
+                    message: `${f.fertilizerName} has low effectiveness rating`,
+                    time: 'Recent',
+                    unread: true
+                });
+            });
+
+            document.getElementById('notificationCount').textContent = notifications.length;
+            renderNotifications(notifications);
+        } catch (error) {
+            console.error('Error loading notifications:', error);
+        }
+    }
+
+    function renderNotifications(notifications) {
+        const container = document.getElementById('notificationList');
+        if (notifications.length === 0) {
+            container.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-secondary);">No notifications</div>';
+            return;
+        }
+
+        container.innerHTML = notifications.map(n => `
+            <div class="notification-item ${n.unread ? 'unread' : ''}">
+                <div class="notification-title">${n.title}</div>
+                <div class="notification-message">${n.message}</div>
+                <div class="notification-time">${n.time}</div>
+            </div>
+        `).join('');
+    }
+
+    function toggleNotifications() {
+        const dropdown = document.getElementById('notificationDropdown');
+        dropdown.classList.toggle('show');
+    }
+
+    document.addEventListener('click', function(event) {
+        const notificationBtn = document.querySelector('.notification-btn');
+        const notificationDropdown = document.getElementById('notificationDropdown');
+
+        if (!notificationBtn.contains(event.target) && !notificationDropdown.contains(event.target)) {
+            notificationDropdown.classList.remove('show');
+        }
+    });
+
+    function showSection(sectionName) {
+        document.querySelectorAll('.content-section').forEach(section => {
+            section.classList.remove('active');
+        });
+
+        const section = document.getElementById(sectionName + 'Section');
+        if (section) {
+            section.classList.add('active');
+        }
+
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.classList.remove('active');
+        });
+        event.target.closest('.nav-item').classList.add('active');
+
+        if (sectionName === 'fertilizers') {
+            loadAllFertilizers();
+        } else if (sectionName === 'predictions') {
+            calculatePredictions();
+        }
+    }
+
+    function applyFilters() {
+        const type = document.getElementById('filterType').value;
+        const method = document.getElementById('filterMethod').value;
+        const effectiveness = document.getElementById('filterEffectiveness').value;
+        const dateRange = document.getElementById('filterDateRange').value;
+
+        let filtered = [...allFertilizers];
+
+        if (type) {
+            filtered = filtered.filter(f => f.fertilizerType === type);
+        }
+
+        if (method) {
+            filtered = filtered.filter(f => f.applicationMethod === method);
+        }
+
+        if (effectiveness) {
+            filtered = filtered.filter(f => f.effectivenessRating === parseInt(effectiveness));
+        }
+
+        if (dateRange && dateRange !== 'all') {
+            const now = new Date();
+            let startDate = new Date();
+
+            switch(dateRange) {
+                case 'today':
+                    startDate.setHours(0, 0, 0, 0);
+                    break;
+                case 'week':
+                    startDate.setDate(now.getDate() - 7);
+                    break;
+                case 'month':
+                    startDate.setMonth(now.getMonth() - 1);
+                    break;
+                case 'year':
+                    startDate.setFullYear(now.getFullYear() - 1);
+                    break;
+            }
+
+            filtered = filtered.filter(f => new Date(f.applicationDate) >= startDate);
+        }
+
+        renderFertilizersTable(filtered);
+    }
+
+    function clearFilters() {
+        document.getElementById('filterType').value = '';
+        document.getElementById('filterMethod').value = '';
+        document.getElementById('filterEffectiveness').value = '';
+        document.getElementById('filterDateRange').value = '';
+        renderFertilizersTable(allFertilizers);
+    }
+
+    function searchInTable(tableBodyId, searchInputId) {
+        const searchValue = document.getElementById(searchInputId).value.toLowerCase();
+        const tbody = document.getElementById(tableBodyId);
+        const rows = tbody.getElementsByTagName('tr');
+
+        for (let row of rows) {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(searchValue) ? '' : 'none';
+        }
+    }
+
+    function handleGlobalSearch() {
+        const searchValue = document.getElementById('globalSearch').value.toLowerCase();
+        const visibleSection = document.querySelector('.content-section.active');
+
+        if (visibleSection) {
+            const tbody = visibleSection.querySelector('tbody');
+            if (tbody) {
+                const rows = tbody.getElementsByTagName('tr');
+                for (let row of rows) {
+                    const text = row.textContent.toLowerCase();
+                    row.style.display = text.includes(searchValue) ? '' : 'none';
+                }
+            }
+        }
+    }
+
+// Ajoutez cette fonction pour charger les crop productions
+async function loadCropProductionsForDropdown() {
+    try {
+        const response = await fetch('http://localhost:1010/api/v1/crop-productions/all');
+        const data = await response.json();
+        const productions = data.data || [];
+
+        const select = document.getElementById('cropProductionId');
+        select.innerHTML = '<option value="">Select Crop Production</option>';
+
+        productions.forEach(prod => {
+            const option = document.createElement('option');
+            option.value = prod.id;
+            option.textContent = `${prod.productionCode} - ${prod.season} ${prod.year}`;
+            select.appendChild(option);
+        });
+    } catch (error) {
+        console.error('Error loading crop productions:', error);
+        showToast('Error loading crop productions', 'error');
+    }
+}
+
+// Dans showAddFertilizerModal(), ajoutez:
+function showAddFertilizerModal() {
+    currentEditingFertilizerId = null;
+    document.getElementById('fertilizerModalTitle').textContent = 'Add Fertilizer';
+    document.getElementById('fertilizerForm').reset();
+    document.getElementById('fertilizerId').value = '';
+    document.getElementById('applicationDate').valueAsDate = new Date();
+
+    // ⭐ AJOUTEZ CETTE LIGNE
+    loadCropProductionsForDropdown();
+
+    document.getElementById('fertilizerModal').classList.add('show');
+}
+
+    function closeFertilizerModal() {
+        document.getElementById('fertilizerModal').classList.remove('show');
+        document.getElementById('fertilizerForm').reset();
+        currentEditingFertilizerId = null;
+    }
+
+    function setupAutoCalculation() {
+        const quantityInput = document.getElementById('quantity');
+        const costPerUnitInput = document.getElementById('costPerUnit');
+        const totalCostInput = document.getElementById('totalCost');
+
+        const calculateTotal = () => {
+            const quantity = parseFloat(quantityInput.value) || 0;
+            const costPerUnit = parseFloat(costPerUnitInput.value) || 0;
+            totalCostInput.value = (quantity * costPerUnit).toFixed(2);
+        };
+
+        quantityInput.addEventListener('input', calculateTotal);
+        costPerUnitInput.addEventListener('input', calculateTotal);
+    }
+
+    async function submitFertilizerForm(event) {
+        event.preventDefault();
+
+        const formData = {
+            cropProductionId: document.getElementById('cropProductionId').value,
+            fertilizerType: document.getElementById('fertilizerType').value,
+            fertilizerName: document.getElementById('fertilizerName').value,
+            brand: document.getElementById('brand').value || null,
+            composition: document.getElementById('composition').value || null,
+            quantity: parseFloat(document.getElementById('quantity').value),
+            unit: document.getElementById('unit').value,
+            applicationDate: document.getElementById('applicationDate').value,
+            applicationMethod: document.getElementById('applicationMethod').value,
+            applicationStage: document.getElementById('applicationStage').value || null,
+            costPerUnit: parseFloat(document.getElementById('costPerUnit').value) || null,
+            totalCost: parseFloat(document.getElementById('totalCost').value) || null,
+            supplier: document.getElementById('supplier').value || null,
+            batchNumber: document.getElementById('batchNumber').value || null,
+            expiryDate: document.getElementById('expiryDate').value || null,
+            weatherConditions: document.getElementById('weatherConditions').value || null,
+            soilConditions: document.getElementById('soilConditions').value || null,
+            operatorName: document.getElementById('operatorName').value || null,
+            effectivenessRating: parseInt(document.getElementById('effectivenessRating').value) || null,
+            notes: document.getElementById('notes').value || null
+        };
+
+        try {
+            showLoading(true);
+            let response;
+
+            if (currentEditingFertilizerId) {
+                response = await fetch(`${API_BASE_URL}/${currentEditingFertilizerId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+            } else {
+                response = await fetch(`${API_BASE_URL}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+            }
+
+            if (response.ok) {
+                showToast(currentEditingFertilizerId ? 'Fertilizer updated successfully' : 'Fertilizer added successfully', 'success');
+                closeFertilizerModal();
+                await loadStatistics();
+                await loadAllFertilizers();
+                initializeCharts();
+            } else {
+                const error = await response.json();
+                showToast(error.error || 'Error saving fertilizer', 'error');
+            }
+        } catch (error) {
+            console.error('Error saving fertilizer:', error);
+            showToast('Error saving fertilizer: ' + error.message, 'error');
+        } finally {
+            showLoading(false);
+        }
+    }
+
+    async function editFertilizer(id) {
+        try {
+            showLoading(true);
+            const response = await fetch(`${API_BASE_URL}/${id}`);
+            const fertilizer = await response.json();
+
+            currentEditingFertilizerId = id;
+            document.getElementById('fertilizerModalTitle').textContent = 'Edit Fertilizer';
+
+            document.getElementById('fertilizerId').value = fertilizer.id;
+            document.getElementById('cropProductionId').value = fertilizer.cropProductionId || '';
+            document.getElementById('fertilizerType').value = fertilizer.fertilizerType || '';
+            document.getElementById('fertilizerName').value = fertilizer.fertilizerName || '';
+            document.getElementById('brand').value = fertilizer.brand || '';
+            document.getElementById('composition').value = fertilizer.composition || '';
+            document.getElementById('quantity').value = fertilizer.quantity || '';
+            document.getElementById('unit').value = fertilizer.unit || '';
+            document.getElementById('applicationDate').value = fertilizer.applicationDate || '';
+            document.getElementById('applicationMethod').value = fertilizer.applicationMethod || '';
+            document.getElementById('applicationStage').value = fertilizer.applicationStage || '';
+            document.getElementById('costPerUnit').value = fertilizer.costPerUnit || '';
+            document.getElementById('totalCost').value = fertilizer.totalCost || '';
+            document.getElementById('supplier').value = fertilizer.supplier || '';
+            document.getElementById('batchNumber').value = fertilizer.batchNumber || '';
+            document.getElementById('expiryDate').value = fertilizer.expiryDate || '';
+            document.getElementById('weatherConditions').value = fertilizer.weatherConditions || '';
+            document.getElementById('soilConditions').value = fertilizer.soilConditions || '';
+            document.getElementById('operatorName').value = fertilizer.operatorName || '';
+            document.getElementById('effectivenessRating').value = fertilizer.effectivenessRating || '';
+            document.getElementById('notes').value = fertilizer.notes || '';
+
+            document.getElementById('fertilizerModal').classList.add('show');
+        } catch (error) {
+            console.error('Error loading fertilizer:', error);
+            showToast('Error loading fertilizer data', 'error');
+        } finally {
+            showLoading(false);
+        }
+    }
+
+    async function viewFertilizer(id) {
+        await editFertilizer(id);
+        document.querySelectorAll('#fertilizerForm input, #fertilizerForm select, #fertilizerForm textarea').forEach(input => {
+            input.disabled = true;
+        });
+        document.getElementById('fertilizerSubmitBtn').style.display = 'none';
+        document.getElementById('fertilizerModalTitle').textContent = 'View Fertilizer Details';
+    }
+
+    async function deleteFertilizer(id) {
+        if (!confirm('Are you sure you want to delete this fertilizer record? This action cannot be undone.')) {
+            return;
+        }
+
+        try {
+            showLoading(true);
+            const response = await fetch(`${API_BASE_URL}/${id}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                showToast('Fertilizer deleted successfully', 'success');
+                await loadStatistics();
+                await loadAllFertilizers();
+                initializeCharts();
+            } else {
+                showToast('Error deleting fertilizer', 'error');
+            }
+        } catch (error) {
+            console.error('Error deleting fertilizer:', error);
+            showToast('Error deleting fertilizer', 'error');
+        } finally {
+            showLoading(false);
+        }
+    }
+
+    async function exportToExcel() {
+        if (allFertilizers.length === 0) {
+            showToast('No data to export', 'warning');
+            return;
+        }
+
+        const exportData = allFertilizers.map(f => ({
+            'Fertilizer Name': f.fertilizerName || 'N/A',
+            'Type': f.fertilizerType || 'N/A',
+            'Brand': f.brand || 'N/A',
+            'Quantity': f.quantity || 0,
+            'Unit': f.unit || 'N/A',
+            'Cost Per Unit': f.costPerUnit || 0,
+            'Total Cost': f.totalCost || 0,
+            'Application Date': f.applicationDate ? new Date(f.applicationDate).toLocaleDateString() : 'N/A',
+            'Application Method': f.applicationMethod || 'N/A',
+            'Supplier': f.supplier || 'N/A',
+            'Effectiveness Rating': f.effectivenessRating || 'Not Rated',
+            'Expiry Date': f.expiryDate ? new Date(f.expiryDate).toLocaleDateString() : 'N/A'
+        }));
+
+        const ws = XLSX.utils.json_to_sheet(exportData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Fertilizers');
+        XLSX.writeFile(wb, `fertilizers_${Date.now()}.xlsx`);
+
+        showToast('Excel file exported successfully', 'success');
+    }
+
+    async function generateReport() {
+        const reportType = document.getElementById('reportType').value;
+        const period = document.getElementById('reportPeriod').value;
+        const format = document.getElementById('reportFormat').value;
+
+        const data = getFilteredReportData(reportType, period);
+
+        if (data.length === 0) {
+            showToast('No data available for this report', 'warning');
+            return;
+        }
+
+        if (format === 'pdf') {
+            generatePDFReport(data, reportType, period);
+        } else {
+            generateExcelReport(data, reportType, period);
+        }
+    }
+
+    function getFilteredReportData(reportType, period) {
+        let filtered = [...allFertilizers];
+
+        const now = new Date();
+        let startDate = new Date(0);
+
+        switch(period) {
+            case 'today':
+                startDate = new Date();
+                startDate.setHours(0, 0, 0, 0);
+                break;
+            case 'week':
+                startDate.setDate(now.getDate() - 7);
+                break;
+            case 'month':
+                startDate.setMonth(now.getMonth() - 1);
+                break;
+            case 'quarter':
+                startDate.setMonth(now.getMonth() - 3);
+                break;
+            case 'year':
+                startDate.setFullYear(now.getFullYear() - 1);
+                break;
+        }
+
+        if (period !== 'all') {
+            filtered = filtered.filter(f => new Date(f.applicationDate) >= startDate);
+        }
+
+        return filtered;
+    }
+
+    function generatePDFReport(data, reportType, period) {
+        showLoading(true);
+        try {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            doc.setFontSize(20);
+            doc.text('Fertilizer Usage Report', 105, 20, { align: 'center' });
+
+            doc.setFontSize(12);
+            doc.text(`Report Type: ${reportType.charAt(0).toUpperCase() + reportType.slice(1)}`, 20, 35);
+            doc.text(`Period: ${period.charAt(0).toUpperCase() + period.slice(1)}`, 20, 42);
+            doc.text(`Generated: ${new Date().toLocaleDateString()}`, 20, 49);
+            doc.text(`Total Records: ${data.length}`, 20, 56);
+
+            const tableData = data.map(f => [
+                f.fertilizerName || 'N/A',
+                f.fertilizerType || 'N/A',
+                `${f.quantity || 0} ${f.unit || ''}`,
+                `$${(f.totalCost || 0).toFixed(2)}`,
+                f.applicationDate ? new Date(f.applicationDate).toLocaleDateString() : 'N/A',
+                f.effectivenessRating ? '⭐'.repeat(f.effectivenessRating) : 'N/A'
+            ]);
+
+            doc.autoTable({
+                head: [['Name', 'Type', 'Quantity', 'Cost', 'Date', 'Rating']],
+                body: tableData,
+                startY: 65,
+                theme: 'grid',
+                headStyles: { fillColor: [34, 197, 94] },
+                styles: { fontSize: 8 }
+            });
+
+            doc.save(`fertilizer_report_${Date.now()}.pdf`);
+            showToast('PDF report generated successfully', 'success');
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+            showToast('Error generating PDF report', 'error');
+        } finally {
+            showLoading(false);
+        }
+    }
+
+    function generateExcelReport(data, reportType, period) {
+        const exportData = data.map(f => ({
+            'Name': f.fertilizerName || 'N/A',
+            'Type': f.fertilizerType || 'N/A',
+            'Brand': f.brand || 'N/A',
+            'Quantity': f.quantity || 0,
+            'Unit': f.unit || 'N/A',
+            'Cost': f.totalCost || 0,
+            'Application Date': f.applicationDate ? new Date(f.applicationDate).toLocaleDateString() : 'N/A',
+            'Method': f.applicationMethod || 'N/A',
+            'Supplier': f.supplier || 'N/A',
+            'Effectiveness': f.effectivenessRating || 'N/A'
+        }));
+
+        const ws = XLSX.utils.json_to_sheet(exportData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Report');
+        XLSX.writeFile(wb, `fertilizer_report_${reportType}_${period}_${Date.now()}.xlsx`);
+
+        showToast('Excel report generated successfully', 'success');
+    }
+
+    function previewReport() {
+        const reportType = document.getElementById('reportType').value;
+        const period = document.getElementById('reportPeriod').value;
+
+        const data = getFilteredReportData(reportType, period);
+
+        if (data.length === 0) {
+            showToast('No data available for this report', 'warning');
+            return;
+        }
+
+        const preview = document.getElementById('reportPreview');
+        const header = document.getElementById('reportPreviewHeader');
+        const body = document.getElementById('reportPreviewBody');
+
+        header.innerHTML = `
+            <tr>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Quantity</th>
+                <th>Cost</th>
+                <th>Date</th>
+                <th>Effectiveness</th>
+            </tr>
+        `;
+
+        body.innerHTML = data.map(f => `
+            <tr>
+                <td>${f.fertilizerName || 'N/A'}</td>
+                <td><span class="type-badge type-${(f.fertilizerType || 'organic').toLowerCase()}">${f.fertilizerType || 'N/A'}</span></td>
+                <td>${f.quantity || 0} ${f.unit || ''}</td>
+                <td>$${(f.totalCost || 0).toFixed(2)}</td>
+                <td>${f.applicationDate ? new Date(f.applicationDate).toLocaleDateString() : 'N/A'}</td>
+                <td>${f.effectivenessRating ? '⭐'.repeat(f.effectivenessRating) : 'N/A'}</td>
+            </tr>
+        `).join('');
+
+        preview.style.display = 'block';
+        preview.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('mainContent');
+
+        sidebar.classList.toggle('collapsed');
+        mainContent.classList.toggle('sidebar-collapsed');
+    }
+
+    function toggleTheme() {
+        document.body.classList.toggle('dark-mode');
+        const isDark = document.body.classList.contains('dark-mode');
+
+        const themeToggle = document.getElementById('themeToggle');
+        themeToggle.innerHTML = isDark
+            ? '<i class="fas fa-sun"></i><span>Light Mode</span>'
+            : '<i class="fas fa-moon"></i><span>Dark Mode</span>';
+
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    }
+
+    function loadSavedTheme() {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            document.getElementById('themeToggle').innerHTML = '<i class="fas fa-sun"></i><span>Light Mode</span>';
+        }
+    }
+
+    function updateDateTime() {
+        const now = new Date();
+
+        const dateOptions = {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        };
+
+        const currentDateElement = document.getElementById('currentDate');
+        if (currentDateElement) {
+            currentDateElement.textContent = now.toLocaleDateString('en-US', dateOptions);
+        }
+
+        if (currentLoggedInUser) {
+            const greetingText = document.getElementById('greetingText');
+            if (greetingText) {
+                const hour = now.getHours();
+                let greeting = 'Good Morning';
+                if (hour >= 12 && hour < 18) greeting = 'Good Afternoon';
+                else if (hour >= 18) greeting = 'Good Evening';
+
+                greetingText.textContent = `${greeting}, ${currentLoggedInUser.fullName}!`;
+            }
+        }
+    }
+
+    function showLoading(show) {
+        document.getElementById('loadingOverlay').classList.toggle('show', show);
+    }
+
+    function showToast(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `<p class="toast-message">${message}</p>`;
+
+        document.getElementById('toastContainer').appendChild(toast);
+
+        setTimeout(() => {
+            toast.remove();
+        }, 5000);
+    }
+</script>
+</body>
+</html>

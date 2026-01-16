@@ -1,0 +1,4886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analyst Dashboard - AgriGuard AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        :root {
+          --primary-green: #22c55e;
+          --primary-dark: #16a34a;
+          --secondary-green: #10b981;
+          --accent-green: #34d399;
+          --light-green: #dcfce7;
+          --dark-green: #166534;
+          --forest-green: #065f46;
+          --success-color: #22c55e;
+          --warning-color: #f59e0b;
+          --error-color: #ef4444;
+          --info-color: #3b82f6;
+          --bg-primary: #ffffff;
+          --bg-secondary: #f8f9fa;
+          --bg-sidebar: #e8f5e8;
+          --text-primary: #333333;
+          --text-secondary: #666666;
+          --border-color: #e0e0e0;
+          --hover-bg: rgba(34, 197, 94, 0.1);
+          --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+          --shadow-lg: 0 8px 25px rgba(34, 197, 94, 0.15);
+          --gradient-primary: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+          --gradient-bg: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%);
+          --card-bg: #ffffff;
+          --modal-bg: rgba(0, 0, 0, 0.5);
+        }
+
+        .dark-mode {
+          --bg-primary: #1a1a1a;
+          --bg-secondary: #2d2d2d;
+          --bg-sidebar: #1f2937;
+          --text-primary: #ffffff;
+          --text-secondary: #cccccc;
+          --border-color: #404040;
+          --hover-bg: rgba(34, 197, 94, 0.2);
+          --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+          --card-bg: #374151;
+          --gradient-bg: linear-gradient(135deg, #1f2937 0%, #374151 50%, #4b5563 100%);
+        }
+
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+
+        body {
+          font-family: 'Inter', sans-serif;
+          background: var(--gradient-bg);
+          color: var(--text-primary);
+          transition: all 0.3s ease;
+          overflow-x: hidden;
+        }
+
+        .dashboard-container {
+          display: flex;
+          height: 100vh;
+        }
+
+        .sidebar {
+          width: 280px;
+          background: var(--bg-sidebar);
+          border-right: 1px solid var(--border-color);
+          display: flex;
+          flex-direction: column;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          position: fixed;
+          height: 100vh;
+          z-index: 1000;
+          box-shadow: var(--shadow);
+        }
+
+        .sidebar.collapsed {
+          width: 70px;
+        }
+
+        .sidebar-header {
+          padding: 20px;
+          border-bottom: 1px solid var(--border-color);
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+
+        .logo {
+          width: 45px;
+          height: 45px;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: var(--gradient-primary);
+          color: white;
+          font-size: 24px;
+          box-shadow: var(--shadow);
+          animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.05); }
+        }
+
+        .company-info {
+          flex: 1;
+          transition: opacity 0.3s ease;
+        }
+
+        .company-name {
+          font-size: 18px;
+          font-weight: 700;
+          color: var(--text-primary);
+          margin-bottom: 2px;
+        }
+
+        .company-tagline {
+          font-size: 11px;
+          color: var(--primary-green);
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        .sidebar.collapsed .company-info {
+          opacity: 0;
+          width: 0;
+        }
+
+        .sidebar-nav {
+          flex: 1;
+          padding: 20px 0;
+          overflow-y: auto;
+        }
+
+        .nav-section {
+          margin-bottom: 30px;
+        }
+
+        .nav-section-title {
+          padding: 0 20px 10px;
+          font-size: 11px;
+          font-weight: 700;
+          color: var(--primary-green);
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          transition: opacity 0.3s ease;
+        }
+
+        .sidebar.collapsed .nav-section-title {
+          opacity: 0;
+          height: 0;
+          margin: 0;
+          padding: 0;
+        }
+
+        .nav-menu {
+          list-style: none;
+        }
+
+        .nav-item {
+          margin-bottom: 4px;
+        }
+
+        .nav-link {
+          display: flex;
+          align-items: center;
+          padding: 14px 20px;
+          color: var(--text-primary);
+          text-decoration: none;
+          border-radius: 0 25px 25px 0;
+          margin-right: 20px;
+          transition: all 0.3s ease;
+          position: relative;
+          overflow: hidden;
+          cursor: pointer;
+        }
+
+        .nav-link i {
+          width: 22px;
+          margin-right: 14px;
+          font-size: 18px;
+          flex-shrink: 0;
+        }
+
+        .nav-link span {
+          transition: opacity 0.3s ease;
+          white-space: nowrap;
+          font-weight: 500;
+        }
+
+        .sidebar.collapsed .nav-link span {
+          opacity: 0;
+        }
+
+        .sidebar.collapsed .nav-link {
+          margin-right: 0;
+          border-radius: 0;
+          justify-content: center;
+        }
+
+        .nav-link:hover {
+          background: var(--hover-bg);
+          color: var(--primary-green);
+          transform: translateX(5px);
+        }
+
+        .nav-item.active .nav-link {
+          background: var(--gradient-primary);
+          color: white;
+          box-shadow: var(--shadow);
+        }
+
+        .main-content {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          margin-left: 280px;
+          transition: margin-left 0.3s ease;
+        }
+
+        .main-content.sidebar-collapsed {
+          margin-left: 70px;
+        }
+
+        .header {
+          background: var(--card-bg);
+          border-bottom: 1px solid var(--border-color);
+          padding: 0 32px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          height: 80px;
+          box-shadow: var(--shadow);
+          backdrop-filter: blur(10px);
+        }
+
+        .header-left {
+          display: flex;
+          align-items: center;
+          gap: 24px;
+        }
+
+        .sidebar-toggle {
+          background: none;
+          border: none;
+          color: var(--text-primary);
+          font-size: 20px;
+          cursor: pointer;
+          padding: 12px;
+          border-radius: 12px;
+          transition: all 0.3s ease;
+        }
+
+        .sidebar-toggle:hover {
+          background: var(--hover-bg);
+          color: var(--primary-green);
+          transform: scale(1.1);
+        }
+
+        .greeting-section {
+          display: flex;
+          flex-direction: column;
+        }
+
+        .greeting-text {
+          font-size: 24px;
+          font-weight: 700;
+          color: var(--text-primary);
+          margin-bottom: 2px;
+        }
+
+        .current-date {
+          font-size: 14px;
+          color: var(--text-secondary);
+          font-weight: 500;
+        }
+
+        .header-right {
+          display: flex;
+          align-items: center;
+          gap: 20px;
+        }
+
+        .theme-toggle {
+          background: var(--card-bg);
+          border: 2px solid var(--border-color);
+          color: var(--text-primary);
+          padding: 12px 16px;
+          border-radius: 12px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          font-size: 16px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .theme-toggle:hover {
+          background: var(--hover-bg);
+          border-color: var(--primary-green);
+          transform: translateY(-2px);
+        }
+
+        .profile-section {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          cursor: pointer;
+          padding: 8px 16px;
+          border-radius: 12px;
+          transition: all 0.3s ease;
+        }
+
+        .profile-section:hover {
+          background: var(--hover-bg);
+        }
+
+        .profile-avatar {
+          width: 45px;
+          height: 45px;
+          background: var(--gradient-primary);
+          color: white;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 700;
+          font-size: 16px;
+          transition: all 0.3s ease;
+          box-shadow: var(--shadow);
+        }
+
+        .profile-info {
+          display: flex;
+          flex-direction: column;
+        }
+
+        .profile-name {
+          font-size: 14px;
+          font-weight: 600;
+          color: var(--text-primary);
+        }
+
+        .profile-role {
+          font-size: 12px;
+          color: var(--primary-green);
+          font-weight: 500;
+        }
+
+        .logout-btn {
+          background: transparent;
+          border: none;
+          color: var(--text-secondary);
+          font-size: 20px;
+          cursor: pointer;
+          padding: 8px;
+          border-radius: 8px;
+          transition: all 0.3s ease;
+          margin-left: 12px;
+        }
+
+        .logout-btn:hover {
+          background: rgba(239, 68, 68, 0.1);
+          color: var(--error-color);
+          transform: scale(1.1);
+        }
+
+        .content {
+          flex: 1;
+          padding: 32px;
+          background: var(--bg-secondary);
+          overflow-y: auto;
+          min-height: calc(100vh - 80px);
+        }
+
+        .stats-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+          gap: 24px;
+          margin-bottom: 32px;
+          animation: fadeInUp 0.6s ease;
+        }
+
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .stat-card {
+          background: var(--card-bg);
+          padding: 24px;
+          border-radius: 16px;
+          box-shadow: var(--shadow);
+          transition: all 0.3s ease;
+          border: 1px solid var(--border-color);
+          position: relative;
+          overflow: hidden;
+        }
+
+        .stat-card::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 4px;
+          background: var(--gradient-primary);
+        }
+
+        .stat-card:hover {
+          transform: translateY(-5px);
+          box-shadow: var(--shadow-lg);
+        }
+
+        .stat-icon {
+          width: 50px;
+          height: 50px;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 24px;
+          color: white;
+          margin-bottom: 12px;
+        }
+
+        .stat-icon.transactions { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+        .stat-icon.revenue { background: linear-gradient(135deg, #22c55e, #16a34a); }
+        .stat-icon.farmers { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+        .stat-icon.buyers { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .stat-icon.crops { background: linear-gradient(135deg, #10b981, #047857); }
+        .stat-icon.weather { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+        .stat-icon.soil { background: linear-gradient(135deg, #84cc16, #65a30d); }
+        .stat-icon.market { background: linear-gradient(135deg, #ef4444, #dc2626); }
+
+        .stat-value {
+          font-size: 32px;
+          font-weight: 700;
+          color: var(--text-primary);
+          margin-bottom: 4px;
+        }
+
+        .stat-label {
+          font-size: 14px;
+          color: var(--text-secondary);
+          font-weight: 500;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        .stat-trend {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          margin-top: 8px;
+          font-size: 13px;
+          font-weight: 600;
+        }
+
+        .stat-trend.up {
+          color: var(--success-color);
+        }
+
+        .stat-trend.down {
+          color: var(--error-color);
+        }
+
+        .charts-section {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+          gap: 24px;
+          margin-bottom: 32px;
+          animation: fadeInUp 0.8s ease;
+        }
+
+        .chart-card {
+          background: var(--card-bg);
+          padding: 24px;
+          border-radius: 16px;
+          box-shadow: var(--shadow);
+          border: 1px solid var(--border-color);
+        }
+
+        .chart-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 20px;
+        }
+
+        .chart-title {
+          font-size: 18px;
+          font-weight: 600;
+          color: var(--text-primary);
+        }
+
+        .chart-container {
+          position: relative;
+          height: 350px;
+        }
+
+        .ai-predictions-section {
+          margin-bottom: 32px;
+        }
+
+        .ai-prediction-card {
+          background: var(--card-bg);
+          padding: 24px;
+          border-radius: 16px;
+          box-shadow: var(--shadow);
+          border-left: 4px solid var(--primary-green);
+          margin-bottom: 16px;
+          animation: fadeInUp 1s ease;
+        }
+
+        .prediction-header {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          margin-bottom: 12px;
+        }
+
+        .prediction-icon {
+          width: 40px;
+          height: 40px;
+          border-radius: 10px;
+          background: var(--gradient-primary);
+          color: white;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 20px;
+        }
+
+        .prediction-title {
+          font-size: 16px;
+          font-weight: 600;
+          color: var(--text-primary);
+        }
+
+        .prediction-content {
+          color: var(--text-secondary);
+          font-size: 14px;
+          line-height: 1.6;
+          margin-bottom: 12px;
+        }
+
+        .prediction-metrics {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+          gap: 12px;
+          margin-top: 16px;
+        }
+
+        .prediction-metric {
+          padding: 12px;
+          background: var(--bg-secondary);
+          border-radius: 8px;
+        }
+
+        .prediction-metric-label {
+          font-size: 12px;
+          color: var(--text-secondary);
+          margin-bottom: 4px;
+        }
+
+        .prediction-metric-value {
+          font-size: 18px;
+          font-weight: 700;
+          color: var(--primary-green);
+        }
+
+        .table-section {
+          background: var(--card-bg);
+          border-radius: 16px;
+          box-shadow: var(--shadow);
+          border: 1px solid var(--border-color);
+          overflow: hidden;
+          margin-bottom: 32px;
+          animation: fadeInUp 1.2s ease;
+        }
+
+        .table-header {
+          padding: 24px;
+          border-bottom: 1px solid var(--border-color);
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .table-title {
+          font-size: 20px;
+          font-weight: 600;
+          color: var(--text-primary);
+        }
+
+        .table-actions {
+          display: flex;
+          gap: 12px;
+        }
+
+        .btn {
+          padding: 10px 20px;
+          border: none;
+          border-radius: 8px;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .btn-primary {
+          background: var(--gradient-primary);
+          color: white;
+          box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+        }
+
+        .btn-primary:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
+        }
+
+        .btn-secondary {
+          background: var(--bg-secondary);
+          color: var(--text-primary);
+          border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+          background: var(--hover-bg);
+          border-color: var(--primary-green);
+        }
+
+        .data-table {
+          width: 100%;
+          border-collapse: collapse;
+        }
+
+        .data-table th,
+        .data-table td {
+          padding: 16px;
+          text-align: left;
+          border-bottom: 1px solid var(--border-color);
+        }
+
+        .data-table th {
+          background: var(--bg-secondary);
+          font-weight: 600;
+          color: var(--text-primary);
+          font-size: 13px;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        .data-table td {
+          color: var(--text-primary);
+          font-size: 14px;
+        }
+
+        .data-table tr:hover {
+          background: var(--hover-bg);
+        }
+
+        .loading-overlay {
+          display: none;
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.7);
+          z-index: 9999;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .loading-overlay.show {
+          display: flex;
+        }
+
+        .loader {
+          border: 8px solid #f3f3f3;
+          border-top: 8px solid var(--primary-green);
+          border-radius: 50%;
+          width: 60px;
+          height: 60px;
+          animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+
+        .toast-container {
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          z-index: 3000;
+        }
+
+        .toast {
+          background: var(--card-bg);
+          border-radius: 12px;
+          padding: 16px 20px;
+          margin-bottom: 12px;
+          box-shadow: var(--shadow-lg);
+          border-left: 4px solid;
+          animation: slideInRight 0.3s ease;
+          max-width: 400px;
+        }
+
+        .toast.success { border-left-color: var(--success-color); }
+        .toast.error { border-left-color: var(--error-color); }
+        .toast.warning { border-left-color: var(--warning-color); }
+        .toast.info { border-left-color: var(--info-color); }
+
+        @keyframes slideInRight {
+          from {
+            opacity: 0;
+            transform: translateX(100%);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+
+        .content-section {
+          display: none;
+        }
+
+        .content-section.active {
+          display: block;
+        }
+
+        .insights-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+          gap: 24px;
+          margin-bottom: 32px;
+        }
+
+        .insight-card {
+          background: var(--card-bg);
+          padding: 20px;
+          border-radius: 12px;
+          border-left: 4px solid;
+          box-shadow: var(--shadow);
+        }
+
+        .insight-card.positive { border-left-color: var(--success-color); }
+        .insight-card.warning { border-left-color: var(--warning-color); }
+        .insight-card.critical { border-left-color: var(--error-color); }
+        .insight-card.info { border-left-color: var(--info-color); }
+
+        .insight-header {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          margin-bottom: 10px;
+        }
+
+        .insight-icon {
+          font-size: 24px;
+        }
+
+        .insight-title {
+          font-size: 15px;
+          font-weight: 600;
+          color: var(--text-primary);
+        }
+
+        .insight-description {
+          font-size: 14px;
+          color: var(--text-secondary);
+          line-height: 1.5;
+        }
+
+        ::-webkit-scrollbar {
+          width: 8px;
+          height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+          background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+          background: var(--primary-green);
+          border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+          background: var(--primary-dark);
+        }
+
+        @media (max-width: 1200px) {
+          .charts-section {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        @media (max-width: 768px) {
+          .sidebar {
+            transform: translateX(-100%);
+          }
+
+          .sidebar.mobile-open {
+            transform: translateX(0);
+          }
+
+          .main-content {
+            margin-left: 0;
+          }
+
+          .header {
+            padding: 0 16px;
+          }
+
+          .content {
+            padding: 20px 16px;
+          }
+
+          .stats-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .profile-info {
+            display: none;
+          }
+        }
+    </style>
+</head>
+<body>
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loader"></div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<div class="dashboard-container">
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">📊</div>
+            <div class="company-info">
+                <div class="company-name">AgriGuard AI</div>
+                <div class="company-tagline">Analytics Hub</div>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-section">
+                <h3 class="nav-section-title">Analytics</h3>
+                <ul class="nav-menu">
+                    <li class="nav-item active">
+                        <a class="nav-link" onclick="showSection('overview')">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Overview</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="showSection('transactions')">
+                            <i class="fas fa-exchange-alt"></i>
+                            <span>Transactions</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="showSection('crops')">
+                            <i class="fas fa-seedling"></i>
+                            <span>Crop Production</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="showSection('market')">
+                            <i class="fas fa-tags"></i>
+                            <span>Market Prices</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="showSection('weather')">
+                            <i class="fas fa-cloud-sun"></i>
+                            <span>Weather Analysis</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="showSection('soil')">
+                            <i class="fas fa-flask"></i>
+                            <span>Soil Analysis</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="nav-section">
+                <h3 class="nav-section-title">AI Insights</h3>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="showSection('predictions')">
+                            <i class="fas fa-brain"></i>
+                            <span>Predictions</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="showSection('recommendations')">
+                            <i class="fas fa-lightbulb"></i>
+                            <span>Recommendations</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="nav-section">
+                <h3 class="nav-section-title">Reports</h3>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="showSection('reports')">
+                            <i class="fas fa-file-alt"></i>
+                            <span>Generate Reports</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+
+    <div class="main-content" id="mainContent">
+        <header class="header">
+            <div class="header-left">
+                <button class="sidebar-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="greeting-section">
+                    <div class="greeting-text" id="greetingText">Good Morning, Analyst!</div>
+                    <div class="current-date" id="currentDate"></div>
+                </div>
+            </div>
+
+            <div class="header-right">
+                <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                    <span>Dark Mode</span>
+                </button>
+                <div class="profile-section">
+                    <div class="profile-avatar" id="profileAvatar">A</div>
+                    <div class="profile-info">
+                        <div class="profile-name" id="profileName">Analyst</div>
+                        <div class="profile-role" id="profileRole">Data Analyst</div>
+                    </div>
+                    <button class="logout-btn" onclick="handleLogout()" title="Logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="content">
+            <!-- Overview Section -->
+            <div id="overviewSection" class="content-section active">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon transactions">
+                            <i class="fas fa-exchange-alt"></i>
+                        </div>
+                        <div class="stat-value" id="totalTransactions">0</div>
+                        <div class="stat-label">Total Transactions</div>
+                        <div class="stat-trend up" id="transactionsTrend">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>0% vs last month</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon revenue">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="stat-value" id="totalRevenue">RWF 0</div>
+                        <div class="stat-label">Total Revenue</div>
+                        <div class="stat-trend up" id="revenueTrend">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>0% vs last month</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon farmers">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-value" id="totalFarmers">0</div>
+                        <div class="stat-label">Active Farmers</div>
+                        <div class="stat-trend up" id="farmersTrend">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>0% vs last month</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon buyers">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <div class="stat-value" id="totalBuyers">0</div>
+                        <div class="stat-label">Active Buyers</div>
+                        <div class="stat-trend up" id="buyersTrend">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>0% vs last month</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon crops">
+                            <i class="fas fa-seedling"></i>
+                        </div>
+                        <div class="stat-value" id="totalCrops">0</div>
+                        <div class="stat-label">Crop Productions</div>
+                        <div class="stat-trend up" id="cropsTrend">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>0% vs last season</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon weather">
+                            <i class="fas fa-cloud-sun"></i>
+                        </div>
+                        <div class="stat-value" id="avgTemperature">0°C</div>
+                        <div class="stat-label">Avg Temperature</div>
+                        <div class="stat-trend" id="temperatureTrend">
+                            <i class="fas fa-minus"></i>
+                            <span>Normal range</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon soil">
+                            <i class="fas fa-flask"></i>
+                        </div>
+                        <div class="stat-value" id="avgSoilQuality">0%</div>
+                        <div class="stat-label">Avg Soil Quality</div>
+                        <div class="stat-trend up" id="soilTrend">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>Excellent</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon market">
+                            <i class="fas fa-tags"></i>
+                        </div>
+                        <div class="stat-value" id="avgMarketPrice">RWF 0</div>
+                        <div class="stat-label">Avg Market Price</div>
+                        <div class="stat-trend" id="priceTrend">
+                            <i class="fas fa-minus"></i>
+                            <span>Stable</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-section">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Transaction Trends (Last 12 Months)</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="transactionTrendChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Revenue Distribution</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="revenueDistributionChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Top Performing Crops</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="topCropsChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">User Growth Analysis</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="userGrowthChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="insights-grid">
+                    <div class="insight-card positive">
+                        <div class="insight-header">
+                            <i class="insight-icon fas fa-check-circle" style="color: var(--success-color);"></i>
+                            <div class="insight-title">Strong Transaction Volume</div>
+                        </div>
+                        <div class="insight-description">
+                            Transaction volume has increased by <strong id="transactionIncrease">0%</strong> this month, indicating healthy market activity.
+                        </div>
+                    </div>
+
+                    <div class="insight-card warning">
+                        <div class="insight-header">
+                            <i class="insight-icon fas fa-exclamation-triangle" style="color: var(--warning-color);"></i>
+                            <div class="insight-title">Weather Alert</div>
+                        </div>
+                        <div class="insight-description">
+                            Rainfall patterns show <strong id="rainfallStatus">variations</strong>. Farmers should monitor irrigation needs closely.
+                        </div>
+                    </div>
+
+                    <div class="insight-card info">
+                        <div class="insight-header">
+                            <i class="insight-icon fas fa-info-circle" style="color: var(--info-color);"></i>
+                            <div class="insight-title">Market Opportunity</div>
+                        </div>
+                        <div class="insight-description">
+                            <strong id="highDemandCrop">Certain crops</strong> show high demand with increasing prices. Good selling opportunity.
+                        </div>
+                    </div>
+
+                    <div class="insight-card positive">
+                        <div class="insight-header">
+                            <i class="insight-icon fas fa-leaf" style="color: var(--success-color);"></i>
+                            <div class="insight-title">Soil Health Improving</div>
+                        </div>
+                        <div class="insight-description">
+                            Average soil quality has improved by <strong id="soilImprovement">0%</strong> compared to last season.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transactions Section -->
+            <div id="transactionsSection" class="content-section">
+                <div class="charts-section">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Daily Transaction Volume</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="dailyTransactionsChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Transaction Status Distribution</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="transactionStatusChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Top 10 Buyers by Volume</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="topBuyersChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Top 10 Sellers by Revenue</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="topSellersChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Payment Method Distribution</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="paymentMethodChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Average Transaction Value Trend</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="avgTransactionValueChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-section">
+                    <div class="table-header">
+                        <h2 class="table-title">Recent Transactions</h2>
+                        <div class="table-actions">
+                            <button class="btn btn-secondary" onclick="refreshTransactions()">
+                                <i class="fas fa-sync-alt"></i>
+                                Refresh
+                            </button>
+                            <button class="btn btn-primary" onclick="exportTransactionsExcel()">
+                                <i class="fas fa-file-excel"></i>
+                                Export
+                            </button>
+                        </div>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table class="data-table">
+                            <thead>
+                            <tr>
+                                <th>Transaction ID</th>
+                                <th>Date</th>
+                                <th>Farmer</th>
+                                <th>Buyer</th>
+                                <th>Crop</th>
+                                <th>Quantity</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                            </tr>
+                            </thead>
+                            <tbody id="transactionsTableBody">
+                            <tr>
+                                <td colspan="8" style="text-align: center; padding: 40px;">Loading transactions...</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Crop Production Section -->
+            <div id="cropsSection" class="content-section">
+                <div class="charts-section">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Production by Crop Type</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="cropProductionChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Yield Performance by Season</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="yieldSeasonChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Production Status Overview</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="productionStatusChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Area vs Yield Correlation</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="areaYieldScatterChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Monthly Harvest Volume</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="monthlyHarvestChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Organic vs Conventional Production</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="organicConventionalChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Market Prices Section -->
+            <div id="marketSection" class="content-section">
+                <div class="charts-section">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Price Trends by Crop</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="priceTrendsChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Market Type Price Comparison</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="marketTypeComparisonChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Demand vs Supply Analysis</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="demandSupplyChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Regional Price Variations</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="regionalPriceChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Price Volatility Index</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="priceVolatilityChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Seasonal Price Patterns</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="seasonalPriceChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Weather Analysis Section -->
+            <div id="weatherSection" class="content-section">
+                <div class="charts-section">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Temperature Trends</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="temperatureTrendChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Rainfall Distribution</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="rainfallChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Humidity Levels</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="humidityChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Wind Speed Analysis</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="windSpeedChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Weather Condition Distribution</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="weatherConditionChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Weather Impact on Crop Growth</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="weatherImpactChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Soil Analysis Section -->
+            <div id="soilSection" class="content-section">
+                <div class="charts-section">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">pH Level Distribution</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="phDistributionChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Soil Quality Trends</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="soilQualityTrendChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">NPK Nutrient Levels</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="npkLevelsChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Organic Matter Content</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="organicMatterChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Soil Texture Distribution</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="soilTextureChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Moisture Content Analysis</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="moistureContentChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Predictions Section -->
+            <div id="predictionsSection" class="content-section">
+                <div class="ai-predictions-section">
+                    <div class="ai-prediction-card">
+                        <div class="prediction-header">
+                            <div class="prediction-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <h3 class="prediction-title">Crop Yield Prediction</h3>
+                        </div>
+                        <div class="prediction-content" id="yieldPredictionContent">
+                            Loading AI prediction...
+                        </div>
+                        <div class="prediction-metrics">
+                            <div class="prediction-metric">
+                                <div class="prediction-metric-label">Predicted Yield</div>
+                                <div class="prediction-metric-value" id="predictedYield">0 tons</div>
+                            </div>
+                            <div class="prediction-metric">
+                                <div class="prediction-metric-label">Confidence</div>
+                                <div class="prediction-metric-value" id="yieldConfidence">0%</div>
+                            </div>
+                            <div class="prediction-metric">
+                                <div class="prediction-metric-label">Expected Date</div>
+                                <div class="prediction-metric-value" id="yieldDate">-</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ai-prediction-card">
+                        <div class="prediction-header">
+                            <div class="prediction-icon">
+                                <i class="fas fa-tags"></i>
+                            </div>
+                            <h3 class="prediction-title">Market Price Forecast</h3>
+                        </div>
+                        <div class="prediction-content" id="pricePredictionContent">
+                            Loading AI prediction...
+                        </div>
+                        <div class="prediction-metrics">
+                            <div class="prediction-metric">
+                                <div class="prediction-metric-label">Forecasted Price</div>
+                                <div class="prediction-metric-value" id="forecastedPrice">RWF 0</div>
+                            </div>
+                            <div class="prediction-metric">
+                                <div class="prediction-metric-label">Change</div>
+                                <div class="prediction-metric-value" id="priceChange">0%</div>
+                            </div>
+                            <div class="prediction-metric">
+                                <div class="prediction-metric-label">Time Horizon</div>
+                                <div class="prediction-metric-value" id="priceHorizon">30 days</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ai-prediction-card">
+                        <div class="prediction-header">
+                            <div class="prediction-icon">
+                                <i class="fas fa-cloud-rain"></i>
+                            </div>
+                            <h3 class="prediction-title">Weather Pattern Prediction</h3>
+                        </div>
+                        <div class="prediction-content" id="weatherPredictionContent">
+                            Loading AI prediction...
+                        </div>
+                        <div class="prediction-metrics">
+                            <div class="prediction-metric">
+                                <div class="prediction-metric-label">Rainfall Forecast</div>
+                                <div class="prediction-metric-value" id="rainfallForecast">0 mm</div>
+                            </div>
+                            <div class="prediction-metric">
+                                <div class="prediction-metric-label">Temperature</div>
+                                <div class="prediction-metric-value" id="tempForecast">0°C</div>
+                            </div>
+                            <div class="prediction-metric">
+                                <div class="prediction-metric-label">Risk Level</div>
+                                <div class="prediction-metric-value" id="weatherRisk">Low</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ai-prediction-card">
+                        <div class="prediction-header">
+                            <div class="prediction-icon">
+                                <i class="fas fa-flask"></i>
+                            </div>
+                            <h3 class="prediction-title">Soil Health Forecast</h3>
+                        </div>
+                        <div class="prediction-content" id="soilPredictionContent">
+                            Loading AI prediction...
+                        </div>
+                        <div class="prediction-metrics">
+                            <div class="prediction-metric">
+                                <div class="prediction-metric-label">Health Score</div>
+                                <div class="prediction-metric-value" id="soilHealthScore">0%</div>
+                            </div>
+                            <div class="prediction-metric">
+                                <div class="prediction-metric-label">Nutrient Status</div>
+                                <div class="prediction-metric-value" id="nutrientStatus">Normal</div>
+                            </div>
+                            <div class="prediction-metric">
+                                <div class="prediction-metric-label">Action Needed</div>
+                                <div class="prediction-metric-value" id="soilAction">None</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ai-prediction-card">
+                        <div class="prediction-header">
+                            <div class="prediction-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <h3 class="prediction-title">User Activity Prediction</h3>
+                        </div>
+                        <div class="prediction-content" id="activityPredictionContent">
+                            Loading AI prediction...
+                        </div>
+                        <div class="prediction-metrics">
+                            <div class="prediction-metric">
+                                <div class="prediction-metric-label">Expected Users</div>
+                                <div class="prediction-metric-value" id="expectedUsers">0</div>
+                            </div>
+                            <div class="prediction-metric">
+                                <div class="prediction-metric-label">Peak Time</div>
+                                <div class="prediction-metric-value" id="peakTime">-</div>
+                            </div>
+                            <div class="prediction-metric">
+                                <div class="prediction-metric-label">Growth Rate</div>
+                                <div class="prediction-metric-value" id="growthRate">0%</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ai-prediction-card">
+                        <div class="prediction-header">
+                            <div class="prediction-icon">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <h3 class="prediction-title">Risk Assessment</h3>
+                        </div>
+                        <div class="prediction-content" id="riskAssessmentContent">
+                            Loading AI prediction...
+                        </div>
+                        <div class="prediction-metrics">
+                            <div class="prediction-metric">
+                                <div class="prediction-metric-label">Risk Level</div>
+                                <div class="prediction-metric-value" id="overallRisk">Low</div>
+                            </div>
+                            <div class="prediction-metric">
+                                <div class="prediction-metric-label">Priority Areas</div>
+                                <div class="prediction-metric-value" id="priorityAreas">0</div>
+                            </div>
+                            <div class="prediction-metric">
+                                <div class="prediction-metric-label">Confidence</div>
+                                <div class="prediction-metric-value" id="riskConfidence">0%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recommendations Section -->
+            <div id="recommendationsSection" class="content-section">
+                <div class="ai-predictions-section">
+                    <div class="ai-prediction-card">
+                        <div class="prediction-header">
+                            <div class="prediction-icon">
+                                <i class="fas fa-seedling"></i>
+                            </div>
+                            <h3 class="prediction-title">Optimal Planting Recommendations</h3>
+                        </div>
+                        <div class="prediction-content" id="plantingRecommendations">
+                            Loading recommendations...
+                        </div>
+                    </div>
+
+                    <div class="ai-prediction-card">
+                        <div class="prediction-header">
+                            <div class="prediction-icon">
+                                <i class="fas fa-shopping-cart"></i>
+                            </div>
+                            <h3 class="prediction-title">Optimal Selling Strategy</h3>
+                        </div>
+                        <div class="prediction-content" id="sellingRecommendations">
+                            Loading recommendations...
+                        </div>
+                    </div>
+
+                    <div class="ai-prediction-card">
+                        <div class="prediction-header">
+                            <div class="prediction-icon">
+                                <i class="fas fa-tint"></i>
+                            </div>
+                            <h3 class="prediction-title">Irrigation Management</h3>
+                        </div>
+                        <div class="prediction-content" id="irrigationRecommendations">
+                            Loading recommendations...
+                        </div>
+                    </div>
+
+                    <div class="ai-prediction-card">
+                        <div class="prediction-header">
+                            <div class="prediction-icon">
+                                <i class="fas fa-spray-can"></i>
+                            </div>
+                            <h3 class="prediction-title">Fertilizer Application</h3>
+                        </div>
+                        <div class="prediction-content" id="fertilizerRecommendations">
+                            Loading recommendations...
+                        </div>
+                    </div>
+
+                    <div class="ai-prediction-card">
+                        <div class="prediction-header">
+                            <div class="prediction-icon">
+                                <i class="fas fa-bug"></i>
+                            </div>
+                            <h3 class="prediction-title">Pest Control Recommendations</h3>
+                        </div>
+                        <div class="prediction-content" id="pestRecommendations">
+                            Loading recommendations...
+                        </div>
+                    </div>
+
+                    <div class="ai-prediction-card">
+                        <div class="prediction-header">
+                            <div class="prediction-icon">
+                                <i class="fas fa-chart-pie"></i>
+                            </div>
+                            <h3 class="prediction-title">Crop Diversification Strategy</h3>
+                        </div>
+                        <div class="prediction-content" id="diversificationRecommendations">
+                            Loading recommendations...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports Section -->
+            <div id="reportsSection" class="content-section">
+                <div class="chart-card" style="margin-bottom: 24px;">
+                    <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 20px;">Report Configuration</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 20px;">
+                        <div>
+                            <label style="display: block; font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px;">Report Type</label>
+                            <select class="filter-select" id="reportType" style="width: 100%; padding: 12px; border: 2px solid var(--border-color); border-radius: 8px;">
+                                <option value="comprehensive">Comprehensive Analysis</option>
+                                <option value="transactions">Transaction Report</option>
+                                <option value="crops">Crop Production Report</option>
+                                <option value="market">Market Analysis Report</option>
+                                <option value="weather">Weather Impact Report</option>
+                                <option value="soil">Soil Health Report</option>
+                                <option value="predictions">AI Predictions Report</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px;">Time Period</label>
+                            <select class="filter-select" id="reportPeriod" style="width: 100%; padding: 12px; border: 2px solid var(--border-color); border-radius: 8px;">
+                                <option value="7">Last 7 Days</option>
+                                <option value="30">Last 30 Days</option>
+                                <option value="90">Last 90 Days</option>
+                                <option value="365">Last Year</option>
+                                <option value="custom">Custom Range</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 12px; margin-top: 20px;">
+                        <button class="btn btn-primary" onclick="generatePDFReport()">
+                            <i class="fas fa-file-pdf"></i>
+                            Generate PDF Report
+                        </button>
+                        <button class="btn btn-secondary" onclick="generateExcelReport()">
+                            <i class="fas fa-file-excel"></i>
+                            Generate Excel Report
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script src="js/SessionTracker.js"></script>
+<script src="js/user_session_handler.js"></script>
+<script >
+
+
+
+    // js/analyst_dashboard.js
+
+// ==================== API CONFIGURATION ====================
+const API_CONFIG = {
+    TRANSACTIONS: 'http://localhost:1010/api/transactions',
+    CROP_PRODUCTION: 'http://localhost:1010/api/v1/crop-productions',
+    MARKET_PRICES: 'http://localhost:1010/api/market-prices',
+    WEATHER: 'http://localhost:1010/api/weather-data',
+    SOIL_DATA: 'http://localhost:1010/api/v1/soil-data',
+    CROPS: 'http://localhost:1010/api/v1/crops',
+    USERS: 'http://localhost:1010/api/users',
+    FARMS: 'http://localhost:1010/api/farms'
+};
+
+// ==================== GLOBAL STATE ====================
+let sessionHandler = null;
+let currentUser = null;
+let allTransactions = [];
+let allCropProductions = [];
+let allMarketPrices = [];
+let allWeatherData = [];
+let allSoilData = [];
+let allCrops = [];
+let charts = {};
+
+// ==================== INITIALIZATION ====================
+document.addEventListener('DOMContentLoaded', function() {
+    if (!initializeSession()) return;
+
+    initializeDashboard();
+    updateDateTime();
+    setInterval(updateDateTime, 60000);
+    loadSavedTheme();
+});
+
+function initializeSession() {
+    try {
+        sessionHandler = UserSessionHandler.getInstance();
+        currentUser = sessionHandler.getCurrentUser();
+
+        if (!currentUser) {
+            window.location.href = '/login.html';
+            return false;
+        }
+
+        if (currentUser.role !== 'ANALYST') {
+            showToast('Access denied. Analyst role required.', 'error');
+            setTimeout(() => {
+                sessionHandler.logout();
+            }, 2000);
+            return false;
+        }
+
+        updateUIWithUser();
+        startSessionMonitoring();
+        return true;
+    } catch (error) {
+        console.error('Session error:', error);
+        window.location.href = '/login.html';
+        return false;
+    }
+}
+
+function updateUIWithUser() {
+    if (!currentUser) return;
+
+    const hour = new Date().getHours();
+    let greeting = 'Good Morning';
+    if (hour >= 12 && hour < 18) greeting = 'Good Afternoon';
+    else if (hour >= 18) greeting = 'Good Evening';
+
+    document.getElementById('greetingText').textContent = `${greeting}, ${currentUser.fullName}!`;
+    document.getElementById('profileName').textContent = currentUser.fullName;
+    document.getElementById('profileRole').textContent = 'Data Analyst';
+
+    const initials = currentUser.fullName.split(' ').map(n => n[0]).join('').toUpperCase();
+    document.getElementById('profileAvatar').textContent = initials;
+
+    if (currentUser.photo || currentUser.profileImageUrl) {
+        const photoUrl = currentUser.photo || currentUser.profileImageUrl;
+        const avatar = document.getElementById('profileAvatar');
+        avatar.style.backgroundImage = `url(${photoUrl})`;
+        avatar.style.backgroundSize = 'cover';
+        avatar.textContent = '';
+    }
+}
+
+function startSessionMonitoring() {
+    setInterval(() => {
+        if (sessionHandler && sessionHandler.isAuthenticated()) {
+            if (window.sessionTracker) {
+                const userId = currentUser.userId || currentUser.id;
+                window.sessionTracker.updateLastActivity(userId);
+            }
+        } else {
+            handleSessionExpired();
+        }
+    }, 30000);
+
+    ['click', 'keypress', 'mousemove', 'scroll'].forEach(eventType => {
+        document.addEventListener(eventType, () => {
+            if (currentUser && window.sessionTracker) {
+                const userId = currentUser.userId || currentUser.id;
+                window.sessionTracker.updateLastActivity(userId);
+            }
+        }, { passive: true });
+    });
+}
+
+function handleSessionExpired() {
+    showToast('Your session has expired. Please login again.', 'warning');
+    setTimeout(() => {
+        if (sessionHandler) {
+            sessionHandler.logout();
+        } else {
+            window.location.href = '/login.html';
+        }
+    }, 2000);
+}
+
+function handleLogout() {
+    if (confirm('Are you sure you want to logout?')) {
+        if (currentUser && window.sessionTracker) {
+            const userId = currentUser.userId || currentUser.id;
+            window.sessionTracker.endSession(userId);
+        }
+
+        if (sessionHandler) {
+            sessionHandler.logout();
+        } else {
+            window.location.href = '/login.html';
+        }
+    }
+}
+
+// ==================== DASHBOARD INITIALIZATION ====================
+async function initializeDashboard() {
+    showLoading(true);
+    try {
+        await Promise.all([
+            loadTransactions(),
+            loadCropProductions(),
+            loadMarketPrices(),
+            loadWeatherData(),
+            loadSoilData(),
+            loadCrops()
+        ]);
+
+        calculateStatistics();
+        initializeAllCharts();
+        generateAIPredictions();
+        generateAIRecommendations();
+
+        console.log('Dashboard initialized successfully');
+    } catch (error) {
+        console.error('Error initializing dashboard:', error);
+        showToast('Error loading dashboard data', 'error');
+    } finally {
+        showLoading(false);
+    }
+}
+
+
+
+// ==================== DATA LOADING FUNCTIONS ====================
+async function loadTransactions() {
+    try {
+        // Load all pages since size is limited to 100
+        let allData = [];
+        let page = 0;
+        let hasMore = true;
+
+        while (hasMore && page < 50) { // Safety limit of 50 pages
+            const response = await fetch(`${API_CONFIG.TRANSACTIONS}?page=${page}&size=100&sortBy=createdAt&sortDir=desc`);
+
+            if (!response.ok) {
+                console.error('Transaction API error:', response.status, response.statusText);
+                break;
+            }
+
+            const data = await response.json();
+
+            if (data.content && Array.isArray(data.content)) {
+                allData = allData.concat(data.content);
+                hasMore = !data.last && data.content.length > 0;
+                page++;
+            } else if (Array.isArray(data)) {
+                allData = allData.concat(data);
+                hasMore = false;
+            } else {
+                break;
+            }
+        }
+
+        allTransactions = allData;
+        console.log('Transactions loaded:', allTransactions.length);
+    } catch (error) {
+        console.error('Error loading transactions:', error);
+        allTransactions = [];
+    }
+}
+
+async function loadCropProductions() {
+    try {
+        const response = await fetch(`${API_CONFIG.CROP_PRODUCTION}/all`);
+        const data = await response.json();
+        allCropProductions = data.data || data || [];
+        console.log('Crop productions loaded:', allCropProductions.length);
+    } catch (error) {
+        console.error('Error loading crop productions:', error);
+        allCropProductions = [];
+    }
+}
+
+async function loadMarketPrices() {
+    try {
+        const response = await fetch(API_CONFIG.MARKET_PRICES);
+
+        if (!response.ok) {
+            console.error('Market prices API error:', response.status);
+            allMarketPrices = [];
+            return;
+        }
+
+        const data = await response.json();
+
+        // Handle different response formats
+        if (Array.isArray(data)) {
+            allMarketPrices = data;
+        } else if (data.content && Array.isArray(data.content)) {
+            allMarketPrices = data.content;
+        } else if (data.data && Array.isArray(data.data)) {
+            allMarketPrices = data.data;
+        } else {
+            console.error('Unexpected market prices response format:', data);
+            allMarketPrices = [];
+        }
+
+        console.log('Market prices loaded:', allMarketPrices.length);
+    } catch (error) {
+        console.error('Error loading market prices:', error);
+        allMarketPrices = [];
+    }
+}
+
+
+
+
+
+async function loadWeatherData() {
+    try {
+        // Try the paginated endpoint first
+        let allData = [];
+        let page = 0;
+        let hasMore = true;
+
+        while (hasMore && page < 10) { // Limit to 10 pages to prevent infinite loops
+            const response = await fetch(`${API_CONFIG.WEATHER}?page=${page}&size=100&sortBy=recordDate&sortDir=desc`);
+
+            if (!response.ok) {
+                console.error('Weather API error:', response.status);
+                break;
+            }
+
+            const data = await response.json();
+
+            // Handle the custom response format from your controller
+            if (data.content && Array.isArray(data.content)) {
+                allData = allData.concat(data.content);
+                hasMore = data.hasNext;
+                page++;
+            } else {
+                break;
+            }
+        }
+
+        allWeatherData = allData;
+        console.log('Weather data loaded:', allWeatherData.length);
+    } catch (error) {
+        console.error('Error loading weather data:', error);
+        allWeatherData = [];
+    }
+}
+
+async function loadSoilData() {
+    try {
+        const response = await fetch(`${API_CONFIG.SOIL_DATA}?page=0&size=1000`);
+        const data = await response.json();
+        allSoilData = data.content || data || [];
+        console.log('Soil data loaded:', allSoilData.length);
+    } catch (error) {
+        console.error('Error loading soil data:', error);
+        allSoilData = [];
+    }
+}
+
+async function loadCrops() {
+    try {
+        const response = await fetch(`${API_CONFIG.CROPS}/all`);
+        const data = await response.json();
+        allCrops = data.data || data || [];
+        console.log('Crops loaded:', allCrops.length);
+    } catch (error) {
+        console.error('Error loading crops:', error);
+        allCrops = [];
+    }
+}
+
+// ==================== STATISTICS CALCULATION ====================
+function calculateStatistics() {
+    const totalTransactions = allTransactions.length;
+    const totalRevenue = allTransactions.reduce((sum, t) => sum + (parseFloat(t.totalAmount) || 0), 0);
+
+    const uniqueFarmers = new Set(allTransactions.map(t => t.farmerId).filter(Boolean));
+    const uniqueBuyers = new Set(allTransactions.map(t => t.buyerId).filter(Boolean));
+
+    const avgTemp = allWeatherData.length > 0
+        ? allWeatherData.reduce((sum, w) => sum + (parseFloat(w.temperature) || 0), 0) / allWeatherData.length
+        : 0;
+
+    const avgSoilQuality = calculateAverageSoilQuality();
+
+    const avgPrice = allMarketPrices.length > 0
+        ? allMarketPrices.reduce((sum, p) => sum + (parseFloat(p.pricePerKg) || 0), 0) / allMarketPrices.length
+        : 0;
+
+    document.getElementById('totalTransactions').textContent = totalTransactions;
+    document.getElementById('totalRevenue').textContent = formatCurrency(totalRevenue);
+    document.getElementById('totalFarmers').textContent = uniqueFarmers.size;
+    document.getElementById('totalBuyers').textContent = uniqueBuyers.size;
+    document.getElementById('totalCrops').textContent = allCropProductions.length;
+    document.getElementById('avgTemperature').textContent = avgTemp.toFixed(1) + '°C';
+    document.getElementById('avgSoilQuality').textContent = avgSoilQuality.toFixed(0) + '%';
+    document.getElementById('avgMarketPrice').textContent = formatCurrency(avgPrice);
+
+    calculateTrends();
+}
+
+function calculateAverageSoilQuality() {
+    if (allSoilData.length === 0) return 0;
+
+    const scores = allSoilData.map(soil => {
+        let score = 0;
+        let maxScore = 0;
+
+        if (soil.phLevel) {
+            maxScore += 30;
+            const ph = parseFloat(soil.phLevel);
+            if (ph >= 6.0 && ph <= 7.5) score += 30;
+            else if ((ph >= 5.5 && ph < 6.0) || (ph > 7.5 && ph <= 8.0)) score += 20;
+            else score += 10;
+        }
+
+        if (soil.organicMatter) {
+            maxScore += 25;
+            const om = parseFloat(soil.organicMatter);
+            if (om >= 5.0) score += 25;
+            else if (om >= 3.0) score += 20;
+            else if (om >= 2.0) score += 15;
+            else score += 10;
+        }
+
+        if (soil.nitrogen && soil.phosphorus && soil.potassium) {
+            maxScore += 25;
+            const n = parseFloat(soil.nitrogen);
+            const p = parseFloat(soil.phosphorus);
+            const k = parseFloat(soil.potassium);
+            if (n >= 40 && n <= 150) score += 8;
+            if (p >= 25 && p <= 100) score += 8;
+            if (k >= 150 && k <= 500) score += 9;
+        }
+
+        if (soil.porosity && soil.bulkDensity) {
+            maxScore += 20;
+            const porosity = parseFloat(soil.porosity);
+            const bd = parseFloat(soil.bulkDensity);
+            if (porosity > 40 && bd < 1.4) score += 20;
+            else if (porosity > 30 && bd < 1.6) score += 15;
+            else score += 10;
+        }
+
+        return maxScore > 0 ? (score * 100) / maxScore : 0;
+    });
+
+    return scores.reduce((a, b) => a + b, 0) / scores.length;
+}
+
+function calculateTrends() {
+    const now = new Date();
+    const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+
+    const currentMonthTransactions = allTransactions.filter(t =>
+        new Date(t.createdAt) >= lastMonth
+    );
+    const previousMonthStart = new Date(now.getFullYear(), now.getMonth() - 2, 1);
+    const previousMonthEnd = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const previousMonthTransactions = allTransactions.filter(t => {
+        const date = new Date(t.createdAt);
+        return date >= previousMonthStart && date < previousMonthEnd;
+    });
+
+    const transactionGrowth = calculateGrowthRate(
+        previousMonthTransactions.length,
+        currentMonthTransactions.length
+    );
+
+    document.getElementById('transactionsTrend').innerHTML =
+        `<i class="fas fa-arrow-${transactionGrowth >= 0 ? 'up' : 'down'}"></i>
+        <span>${Math.abs(transactionGrowth).toFixed(1)}% vs last month</span>`;
+    document.getElementById('transactionsTrend').className =
+        `stat-trend ${transactionGrowth >= 0 ? 'up' : 'down'}`;
+
+    const currentRevenue = currentMonthTransactions.reduce((sum, t) =>
+        sum + (parseFloat(t.totalAmount) || 0), 0
+    );
+    const previousRevenue = previousMonthTransactions.reduce((sum, t) =>
+        sum + (parseFloat(t.totalAmount) || 0), 0
+    );
+    const revenueGrowth = calculateGrowthRate(previousRevenue, currentRevenue);
+
+    document.getElementById('revenueTrend').innerHTML =
+        `<i class="fas fa-arrow-${revenueGrowth >= 0 ? 'up' : 'down'}"></i>
+        <span>${Math.abs(revenueGrowth).toFixed(1)}% vs last month</span>`;
+    document.getElementById('revenueTrend').className =
+        `stat-trend ${revenueGrowth >= 0 ? 'up' : 'down'}`;
+
+    document.getElementById('transactionIncrease').textContent =
+        Math.abs(transactionGrowth).toFixed(1);
+}
+
+function calculateGrowthRate(previous, current) {
+    if (previous === 0) return current > 0 ? 100 : 0;
+    return ((current - previous) / previous) * 100;
+}
+
+// ==================== CHART INITIALIZATION ====================
+function initializeAllCharts() {
+    initializeTransactionTrendChart();
+    initializeRevenueDistributionChart();
+    initializeTopCropsChart();
+    initializeUserGrowthChart();
+    initializeDailyTransactionsChart();
+    initializeTransactionStatusChart();
+    initializeTopBuyersChart();
+    initializeTopSellersChart();
+    initializePaymentMethodChart();
+    initializeAvgTransactionValueChart();
+    initializeCropProductionChart();
+    initializeYieldSeasonChart();
+    initializeProductionStatusChart();
+    initializeAreaYieldScatterChart();
+    initializeMonthlyHarvestChart();
+    initializeOrganicConventionalChart();
+    initializePriceTrendsChart();
+    initializeMarketTypeComparisonChart();
+    initializeDemandSupplyChart();
+    initializeRegionalPriceChart();
+    initializePriceVolatilityChart();
+    initializeSeasonalPriceChart();
+    initializeTemperatureTrendChart();
+    initializeRainfallChart();
+    initializeHumidityChart();
+    initializeWindSpeedChart();
+    initializeWeatherConditionChart();
+    initializeWeatherImpactChart();
+    initializePhDistributionChart();
+    initializeSoilQualityTrendChart();
+    initializeNpkLevelsChart();
+    initializeOrganicMatterChart();
+    initializeSoilTextureChart();
+    initializeMoistureContentChart();
+}
+
+function initializeTransactionTrendChart() {
+    const ctx = document.getElementById('transactionTrendChart');
+    if (!ctx) return;
+
+    const monthlyData = getMonthlyTransactionData(12);
+
+    charts.transactionTrend = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: monthlyData.labels,
+            datasets: [{
+                label: 'Transactions',
+                data: monthlyData.counts,
+                borderColor: '#22c55e',
+                backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                tension: 0.4,
+                fill: true
+            }, {
+                label: 'Revenue (RWF)',
+                data: monthlyData.revenue,
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                tension: 0.4,
+                fill: true,
+                yAxisID: 'y1'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false
+            },
+            scales: {
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    title: { display: true, text: 'Transactions' }
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    title: { display: true, text: 'Revenue (RWF)' },
+                    grid: { drawOnChartArea: false }
+                }
+            }
+        }
+    });
+}
+
+function getMonthlyTransactionData(months) {
+    const labels = [];
+    const counts = [];
+    const revenue = [];
+    const now = new Date();
+
+    for (let i = months - 1; i >= 0; i--) {
+        const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        const monthName = date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+        labels.push(monthName);
+
+        const monthTransactions = allTransactions.filter(t => {
+            const tDate = new Date(t.createdAt);
+            return tDate.getMonth() === date.getMonth() &&
+                   tDate.getFullYear() === date.getFullYear();
+        });
+
+        counts.push(monthTransactions.length);
+        revenue.push(monthTransactions.reduce((sum, t) =>
+            sum + (parseFloat(t.totalAmount) || 0), 0
+        ));
+    }
+
+    return { labels, counts, revenue };
+}
+
+function initializeRevenueDistributionChart() {
+    const ctx = document.getElementById('revenueDistributionChart');
+    if (!ctx) return;
+
+    const cropRevenue = {};
+    allTransactions.forEach(t => {
+        const cropId = t.cropId || 'Unknown';
+        cropRevenue[cropId] = (cropRevenue[cropId] || 0) + (parseFloat(t.totalAmount) || 0);
+    });
+
+    const sortedCrops = Object.entries(cropRevenue)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 8);
+
+    const labels = sortedCrops.map(([cropId]) => {
+        const crop = allCrops.find(c => c.id === cropId);
+        return crop ? crop.cropName : 'Unknown';
+    });
+
+    const data = sortedCrops.map(([, revenue]) => revenue);
+
+    charts.revenueDistribution = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: [
+                    '#22c55e', '#3b82f6', '#f59e0b', '#ef4444',
+                    '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.parsed || 0;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return `${label}: ${formatCurrency(value)} (${percentage}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+function initializeTopCropsChart() {
+    const ctx = document.getElementById('topCropsChart');
+    if (!ctx) return;
+
+    const cropProduction = {};
+    allCropProductions.forEach(cp => {
+        const cropId = cp.cropId || 'Unknown';
+        const yield = parseFloat(cp.actualYield) || parseFloat(cp.expectedYield) || 0;
+        cropProduction[cropId] = (cropProduction[cropId] || 0) + yield;
+    });
+
+    const sortedCrops = Object.entries(cropProduction)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 10);
+
+    const labels = sortedCrops.map(([cropId]) => {
+        const crop = allCrops.find(c => c.id === cropId);
+        return crop ? crop.cropName : 'Unknown';
+    });
+
+    const data = sortedCrops.map(([, production]) => production);
+
+    charts.topCrops = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Total Production (tons)',
+                data: data,
+                backgroundColor: '#22c55e'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: 'y',
+            scales: {
+                x: { beginAtZero: true }
+            }
+        }
+    });
+}
+
+function initializeUserGrowthChart() {
+    const ctx = document.getElementById('userGrowthChart');
+    if (!ctx) return;
+
+    const monthlyData = getMonthlyUserData(12);
+
+    charts.userGrowth = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: monthlyData.labels,
+            datasets: [{
+                label: 'Farmers',
+                data: monthlyData.farmers,
+                borderColor: '#22c55e',
+                backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                tension: 0.4,
+                fill: true
+            }, {
+                label: 'Buyers',
+                data: monthlyData.buyers,
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+}
+
+function getMonthlyUserData(months) {
+    const labels = [];
+    const farmers = [];
+    const buyers = [];
+    const now = new Date();
+
+    for (let i = months - 1; i >= 0; i--) {
+        const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        const monthName = date.toLocaleDateString('en-US', { month: 'short' });
+        labels.push(monthName);
+
+        const monthTransactions = allTransactions.filter(t => {
+            const tDate = new Date(t.createdAt);
+            return tDate.getMonth() === date.getMonth() &&
+                   tDate.getFullYear() === date.getFullYear();
+        });
+
+        const uniqueFarmers = new Set(monthTransactions.map(t => t.farmerId).filter(Boolean));
+        const uniqueBuyers = new Set(monthTransactions.map(t => t.buyerId).filter(Boolean));
+
+        farmers.push(uniqueFarmers.size);
+        buyers.push(uniqueBuyers.size);
+    }
+
+    return { labels, farmers, buyers };
+}
+
+function initializeDailyTransactionsChart() {
+    const ctx = document.getElementById('dailyTransactionsChart');
+    if (!ctx) return;
+
+    const last30Days = getLast30DaysData();
+
+    charts.dailyTransactions = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: last30Days.labels,
+            datasets: [{
+                label: 'Daily Transactions',
+                data: last30Days.counts,
+                backgroundColor: '#22c55e'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+}
+
+function getLast30DaysData() {
+    const labels = [];
+    const counts = [];
+    const now = new Date();
+
+    for (let i = 29; i >= 0; i--) {
+        const date = new Date(now);
+        date.setDate(date.getDate() - i);
+        const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        labels.push(dateStr);
+
+        const dayTransactions = allTransactions.filter(t => {
+            const tDate = new Date(t.createdAt);
+            return tDate.toDateString() === date.toDateString();
+        });
+
+        counts.push(dayTransactions.length);
+    }
+
+    return { labels, counts };
+}
+
+function initializeTransactionStatusChart() {
+    const ctx = document.getElementById('transactionStatusChart');
+    if (!ctx) return;
+
+    const statusCounts = {};
+    allTransactions.forEach(t => {
+        const status = t.transactionStatus || 'UNKNOWN';
+        statusCounts[status] = (statusCounts[status] || 0) + 1;
+    });
+
+    charts.transactionStatus = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: Object.keys(statusCounts).map(formatEnum),
+            datasets: [{
+                data: Object.values(statusCounts),
+                backgroundColor: ['#22c55e', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+}
+
+function initializeTopBuyersChart() {
+    const ctx = document.getElementById('topBuyersChart');
+    if (!ctx) return;
+
+    const buyerStats = {};
+    allTransactions.forEach(t => {
+        const buyerId = t.buyerId || 'Unknown';
+        if (!buyerStats[buyerId]) {
+            buyerStats[buyerId] = { count: 0, amount: 0 };
+        }
+        buyerStats[buyerId].count++;
+        buyerStats[buyerId].amount += parseFloat(t.totalAmount) || 0;
+    });
+
+    const sortedBuyers = Object.entries(buyerStats)
+        .sort((a, b) => b[1].count - a[1].count)
+        .slice(0, 10);
+
+    charts.topBuyers = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: sortedBuyers.map(([id]) => `Buyer ${id.substring(0, 8)}`),
+            datasets: [{
+                label: 'Transaction Count',
+                data: sortedBuyers.map(([, stats]) => stats.count),
+                backgroundColor: '#3b82f6'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: 'y',
+            scales: {
+                x: { beginAtZero: true }
+            }
+        }
+    });
+}
+
+function initializeTopSellersChart() {
+    const ctx = document.getElementById('topSellersChart');
+    if (!ctx) return;
+
+    const sellerStats = {};
+    allTransactions.forEach(t => {
+        const farmerId = t.farmerId || 'Unknown';
+        if (!sellerStats[farmerId]) {
+            sellerStats[farmerId] = { count: 0, amount: 0 };
+        }
+        sellerStats[farmerId].count++;
+        sellerStats[farmerId].amount += parseFloat(t.totalAmount) || 0;
+    });
+
+    const sortedSellers = Object.entries(sellerStats)
+        .sort((a, b) => b[1].amount - a[1].amount)
+        .slice(0, 10);
+
+    charts.topSellers = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: sortedSellers.map(([id]) => `Farmer ${id.substring(0, 8)}`),
+            datasets: [{
+                label: 'Total Revenue (RWF)',
+                data: sortedSellers.map(([, stats]) => stats.amount),
+                backgroundColor: '#22c55e'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: 'y',
+            scales: {
+                x: { beginAtZero: true }
+            }
+        }
+    });
+}
+
+function initializePaymentMethodChart() {
+    const ctx = document.getElementById('paymentMethodChart');
+    if (!ctx) return;
+
+    const methodCounts = {};
+    allTransactions.forEach(t => {
+        const method = t.paymentMethod || 'UNKNOWN';
+        methodCounts[method] = (methodCounts[method] || 0) + 1;
+    });
+
+    charts.paymentMethod = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(methodCounts).map(formatEnum),
+            datasets: [{
+                data: Object.values(methodCounts),
+                backgroundColor: ['#22c55e', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+}
+
+function initializeAvgTransactionValueChart() {
+    const ctx = document.getElementById('avgTransactionValueChart');
+    if (!ctx) return;
+
+    const monthlyAvg = getMonthlyAvgTransactionValue(12);
+
+    charts.avgTransactionValue = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: monthlyAvg.labels,
+            datasets: [{
+                label: 'Avg Transaction Value (RWF)',
+                data: monthlyAvg.values,
+                borderColor: '#22c55e',
+                backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+}
+
+function getMonthlyAvgTransactionValue(months) {
+    const labels = [];
+    const values = [];
+    const now = new Date();
+
+    for (let i = months - 1; i >= 0; i--) {
+        const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        const monthName = date.toLocaleDateString('en-US', { month: 'short' });
+        labels.push(monthName);
+
+        const monthTransactions = allTransactions.filter(t => {
+            const tDate = new Date(t.createdAt);
+            return tDate.getMonth() === date.getMonth() &&
+                   tDate.getFullYear() === date.getFullYear();
+        });
+
+        const avg = monthTransactions.length > 0
+            ? monthTransactions.reduce((sum, t) => sum + (parseFloat(t.totalAmount) || 0), 0) / monthTransactions.length
+            : 0;
+
+        values.push(avg);
+    }
+
+    return { labels, values };
+}
+
+function initializeCropProductionChart() {
+    const ctx = document.getElementById('cropProductionChart');
+    if (!ctx) return;
+
+    const cropCounts = {};
+    allCropProductions.forEach(cp => {
+        const cropId = cp.cropId || 'Unknown';
+        cropCounts[cropId] = (cropCounts[cropId] || 0) + 1;
+    });
+
+    const sortedCrops = Object.entries(cropCounts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 10);
+
+    const labels = sortedCrops.map(([cropId]) => {
+        const crop = allCrops.find(c => c.id === cropId);
+        return crop ? crop.cropName : 'Unknown';
+    });
+
+    charts.cropProduction = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Production Count',
+                data: sortedCrops.map(([, count]) => count),
+                backgroundColor: '#22c55e'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+}
+
+function initializeYieldSeasonChart() {
+    const ctx = document.getElementById('yieldSeasonChart');
+    if (!ctx) return;
+
+    const seasonYield = {};
+    allCropProductions.forEach(cp => {
+        const season = cp.season || 'UNKNOWN';
+        const yield = parseFloat(cp.actualYield) || parseFloat(cp.expectedYield) || 0;
+        if (!seasonYield[season]) {
+            seasonYield[season] = { total: 0, count: 0 };
+        }
+        seasonYield[season].total += yield;
+        seasonYield[season].count++;
+    });
+
+    const seasons = Object.keys(seasonYield);
+    const avgYields = seasons.map(s => seasonYield[s].total / seasonYield[s].count);
+
+    charts.yieldSeason = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: seasons.map(formatEnum),
+            datasets: [{
+                label: 'Average Yield (tons/ha)',
+                data: avgYields,
+                backgroundColor: '#10b981'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+}
+
+function initializeProductionStatusChart() {
+    const ctx = document.getElementById('productionStatusChart');
+    if (!ctx) return;
+
+    const statusCounts = {};
+    allCropProductions.forEach(cp => {
+        const status = cp.productionStatus || 'UNKNOWN';
+        statusCounts[status] = (statusCounts[status] || 0) + 1;
+    });
+
+    charts.productionStatus = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: Object.keys(statusCounts).map(formatEnum),
+            datasets: [{
+                data: Object.values(statusCounts),
+                backgroundColor: ['#22c55e', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+}
+
+function initializeAreaYieldScatterChart() {
+    const ctx = document.getElementById('areaYieldScatterChart');
+    if (!ctx) return;
+
+    const scatterData = allCropProductions
+        .filter(cp => cp.areaInHectares && (cp.actualYield || cp.expectedYield))
+        .map(cp => ({
+            x: parseFloat(cp.areaInHectares),
+            y: parseFloat(cp.actualYield || cp.expectedYield)
+        }));
+
+    charts.areaYieldScatter = new Chart(ctx, {
+        type: 'scatter',
+        data: {
+            datasets: [{
+                label: 'Area vs Yield',
+                data: scatterData,
+                backgroundColor: 'rgba(34, 197, 94, 0.6)',
+                borderColor: '#22c55e'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    title: { display: true, text: 'Area (hectares)' },
+                    beginAtZero: true
+                },
+                y: {
+                    title: { display: true, text: 'Yield (tons/ha)' },
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+
+function initializeMonthlyHarvestChart() {
+    const ctx = document.getElementById('monthlyHarvestChart');
+    if (!ctx) return;
+
+    const monthlyHarvest = Array(12).fill(0);
+    allCropProductions.forEach(cp => {
+        if (cp.actualHarvestDate) {
+            const month = new Date(cp.actualHarvestDate).getMonth();
+            const yield = parseFloat(cp.actualYield) || 0;
+            monthlyHarvest[month] += yield;
+        }
+    });
+
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    charts.monthlyHarvest = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: monthNames,
+            datasets: [{
+                label: 'Harvest Volume (tons)',
+                data: monthlyHarvest,
+                borderColor: '#22c55e',
+                backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+}
+
+function initializeOrganicConventionalChart() {
+    const ctx = document.getElementById('organicConventionalChart');
+    if (!ctx) return;
+
+    const methodCounts = {};
+    allCropProductions.forEach(cp => {
+        const method = cp.productionMethod || 'UNKNOWN';
+        methodCounts[method] = (methodCounts[method] || 0) + 1;
+    });
+
+    charts.organicConventional = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(methodCounts).map(formatEnum),
+            datasets: [{
+                data: Object.values(methodCounts),
+                backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+}
+
+function initializePriceTrendsChart() {
+    const ctx = document.getElementById('priceTrendsChart');
+    if (!ctx) return;
+
+    const topCrops = getTopCropsByPrice(5);
+    const datasets = topCrops.map((crop, index) => {
+        const colors = ['#22c55e', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'];
+        return {
+            label: crop.name,
+            data: crop.prices,
+            borderColor: colors[index],
+            backgroundColor: `${colors[index]}20`,
+            tension: 0.4,
+            fill: true
+        };
+    });
+
+    const labels = topCrops.length > 0 ? topCrops[0].dates : [];
+
+    charts.priceTrends = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: datasets
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false
+            },
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+}
+
+function getTopCropsByPrice(limit) {
+    const cropPriceData = {};
+
+    allMarketPrices.forEach(mp => {
+        const cropId = mp.cropId || 'Unknown';
+        if (!cropPriceData[cropId]) {
+            cropPriceData[cropId] = [];
+        }
+        cropPriceData[cropId].push({
+            date: mp.priceDate,
+            price: parseFloat(mp.pricePerKg) || 0
+        });
+    });
+
+    const topCrops = Object.entries(cropPriceData)
+        .map(([cropId, prices]) => {
+            const crop = allCrops.find(c => c.id === cropId);
+            const sortedPrices = prices.sort((a, b) =>
+                new Date(a.date) - new Date(b.date)
+            ).slice(-30);
+
+            return {
+                cropId: cropId,
+                name: crop ? crop.cropName : 'Unknown',
+                dates: sortedPrices.map(p => new Date(p.date).toLocaleDateString('en-US',
+                    { month: 'short', day: 'numeric' })),
+                prices: sortedPrices.map(p => p.price),
+                avgPrice: sortedPrices.reduce((sum, p) => sum + p.price, 0) / sortedPrices.length
+            };
+        })
+        .sort((a, b) => b.avgPrice - a.avgPrice)
+        .slice(0, limit);
+
+    return topCrops;
+}
+
+function initializeMarketTypeComparisonChart() {
+    const ctx = document.getElementById('marketTypeComparisonChart');
+    if (!ctx) return;
+
+    const typeAvgs = {};
+    const typeCounts = {};
+
+    allMarketPrices.forEach(mp => {
+        const type = mp.marketType || 'UNKNOWN';
+        if (!typeAvgs[type]) {
+            typeAvgs[type] = 0;
+            typeCounts[type] = 0;
+        }
+        typeAvgs[type] += parseFloat(mp.pricePerKg) || 0;
+        typeCounts[type]++;
+    });
+
+    const types = Object.keys(typeAvgs);
+    const avgPrices = types.map(type => typeAvgs[type] / typeCounts[type]);
+
+    charts.marketTypeComparison = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: types.map(formatEnum),
+            datasets: [{
+                label: 'Average Price (RWF/kg)',
+                data: avgPrices,
+                backgroundColor: '#3b82f6'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+}
+
+function initializeDemandSupplyChart() {
+    const ctx = document.getElementById('demandSupplyChart');
+    if (!ctx) return;
+
+    const demandCounts = { LOW: 0, MEDIUM: 0, HIGH: 0, VERY_HIGH: 0 };
+    const supplyCounts = { LOW: 0, MEDIUM: 0, HIGH: 0, EXCESS: 0 };
+
+    allMarketPrices.forEach(mp => {
+        const demand = mp.demandLevel || 'MEDIUM';
+        const supply = mp.supplyLevel || 'MEDIUM';
+        demandCounts[demand]++;
+        supplyCounts[supply]++;
+    });
+
+    charts.demandSupply = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Low', 'Medium', 'High', 'Very High/Excess'],
+            datasets: [{
+                label: 'Demand',
+                data: [demandCounts.LOW, demandCounts.MEDIUM, demandCounts.HIGH, demandCounts.VERY_HIGH],
+                backgroundColor: '#22c55e'
+            }, {
+                label: 'Supply',
+                data: [supplyCounts.LOW, supplyCounts.MEDIUM, supplyCounts.HIGH, supplyCounts.EXCESS],
+                backgroundColor: '#3b82f6'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+}
+
+function initializeRegionalPriceChart() {
+    const ctx = document.getElementById('regionalPriceChart');
+    if (!ctx) return;
+
+    const locationAvgs = {};
+    const locationCounts = {};
+
+    allMarketPrices.forEach(mp => {
+        const location = mp.location || 'Unknown';
+        if (!locationAvgs[location]) {
+            locationAvgs[location] = 0;
+            locationCounts[location] = 0;
+        }
+        locationAvgs[location] += parseFloat(mp.pricePerKg) || 0;
+        locationCounts[location]++;
+    });
+
+    const sortedLocations = Object.entries(locationAvgs)
+        .map(([location, total]) => ({
+            location,
+            avg: total / locationCounts[location]
+        }))
+        .sort((a, b) => b.avg - a.avg)
+        .slice(0, 10);
+
+    charts.regionalPrice = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: sortedLocations.map(l => l.location),
+            datasets: [{
+                label: 'Average Price (RWF/kg)',
+                data: sortedLocations.map(l => l.avg),
+                backgroundColor: '#f59e0b'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: 'y',
+            scales: {
+                x: { beginAtZero: true }
+            }
+        }
+    });
+}
+
+function initializePriceVolatilityChart() {
+    const ctx = document.getElementById('priceVolatilityChart');
+    if (!ctx) return;
+
+    const cropVolatility = {};
+
+    allCrops.forEach(crop => {
+        const cropPrices = allMarketPrices
+            .filter(mp => mp.cropId === crop.id)
+            .map(mp => parseFloat(mp.pricePerKg) || 0);
+
+        if (cropPrices.length > 1) {
+            const avg = cropPrices.reduce((a, b) => a + b, 0) / cropPrices.length;
+            const variance = cropPrices.reduce((sum, price) =>
+                sum + Math.pow(price - avg, 2), 0) / cropPrices.length;
+            const stdDev = Math.sqrt(variance);
+            const cv = (stdDev / avg) * 100;
+            cropVolatility[crop.cropName] = cv;
+        }
+    });
+
+    const sortedVolatility = Object.entries(cropVolatility)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 10);
+
+    charts.priceVolatility = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: sortedVolatility.map(([name]) => name),
+            datasets: [{
+                label: 'Volatility Index (%)',
+                data: sortedVolatility.map(([, volatility]) => volatility),
+                backgroundColor: '#ef4444'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+}
+
+function initializeSeasonalPriceChart() {
+    const ctx = document.getElementById('seasonalPriceChart');
+    if (!ctx) return;
+
+    const monthlyPrices = Array(12).fill(0);
+    const monthlyCounts = Array(12).fill(0);
+
+    allMarketPrices.forEach(mp => {
+        const month = new Date(mp.priceDate).getMonth();
+        monthlyPrices[month] += parseFloat(mp.pricePerKg) || 0;
+        monthlyCounts[month]++;
+    });
+
+    const avgPrices = monthlyPrices.map((total, i) =>
+        monthlyCounts[i] > 0 ? total / monthlyCounts[i] : 0
+    );
+
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    charts.seasonalPrice = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: monthNames,
+            datasets: [{
+                label: 'Average Price (RWF/kg)',
+                data: avgPrices,
+                borderColor: '#22c55e',
+                backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+}
+
+function initializeTemperatureTrendChart() {
+    const ctx = document.getElementById('temperatureTrendChart');
+    if (!ctx) return;
+
+    const last30Days = getLast30DaysWeatherData('temperature');
+
+    charts.temperatureTrend = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: last30Days.labels,
+            datasets: [{
+                label: 'Temperature (°C)',
+                data: last30Days.values,
+                borderColor: '#ef4444',
+                backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: false }
+            }
+        }
+    });
+}
+
+function getLast30DaysWeatherData(field) {
+    const labels = [];
+    const values = [];
+    const now = new Date();
+
+    for (let i = 29; i >= 0; i--) {
+        const date = new Date(now);
+        date.setDate(date.getDate() - i);
+        const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        labels.push(dateStr);
+
+        const dayWeather = allWeatherData.filter(w => {
+            const wDate = new Date(w.measurementDate);
+            return wDate.toDateString() === date.toDateString();
+        });
+
+        const avg = dayWeather.length > 0
+            ? dayWeather.reduce((sum, w) => sum + (parseFloat(w[field]) || 0), 0) / dayWeather.length
+            : 0;
+
+        values.push(avg);
+    }
+
+    return { labels, values };
+}
+
+function initializeRainfallChart() {
+    const ctx = document.getElementById('rainfallChart');
+    if (!ctx) return;
+
+    const last30Days = getLast30DaysWeatherData('rainfall');
+
+    charts.rainfall = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: last30Days.labels,
+            datasets: [{
+                label: 'Rainfall (mm)',
+                data: last30Days.values,
+                backgroundColor: '#3b82f6'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+}
+
+function initializeHumidityChart() {
+    const ctx = document.getElementById('humidityChart');
+    if (!ctx) return;
+
+    const last30Days = getLast30DaysWeatherData('humidity');
+
+    charts.humidity = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: last30Days.labels,
+            datasets: [{
+                label: 'Humidity (%)',
+                data: last30Days.values,
+                borderColor: '#06b6d4',
+                backgroundColor: 'rgba(6, 182, 212, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
+}
+
+function initializeWindSpeedChart() {
+    const ctx = document.getElementById('windSpeedChart');
+    if (!ctx) return;
+
+    const last30Days = getLast30DaysWeatherData('windSpeed');
+
+    charts.windSpeed = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: last30Days.labels,
+            datasets: [{
+                label: 'Wind Speed (m/s)',
+                data: last30Days.values,
+                borderColor: '#84cc16',
+                backgroundColor: 'rgba(132, 204, 22, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+}
+
+function initializeWeatherConditionChart() {
+    const ctx = document.getElementById('weatherConditionChart');
+    if (!ctx) return;
+
+    const conditionCounts = {};
+    allWeatherData.forEach(w => {
+        const condition = w.weatherCondition || 'UNKNOWN';
+        conditionCounts[condition] = (conditionCounts[condition] || 0) + 1;
+    });
+
+    charts.weatherCondition = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(conditionCounts).map(formatEnum),
+            datasets: [{
+                data: Object.values(conditionCounts),
+                backgroundColor: ['#22c55e', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+}
+
+function initializeWeatherImpactChart() {
+    const ctx = document.getElementById('weatherImpactChart');
+    if (!ctx) return;
+
+    const optimalConditions = allWeatherData.filter(w => {
+        const temp = parseFloat(w.temperature) || 0;
+        const humidity = parseFloat(w.humidity) || 0;
+        return temp >= 20 && temp <= 30 && humidity >= 40 && humidity <= 70;
+    }).length;
+
+    const totalConditions = allWeatherData.length;
+    const subOptimal = totalConditions - optimalConditions;
+
+    charts.weatherImpact = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['Optimal', 'Sub-optimal'],
+            datasets: [{
+                data: [optimalConditions, subOptimal],
+                backgroundColor: ['#22c55e', '#f59e0b']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+}
+
+function initializePhDistributionChart() {
+    const ctx = document.getElementById('phDistributionChart');
+    if (!ctx) return;
+
+    const phCategories = {
+        'Very Acidic (0-4.5)': 0,
+        'Acidic (4.5-6.0)': 0,
+        'Slightly Acidic (6.0-6.8)': 0,
+        'Neutral (6.8-7.2)': 0,
+        'Slightly Alkaline (7.2-8.0)': 0,
+        'Alkaline (8.0-9.0)': 0,
+        'Very Alkaline (>9.0)': 0
+    };
+
+    allSoilData.forEach(soil => {
+        const ph = parseFloat(soil.phLevel);
+        if (isNaN(ph)) return;
+
+        if (ph < 4.5) phCategories['Very Acidic (0-4.5)']++;
+        else if (ph < 6.0) phCategories['Acidic (4.5-6.0)']++;
+        else if (ph < 6.8) phCategories['Slightly Acidic (6.0-6.8)']++;
+        else if (ph < 7.2) phCategories['Neutral (6.8-7.2)']++;
+        else if (ph < 8.0) phCategories['Slightly Alkaline (7.2-8.0)']++;
+        else if (ph < 9.0) phCategories['Alkaline (8.0-9.0)']++;
+        else phCategories['Very Alkaline (>9.0)']++;
+    });
+
+    charts.phDistribution = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(phCategories),
+            datasets: [{
+                label: 'Number of Samples',
+                data: Object.values(phCategories),
+                backgroundColor: ['#ef4444', '#f59e0b', '#eab308', '#22c55e', '#3b82f6', '#8b5cf6', '#ec4899']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+}
+
+function initializeSoilQualityTrendChart() {
+    const ctx = document.getElementById('soilQualityTrendChart');
+    if (!ctx) return;
+
+    const monthlyQuality = getMonthlyAverageSoilQuality(12);
+
+    charts.soilQualityTrend = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: monthlyQuality.labels,
+            datasets: [{
+                label: 'Average Soil Quality (%)',
+                data: monthlyQuality.values,
+                borderColor: '#22c55e',
+                backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
+}
+
+function getMonthlyAverageSoilQuality(months) {
+    const labels = [];
+    const values = [];
+    const now = new Date();
+
+    for (let i = months - 1; i >= 0; i--) {
+        const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        const monthName = date.toLocaleDateString('en-US', { month: 'short' });
+        labels.push(monthName);
+
+        const monthSoil = allSoilData.filter(s => {
+            const sDate = new Date(s.measurementDate || s.createdAt);
+            return sDate.getMonth() === date.getMonth() &&
+                   sDate.getFullYear() === date.getFullYear();
+        });
+
+        if (monthSoil.length > 0) {
+            const scores = monthSoil.map(soil => calculateSoilQualityScore(soil));
+            const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
+            values.push(avg);
+        } else {
+            values.push(0);
+        }
+    }
+
+    return { labels, values };
+}
+
+function calculateSoilQualityScore(soil) {
+    let score = 0;
+    let maxScore = 0;
+
+    if (soil.phLevel) {
+        maxScore += 30;
+        const ph = parseFloat(soil.phLevel);
+        if (ph >= 6.0 && ph <= 7.5) score += 30;
+        else if ((ph >= 5.5 && ph < 6.0) || (ph > 7.5 && ph <= 8.0)) score += 20;
+        else score += 10;
+    }
+
+    if (soil.organicMatter) {
+        maxScore += 25;
+        const om = parseFloat(soil.organicMatter);
+        if (om >= 5.0) score += 25;
+        else if (om >= 3.0) score += 20;
+        else if (om >= 2.0) score += 15;
+        else score += 10;
+    }
+
+    if (soil.nitrogen && soil.phosphorus && soil.potassium) {
+        maxScore += 25;
+        const n = parseFloat(soil.nitrogen);
+        const p = parseFloat(soil.phosphorus);
+        const k = parseFloat(soil.potassium);
+        if (n >= 40 && n <= 150) score += 8;
+        if (p >= 25 && p <= 100) score += 8;
+        if (k >= 150 && k <= 500) score += 9;
+    }
+
+    if (soil.porosity && soil.bulkDensity) {
+        maxScore += 20;
+        const porosity = parseFloat(soil.porosity);
+        const bd = parseFloat(soil.bulkDensity);
+        if (porosity > 40 && bd < 1.4) score += 20;
+        else if (porosity > 30 && bd < 1.6) score += 15;
+        else score += 10;
+    }
+
+    return maxScore > 0 ? (score * 100) / maxScore : 0;
+}
+
+function initializeNpkLevelsChart() {
+    const ctx = document.getElementById('npkLevelsChart');
+    if (!ctx) return;
+
+    const avgN = allSoilData.reduce((sum, s) => sum + (parseFloat(s.nitrogen) || 0), 0) / allSoilData.length;
+    const avgP = allSoilData.reduce((sum, s) => sum + (parseFloat(s.phosphorus) || 0), 0) / allSoilData.length;
+    const avgK = allSoilData.reduce((sum, s) => sum + (parseFloat(s.potassium) || 0), 0) / allSoilData.length;
+
+    charts.npkLevels = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Nitrogen (N)', 'Phosphorus (P)', 'Potassium (K)'],
+            datasets: [{
+                label: 'Average Level (ppm)',
+                data: [avgN, avgP, avgK],
+                backgroundColor: ['#22c55e', '#3b82f6', '#f59e0b']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+}
+
+function initializeOrganicMatterChart() {
+    const ctx = document.getElementById('organicMatterChart');
+    if (!ctx) return;
+
+    const omRanges = {
+        '0-1%': 0,
+        '1-2%': 0,
+        '2-3%': 0,
+        '3-5%': 0,
+        '5-10%': 0,
+        '>10%': 0
+    };
+
+    allSoilData.forEach(soil => {
+        const om = parseFloat(soil.organicMatter);
+        if (isNaN(om)) return;
+
+        if (om < 1) omRanges['0-1%']++;
+        else if (om < 2) omRanges['1-2%']++;
+        else if (om < 3) omRanges['2-3%']++;
+        else if (om < 5) omRanges['3-5%']++;
+        else if (om < 10) omRanges['5-10%']++;
+        else omRanges['>10%']++;
+    });
+
+    charts.organicMatter = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(omRanges),
+            datasets: [{
+                label: 'Number of Samples',
+                data: Object.values(omRanges),
+                backgroundColor: '#10b981'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+}
+
+function initializeSoilTextureChart() {
+    const ctx = document.getElementById('soilTextureChart');
+    if (!ctx) return;
+
+    const textureCounts = {};
+    allSoilData.forEach(soil => {
+        const texture = soil.soilTexture || 'UNKNOWN';
+        textureCounts[texture] = (textureCounts[texture] || 0) + 1;
+    });
+
+    charts.soilTexture = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: Object.keys(textureCounts).map(formatEnum),
+            datasets: [{
+                data: Object.values(textureCounts),
+                backgroundColor: ['#22c55e', '#3b82f6', '#f59e0b', '#ef4444',
+                                 '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+}
+
+function initializeMoistureContentChart() {
+    const ctx = document.getElementById('moistureContentChart');
+    if (!ctx) return;
+
+    const moistureRanges = {
+        'Very Dry (0-10%)': 0,
+        'Dry (10-20%)': 0,
+        'Normal (20-40%)': 0,
+        'Moist (40-60%)': 0,
+        'Very Moist (>60%)': 0
+    };
+
+    allSoilData.forEach(soil => {
+        const moisture = parseFloat(soil.moisture);
+        if (isNaN(moisture)) return;
+
+        if (moisture < 10) moistureRanges['Very Dry (0-10%)']++;
+        else if (moisture < 20) moistureRanges['Dry (10-20%)']++;
+        else if (moisture < 40) moistureRanges['Normal (20-40%)']++;
+        else if (moisture < 60) moistureRanges['Moist (40-60%)']++;
+        else moistureRanges['Very Moist (>60%)']++;
+    });
+
+    charts.moistureContent = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(moistureRanges),
+            datasets: [{
+                label: 'Number of Samples',
+                data: Object.values(moistureRanges),
+                backgroundColor: ['#ef4444', '#f59e0b', '#22c55e', '#3b82f6', '#8b5cf6']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+}
+
+// ==================== AI PREDICTIONS ====================
+function generateAIPredictions() {
+    generateYieldPrediction();
+    generatePricePrediction();
+    generateWeatherPrediction();
+    generateSoilPrediction();
+    generateActivityPrediction();
+    generateRiskAssessment();
+}
+
+function generateYieldPrediction() {
+    const harvestedProductions = allCropProductions.filter(cp =>
+        cp.productionStatus === 'HARVESTED' && cp.actualYield
+    );
+
+    if (harvestedProductions.length === 0) {
+        document.getElementById('yieldPredictionContent').textContent =
+            'Insufficient historical data for yield prediction. More harvested productions needed.';
+        return;
+    }
+
+    const avgYield = harvestedProductions.reduce((sum, cp) =>
+        sum + (parseFloat(cp.actualYield) || 0), 0
+    ) / harvestedProductions.length;
+
+    const activeProductions = allCropProductions.filter(cp =>
+        cp.productionStatus === 'PLANTED' || cp.productionStatus === 'GROWING'
+    );
+
+    const totalArea = activeProductions.reduce((sum, cp) =>
+        sum + (parseFloat(cp.areaInHectares) || 0), 0
+    );
+
+    const predictedYield = avgYield * totalArea;
+
+    const avgSoilQuality = calculateAverageSoilQuality();
+    const avgWeatherScore = calculateWeatherScore();
+
+    const adjustmentFactor = (avgSoilQuality / 100) * (avgWeatherScore / 100);
+    const adjustedYield = predictedYield * adjustmentFactor;
+
+    const confidence = Math.min(95, 60 + (harvestedProductions.length / 10) * 10);
+
+    const avgGrowthPeriod = harvestedProductions.reduce((sum, cp) => {
+        if (cp.plantingDate && cp.actualHarvestDate) {
+            const start = new Date(cp.plantingDate);
+            const end = new Date(cp.actualHarvestDate);
+            return sum + (end - start) / (1000 * 60 * 60 * 24);
+        }
+        return sum;
+    }, 0) / harvestedProductions.length;
+
+    const expectedDate = new Date();
+    expectedDate.setDate(expectedDate.getDate() + avgGrowthPeriod);
+
+    document.getElementById('yieldPredictionContent').textContent =
+        `Based on analysis of ${harvestedProductions.length} historical harvests and current ` +
+        `conditions (soil quality: ${avgSoilQuality.toFixed(0)}%, weather score: ${avgWeatherScore.toFixed(0)}%), ` +
+        `predicted yield for ${activeProductions.length} active productions across ${totalArea.toFixed(1)} hectares.`;
+
+    document.getElementById('predictedYield').textContent = `${adjustedYield.toFixed(1)} tons`;
+    document.getElementById('yieldConfidence').textContent = `${confidence.toFixed(0)}%`;
+    document.getElementById('yieldDate').textContent = expectedDate.toLocaleDateString('en-US',
+        { month: 'short', day: 'numeric', year: 'numeric' }
+    );
+}
+
+function calculateWeatherScore() {
+    if (allWeatherData.length === 0) return 70;
+
+    const recent = allWeatherData
+        .filter(w => {
+            const date = new Date(w.measurementDate);
+            const now = new Date();
+            const daysDiff = (now - date) / (1000 * 60 * 60 * 24);
+            return daysDiff <= 30;
+        });
+
+    if (recent.length === 0) return 70;
+
+    let score = 0;
+    recent.forEach(w => {
+        const temp = parseFloat(w.temperature) || 0;
+        const humidity = parseFloat(w.humidity) || 0;
+        const rainfall = parseFloat(w.rainfall) || 0;
+
+        let tempScore = 0;
+        if (temp >= 20 && temp <= 30) tempScore = 100;
+        else if (temp >= 15 && temp <= 35) tempScore = 70;
+        else tempScore = 40;
+
+        let humidityScore = 0;
+        if (humidity >= 40 && humidity <= 70) humidityScore = 100;
+        else if (humidity >= 30 && humidity <= 80) humidityScore = 70;
+        else humidityScore = 40;
+
+        let rainfallScore = 0;
+        if (rainfall >= 2 && rainfall <= 10) rainfallScore = 100;
+        else if (rainfall >= 1 && rainfall <= 15) rainfallScore = 70;
+        else rainfallScore = 40;
+
+        score += (tempScore + humidityScore + rainfallScore) / 3;
+    });
+
+    return score / recent.length;
+}
+
+function generatePricePrediction() {
+    if (allMarketPrices.length === 0) {
+        document.getElementById('pricePredictionContent').textContent =
+            'Insufficient market data for price prediction.';
+        return;
+    }
+
+    const recent = allMarketPrices
+        .filter(mp => {
+            const date = new Date(mp.priceDate);
+            const now = new Date();
+            const daysDiff = (now - date) / (1000 * 60 * 60 * 24);
+            return daysDiff <= 90;
+        })
+        .sort((a, b) => new Date(b.priceDate) - new Date(a.priceDate));
+
+    if (recent.length < 10) {
+        document.getElementById('pricePredictionContent').textContent =
+            'Insufficient recent market data for accurate price prediction.';
+        return;
+    }
+
+    const avgPrice = recent.reduce((sum, mp) =>
+        sum + (parseFloat(mp.pricePerKg) || 0), 0
+    ) / recent.length;
+
+    const last30 = recent.slice(0, 30);
+    const avgLast30 = last30.reduce((sum, mp) =>
+        sum + (parseFloat(mp.pricePerKg) || 0), 0
+    ) / last30.length;
+
+    const previous30 = recent.slice(30, 60);
+    const avgPrevious30 = previous30.length > 0
+        ? previous30.reduce((sum, mp) => sum + (parseFloat(mp.pricePerKg) || 0), 0) / previous30.length
+        : avgLast30;
+
+    const trend = avgPrevious30 > 0 ? ((avgLast30 - avgPrevious30) / avgPrevious30) * 100 : 0;
+
+    const highDemandCount = recent.filter(mp =>
+        mp.demandLevel === 'HIGH' || mp.demandLevel === 'VERY_HIGH'
+    ).length;
+    const demandRatio = highDemandCount / recent.length;
+
+    const supplyAdjustment = 1 + (demandRatio * 0.1);
+    const trendAdjustment = 1 + (trend / 100) * 0.5;
+
+    const forecastedPrice = avgPrice * supplyAdjustment * trendAdjustment;
+    const priceChange = ((forecastedPrice - avgPrice) / avgPrice) * 100;
+
+    const confidenceBase = Math.min(recent.length / 100 * 100, 90);
+    const confidence = Math.max(60, confidenceBase);
+
+    document.getElementById('pricePredictionContent').textContent =
+        `Based on ${recent.length} recent market observations, current average price is ${formatCurrency(avgPrice)}/kg. ` +
+        `High demand ratio: ${(demandRatio * 100).toFixed(0)}%. Market trend shows ${trend >= 0 ? 'upward' : 'downward'} ` +
+        `momentum of ${Math.abs(trend).toFixed(1)}%.`;
+
+    document.getElementById('forecastedPrice').textContent = `${formatCurrency(forecastedPrice)}/kg`;
+    document.getElementById('priceChange').textContent =
+        `${priceChange >= 0 ? '+' : ''}${priceChange.toFixed(1)}%`;
+    document.getElementById('priceHorizon').textContent = '30 days';
+}
+
+function generateWeatherPrediction() {
+    if (allWeatherData.length === 0) {
+        document.getElementById('weatherPredictionContent').textContent =
+            'Insufficient weather data for prediction.';
+        return;
+    }
+
+    const recent = allWeatherData
+        .filter(w => {
+            const date = new Date(w.measurementDate);
+            const now = new Date();
+            const daysDiff = (now - date) / (1000 * 60 * 60 * 24);
+            return daysDiff <= 14;
+        })
+        .sort((a, b) => new Date(b.measurementDate) - new Date(a.measurementDate));
+
+    if (recent.length === 0) {
+        document.getElementById('weatherPredictionContent').textContent =
+            'No recent weather data available for prediction.';
+        return;
+    }
+
+    const avgRainfall = recent.reduce((sum, w) =>
+        sum + (parseFloat(w.rainfall) || 0), 0
+    ) / recent.length;
+
+    const avgTemp = recent.reduce((sum, w) =>
+        sum + (parseFloat(w.temperature) || 0), 0
+    ) / recent.length;
+
+    const last7 = recent.slice(0, 7);
+    const rainfallLast7 = last7.reduce((sum, w) =>
+        sum + (parseFloat(w.rainfall) || 0), 0
+    ) / last7.length;
+
+    const rainfallTrend = avgRainfall > 0
+        ? ((rainfallLast7 - avgRainfall) / avgRainfall) * 100
+        : 0;
+
+    const forecastRainfall = avgRainfall * (1 + rainfallTrend / 200);
+
+    let riskLevel = 'Low';
+    let riskColor = 'green';
+    if (forecastRainfall > 20 || avgTemp > 35 || avgTemp < 15) {
+        riskLevel = 'High';
+        riskColor = 'red';
+    } else if (forecastRainfall > 10 || avgTemp > 32 || avgTemp < 18) {
+        riskLevel = 'Medium';
+        riskColor = 'orange';
+    }
+
+    document.getElementById('weatherPredictionContent').textContent =
+        `Analysis of ${recent.length} recent weather observations. Rainfall trend is ` +
+        `${rainfallTrend >= 0 ? 'increasing' : 'decreasing'} by ${Math.abs(rainfallTrend).toFixed(1)}%. ` +
+        `Temperature averaging ${avgTemp.toFixed(1)}°C. Risk assessment based on extreme weather indicators.`;
+
+    document.getElementById('rainfallForecast').textContent = `${forecastRainfall.toFixed(1)} mm`;
+    document.getElementById('tempForecast').textContent = `${avgTemp.toFixed(1)}°C`;
+    document.getElementById('weatherRisk').textContent = riskLevel;
+    document.getElementById('weatherRisk').style.color = riskColor;
+}
+
+function generateSoilPrediction() {
+    if (allSoilData.length === 0) {
+        document.getElementById('soilPredictionContent').textContent =
+            'Insufficient soil data for health prediction.';
+        return;
+    }
+
+    const avgQuality = calculateAverageSoilQuality();
+
+    const avgN = allSoilData.reduce((sum, s) => sum + (parseFloat(s.nitrogen) || 0), 0) / allSoilData.length;
+    const avgP = allSoilData.reduce((sum, s) => sum + (parseFloat(s.phosphorus) || 0), 0) / allSoilData.length;
+    const avgK = allSoilData.reduce((sum, s) => sum + (parseFloat(s.potassium) || 0), 0) / allSoilData.length;
+
+    let nutrientStatus = 'Good';
+    const issues = [];
+
+    if (avgN < 40) {
+        nutrientStatus = 'Low Nitrogen';
+        issues.push('nitrogen');
+    }
+    if (avgP < 25) {
+        nutrientStatus = issues.length > 0 ? 'Multiple Deficiencies' : 'Low Phosphorus';
+        issues.push('phosphorus');
+    }
+    if (avgK < 150) {
+        nutrientStatus = issues.length > 0 ? 'Multiple Deficiencies' : 'Low Potassium';
+        issues.push('potassium');
+    }
+
+    let actionNeeded = 'Monitor';
+    if (avgQuality < 50) {
+        actionNeeded = 'Urgent Intervention';
+    } else if (avgQuality < 70) {
+        actionNeeded = 'Improvement Needed';
+    }
+
+    document.getElementById('soilPredictionContent').textContent =
+        `Based on ${allSoilData.length} soil samples, average health score is ${avgQuality.toFixed(0)}%. ` +
+        `NPK levels: N=${avgN.toFixed(1)}ppm, P=${avgP.toFixed(1)}ppm, K=${avgK.toFixed(1)}ppm. ` +
+        (issues.length > 0
+            ? `Deficiencies detected in ${issues.join(', ')}. `
+            : 'All major nutrients within acceptable ranges. ') +
+        `Recommended action: ${actionNeeded}.`;
+
+    document.getElementById('soilHealthScore').textContent = `${avgQuality.toFixed(0)}%`;
+    document.getElementById('nutrientStatus').textContent = nutrientStatus;
+    document.getElementById('soilAction').textContent = actionNeeded;
+}
+
+function generateActivityPrediction() {
+    if (allTransactions.length === 0) {
+        document.getElementById('activityPredictionContent').textContent =
+            'Insufficient transaction history for activity prediction.';
+        return;
+    }
+
+    const last30Days = allTransactions.filter(t => {
+        const date = new Date(t.createdAt);
+        const now = new Date();
+        const daysDiff = (now - date) / (1000 * 60 * 60 * 24);
+        return daysDiff <= 30;
+    });
+
+    const previous30Days = allTransactions.filter(t => {
+        const date = new Date(t.createdAt);
+        const now = new Date();
+        const daysDiff = (now - date) / (1000 * 60 * 60 * 24);
+        return daysDiff > 30 && daysDiff <= 60;
+    });
+
+    const uniqueFarmers = new Set(last30Days.map(t => t.farmerId).filter(Boolean));
+    const uniqueBuyers = new Set(last30Days.map(t => t.buyerId).filter(Boolean));
+    const totalUsers = uniqueFarmers.size + uniqueBuyers.size;
+
+    const growthRate = previous30Days.length > 0
+        ? ((last30Days.length - previous30Days.length) / previous30Days.length) * 100
+        : 0;
+
+    const expectedUsers = Math.round(totalUsers * (1 + growthRate / 100));
+
+    const hourlyActivity = Array(24).fill(0);
+    last30Days.forEach(t => {
+        const hour = new Date(t.createdAt).getHours();
+        hourlyActivity[hour]++;
+    });
+
+    const peakHour = hourlyActivity.indexOf(Math.max(...hourlyActivity));
+    const peakTime = `${peakHour}:00 - ${peakHour + 1}:00`;
+
+    document.getElementById('activityPredictionContent').textContent =
+        `Analysis of ${last30Days.length} transactions over the last 30 days involving ${totalUsers} unique users. ` +
+        `Activity growth rate of ${growthRate >= 0 ? '+' : ''}${growthRate.toFixed(1)}% compared to previous period. ` +
+        `Peak activity hours identified for resource optimization.`;
+
+    document.getElementById('expectedUsers').textContent = expectedUsers;
+    document.getElementById('peakTime').textContent = peakTime;
+    document.getElementById('growthRate').textContent =
+        `${growthRate >= 0 ? '+' : ''}${growthRate.toFixed(1)}%`;
+}
+
+function generateRiskAssessment() {
+    const risks = [];
+    let overallRisk = 'Low';
+    let riskScore = 0;
+
+    if (allWeatherData.length > 0) {
+        const recent = allWeatherData.slice(-14);
+        const extremeWeather = recent.filter(w => {
+            const temp = parseFloat(w.temperature) || 0;
+            const rainfall = parseFloat(w.rainfall) || 0;
+            return temp > 35 || temp < 15 || rainfall > 20;
+        }).length;
+
+        if (extremeWeather > 7) {
+            risks.push('High extreme weather frequency');
+            riskScore += 3;
+        } else if (extremeWeather > 3) {
+            risks.push('Moderate weather variability');
+            riskScore += 1;
+        }
+    }
+
+    const avgSoilQuality = calculateAverageSoilQuality();
+    if (avgSoilQuality < 50) {
+        risks.push('Critical soil health issues');
+        riskScore += 3;
+    } else if (avgSoilQuality < 70) {
+        risks.push('Soil health below optimal');
+        riskScore += 1;
+    }
+
+    if (allMarketPrices.length > 0) {
+        const recent = allMarketPrices.slice(-30);
+        const prices = recent.map(mp => parseFloat(mp.pricePerKg) || 0);
+        const avg = prices.reduce((a, b) => a + b, 0) / prices.length;
+        const variance = prices.reduce((sum, p) => sum + Math.pow(p - avg, 2), 0) / prices.length;
+        const stdDev = Math.sqrt(variance);
+        const cv = (stdDev / avg) * 100;
+
+        if (cv > 30) {
+            risks.push('High market price volatility');
+            riskScore += 2;
+        } else if (cv > 15) {
+            risks.push('Moderate price fluctuations');
+            riskScore += 1;
+        }
+    }
+
+    if (allCropProductions.length > 0) {
+        const overdue = allCropProductions.filter(cp => {
+            if (cp.productionStatus === 'HARVESTED') return false;
+            if (!cp.expectedHarvestDate) return false;
+            return new Date(cp.expectedHarvestDate) < new Date();
+        }).length;
+
+        if (overdue > allCropProductions.length * 0.2) {
+            risks.push('Significant harvest delays');
+            riskScore += 2;
+        } else if (overdue > 0) {
+            risks.push('Some harvest delays detected');
+            riskScore += 1;
+        }
+    }
+
+    if (riskScore >= 7) overallRisk = 'Critical';
+    else if (riskScore >= 5) overallRisk = 'High';
+    else if (riskScore >= 3) overallRisk = 'Medium';
+
+    const confidence = Math.min(90, 60 + (allTransactions.length / 100) * 30);
+
+    const riskContent = risks.length > 0
+        ? `Identified ${risks.length} risk factors: ${risks.join('; ')}. ` +
+          `Comprehensive risk analysis based on weather, soil, market, and production data. ` +
+          `Recommend immediate attention to high-priority areas.`
+        : `No significant risks identified. All monitored parameters are within acceptable ranges. ` +
+          `Continue regular monitoring and maintain current best practices.`;
+
+    document.getElementById('riskAssessmentContent').textContent = riskContent;
+    document.getElementById('overallRisk').textContent = overallRisk;
+    document.getElementById('priorityAreas').textContent = risks.length;
+    document.getElementById('riskConfidence').textContent = `${confidence.toFixed(0)}%`;
+
+    const riskColors = {
+        'Low': 'green',
+        'Medium': 'orange',
+        'High': 'red',
+        'Critical': 'darkred'
+    };
+    document.getElementById('overallRisk').style.color = riskColors[overallRisk];
+}
+
+// ==================== AI RECOMMENDATIONS ====================
+function generateAIRecommendations() {
+    generatePlantingRecommendations();
+    generateSellingRecommendations();
+    generateIrrigationRecommendations();
+    generateFertilizerRecommendations();
+    generatePestRecommendations();
+    generateDiversificationRecommendations();
+}
+
+function generatePlantingRecommendations() {
+    if (allCropProductions.length === 0 || allCrops.length === 0) {
+        document.getElementById('plantingRecommendations').textContent =
+            'Insufficient data for planting recommendations.';
+        return;
+    }
+
+    const cropPerformance = {};
+    allCropProductions.forEach(cp => {
+        if (cp.actualYield) {
+            const cropId = cp.cropId;
+            if (!cropPerformance[cropId]) {
+                cropPerformance[cropId] = { yields: [], count: 0 };
+            }
+            cropPerformance[cropId].yields.push(parseFloat(cp.actualYield));
+            cropPerformance[cropId].count++;
+        }
+    });
+
+    const cropAvgYield = {};
+    Object.keys(cropPerformance).forEach(cropId => {
+        const yields = cropPerformance[cropId].yields;
+        cropAvgYield[cropId] = yields.reduce((a, b) => a + b, 0) / yields.length;
+    });
+
+    const sortedCrops = Object.entries(cropAvgYield)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5);
+
+    const recommendations = sortedCrops.map(([cropId, avgYield]) => {
+        const crop = allCrops.find(c => c.id === cropId);
+        const cropName = crop ? crop.cropName : 'Unknown';
+        return `${cropName} (avg yield: ${avgYield.toFixed(1)} t/ha)`;
+    });
+
+    const currentSeason = getCurrentSeason();
+    const avgSoilQuality = calculateAverageSoilQuality();
+
+    let soilAdvice = '';
+    if (avgSoilQuality < 60) {
+        soilAdvice = ' Consider soil amendment before planting.';
+    }
+
+    document.getElementById('plantingRecommendations').innerHTML =
+        `<strong>Current Season:</strong> ${currentSeason}<br><br>` +
+        `<strong>Top performing crops based on historical yield:</strong><br>` +
+        `${recommendations.map((r, i) => `${i + 1}. ${r}`).join('<br>')}<br><br>` +
+        `<strong>Soil Status:</strong> Average quality ${avgSoilQuality.toFixed(0)}%.${soilAdvice}<br><br>` +
+        `<strong>Recommendation:</strong> Focus on proven high-yield crops for this region. ` +
+        `Consider crop rotation to maintain soil health. Monitor weather forecasts for optimal planting windows.`;
+}
+
+function getCurrentSeason() {
+    const month = new Date().getMonth();
+    if (month >= 2 && month <= 4) return 'Spring (March-May)';
+    if (month >= 5 && month <= 7) return 'Summer (June-August)';
+    if (month >= 8 && month <= 10) return 'Fall (September-November)';
+    return 'Winter (December-February)';
+}
+
+function generateSellingRecommendations() {
+    if (allMarketPrices.length === 0) {
+        document.getElementById('sellingRecommendations').textContent =
+            'Insufficient market data for selling recommendations.';
+        return;
+    }
+
+    const cropPrices = {};
+    allMarketPrices.forEach(mp => {
+        const cropId = mp.cropId;
+        if (!cropPrices[cropId]) {
+            cropPrices[cropId] = [];
+        }
+        cropPrices[cropId].push(parseFloat(mp.pricePerKg) || 0);
+    });
+
+    const cropAvgPrices = {};
+    Object.keys(cropPrices).forEach(cropId => {
+        const prices = cropPrices[cropId];
+        cropAvgPrices[cropId] = prices.reduce((a, b) => a + b, 0) / prices.length;
+    });
+
+    const sortedCrops = Object.entries(cropAvgPrices)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5);
+
+    const recommendations = sortedCrops.map(([cropId, avgPrice]) => {
+        const crop = allCrops.find(c => c.id === cropId);
+        const cropName = crop ? crop.cropName : 'Unknown';
+
+        const recentPrices = allMarketPrices
+            .filter(mp => mp.cropId === cropId)
+            .slice(-10)
+            .map(mp => parseFloat(mp.pricePerKg) || 0);
+
+        const recentAvg = recentPrices.reduce((a, b) => a + b, 0) / recentPrices.length;
+        const trend = recentAvg > avgPrice ? '↑' : recentAvg < avgPrice ? '↓' : '→';
+
+        return `${cropName}: ${formatCurrency(avgPrice)}/kg ${trend}`;
+    });
+
+    const highDemandCrops = allMarketPrices
+        .filter(mp => mp.demandLevel === 'HIGH' || mp.demandLevel === 'VERY_HIGH')
+        .map(mp => {
+            const crop = allCrops.find(c => c.id === mp.cropId);
+            return crop ? crop.cropName : 'Unknown';
+        });
+
+    const uniqueHighDemand = [...new Set(highDemandCrops)].slice(0, 3);
+
+    document.getElementById('sellingRecommendations').innerHTML =
+        `<strong>Top Priced Crops:</strong><br>` +
+        `${recommendations.map((r, i) => `${i + 1}. ${r}`).join('<br>')}<br><br>` +
+        `<strong>High Demand Crops:</strong><br>` +
+        `${uniqueHighDemand.join(', ') || 'No specific high demand detected'}<br><br>` +
+        `<strong>Strategy:</strong> Best selling window is typically early morning for wholesale markets. ` +
+        `Consider direct buyer relationships for premium prices. Quality grading significantly impacts final price. ` +
+        `Monitor daily price fluctuations and sell during price peaks.`;
+}
+
+function generateIrrigationRecommendations() {
+    if (allWeatherData.length === 0 || allSoilData.length === 0) {
+        document.getElementById('irrigationRecommendations').textContent =
+            'Insufficient weather and soil data for irrigation recommendations.';
+        return;
+    }
+
+    const recent = allWeatherData
+        .filter(w => {
+            const date = new Date(w.measurementDate);
+            const now = new Date();
+            const daysDiff = (now - date) / (1000 * 60 * 60 * 24);
+            return daysDiff <= 7;
+        });
+
+    const totalRainfall = recent.reduce((sum, w) =>
+        sum + (parseFloat(w.rainfall) || 0), 0
+    );
+
+    const avgMoisture = allSoilData.reduce((sum, s) =>
+        sum + (parseFloat(s.moisture) || 0), 0
+    ) / allSoilData.length;
+
+    let recommendation = '';
+    let urgency = '';
+
+    if (totalRainfall < 10 && avgMoisture < 20) {
+        recommendation = 'URGENT: Increase irrigation frequency. Soil moisture critically low.';
+        urgency = 'High Priority';
+    } else if (totalRainfall < 20 && avgMoisture < 30) {
+        recommendation = 'Moderate irrigation needed. Schedule additional watering sessions.';
+        urgency = 'Medium Priority';
+    } else if (totalRainfall > 50 || avgMoisture > 60) {
+        recommendation = 'Reduce or pause irrigation. Excessive moisture may harm crops.';
+        urgency = 'Monitor Closely';
+    } else {
+        recommendation = 'Current irrigation schedule appears adequate. Continue monitoring.';
+        urgency = 'Low Priority';
+    }
+
+    const avgTemp = recent.reduce((sum, w) =>
+        sum + (parseFloat(w.temperature) || 0), 0
+    ) / recent.length;
+
+    let tempAdjustment = '';
+    if (avgTemp > 30) {
+        tempAdjustment = ' High temperatures increase evaporation - consider early morning or evening irrigation.';
+    }
+
+    document.getElementById('irrigationRecommendations').innerHTML =
+        `<strong>7-Day Rainfall:</strong> ${totalRainfall.toFixed(1)}mm<br>` +
+        `<strong>Avg Soil Moisture:</strong> ${avgMoisture.toFixed(1)}%<br>` +
+        `<strong>Avg Temperature:</strong> ${avgTemp.toFixed(1)}°C<br><br>` +
+        `<strong>Urgency Level:</strong> ${urgency}<br><br>` +
+        `<strong>Recommendation:</strong> ${recommendation}${tempAdjustment}<br><br>` +
+        `<strong>Best Practices:</strong> Use drip irrigation for efficiency. Water deeply but less frequently. ` +
+        `Monitor soil moisture at root depth. Mulching reduces water loss.`;
+}
+
+function generateFertilizerRecommendations() {
+    if (allSoilData.length === 0) {
+        document.getElementById('fertilizerRecommendations').textContent =
+            'Insufficient soil data for fertilizer recommendations.';
+        return;
+    }
+
+    const avgN = allSoilData.reduce((sum, s) => sum + (parseFloat(s.nitrogen) || 0), 0) / allSoilData.length;
+    const avgP = allSoilData.reduce((sum, s) => sum + (parseFloat(s.phosphorus) || 0), 0) / allSoilData.length;
+    const avgK = allSoilData.reduce((sum, s) => sum + (parseFloat(s.potassium) || 0), 0) / allSoilData.length;
+    const avgOM = allSoilData.reduce((sum, s) => sum + (parseFloat(s.organicMatter) || 0), 0) / allSoilData.length;
+
+    const deficiencies = [];
+    let npkRatio = '';
+
+    if (avgN < 40) {
+        deficiencies.push('Nitrogen');
+        npkRatio = 'High N (e.g., 20-10-10)';
+    } else if (avgP < 25) {
+        deficiencies.push('Phosphorus');
+        npkRatio = 'High P (e.g., 10-20-10)';
+    } else if (avgK < 150) {
+        deficiencies.push('Potassium');
+        npkRatio = 'High K (e.g., 10-10-20)';
+    } else {
+        npkRatio = 'Balanced (e.g., 10-10-10)';
+    }
+
+    let organicRecommendation = '';
+    if (avgOM < 3) {
+        organicRecommendation = ' Add compost or manure (2-3 tons/hectare) to improve organic matter.';
+    }
+
+    const applicationTiming = allCropProductions.filter(cp =>
+        cp.productionStatus === 'PLANTED' || cp.productionStatus === 'GROWING'
+    ).length > 0
+        ? 'Apply fertilizer during active growth phase. Split applications for better nutrient uptake.'
+        : 'Prepare soil with fertilizer before planting season.';
+
+    document.getElementById('fertilizerRecommendations').innerHTML =
+        `<strong>Current NPK Levels:</strong><br>` +
+        `Nitrogen: ${avgN.toFixed(1)} ppm<br>` +
+        `Phosphorus: ${avgP.toFixed(1)} ppm<br>` +
+        `Potassium: ${avgK.toFixed(1)} ppm<br>` +
+        `Organic Matter: ${avgOM.toFixed(1)}%<br><br>` +
+        (deficiencies.length > 0
+            ? `<strong>Deficiencies Detected:</strong> ${deficiencies.join(', ')}<br><br>`
+            : `<strong>Status:</strong> Nutrient levels adequate<br><br>`) +
+        `<strong>Recommended NPK Ratio:</strong> ${npkRatio}<br><br>` +
+        `<strong>Application Guidance:</strong> ${applicationTiming}${organicRecommendation}<br><br>` +
+        `<strong>Important:</strong> Conduct soil tests every 6 months. Avoid over-fertilization which can harm crops and environment.`;
+}
+
+function generatePestRecommendations() {
+    const recentWeather = allWeatherData
+        .filter(w => {
+            const date = new Date(w.measurementDate);
+            const now = new Date();
+            const daysDiff = (now - date) / (1000 * 60 * 60 * 24);
+            return daysDiff <= 14;
+        });
+
+    if (recentWeather.length === 0) {
+        document.getElementById('pestRecommendations').textContent =
+            'Insufficient recent weather data for pest risk assessment.';
+        return;
+    }
+
+    const avgTemp = recentWeather.reduce((sum, w) =>
+        sum + (parseFloat(w.temperature) || 0), 0
+    ) / recentWeather.length;
+
+    const avgHumidity = recentWeather.reduce((sum, w) =>
+        sum + (parseFloat(w.humidity) || 0), 0
+    ) / recentWeather.length;
+
+    const totalRainfall = recentWeather.reduce((sum, w) =>
+        sum + (parseFloat(w.rainfall) || 0), 0
+    );
+
+    let riskLevel = 'Low';
+    const riskFactors = [];
+
+    if (avgTemp > 25 && avgTemp < 30 && avgHumidity > 60) {
+        riskLevel = 'High';
+        riskFactors.push('Optimal conditions for fungal diseases');
+    }
+
+    if (avgTemp > 28 && avgHumidity < 50) {
+        riskLevel = 'Medium';
+        riskFactors.push('Favorable for aphids and spider mites');
+    }
+
+    if (totalRainfall > 100) {
+        riskLevel = 'Medium';
+        riskFactors.push('Excess moisture increases disease pressure');
+    }
+
+    const recommendations = [];
+    if (riskLevel === 'High') {
+        recommendations.push('Conduct daily field inspections');
+        recommendations.push('Apply preventive organic pesticides');
+        recommendations.push('Improve air circulation between plants');
+    } else if (riskLevel === 'Medium') {
+        recommendations.push('Monitor crops every 2-3 days');
+        recommendations.push('Have treatment options ready');
+        recommendations.push('Remove infected plants promptly');
+    } else {
+        recommendations.push('Continue weekly monitoring');
+        recommendations.push('Maintain good field hygiene');
+        recommendations.push('Encourage beneficial insects');
+    }
+
+    document.getElementById('pestRecommendations').innerHTML =
+        `<strong>Risk Assessment (14-day outlook):</strong><br>` +
+        `Temperature: ${avgTemp.toFixed(1)}°C<br>` +
+        `Humidity: ${avgHumidity.toFixed(1)}%<br>` +
+        `Total Rainfall: ${totalRainfall.toFixed(1)}mm<br><br>` +
+        `<strong>Pest Risk Level:</strong> ${riskLevel}<br><br>` +
+        (riskFactors.length > 0
+            ? `<strong>Risk Factors:</strong><br>${riskFactors.map(r => `• ${r}`).join('<br>')}<br><br>`
+            : '') +
+        `<strong>Recommended Actions:</strong><br>` +
+        `${recommendations.map(r => `• ${r}`).join('<br>')}<br><br>` +
+        `<strong>Integrated Pest Management:</strong> Combine biological, cultural, and chemical controls. ` +
+        `Prioritize organic and least-toxic options. Rotate pesticides to prevent resistance.`;
+}
+
+function generateDiversificationRecommendations() {
+    if (allCropProductions.length === 0 || allCrops.length === 0) {
+        document.getElementById('diversificationRecommendations').textContent =
+            'Insufficient data for diversification recommendations.';
+        return;
+    }
+
+    const cropCounts = {};
+    allCropProductions.forEach(cp => {
+        const cropId = cp.cropId;
+        cropCounts[cropId] = (cropCounts[cropId] || 0) + 1;
+    });
+
+    const totalProductions = allCropProductions.length;
+    const uniqueCrops = Object.keys(cropCounts).length;
+    const diversificationRatio = uniqueCrops / totalProductions;
+
+    let diversificationLevel = '';
+    let recommendation = '';
+
+    if (diversificationRatio > 0.3) {
+        diversificationLevel = 'High';
+        recommendation = 'Excellent crop diversification. Continue monitoring performance of each crop type.';
+    } else if (diversificationRatio > 0.15) {
+        diversificationLevel = 'Moderate';
+        recommendation = 'Good diversification. Consider adding 1-2 more crop varieties to spread risk.';
+    } else {
+        diversificationLevel = 'Low';
+        recommendation = 'Low diversification detected. High dependency on few crops increases risk. Strongly recommend expanding crop portfolio.';
+    }
+
+    const topCrops = Object.entries(cropCounts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5)
+        .map(([cropId, count]) => {
+            const crop = allCrops.find(c => c.id === cropId);
+            const cropName = crop ? crop.cropName : 'Unknown';
+            const percentage = ((count / totalProductions) * 100).toFixed(1);
+            return `${cropName}: ${percentage}%`;
+        });
+
+    const underrepresentedCrops = allCrops
+        .filter(crop => !cropCounts[crop.id])
+        .slice(0, 5)
+        .map(crop => crop.cropName);
+
+    document.getElementById('diversificationRecommendations').innerHTML =
+        `<strong>Current Diversification:</strong><br>` +
+        `${uniqueCrops} different crops across ${totalProductions} productions<br>` +
+        `Level: ${diversificationLevel}<br><br>` +
+        `<strong>Current Crop Distribution:</strong><br>` +
+        `${topCrops.join('<br>')}<br><br>` +
+        `<strong>Assessment:</strong> ${recommendation}<br><br>` +
+        (underrepresentedCrops.length > 0
+            ? `<strong>Consider Adding:</strong><br>${underrepresentedCrops.join(', ')}<br><br>`
+            : '') +
+        `<strong>Benefits of Diversification:</strong><br>` +
+        `• Reduces financial risk from crop failure<br>` +
+        `• Improves soil health through crop rotation<br>` +
+        `• Provides multiple income streams<br>` +
+        `• Better resilience to market price fluctuations<br>` +
+        `• Natural pest and disease management`;
+}
+
+// ==================== TRANSACTION TABLE ====================
+async function refreshTransactions() {
+    showLoading(true);
+    try {
+        await loadTransactions();
+        renderTransactionsTable();
+        showToast('Transactions refreshed successfully', 'success');
+    } catch (error) {
+        console.error('Error refreshing transactions:', error);
+        showToast('Error refreshing transactions', 'error');
+    } finally {
+        showLoading(false);
+    }
+}
+
+function renderTransactionsTable() {
+    const tbody = document.getElementById('transactionsTableBody');
+
+    if (allTransactions.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="8" style="text-align: center; padding: 40px;">
+                    No transactions available
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    const recent = allTransactions
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .slice(0, 50);
+
+    tbody.innerHTML = recent.map(t => {
+        const crop = allCrops.find(c => c.id === t.cropId);
+        const cropName = crop ? crop.cropName : 'Unknown';
+
+        return `
+            <tr>
+                <td><strong>${t.id ? t.id.substring(0, 8) : 'N/A'}</strong></td>
+                <td>${formatDate(t.createdAt)}</td>
+                <td>Farmer ${t.farmerId ? t.farmerId.substring(0, 8) : 'N/A'}</td>
+                <td>Buyer ${t.buyerId ? t.buyerId.substring(0, 8) : 'N/A'}</td>
+                <td>${cropName}</td>
+                <td>${t.quantity || 0} ${t.unit || 'kg'}</td>
+                <td><strong>${formatCurrency(t.totalAmount)}</strong></td>
+                <td><span class="status-badge" style="background: ${getStatusColor(t.transactionStatus)}20; color: ${getStatusColor(t.transactionStatus)};">
+                    ${formatEnum(t.transactionStatus)}
+                </span></td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function getStatusColor(status) {
+    const colors = {
+        'PENDING': '#f59e0b',
+        'CONFIRMED': '#3b82f6',
+        'DELIVERED': '#22c55e',
+        'PAID': '#10b981',
+        'COMPLETED': '#22c55e',
+        'CANCELLED': '#ef4444',
+        'DISPUTED': '#ef4444'
+    };
+    return colors[status] || '#666666';
+}
+
+// ==================== EXPORT FUNCTIONS ====================
+async function exportTransactionsExcel() {
+    try {
+        if (allTransactions.length === 0) {
+            showToast('No transactions to export', 'warning');
+            return;
+        }
+
+        const exportData = allTransactions.map((t, index) => {
+            const crop = allCrops.find(c => c.id === t.cropId);
+            return {
+                '#': index + 1,
+                'Transaction ID': t.id || 'N/A',
+                'Date': formatDate(t.createdAt),
+                'Farmer ID': t.farmerId || 'N/A',
+                'Buyer ID': t.buyerId || 'N/A',
+                'Crop': crop ? crop.cropName : 'Unknown',
+                'Quantity': t.quantity || 0,
+                'Unit': t.unit || 'kg',
+                'Price per Unit': t.pricePerUnit || 0,
+                'Total Amount': t.totalAmount || 0,
+                'Status': formatEnum(t.transactionStatus),
+                'Payment Method': formatEnum(t.paymentMethod),
+                'Delivery Location': t.deliveryLocation || 'N/A'
+            };
+        });
+
+        const ws = XLSX.utils.json_to_sheet(exportData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Transactions');
+        XLSX.writeFile(wb, `transactions_export_${Date.now()}.xlsx`);
+
+        showToast('Excel file exported successfully', 'success');
+    } catch (error) {
+        console.error('Error exporting to Excel:', error);
+        showToast('Error exporting to Excel', 'error');
+    }
+}
+
+async function generatePDFReport() {
+    try {
+        showLoading(true);
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        const reportType = document.getElementById('reportType').value;
+
+        doc.setFontSize(20);
+        doc.text('AgriGuard AI - Analytics Report', 105, 25, { align: 'center' });
+
+        doc.setFontSize(12);
+        doc.text(`Generated: ${new Date().toLocaleDateString()}`, 105, 35, { align: 'center' });
+        doc.text(`Report Type: ${formatEnum(reportType)}`, 105, 42, { align: 'center' });
+        doc.text(`Generated by: ${currentUser.fullName}`, 105, 49, { align: 'center' });
+
+        let yPos = 60;
+
+        doc.setFontSize(14);
+        doc.text('Summary Statistics', 20, yPos);
+        yPos += 10;
+
+        doc.setFontSize(10);
+        doc.text(`Total Transactions: ${allTransactions.length}`, 20, yPos);
+        yPos += 7;
+
+        const totalRevenue = allTransactions.reduce((sum, t) =>
+            sum + (parseFloat(t.totalAmount) || 0), 0
+        );
+        doc.text(`Total Revenue: ${formatCurrency(totalRevenue)}`, 20, yPos);
+        yPos += 7;
+
+        const uniqueFarmers = new Set(allTransactions.map(t => t.farmerId).filter(Boolean));
+        doc.text(`Active Farmers: ${uniqueFarmers.size}`, 20, yPos);
+        yPos += 7;
+
+        const uniqueBuyers = new Set(allTransactions.map(t => t.buyerId).filter(Boolean));
+        doc.text(`Active Buyers: ${uniqueBuyers.size}`, 20, yPos);
+        yPos += 7;
+
+        doc.text(`Crop Productions: ${allCropProductions.length}`, 20, yPos);
+        yPos += 7;
+
+        doc.text(`Market Price Records: ${allMarketPrices.length}`, 20, yPos);
+        yPos += 7;
+
+        doc.text(`Weather Data Points: ${allWeatherData.length}`, 20, yPos);
+        yPos += 7;
+
+        doc.text(`Soil Analysis Samples: ${allSoilData.length}`, 20, yPos);
+        yPos += 15;
+
+        if (reportType === 'comprehensive' || reportType === 'transactions') {
+            doc.setFontSize(14);
+            doc.text('Recent Transactions', 20, yPos);
+            yPos += 10;
+
+            const tableData = allTransactions
+                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                .slice(0, 20)
+                .map((t, index) => {
+                    const crop = allCrops.find(c => c.id === t.cropId);
+                    return [
+                        index + 1,
+                        t.id ? t.id.substring(0, 8) : 'N/A',
+                        formatDate(t.createdAt),
+                        crop ? crop.cropName : 'Unknown',
+                        formatCurrency(t.totalAmount),
+                        formatEnum(t.transactionStatus)
+                    ];
+                });
+
+            doc.autoTable({
+                startY: yPos,
+                head: [['#', 'ID', 'Date', 'Crop', 'Amount', 'Status']],
+                body: tableData,
+                theme: 'grid',
+                headStyles: { fillColor: [34, 197, 94] },
+                styles: { fontSize: 8 }
+            });
+        }
+
+        doc.save(`agriguard_report_${reportType}_${Date.now()}.pdf`);
+        showToast('PDF report generated successfully', 'success');
+    } catch (error) {
+        console.error('Error generating PDF:', error);
+        showToast('Error generating PDF report', 'error');
+    } finally {
+        showLoading(false);
+    }
+}
+
+async function generateExcelReport() {
+    try {
+        const reportType = document.getElementById('reportType').value;
+
+        if (reportType === 'comprehensive') {
+            await exportComprehensiveExcel();
+        } else if (reportType === 'transactions') {
+            await exportTransactionsExcel();
+        } else {
+            showToast('Excel export for this report type is in development', 'info');
+        }
+    } catch (error) {
+        console.error('Error generating Excel report:', error);
+        showToast('Error generating Excel report', 'error');
+    }
+}
+
+async function exportComprehensiveExcel() {
+    const wb = XLSX.utils.book_new();
+
+    const statsData = [{
+        'Metric': 'Total Transactions',
+        'Value': allTransactions.length
+    }, {
+        'Metric': 'Total Revenue',
+        'Value': allTransactions.reduce((sum, t) => sum + (parseFloat(t.totalAmount) || 0), 0)
+    }, {
+        'Metric': 'Active Farmers',
+        'Value': new Set(allTransactions.map(t => t.farmerId).filter(Boolean)).size
+    }, {
+        'Metric': 'Active Buyers',
+        'Value': new Set(allTransactions.map(t => t.buyerId).filter(Boolean)).size
+    }, {
+        'Metric': 'Crop Productions',
+        'Value': allCropProductions.length
+    }, {
+        'Metric': 'Market Prices',
+        'Value': allMarketPrices.length
+    }];
+
+    const ws1 = XLSX.utils.json_to_sheet(statsData);
+    XLSX.utils.book_append_sheet(wb, ws1, 'Statistics');
+
+    const transData = allTransactions.slice(0, 1000).map((t, i) => ({
+        '#': i + 1,
+        'ID': t.id || 'N/A',
+        'Date': formatDate(t.createdAt),
+        'Amount': t.totalAmount || 0,
+        'Status': formatEnum(t.transactionStatus)
+    }));
+
+    const ws2 = XLSX.utils.json_to_sheet(transData);
+    XLSX.utils.book_append_sheet(wb, ws2, 'Transactions');
+
+    XLSX.writeFile(wb, `comprehensive_report_${Date.now()}.xlsx`);
+    showToast('Comprehensive Excel report generated', 'success');
+}
+
+// ==================== NAVIGATION ====================
+function showSection(sectionName) {
+    document.querySelectorAll('.content-section').forEach(section => {
+        section.classList.remove('active');
+    });
+
+    const section = document.getElementById(sectionName + 'Section');
+    if (section) {
+        section.classList.add('active');
+    }
+
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+    });
+
+    const clickedItem = event.target.closest('.nav-item');
+    if (clickedItem) {
+        clickedItem.classList.add('active');
+    }
+}
+
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('collapsed');
+    document.getElementById('mainContent').classList.toggle('sidebar-collapsed');
+}
+
+function toggleTheme() {
+    document.body.classList.toggle('dark-mode');
+    const isDark = document.body.classList.contains('dark-mode');
+    document.getElementById('themeToggle').innerHTML = isDark
+        ? '<i class="fas fa-sun"></i><span>Light Mode</span>'
+        : '<i class="fas fa-moon"></i><span>Dark Mode</span>';
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+}
+
+function loadSavedTheme() {
+    if (localStorage.getItem('theme') === 'dark') {
+        document.body.classList.add('dark-mode');
+        document.getElementById('themeToggle').innerHTML =
+            '<i class="fas fa-sun"></i><span>Light Mode</span>';
+    }
+}
+
+function updateDateTime() {
+    const now = new Date();
+    const dateOptions = {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    };
+    document.getElementById('currentDate').textContent =
+        now.toLocaleDateString('en-US', dateOptions);
+}
+
+// ==================== UTILITY FUNCTIONS ====================
+function formatCurrency(value) {
+    if (!value) return 'RWF 0';
+    return `RWF ${parseFloat(value).toLocaleString('en-US', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    })}`;
+}
+
+function formatDate(dateString) {
+    if (!dateString) return 'N/A';
+    return new Date(dateString).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+}
+
+function formatEnum(value) {
+    if (!value) return 'N/A';
+    return value.split('_')
+        .map(word => word.charAt(0) + word.slice(1).toLowerCase())
+        .join(' ');
+}
+
+function showLoading(show) {
+    document.getElementById('loadingOverlay').classList.toggle('show', show);
+}
+
+function showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `<p>${message}</p>`;
+    document.getElementById('toastContainer').appendChild(toast);
+    setTimeout(() => toast.remove(), 5000);
+}
+
+console.log('Analyst Dashboard initialized successfully');
+
+</script>
+</body>
+</html>

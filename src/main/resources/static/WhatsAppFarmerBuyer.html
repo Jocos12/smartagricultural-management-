@@ -1,0 +1,3610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgriGuard Chat - Farmer & Buyer Marketplace</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ==================== RESET & BASE STYLES ==================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Primary Colors */
+            --primary-color: #25D366;
+            --primary-dark: #1da851;
+            --primary-light: #d4f4dd;
+
+            /* Secondary Colors */
+            --secondary-color: #128C7E;
+            --accent-color: #075E54;
+
+            /* Background Colors */
+            --bg-primary: #111b21;
+            --bg-secondary: #202c33;
+            --bg-tertiary: #2a3942;
+            --bg-chat: #0b141a;
+            --bg-message-sent: #005c4b;
+            --bg-message-received: #202c33;
+            --bg-hover: #2a3942;
+
+            /* Text Colors */
+            --text-primary: #e9edef;
+            --text-secondary: #8696a0;
+            --text-muted: #667781;
+
+            /* Border Colors */
+            --border-color: #2a3942;
+            --border-light: #3b4a54;
+
+            /* Status Colors */
+            --success-color: #25D366;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --info-color: #3498db;
+
+            /* Shadows */
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.2);
+            --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.4);
+
+            /* Transitions */
+            --transition-fast: 0.15s ease;
+            --transition-base: 0.3s ease;
+
+            /* Spacing */
+            --spacing-xs: 0.25rem;
+            --spacing-sm: 0.5rem;
+            --spacing-md: 1rem;
+            --spacing-lg: 1.5rem;
+            --spacing-xl: 2rem;
+
+            /* Border Radius */
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 20px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.5;
+            overflow: hidden;
+        }
+
+        /* ==================== LOADING SCREEN ==================== */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-primary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            transition: opacity 0.3s ease;
+        }
+
+        .loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid var(--border-color);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .loading-text {
+            margin-top: var(--spacing-lg);
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ==================== MAIN CONTAINER ==================== */
+        .chat-container {
+            display: flex;
+            height: 100vh;
+            max-width: 1600px;
+            margin: 0 auto;
+            background-color: var(--bg-primary);
+            overflow: hidden;
+        }
+
+        /* ==================== SIDEBAR ==================== */
+        .sidebar {
+            width: 400px;
+            background-color: var(--bg-secondary);
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border-color);
+        }
+
+        .sidebar-header {
+            background-color: var(--bg-tertiary);
+            padding: var(--spacing-md) var(--spacing-lg);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            cursor: pointer;
+            padding: var(--spacing-sm);
+            border-radius: var(--radius-md);
+            transition: var(--transition-base);
+        }
+
+        .user-profile:hover {
+            background-color: var(--bg-hover);
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+            background-color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .user-role {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .sidebar-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.3rem;
+            cursor: pointer;
+            padding: var(--spacing-sm);
+            border-radius: 50%;
+            transition: var(--transition-base);
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-btn:hover {
+            background-color: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        /* ==================== SEARCH BAR ==================== */
+        .search-container {
+            padding: var(--spacing-md);
+            background-color: var(--bg-secondary);
+        }
+
+        .search-wrapper {
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: var(--spacing-sm) var(--spacing-md) var(--spacing-sm) 2.5rem;
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            outline: none;
+            transition: var(--transition-base);
+        }
+
+        .search-input:focus {
+            border-color: var(--primary-color);
+            background-color: var(--bg-tertiary);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: var(--spacing-md);
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            pointer-events: none;
+        }
+
+        /* ==================== FILTER TABS ==================== */
+        .filter-tabs {
+            display: flex;
+            background-color: var(--bg-secondary);
+            padding: 0 var(--spacing-md);
+            gap: var(--spacing-sm);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .filter-tab {
+            padding: var(--spacing-md) var(--spacing-lg);
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: var(--transition-base);
+        }
+
+        .filter-tab:hover {
+            color: var(--text-primary);
+        }
+
+        .filter-tab.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        /* ==================== CONTACTS LIST ==================== */
+        .contacts-list {
+            flex: 1;
+            overflow-y: auto;
+            background-color: var(--bg-secondary);
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: var(--spacing-md) var(--spacing-lg);
+            cursor: pointer;
+            transition: var(--transition-base);
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .contact-item:hover {
+            background-color: var(--bg-hover);
+        }
+
+        .contact-item.active {
+            background-color: var(--bg-tertiary);
+        }
+
+        .contact-avatar-wrapper {
+            position: relative;
+        }
+
+        .contact-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            background-color: var(--primary-color);
+        }
+
+        .online-indicator {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            width: 14px;
+            height: 14px;
+            background-color: var(--success-color);
+            border: 2px solid var(--bg-secondary);
+            border-radius: 50%;
+        }
+
+        .online-indicator.offline {
+            background-color: var(--text-muted);
+        }
+
+        .contact-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .contact-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .contact-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 1rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .contact-time {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+
+        .contact-last-message {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+
+        .contact-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.2rem 0.5rem;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: var(--radius-sm);
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .unread-badge {
+            min-width: 20px;
+            height: 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: auto;
+        }
+
+        /* ==================== CHAT AREA ==================== */
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--bg-chat);
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23202c33' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        .chat-header {
+            background-color: var(--bg-tertiary);
+            padding: var(--spacing-md) var(--spacing-lg);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .chat-user-info {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .chat-user-info:hover .chat-user-name {
+            color: var(--primary-color);
+        }
+
+        .chat-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+            background-color: var(--primary-color);
+        }
+
+        .chat-user-details {
+            flex: 1;
+        }
+
+        .chat-user-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: var(--transition-base);
+        }
+
+        .chat-user-status {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .chat-user-status.online {
+            color: var(--success-color);
+        }
+
+        .chat-user-status.typing {
+            color: var(--primary-color);
+        }
+
+        .chat-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        /* ==================== MESSAGES CONTAINER ==================== */
+        .messages-container {
+            flex: 1;
+            padding: var(--spacing-lg);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+
+        .date-divider {
+            text-align: center;
+            margin: var(--spacing-lg) 0;
+        }
+
+        .date-label {
+            display: inline-block;
+            padding: var(--spacing-xs) var(--spacing-md);
+            background-color: var(--bg-secondary);
+            color: var(--text-secondary);
+            border-radius: var(--radius-lg);
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .message {
+            max-width: 65%;
+            padding: 8px 12px;
+            border-radius: var(--radius-md);
+            position: relative;
+            word-wrap: break-word;
+            animation: messageSlideIn 0.2s ease-out;
+            box-shadow: var(--shadow-sm);
+        }
+
+        @keyframes messageSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.sent {
+            align-self: flex-end;
+            background-color: var(--bg-message-sent);
+            border-radius: var(--radius-md) var(--radius-md) var(--radius-sm) var(--radius-md);
+        }
+
+        .message.received {
+            align-self: flex-start;
+            background-color: var(--bg-message-received);
+            border-radius: var(--radius-md) var(--radius-md) var(--radius-md) var(--radius-sm);
+        }
+
+        .message-text {
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .message-media {
+            margin-bottom: var(--spacing-sm);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+        }
+
+        .message-media img {
+            max-width: 300px;
+            width: 100%;
+            height: auto;
+            display: block;
+            cursor: pointer;
+            transition: var(--transition-base);
+        }
+
+        .message-media img:hover {
+            opacity: 0.9;
+        }
+
+        /* ==================== PRODUCT CARD IN MESSAGE ==================== */
+        .product-card-message {
+            background-color: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            margin-bottom: var(--spacing-sm);
+            border: 1px solid var(--border-light);
+            cursor: pointer;
+            transition: var(--transition-base);
+        }
+
+        .product-card-message:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        .product-image-message {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            background-color: var(--bg-primary);
+        }
+
+        .product-info-message {
+            padding: var(--spacing-md);
+        }
+
+        .product-name-message {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-xs);
+            font-size: 1rem;
+        }
+
+        .product-details-message {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .product-detail-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .product-detail-item i {
+            width: 16px;
+            color: var(--primary-color);
+        }
+
+        .product-price-message {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .product-actions-message {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        .btn-product-action {
+            flex: 1;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-base);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-xs);
+        }
+
+        .btn-product-action.primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-product-action.primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-product-action.secondary {
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-light);
+        }
+
+        .btn-product-action.secondary:hover {
+            background-color: var(--bg-hover);
+        }
+
+        /* ==================== ORDER CARD IN MESSAGE ==================== */
+        .order-card-message {
+            background: linear-gradient(135deg, var(--bg-tertiary), var(--bg-secondary));
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-sm);
+            border: 1px solid var(--border-light);
+        }
+
+        .order-header-message {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+            padding-bottom: var(--spacing-sm);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .order-id-message {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+
+        .order-status-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: var(--radius-lg);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .order-status-badge.pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .order-status-badge.confirmed {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .order-status-badge.completed {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .order-items-message {
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .order-item-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: var(--spacing-xs);
+            font-size: 0.85rem;
+        }
+
+        .order-total-message {
+            margin-top: var(--spacing-sm);
+            padding-top: var(--spacing-sm);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--primary-color);
+        }
+
+        /* ==================== MESSAGE INFO ==================== */
+        .message-info {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: var(--spacing-xs);
+            margin-top: var(--spacing-xs);
+        }
+
+        .message-time {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+        }
+
+        .message-status {
+            display: flex;
+            align-items: center;
+            color: var(--text-secondary);
+        }
+
+        .message-status.read {
+            color: var(--secondary-color);
+        }
+
+        .message-status i {
+            font-size: 0.9rem;
+        }
+
+        /* ==================== TYPING INDICATOR ==================== */
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-md);
+            align-self: flex-start;
+        }
+
+        .typing-indicator.active {
+            display: flex;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: var(--spacing-xs);
+            padding: var(--spacing-sm) var(--spacing-md);
+            background-color: var(--bg-message-received);
+            border-radius: var(--radius-md);
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--text-secondary);
+            border-radius: 50%;
+            animation: typingBounce 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typingBounce {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-10px);
+            }
+        }
+
+        /* ==================== MESSAGE INPUT ==================== */
+        .message-input-container {
+            background-color: var(--bg-tertiary);
+            padding: var(--spacing-md) var(--spacing-lg);
+            display: flex;
+            align-items: flex-end;
+            gap: var(--spacing-sm);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .message-input-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: flex-end;
+            gap: var(--spacing-sm);
+            background-color: var(--bg-secondary);
+            border-radius: var(--radius-xl);
+            padding: var(--spacing-sm) var(--spacing-md);
+        }
+
+        .input-actions {
+            display: flex;
+            gap: var(--spacing-xs);
+            align-items: center;
+        }
+
+        .input-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: var(--spacing-xs);
+            border-radius: 50%;
+            transition: var(--transition-base);
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .input-btn:hover {
+            color: var(--text-primary);
+            background-color: var(--bg-hover);
+        }
+
+        .message-textarea {
+            flex: 1;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            resize: none;
+            max-height: 120px;
+            outline: none;
+            font-family: inherit;
+            line-height: 1.5;
+        }
+
+        .message-textarea::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .send-btn {
+            background-color: var(--primary-color);
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: var(--spacing-md);
+            border-radius: 50%;
+            transition: var(--transition-base);
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .send-btn:hover {
+            background-color: var(--primary-dark);
+            transform: scale(1.05);
+        }
+
+        .send-btn:active {
+            transform: scale(0.95);
+        }
+
+        .send-btn:disabled {
+            background-color: var(--bg-hover);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ==================== PRODUCT PICKER MODAL ==================== */
+        .product-picker-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.85);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            padding: var(--spacing-lg);
+            backdrop-filter: blur(5px);
+        }
+
+        .product-picker-modal.active {
+            display: flex;
+        }
+
+        .product-picker-content {
+            background-color: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 900px;
+            max-height: 80vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            animation: modalSlideUp 0.3s ease-out;
+        }
+
+        @keyframes modalSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .product-picker-header {
+            padding: var(--spacing-lg);
+            background-color: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .product-picker-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .close-modal-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: var(--spacing-sm);
+            border-radius: 50%;
+            transition: var(--transition-base);
+        }
+
+        .close-modal-btn:hover {
+            background-color: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .product-picker-search {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .product-picker-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--spacing-lg);
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: var(--spacing-lg);
+        }
+
+        .product-card-picker {
+            background-color: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: var(--transition-base);
+        }
+
+        .product-card-picker:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .product-card-picker.selected {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 211, 102, 0.2);
+        }
+
+        .product-image-picker {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            background-color: var(--bg-primary);
+        }
+
+        .product-info-picker {
+            padding: var(--spacing-md);
+        }
+
+        .product-name-picker {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-xs);
+            font-size: 1rem;
+        }
+
+        .product-details-picker {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+            margin-bottom: var(--spacing-sm);
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .product-price-picker {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .product-picker-footer {
+            padding: var(--spacing-lg);
+            background-color: var(--bg-tertiary);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-md);
+        }
+
+        .btn {
+            padding: var(--spacing-md) var(--spacing-xl);
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-base);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-light);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--bg-hover);
+        }
+
+        /* ==================== EMPTY STATE ==================== */
+        .empty-chat {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            text-align: center;
+            padding: var(--spacing-xl);
+        }
+
+        .empty-chat i {
+            font-size: 5rem;
+            margin-bottom: var(--spacing-lg);
+            opacity: 0.3;
+        }
+
+        .empty-chat h2 {
+            font-size: 1.5rem;
+            margin-bottom: var(--spacing-md);
+            color: var(--text-primary);
+        }
+
+        .empty-chat p {
+            max-width: 400px;
+            line-height: 1.6;
+        }
+
+        /* ==================== NOTIFICATION TOAST ==================== */
+        .notification-toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            z-index: 10001;
+            display: none;
+            align-items: center;
+            gap: var(--spacing-md);
+            min-width: 300px;
+            max-width: 500px;
+            animation: slideInRight 0.3s ease-out;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .notification-toast.show {
+            display: flex;
+        }
+
+        .notification-icon {
+            font-size: 1.5rem;
+        }
+
+        .notification-toast.success {
+            border-left: 4px solid var(--success-color);
+        }
+
+        .notification-toast.success .notification-icon {
+            color: var(--success-color);
+        }
+
+        .notification-toast.error {
+            border-left: 4px solid var(--danger-color);
+        }
+
+        .notification-toast.error .notification-icon {
+            color: var(--danger-color);
+        }
+
+        .notification-toast.info {
+            border-left: 4px solid var(--info-color);
+        }
+
+        .notification-toast.info .notification-icon {
+            color: var(--info-color);
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .notification-message {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* ==================== SCROLLBAR ==================== */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--border-light);
+        }
+
+        /* ==================== RESPONSIVE ==================== */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+            }
+
+            .sidebar.hide-mobile {
+                display: none;
+            }
+
+            .chat-area {
+                width: 100%;
+            }
+
+            .chat-area.hide-mobile {
+                display: none;
+            }
+
+            .message {
+                max-width: 85%;
+            }
+
+            .products-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ==================== UTILITY CLASSES ==================== */
+        .hidden {
+            display: none !important;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-muted {
+            color: var(--text-secondary);
+        }
+
+        .mt-1 {
+            margin-top: var(--spacing-sm);
+        }
+
+        .mb-1 {
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .p-1 {
+            padding: var(--spacing-sm);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .badge-warning {
+            background-color: var(--warning-color);
+            color: white;
+        }
+
+        .badge-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .badge-info {
+            background-color: var(--info-color);
+            color: white;
+        }
+
+
+
+
+        .message-image-container {
+    position: relative;
+}
+
+.message-image {
+    max-width: 300px;
+    max-height: 300px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: block;
+    transition: transform 0.2s;
+}
+
+.message-image:hover {
+    transform: scale(1.02);
+}
+
+.message-image-info {
+    font-size: 11px;
+    color: #999;
+    margin-top: 4px;
+}
+
+.image-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    padding: 20px;
+}
+    </style>
+</head>
+<body>
+<!-- Loading Screen -->
+<div class="loading-screen" id="loadingScreen">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">Loading AgriGuard Chat...</div>
+</div>
+
+<!-- Main Container -->
+<div class="chat-container">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <!-- Sidebar Header -->
+        <div class="sidebar-header">
+            <div class="user-profile" id="currentUserProfile">
+                <img src="" alt="User" class="user-avatar" id="currentUserAvatar">
+                <div class="user-info">
+                    <div class="user-name" id="currentUserName">Loading...</div>
+                    <div class="user-role" id="currentUserRole"></div>
+                </div>
+            </div>
+            <div class="sidebar-actions">
+                <button class="icon-btn" id="refreshBtn" title="Refresh">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+                <button class="icon-btn" id="logoutBtn" title="Logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="search-container">
+            <div class="search-wrapper">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" id="searchInput" placeholder="Search contacts...">
+            </div>
+        </div>
+
+        <!-- Filter Tabs -->
+        <div class="filter-tabs">
+            <button class="filter-tab active" data-filter="all">All</button>
+            <button class="filter-tab" data-filter="farmers">Farmers</button>
+            <button class="filter-tab" data-filter="buyers">Buyers</button>
+        </div>
+
+        <!-- Contacts List -->
+        <div class="contacts-list" id="contactsList">
+            <!-- Contacts will be loaded dynamically -->
+        </div>
+    </aside>
+
+    <!-- Chat Area -->
+    <main class="chat-area" id="chatArea">
+        <!-- Empty State (shown when no chat selected) -->
+        <div class="empty-chat" id="emptyChat">
+            <i class="fas fa-comments"></i>
+            <h2>AgriGuard Marketplace Chat</h2>
+            <p>Connect with farmers and buyers to discuss products, negotiate prices, and complete transactions securely.</p>
+            <p class="mt-1">Select a contact to start messaging</p>
+        </div>
+
+        <!-- Active Chat (hidden by default) -->
+        <div id="activeChat" class="hidden" style="display: flex; flex-direction: column; height: 100%;">
+            <!-- Chat Header -->
+            <div class="chat-header">
+                <div class="chat-user-info" id="chatUserInfo">
+                    <button class="icon-btn" id="backBtn" style="display: none;">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <img src="" alt="User" class="chat-avatar" id="chatAvatar">
+                    <div class="chat-user-details">
+                        <div class="chat-user-name" id="chatUserName">Contact Name</div>
+                        <div class="chat-user-status" id="chatUserStatus">offline</div>
+                    </div>
+                </div>
+                <div class="chat-actions">
+                    <button class="icon-btn" id="searchMessagesBtn" title="Search Messages">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    <button class="icon-btn" id="moreOptionsBtn" title="More Options">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Messages Container -->
+            <div class="messages-container" id="messagesContainer">
+                <!-- Messages will be loaded dynamically -->
+            </div>
+
+            <!-- Typing Indicator -->
+            <div class="typing-indicator" id="typingIndicator">
+                <div class="typing-dots">
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
+                </div>
+            </div>
+
+            <!-- Message Input -->
+            <div class="message-input-container">
+                <div class="message-input-wrapper">
+                    <div class="input-actions">
+                        <button class="input-btn" id="emojiBtn" title="Emoji">
+                            <i class="far fa-smile"></i>
+                        </button>
+                        <button class="input-btn" id="attachProductBtn" title="Share Product">
+                            <i class="fas fa-seedling"></i>
+                        </button>
+                        <button class="input-btn" id="attachFileBtn" title="Attach File">
+                            <i class="fas fa-paperclip"></i>
+                        </button>
+                    </div>
+                    <textarea class="message-textarea" id="messageInput" placeholder="Type a message" rows="1"></textarea>
+                </div>
+                <button class="send-btn" id="sendBtn" disabled>
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Product Picker Modal -->
+<div class="product-picker-modal" id="productPickerModal">
+    <div class="product-picker-content">
+        <div class="product-picker-header">
+            <h3 class="product-picker-title">Share a Product</h3>
+            <button class="close-modal-btn" id="closeProductPicker">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="product-picker-search">
+            <div class="search-wrapper">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" id="productSearchInput" placeholder="Search products...">
+            </div>
+        </div>
+        <div class="product-picker-body" id="productPickerBody">
+            <div class="products-grid" id="productsGrid">
+                <!-- Products will be loaded dynamically -->
+            </div>
+        </div>
+        <div class="product-picker-footer">
+            <button class="btn btn-secondary" id="cancelProductPicker">Cancel</button>
+            <button class="btn btn-primary" id="confirmProductShare" disabled>
+                <i class="fas fa-paper-plane"></i>
+                Share Product
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Notification Toast -->
+<div class="notification-toast" id="notificationToast">
+    <i class="fas fa-check-circle notification-icon"></i>
+    <div class="notification-content">
+        <div class="notification-title" id="notificationTitle">Success</div>
+        <div class="notification-message" id="notificationMessage">Action completed successfully</div>
+    </div>
+</div>
+
+<!-- WebSocket Libraries -->
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+<!-- Session Tracker and User Session Scripts -->
+<script src="js/SessionTracker.js"></script>
+<script src="js/user_session_handler.js"></script>
+
+<script>
+    // ==================== DEBUG MODE ====================
+    const DEBUG_MODE = true; // Set to false in production
+
+        // FarmerBuyerWhatsapp.js - Complete Chat System for Farmers & Buyers
+        // Author: AgriGuard AI Development Team
+
+        (function() {
+            'use strict';
+
+            // ==================== CONFIGURATION ====================
+            const CONFIG = {
+                API_BASE_URL: 'http://localhost:1010/api',
+                WS_URL: 'http://localhost:1010/ws',
+                ALLOWED_ROLES: ['FARMER', 'BUYER'],
+                MAX_FILE_SIZE: 10 * 1024 * 1024,
+                ALLOWED_FILE_TYPES: ['image/jpeg', 'image/png', 'image/gif']
+            };
+
+            // ==================== STATE ====================
+            const STATE = {
+                currentUser: null,
+                selectedContact: null,
+                contacts: [],
+                messages: new Map(),
+                unreadCounts: new Map(),
+                onlineUsers: new Set(),
+                stompClient: null,
+                typingTimeouts: new Map(),
+                selectedProducts: []
+            };
+
+            // ==================== INITIALIZATION ====================
+            document.addEventListener('DOMContentLoaded', async () => {
+                console.log('Initializing FarmerBuyer Chat...');
+
+                if (!checkAuth()) return;
+                await loadCurrentUser();
+                initUI();
+                await loadContacts();
+                connectWebSocket();
+
+                setTimeout(() => {
+                    document.getElementById('loadingScreen').classList.add('hidden');
+                }, 500);
+            });
+
+            // ==================== AUTHENTICATION ====================
+            function checkAuth() {
+                try {
+                    const sessionHandler = window.UserSessionHandler.getInstance();
+                    const user = sessionHandler.getCurrentUser();
+
+                    if (!user || !CONFIG.ALLOWED_ROLES.includes(user.role)) {
+                        alert('Access restricted to Farmers and Buyers only');
+                        window.location.href = '/login.html';
+                        return false;
+                    }
+
+                    STATE.currentUser = user;
+                    return true;
+                } catch (error) {
+                    console.error('Auth error:', error);
+                    window.location.href = '/login.html';
+                    return false;
+                }
+            }
+
+
+
+
+// ==================== SECTION 1 : Fonction loadCurrentUser (LIGNE ~70) ====================
+async function loadCurrentUser() {
+    const user = STATE.currentUser;
+    document.getElementById('currentUserName').textContent = user.fullName;
+    document.getElementById('currentUserRole').textContent = user.role;
+
+    // ⭐ NOUVELLE VERSION - Avatar avec image internet par défaut
+    const avatarUrl = user.profileImageUrl ||
+        `https://ui-avatars.com/api/?name=${encodeURIComponent(user.fullName)}&background=075E54&color=fff&size=128`;
+    const avatarElement = document.getElementById('currentUserAvatar');
+    avatarElement.src = avatarUrl;
+    avatarElement.onerror = function() {
+        this.onerror = null;
+        // Fallback vers une vraie image internet
+        this.src = 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png';
+    };
+}
+
+
+
+
+
+
+
+
+            // ==================== UI INITIALIZATION ====================
+            function initUI() {
+                // Filter tabs
+                document.querySelectorAll('.filter-tab').forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+                        tab.classList.add('active');
+                        filterContacts(tab.dataset.filter);
+                    });
+                });
+
+                // Search
+                document.getElementById('searchInput').addEventListener('input', (e) => {
+                    searchContacts(e.target.value);
+                });
+
+                // Message input
+                const messageInput = document.getElementById('messageInput');
+                messageInput.addEventListener('input', handleMessageInput);
+                messageInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        sendMessage();
+                    }
+                });
+
+                // Send button
+                document.getElementById('sendBtn').addEventListener('click', sendMessage);
+
+                // Attach product button
+                document.getElementById('attachProductBtn').addEventListener('click', openProductPicker);
+
+                // Product picker
+                document.getElementById('closeProductPicker').addEventListener('click', closeProductPicker);
+                document.getElementById('cancelProductPicker').addEventListener('click', closeProductPicker);
+                document.getElementById('confirmProductShare').addEventListener('click', shareSelectedProducts);
+
+                // Product search
+                document.getElementById('productSearchInput').addEventListener('input', (e) => {
+                    searchProducts(e.target.value);
+                });
+
+                // Logout
+                document.getElementById('logoutBtn').addEventListener('click', () => {
+                    if (confirm('Are you sure you want to logout?')) {
+                        const sessionHandler = window.UserSessionHandler.getInstance();
+                        sessionHandler.logout();
+                    }
+                });
+
+                // Refresh
+                document.getElementById('refreshBtn').addEventListener('click', () => {
+                    loadContacts();
+                    if (STATE.selectedContact) {
+                        loadChatHistory(STATE.selectedContact.email);
+                    }
+                });
+
+                // Back button for mobile
+                document.getElementById('backBtn').addEventListener('click', () => {
+                    document.getElementById('sidebar').classList.remove('hide-mobile');
+                    document.getElementById('backBtn').style.display = 'none';
+                });
+
+                 // ⭐ AJOUTER CETTE LIGNE
+    initEmojiPicker();
+
+
+    document.getElementById('attachFileBtn').addEventListener('click', openFilePicker);
+
+            }
+
+
+            async function loadContacts() {
+        try {
+            const token = getAuthToken();
+            const response = await fetch(`${CONFIG.API_BASE_URL}/users`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (!response.ok) throw new Error('Failed to load contacts');
+
+            const users = await response.json();
+            STATE.contacts = users.filter(user =>
+                CONFIG.ALLOWED_ROLES.includes(user.role) &&
+                user.id !== STATE.currentUser.id
+            );
+
+            // ADD THIS DEBUG CODE
+            if (DEBUG_MODE) {
+                console.log('=== CONTACTS LOADED ===');
+                console.log(`Total contacts: ${STATE.contacts.length}`);
+
+                const farmers = STATE.contacts.filter(c => c.role === 'FARMER').length;
+                const buyers = STATE.contacts.filter(c => c.role === 'BUYER').length;
+
+                console.log(`Farmers: ${farmers}`);
+                console.log(`Buyers: ${buyers}`);
+                console.log('Contacts by role:', STATE.contacts.map(c => ({
+                    name: c.fullName,
+                    role: c.role
+                })));
+            }
+
+            renderContacts();
+        } catch (error) {
+            console.error('Error loading contacts:', error);
+            showNotification('Error loading contacts', 'error');
+        }
+    }
+
+
+
+
+
+// ==================== SECTION 2 : Fonction renderContacts (LIGNE ~200) ====================
+function renderContacts() {
+    const list = document.getElementById('contactsList');
+    list.innerHTML = '';
+
+    if (STATE.contacts.length === 0) {
+        list.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-secondary-light);">No contacts available</div>';
+        return;
+    }
+
+    STATE.contacts.forEach(contact => {
+        const div = document.createElement('div');
+        div.className = 'contact-item';
+        div.dataset.userId = contact.id;
+
+        const isOnline = STATE.onlineUsers.has(contact.email);
+        const unreadCount = STATE.unreadCounts.get(contact.id) || 0;
+        const badge = contact.role === 'FARMER' ?
+            '<span class="contact-badge" style="background: #25D366;">Farmer</span>' :
+            '<span class="contact-badge" style="background: #128C7E;">Buyer</span>';
+
+        // ⭐ NOUVELLE VERSION - Avatar avec vraie image internet
+        const avatarUrl = contact.profileImageUrl ||
+            `https://ui-avatars.com/api/?name=${encodeURIComponent(contact.fullName)}&background=25D366&color=fff&size=128`;
+
+        div.innerHTML = `
+            <div class="contact-avatar-wrapper">
+                <img src="${avatarUrl}"
+                     alt="${contact.fullName}"
+                     class="contact-avatar"
+                     onerror="this.onerror=null; this.src='https://cdn-icons-png.flaticon.com/512/3135/3135715.png';">
+                <div class="online-indicator ${isOnline ? '' : 'offline'}"></div>
+            </div>
+            <div class="contact-info">
+                <div class="contact-header">
+                    <span class="contact-name">${escapeHtml(contact.fullName)}</span>
+                    <span class="contact-time"></span>
+                </div>
+                <div class="contact-last-message">
+                    ${badge}
+                    ${unreadCount > 0 ? `<span class="unread-badge">${unreadCount}</span>` : ''}
+                </div>
+            </div>
+        `;
+
+        div.addEventListener('click', () => selectContact(contact));
+        list.appendChild(div);
+    });
+}
+
+
+
+    // ==================== CONTACTS FILTERING ====================
+    function filterContacts(filter) {
+        const list = document.getElementById('contactsList');
+        list.innerHTML = '';
+
+        // Filter contacts based on selected filter
+        let filteredContacts = [];
+
+        if (filter === 'all') {
+            filteredContacts = STATE.contacts;
+        } else if (filter === 'farmers') {
+            filteredContacts = STATE.contacts.filter(c => c.role === 'FARMER');
+        } else if (filter === 'buyers') {
+            filteredContacts = STATE.contacts.filter(c => c.role === 'BUYER');
+        }
+
+        if (DEBUG_MODE) {
+            console.log(`Filtering contacts by: ${filter}`);
+            console.log(`Total contacts: ${STATE.contacts.length}`);
+            console.log(`Filtered contacts: ${filteredContacts.length}`);
+        }
+
+        // Display message if no contacts found
+        if (filteredContacts.length === 0) {
+            list.innerHTML = `
+                <div style="padding: 20px; text-align: center; color: var(--text-secondary);">
+                    No ${filter === 'all' ? '' : filter} contacts available
+                </div>
+            `;
+            return;
+        }
+
+        // Render filtered contacts
+        filteredContacts.forEach(contact => {
+            const div = document.createElement('div');
+            div.className = 'contact-item';
+            div.dataset.userId = contact.id;
+
+            // Check if contact is currently selected
+            if (STATE.selectedContact && STATE.selectedContact.id === contact.id) {
+                div.classList.add('active');
+            }
+
+            const isOnline = STATE.onlineUsers.has(contact.email);
+            const unreadCount = STATE.unreadCounts.get(contact.id) || 0;
+
+            // Badge based on role
+            const badge = contact.role === 'FARMER' ?
+                '<span class="contact-badge" style="background: #25D366;">Farmer</span>' :
+                '<span class="contact-badge" style="background: #128C7E;">Buyer</span>';
+
+            div.innerHTML = `
+                <div class="contact-avatar-wrapper">
+                    <img src="${contact.profileImageUrl || '/assets/images/default-avatar.png'}"
+                         alt="${contact.fullName}" class="contact-avatar">
+                    <div class="online-indicator ${isOnline ? '' : 'offline'}"></div>
+                </div>
+                <div class="contact-info">
+                    <div class="contact-header">
+                        <span class="contact-name">${escapeHtml(contact.fullName)}</span>
+                        <span class="contact-time"></span>
+                    </div>
+                    <div class="contact-last-message">
+                        ${badge}
+                        ${unreadCount > 0 ? `<span class="unread-badge">${unreadCount}</span>` : ''}
+                    </div>
+                </div>
+            `;
+
+            div.addEventListener('click', () => selectContact(contact));
+            list.appendChild(div);
+        });
+
+        if (DEBUG_MODE) {
+            console.log(`Rendered ${filteredContacts.length} contacts`);
+        }
+    }
+
+    // ==================== SEARCH CONTACTS ====================
+    function searchContacts(query) {
+        const list = document.getElementById('contactsList');
+        list.innerHTML = '';
+
+        // Get current active filter
+        const activeFilter = document.querySelector('.filter-tab.active');
+        const currentFilter = activeFilter ? activeFilter.dataset.filter : 'all';
+
+        // First filter by role
+        let baseContacts = [];
+        if (currentFilter === 'all') {
+            baseContacts = STATE.contacts;
+        } else if (currentFilter === 'farmers') {
+            baseContacts = STATE.contacts.filter(c => c.role === 'FARMER');
+        } else if (currentFilter === 'buyers') {
+            baseContacts = STATE.contacts.filter(c => c.role === 'BUYER');
+        }
+
+        // Then filter by search query
+        const filtered = query.trim() === '' ? baseContacts :
+            baseContacts.filter(c =>
+                c.fullName.toLowerCase().includes(query.toLowerCase()) ||
+                c.email.toLowerCase().includes(query.toLowerCase())
+            );
+
+        if (DEBUG_MODE) {
+            console.log(`Searching contacts with query: "${query}"`);
+            console.log(`Current filter: ${currentFilter}`);
+            console.log(`Results found: ${filtered.length}`);
+        }
+
+        if (filtered.length === 0) {
+            list.innerHTML = `
+                <div style="padding: 20px; text-align: center; color: var(--text-secondary);">
+                    No contacts found matching "${query}"
+                </div>
+            `;
+            return;
+        }
+
+        // Render search results
+        filtered.forEach(contact => {
+            const div = document.createElement('div');
+            div.className = 'contact-item';
+            div.dataset.userId = contact.id;
+
+            if (STATE.selectedContact && STATE.selectedContact.id === contact.id) {
+                div.classList.add('active');
+            }
+
+            const isOnline = STATE.onlineUsers.has(contact.email);
+            const unreadCount = STATE.unreadCounts.get(contact.id) || 0;
+
+            const badge = contact.role === 'FARMER' ?
+                '<span class="contact-badge" style="background: #25D366;">Farmer</span>' :
+                '<span class="contact-badge" style="background: #128C7E;">Buyer</span>';
+
+            div.innerHTML = `
+                <div class="contact-avatar-wrapper">
+                    <img src="${contact.profileImageUrl || '/assets/images/default-avatar.png'}"
+                         alt="${contact.fullName}" class="contact-avatar">
+                    <div class="online-indicator ${isOnline ? '' : 'offline'}"></div>
+                </div>
+                <div class="contact-info">
+                    <div class="contact-header">
+                        <span class="contact-name">${escapeHtml(contact.fullName)}</span>
+                        <span class="contact-time"></span>
+                    </div>
+                    <div class="contact-last-message">
+                        ${badge}
+                        ${unreadCount > 0 ? `<span class="unread-badge">${unreadCount}</span>` : ''}
+                    </div>
+                </div>
+            `;
+
+            div.addEventListener('click', () => selectContact(contact));
+            list.appendChild(div);
+        });
+    }
+
+            // ==================== CHAT ====================
+            async function selectContact(contact) {
+                STATE.selectedContact = contact;
+
+                document.querySelectorAll('.contact-item').forEach(el => el.classList.remove('active'));
+                document.querySelector(`[data-user-id="${contact.id}"]`)?.classList.add('active');
+
+                document.getElementById('emptyChat').classList.add('hidden');
+                document.getElementById('activeChat').classList.remove('hidden');
+
+                document.getElementById('chatUserName').textContent = contact.fullName;
+                document.getElementById('chatAvatar').src = contact.profileImageUrl || '/assets/images/default-avatar.png';
+                updateContactStatus(contact);
+
+                await loadChatHistory(contact.email);
+                STATE.unreadCounts.set(contact.id, 0);
+                renderContacts();
+                markMessagesAsRead(contact.email);
+
+                if (window.innerWidth <= 768) {
+                    document.getElementById('sidebar').classList.add('hide-mobile');
+                    document.getElementById('backBtn').style.display = 'block';
+                }
+
+                document.getElementById('messageInput').focus();
+            }
+
+            function updateContactStatus(contact) {
+                const status = document.getElementById('chatUserStatus');
+                const isOnline = STATE.onlineUsers.has(contact.email);
+                status.textContent = isOnline ? 'online' : 'offline';
+                status.classList.toggle('online', isOnline);
+            }
+
+
+
+
+async function loadChatHistory(recipientEmail) {
+    try {
+        const token = getAuthToken();
+        const response = await fetch(
+            `${CONFIG.API_BASE_URL}/chat/history/${recipientEmail}?page=0&size=50`,
+            { headers: { 'Authorization': `Bearer ${token}` } }
+        );
+
+        if (!response.ok) throw new Error('Failed to load chat history');
+
+        const messages = await response.json();
+
+        if (DEBUG_MODE) {
+            console.log(`📬 Loaded ${messages.length} messages from ${recipientEmail}`);
+        }
+
+        STATE.messages.set(recipientEmail, messages);
+        renderMessages();
+    } catch (error) {
+        console.error('Error loading chat history:', error);
+        showNotification('Failed to load messages', 'error');
+    }
+}
+
+
+
+            function renderMessages() {
+                const container = document.getElementById('messagesContainer');
+                if (!STATE.selectedContact) return;
+
+                container.innerHTML = '';
+                const messages = STATE.messages.get(STATE.selectedContact.email) || [];
+
+                if (messages.length === 0) {
+                    container.innerHTML = '<div style="padding: 20px; text-align: center; color: #999;">No messages yet. Start the conversation!</div>';
+                    return;
+                }
+
+                messages.forEach(msg => {
+                    const messageEl = createMessageElement(msg);
+                    container.appendChild(messageEl);
+                });
+
+                scrollToBottom();
+            }
+
+
+
+
+
+
+function openFilePicker() {
+    let fileInput = document.getElementById('fileInput');
+
+    // Si l'input n'existe pas, le créer dynamiquement
+    if (!fileInput) {
+        fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.id = 'fileInput';
+        fileInput.accept = 'image/jpeg,image/png,image/gif';
+        fileInput.multiple = false; // Un fichier à la fois
+        fileInput.style.display = 'none';
+        document.body.appendChild(fileInput);
+
+        // Gérer la sélection de fichier
+        fileInput.addEventListener('change', handleFileSelect);
+    }
+
+    // Ouvrir le sélecteur de fichiers
+    fileInput.click();
+}
+
+async function handleFileSelect(event) {
+    const files = event.target.files;
+
+    if (!files || files.length === 0) {
+        return;
+    }
+
+    const file = files[0];
+
+    // Validation du type de fichier
+    if (!CONFIG.ALLOWED_FILE_TYPES.includes(file.type)) {
+        showNotification('Invalid file type', 'Only JPEG, PNG and GIF images are allowed');
+        return;
+    }
+
+    // Validation de la taille
+    if (file.size > CONFIG.MAX_FILE_SIZE) {
+        showNotification('File too large', `Maximum file size is ${CONFIG.MAX_FILE_SIZE / 1024 / 1024}MB`);
+        return;
+    }
+
+    if (!STATE.selectedContact) {
+        showNotification('No contact selected', 'Please select a contact first');
+        return;
+    }
+
+    try {
+        // Afficher un loader
+        showNotification('Uploading...', 'Please wait');
+
+        // Convertir le fichier en base64
+        const base64 = await fileToBase64(file);
+
+        // Créer le message avec l'image
+        const message = {
+            content: `[Image: ${file.name}]`,
+            senderId: STATE.currentUser.email,
+            recipientId: STATE.selectedContact.email,
+            type: 'IMAGE',
+            imageData: {
+                fileName: file.name,
+                fileType: file.type,
+                fileSize: file.size,
+                base64Data: base64
+            },
+            timestamp: new Date().toISOString(),
+            read: false
+        };
+
+        // Envoyer via WebSocket ou API
+        if (STATE.stompClient && STATE.stompClient.connected) {
+            STATE.stompClient.send('/app/chat.private', {}, JSON.stringify(message));
+        } else {
+            await sendMessageViaAPI(message);
+        }
+
+        // Ajouter le message localement
+        addMessageToLocal(message);
+
+        showNotification('Image sent successfully', 'success');
+
+        // Réinitialiser l'input
+        event.target.value = '';
+
+    } catch (error) {
+        console.error('Error sending file:', error);
+        showNotification('Failed to send image', 'error');
+    }
+}
+
+function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+
+        reader.onload = () => {
+            // Extraire uniquement la partie base64 (sans le préfixe data:image/...)
+            const base64String = reader.result.split(',')[1];
+            resolve(base64String);
+        };
+
+        reader.onerror = (error) => {
+            reject(error);
+        };
+
+        reader.readAsDataURL(file);
+    });
+}
+
+// ==================== AFFICHAGE DES IMAGES DANS LES MESSAGES ====================
+
+// Modifiez la fonction createMessageElement pour gérer les images
+// Ajoutez ce cas dans la fonction existante :
+
+function createMessageElement(msg) {
+    const div = document.createElement('div');
+    const isSent = msg.senderId === STATE.currentUser.email;
+    div.className = `message ${isSent ? 'sent' : 'received'}`;
+
+    let content = '';
+
+    if (msg.type === 'IMAGE') {
+        // Afficher l'image
+        const imageUrl = msg.imageData?.base64Data
+            ? `data:${msg.imageData.fileType};base64,${msg.imageData.base64Data}`
+            : msg.imageData?.url || '';
+
+        content = `
+            <div class="message-image-container">
+                <img src="${imageUrl}"
+                     alt="${msg.imageData?.fileName || 'Image'}"
+                     class="message-image"
+                     onclick="openImageModal('${imageUrl}')"
+                     style="max-width: 300px; max-height: 300px; border-radius: 8px; cursor: pointer; display: block;">
+                <div class="message-image-info" style="font-size: 11px; color: #999; margin-top: 4px;">
+                    ${msg.imageData?.fileName || 'Image'}
+                </div>
+            </div>
+        `;
+    } else if (msg.type === 'PRODUCT') {
+        content = createProductCardHTML(msg.productData);
+    } else if (msg.type === 'ORDER') {
+        content = createOrderCardHTML(msg.orderData);
+    } else {
+        content = `<div class="message-text">${escapeHtml(msg.content)}</div>`;
+    }
+
+    const time = formatTime(msg.timestamp);
+    const status = isSent ? getMessageStatus(msg) : '';
+
+    div.innerHTML = `
+        ${content}
+        <div class="message-info">
+            <span class="message-time">${time}</span>
+            ${status}
+        </div>
+    `;
+
+    return div;
+}
+
+// ==================== MODAL POUR AGRANDIR LES IMAGES ====================
+
+window.openImageModal = function(imageUrl) {
+    const modal = document.createElement('div');
+    modal.className = 'image-modal';
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.95);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        padding: 20px;
+        cursor: zoom-out;
+    `;
+
+    modal.innerHTML = `
+        <button onclick="this.closest('.image-modal').remove()"
+                style="position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.9); color: #000; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; font-size: 24px; display: flex; align-items: center; justify-content: center; z-index: 1;">
+            ×
+        </button>
+        <img src="${imageUrl}"
+             alt="Full size image"
+             style="max-width: 90%; max-height: 90%; object-fit: contain; border-radius: 8px;">
+    `;
+
+    document.body.appendChild(modal);
+
+    // Fermer au clic sur le fond
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.remove();
+        }
+    });
+
+    // Fermer avec la touche Echap
+    const handleEscape = (e) => {
+        if (e.key === 'Escape') {
+            modal.remove();
+            document.removeEventListener('keydown', handleEscape);
+        }
+    };
+    document.addEventListener('keydown', handleEscape);
+};
+
+
+
+
+
+
+// ==================== SECTION 3 : Fonction createProductCardHTML (LIGNE ~550) ====================
+function createProductCardHTML(product) {
+    const cropName = product.cropName || 'Unknown Crop';
+
+    // ⭐ NOUVELLE VERSION - Image avec vraie image internet par défaut
+    const imageUrl = product.cropImageUrl ||
+        'https://images.unsplash.com/photo-1560493676-04071c5f467b?w=400&h=300&fit=crop';
+
+    const quantity = product.quantity || product.expectedYield || 0;
+    const price = product.price || product.estimatedPrice || 0;
+    const location = product.location || 'Not specified';
+
+    return `
+        <div class="product-card-message">
+            <img src="${imageUrl}"
+                 alt="${cropName}"
+                 class="product-image-message"
+                 onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1560493676-04071c5f467b?w=400&h=300&fit=crop';">
+            <div class="product-info-message">
+                <h4 class="product-name-message">${escapeHtml(cropName)}</h4>
+                <div class="product-details-message">
+                    <div class="product-detail-item">
+                        <i class="fas fa-weight"></i>
+                        ${quantity} kg available
+                    </div>
+                    <div class="product-detail-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        ${escapeHtml(location)}
+                    </div>
+                </div>
+                <div class="product-price-message">${formatCurrency(price)}/kg</div>
+                <div class="product-actions-message">
+                    <button class="btn-product-action secondary" onclick="viewProductDetails('${product.id}')">
+                        <i class="fas fa-info-circle"></i> Details
+                    </button>
+                    ${STATE.currentUser.role === 'BUYER' ? `
+                        <button class="btn-product-action primary" onclick="initiateOrder('${product.id}')">
+                            <i class="fas fa-shopping-cart"></i> Order Now
+                        </button>
+                    ` : ''}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+
+
+
+// ==================== EMOJI PICKER ====================
+function initEmojiPicker() {
+    const emojiBtn = document.getElementById('emojiBtn');
+    const messageInput = document.getElementById('messageInput');
+
+    // Liste d'emojis couramment utilisés
+    const commonEmojis = [
+        '😊', '😂', '❤️', '👍', '🙏', '😍', '🎉', '🔥', '✨', '💯',
+        '😎', '🤔', '😢', '😡', '🤗', '👏', '💪', '🌟', '⚡', '💚',
+        '🌾', '🚜', '🌱', '🥕', '🌽', '🍅', '🥔', '🌿', '☀️', '🌧️'
+    ];
+
+    let emojiPickerDiv = null;
+
+    emojiBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+
+        // Si le picker existe déjà, le supprimer
+        if (emojiPickerDiv) {
+            emojiPickerDiv.remove();
+            emojiPickerDiv = null;
+            return;
+        }
+
+        // Créer le picker
+        emojiPickerDiv = document.createElement('div');
+        emojiPickerDiv.className = 'emoji-picker-popup';
+        emojiPickerDiv.innerHTML = `
+            <div class="emoji-picker-header">Select an emoji</div>
+            <div class="emoji-picker-grid">
+                ${commonEmojis.map(emoji =>
+                    `<button class="emoji-btn" data-emoji="${emoji}">${emoji}</button>`
+                ).join('')}
+            </div>
+        `;
+
+        // Style inline pour le picker
+        emojiPickerDiv.style.cssText = `
+            position: absolute;
+            bottom: 60px;
+            left: 10px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            padding: 10px;
+            z-index: 1000;
+            max-width: 320px;
+        `;
+
+        document.querySelector('.message-input-container').appendChild(emojiPickerDiv);
+
+        // Gérer le clic sur un emoji
+        emojiPickerDiv.querySelectorAll('.emoji-btn').forEach(btn => {
+            btn.style.cssText = `
+                border: none;
+                background: none;
+                font-size: 24px;
+                cursor: pointer;
+                padding: 8px;
+                border-radius: 4px;
+                transition: background 0.2s;
+            `;
+
+            btn.addEventListener('mouseenter', () => {
+                btn.style.background = '#f0f0f0';
+            });
+
+            btn.addEventListener('mouseleave', () => {
+                btn.style.background = 'none';
+            });
+
+            btn.addEventListener('click', () => {
+                const emoji = btn.dataset.emoji;
+                messageInput.value += emoji;
+                messageInput.focus();
+
+                // Trigger input event pour activer le bouton d'envoi
+                messageInput.dispatchEvent(new Event('input'));
+
+                // Fermer le picker
+                emojiPickerDiv.remove();
+                emojiPickerDiv = null;
+            });
+        });
+
+        // Style pour la grille d'emojis
+        const grid = emojiPickerDiv.querySelector('.emoji-picker-grid');
+        grid.style.cssText = `
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 4px;
+            max-height: 200px;
+            overflow-y: auto;
+        `;
+
+        // Style pour le header
+        const header = emojiPickerDiv.querySelector('.emoji-picker-header');
+        header.style.cssText = `
+            font-size: 12px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eee;
+        `;
+    });
+
+    // Fermer le picker si on clique ailleurs
+    document.addEventListener('click', (e) => {
+        if (emojiPickerDiv && !emojiPickerDiv.contains(e.target) && e.target !== emojiBtn) {
+            emojiPickerDiv.remove();
+            emojiPickerDiv = null;
+        }
+    });
+}
+
+
+
+            function createOrderCardHTML(order) {
+                return `
+                    <div class="order-card-message">
+                        <div class="order-header-message">
+                            <span class="order-id-message">Order #${order.orderCode}</span>
+                            <span class="order-status-badge ${order.status.toLowerCase()}">${order.status}</span>
+                        </div>
+                        <div class="order-items-message">
+                            <div class="order-item-row">
+                                <span>${order.cropName}</span>
+                                <span>${order.quantity} kg × ${formatCurrency(order.pricePerKg)}</span>
+                            </div>
+                        </div>
+                        <div class="order-total-message">
+                            <span>Total:</span>
+                            <span>${formatCurrency(order.totalAmount)}</span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            function getMessageStatus(msg) {
+                if (msg.read) {
+                    return '<span class="message-status read"><i class="fas fa-check-double"></i></span>';
+                } else if (msg.status === 'DELIVERED') {
+                    return '<span class="message-status delivered"><i class="fas fa-check-double"></i></span>';
+                }
+                return '<span class="message-status sent"><i class="fas fa-check"></i></span>';
+            }
+
+            // ==================== SEND MESSAGE ====================
+            async function sendMessage() {
+                const input = document.getElementById('messageInput');
+                const content = input.value.trim();
+
+                if (!content || !STATE.selectedContact) return;
+
+                try {
+                    const message = {
+                        content: content,
+                        senderId: STATE.currentUser.email,
+                        recipientId: STATE.selectedContact.email,
+                        type: 'CHAT',
+                        timestamp: new Date().toISOString(),
+                        read: false
+                    };
+
+                    if (STATE.stompClient && STATE.stompClient.connected) {
+                        STATE.stompClient.send('/app/chat.private', {}, JSON.stringify(message));
+                    } else {
+                        await sendMessageViaAPI(message);
+                    }
+
+                    input.value = '';
+                    document.getElementById('sendBtn').disabled = true;
+                    input.style.height = 'auto';
+
+                    addMessageToLocal(message);
+                } catch (error) {
+                    console.error('Error sending message:', error);
+                    showNotification('Failed to send message', 'error');
+                }
+            }
+
+            async function sendMessageViaAPI(message) {
+                const token = getAuthToken();
+                const response = await fetch(`${CONFIG.API_BASE_URL}/chat/send`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(message)
+                });
+
+                if (!response.ok) throw new Error('Failed to send message');
+                return await response.json();
+            }
+
+            function addMessageToLocal(message) {
+                if (!STATE.selectedContact) return;
+
+                const contactEmail = message.senderId === STATE.currentUser.email ?
+                    STATE.selectedContact.email : message.senderId;
+
+                let messages = STATE.messages.get(contactEmail) || [];
+                const exists = messages.some(m =>
+                    m.id === message.id ||
+                    (m.content === message.content &&
+                        m.senderId === message.senderId &&
+                        Math.abs(new Date(m.timestamp) - new Date(message.timestamp)) < 2000)
+                );
+
+                if (!exists) {
+                    messages.push(message);
+                    STATE.messages.set(contactEmail, messages);
+
+                    if (STATE.selectedContact && STATE.selectedContact.email === contactEmail) {
+                        renderMessages();
+                    }
+                }
+            }
+
+            function handleMessageInput(e) {
+                const input = e.target;
+                const sendBtn = document.getElementById('sendBtn');
+
+                sendBtn.disabled = input.value.trim() === '';
+
+                input.style.height = 'auto';
+                input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+
+                if (input.value.trim()) {
+                    sendTypingIndicator(true);
+
+                    if (STATE.typingTimeouts.has('typing')) {
+                        clearTimeout(STATE.typingTimeouts.get('typing'));
+                    }
+
+                    const timeout = setTimeout(() => {
+                        sendTypingIndicator(false);
+                    }, 3000);
+
+                    STATE.typingTimeouts.set('typing', timeout);
+                } else {
+                    sendTypingIndicator(false);
+                }
+            }
+
+            // ==================== PRODUCT PICKER ====================
+            async function openProductPicker() {
+                try {
+                    if (STATE.currentUser.role !== 'FARMER') {
+                        showNotification('Only farmers can share products', 'warning');
+                        return;
+                    }
+
+                    const token = getAuthToken();
+                    const response = await fetch(
+                        `${CONFIG.API_BASE_URL}/v1/crop-productions/farmer/${STATE.currentUser.id}`,
+                        { headers: { 'Authorization': `Bearer ${token}` } }
+                    );
+
+                    if (!response.ok) throw new Error('Failed to load products');
+
+                    const data = await response.json();
+                    const products = data.data || data || [];
+
+                    renderProductPicker(products);
+                    document.getElementById('productPickerModal').classList.add('active');
+                } catch (error) {
+                    console.error('Error loading products:', error);
+                    showNotification('Failed to load products', 'error');
+                }
+            }
+
+
+// ==================== SECTION 4 : Fonction renderProductPicker (LIGNE ~650) ====================
+function renderProductPicker(products) {
+    const grid = document.getElementById('productsGrid');
+    grid.innerHTML = '';
+
+    if (DEBUG_MODE) {
+        console.log('📋 Rendering products:', products);
+    }
+
+    if (products.length === 0) {
+        grid.innerHTML = '<p style="text-align: center; padding: 20px; color: #999;">No products available</p>';
+        return;
+    }
+
+    products.forEach(product => {
+        const div = document.createElement('div');
+        div.className = 'product-card-picker';
+        div.dataset.productId = product.id;
+
+        const cropName = product.cropName || 'Unknown Crop';
+
+        // ⭐ NOUVELLE VERSION - Image avec vraie image internet
+        const imageUrl = product.cropImageUrl ||
+            'https://images.unsplash.com/photo-1560493676-04071c5f467b?w=400&h=300&fit=crop';
+
+        const quantity = product.expectedYield || product.quantity || 0;
+        const price = product.estimatedPrice || product.price || 0;
+        const location = product.location || 'Not specified';
+
+        div.innerHTML = `
+            <img src="${imageUrl}"
+                 alt="${cropName}"
+                 class="product-image-picker"
+                 onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1560493676-04071c5f467b?w=400&h=300&fit=crop';">
+            <div class="product-info-picker">
+                <h4 class="product-name-picker">${escapeHtml(cropName)}</h4>
+                <div class="product-details-picker">
+                    <div><i class="fas fa-weight"></i> ${quantity} kg</div>
+                    <div><i class="fas fa-map-marker-alt"></i> ${escapeHtml(location)}</div>
+                </div>
+                <div class="product-price-picker">${formatCurrency(price)}/kg</div>
+            </div>
+        `;
+
+        div.addEventListener('click', () => toggleProductSelection(div, product));
+        grid.appendChild(div);
+    });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+            function toggleProductSelection(element, product) {
+                const isSelected = element.classList.contains('selected');
+
+                if (isSelected) {
+                    element.classList.remove('selected');
+                    STATE.selectedProducts = STATE.selectedProducts.filter(p => p.id !== product.id);
+                } else {
+                    element.classList.add('selected');
+                    STATE.selectedProducts.push(product);
+                }
+
+                document.getElementById('confirmProductShare').disabled = STATE.selectedProducts.length === 0;
+            }
+
+            function searchProducts(query) {
+                const cards = document.querySelectorAll('.product-card-picker');
+                cards.forEach(card => {
+                    const name = card.querySelector('.product-name-picker').textContent.toLowerCase();
+                    card.style.display = name.includes(query.toLowerCase()) ? 'block' : 'none';
+                });
+            }
+
+
+async function shareSelectedProducts() {
+    if (STATE.selectedProducts.length === 0 || !STATE.selectedContact) return;
+
+    try {
+        const token = getAuthToken();
+
+        for (const product of STATE.selectedProducts) {
+            let fullProductData = product;
+
+            // ⭐ NOUVELLE VERSION - Récupérer les détails complets avec le nom du crop
+            if (!product.cropName || !product.estimatedPrice) {
+                const response = await fetch(
+                    `${CONFIG.API_BASE_URL}/v1/crop-productions/${product.id}`,
+                    { headers: { 'Authorization': `Bearer ${token}` } }
+                );
+
+                if (response.ok) {
+                    const data = await response.json();
+                    fullProductData = data.data || data;
+                }
+            }
+
+            // ⭐ AJOUTER CETTE SECTION - Récupérer le nom du crop via cropId
+            let cropName = fullProductData.cropName || 'Unknown Crop';
+            let cropImageUrl = fullProductData.cropImageUrl ||
+                'https://images.unsplash.com/photo-1560493676-04071c5f467b?w=400&h=300&fit=crop';
+
+           if (fullProductData.cropId && cropName === 'Unknown Crop') {
+    try {
+        // ⭐ FIX: Utiliser fullProductData.cropId (pas product.cropId ici)
+        const cropResponse = await fetch(
+            `${CONFIG.API_BASE_URL}/v1/crops/${fullProductData.cropId}`,
+            { headers: { 'Authorization': `Bearer ${token}` } }
+        );
+
+        if (cropResponse.ok) {
+            const cropData = await cropResponse.json();
+            const crop = cropData.data || cropData;
+            cropName = crop.cropName || crop.name || 'Unknown Crop';
+            cropImageUrl = crop.imageUrl || crop.cropImageUrl || cropImageUrl;
+        }
+    } catch (cropError) {
+        console.error('Error fetching crop details:', cropError);
+    }
+}
+
+            const message = {
+                content: `Shared product: ${cropName}`,
+                senderId: STATE.currentUser.email,
+                recipientId: STATE.selectedContact.email,
+                type: 'PRODUCT',
+                productData: {
+                    id: fullProductData.id,
+                    cropId: fullProductData.cropId,
+                    cropName: cropName,
+                    cropImageUrl: cropImageUrl,
+                    quantity: fullProductData.expectedYield || fullProductData.quantity || 0,
+                    price: fullProductData.estimatedPrice || fullProductData.price || 0,
+                    location: fullProductData.location || 'Not specified',
+                    farmId: fullProductData.farmId,
+                    expectedHarvestDate: fullProductData.expectedHarvestDate
+                },
+                timestamp: new Date().toISOString(),
+                read: false
+            };
+
+            if (DEBUG_MODE) {
+                console.log('📦 Sharing product:', message.productData);
+            }
+
+            if (STATE.stompClient && STATE.stompClient.connected) {
+                STATE.stompClient.send('/app/chat.private', {}, JSON.stringify(message));
+            } else {
+                await sendMessageViaAPI(message);
+            }
+
+            addMessageToLocal(message);
+        }
+
+        showNotification('Products shared successfully', 'success');
+        closeProductPicker();
+    } catch (error) {
+        console.error('Error sharing products:', error);
+        showNotification('Failed to share products', 'error');
+    }
+}
+
+
+
+
+async function renderProductPicker(products) {
+    const grid = document.getElementById('productsGrid');
+    grid.innerHTML = '<div style="text-align:center;padding:20px;">Loading products...</div>';
+
+    if (DEBUG_MODE) {
+        console.log('📋 Rendering products:', products);
+    }
+
+    if (products.length === 0) {
+        grid.innerHTML = '<p style="text-align: center; padding: 20px; color: #999;">No products available</p>';
+        return;
+    }
+
+    const token = getAuthToken();
+
+    // ⭐ Enrichir chaque produit avec le nom du crop
+    const enrichedProducts = await Promise.all(
+        products.map(async (product) => {
+            let cropName = product.cropName || 'Unknown Crop';
+            let cropImageUrl = product.cropImageUrl ||
+                'https://images.unsplash.com/photo-1560493676-04071c5f467b?w=400&h=300&fit=crop';
+
+            if (product.cropId && cropName === 'Unknown Crop') {
+                try {
+                    // ⭐ FIX: Utiliser product.cropId au lieu de fullProductData.cropId
+                    const cropResponse = await fetch(
+                        `${CONFIG.API_BASE_URL}/v1/crops/${product.cropId}`,
+                        { headers: { 'Authorization': `Bearer ${token}` } }
+                    );
+
+                    if (cropResponse.ok) {
+                        const cropData = await cropResponse.json();
+                        const crop = cropData.data || cropData;
+                        cropName = crop.cropName || crop.name || 'Unknown Crop';
+                        cropImageUrl = crop.imageUrl || crop.cropImageUrl || cropImageUrl;
+                    }
+                } catch (error) {
+                    console.error('Error fetching crop for product:', product.id, error);
+                }
+            }
+
+            return {
+                ...product,
+                cropName,
+                cropImageUrl
+            };
+        })
+    );
+
+    // Vider et remplir la grille
+    grid.innerHTML = '';
+
+    enrichedProducts.forEach(product => {
+        const div = document.createElement('div');
+        div.className = 'product-card-picker';
+        div.dataset.productId = product.id;
+
+        const quantity = product.expectedYield || product.quantity || 0;
+        const price = product.estimatedPrice || product.price || 0;
+        const location = product.location || 'Not specified';
+
+        div.innerHTML = `
+            <img src="${product.cropImageUrl}"
+                 alt="${product.cropName}"
+                 class="product-image-picker"
+                 onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1560493676-04071c5f467b?w=400&h=300&fit=crop';">
+            <div class="product-info-picker">
+                <h4 class="product-name-picker">${escapeHtml(product.cropName)}</h4>
+                <div class="product-details-picker">
+                    <div><i class="fas fa-weight"></i> ${quantity} kg</div>
+                    <div><i class="fas fa-map-marker-alt"></i> ${escapeHtml(location)}</div>
+                </div>
+                <div class="product-price-picker">${formatCurrency(price)}/kg</div>
+            </div>
+        `;
+
+        div.addEventListener('click', () => toggleProductSelection(div, product));
+        grid.appendChild(div);
+    });
+}
+
+
+
+
+
+            function closeProductPicker() {
+                document.getElementById('productPickerModal').classList.remove('active');
+                STATE.selectedProducts = [];
+                document.querySelectorAll('.product-card-picker').forEach(el => el.classList.remove('selected'));
+            }
+
+
+
+
+window.viewProductDetails = async function(productId) {
+    try {
+        const token = getAuthToken();
+        const response = await fetch(
+            `${CONFIG.API_BASE_URL}/v1/crop-productions/${productId}`,
+            { headers: { 'Authorization': `Bearer ${token}` } }
+        );
+
+        if (!response.ok) throw new Error('Failed to load product');
+
+        const data = await response.json();
+        const product = data.data || data;
+
+        // ⭐ CRÉER UN MODAL POUR AFFICHER LES DÉTAILS
+        const modal = document.createElement('div');
+        modal.className = 'product-details-modal';
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            padding: 20px;
+        `;
+
+        const imageUrl = product.cropImageUrl ||
+            'https://images.unsplash.com/photo-1560493676-04071c5f467b?w=600&h=400&fit=crop';
+
+        modal.innerHTML = `
+            <div style="background: white; border-radius: 12px; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative;">
+                <button onclick="this.closest('.product-details-modal').remove()"
+                        style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.5); color: white; border: none; border-radius: 50%; width: 36px; height: 36px; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; z-index: 1;">
+                    ×
+                </button>
+
+                <img src="${imageUrl}"
+                     alt="${product.cropName}"
+                     onerror="this.src='https://images.unsplash.com/photo-1560493676-04071c5f467b?w=600&h=400&fit=crop'"
+                     style="width: 100%; height: 300px; object-fit: cover; border-radius: 12px 12px 0 0;">
+
+                <div style="padding: 24px;">
+                    <h2 style="margin: 0 0 16px 0; color: #1f2937; font-size: 24px; font-weight: 600;">
+                        ${escapeHtml(product.cropName || 'Unknown Crop')}
+                    </h2>
+
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 20px;">
+                        <div style="background: #f3f4f6; padding: 12px; border-radius: 8px;">
+                            <div style="color: #6b7280; font-size: 12px; margin-bottom: 4px;">Available Quantity</div>
+                            <div style="color: #1f2937; font-size: 18px; font-weight: 600;">
+                                <i class="fas fa-weight" style="color: #25D366; margin-right: 8px;"></i>
+                                ${product.expectedYield || product.quantity || 0} kg
+                            </div>
+                        </div>
+
+                        <div style="background: #f3f4f6; padding: 12px; border-radius: 8px;">
+                            <div style="color: #6b7280; font-size: 12px; margin-bottom: 4px;">Price per kg</div>
+                            <div style="color: #1f2937; font-size: 18px; font-weight: 600;">
+                                <i class="fas fa-tag" style="color: #25D366; margin-right: 8px;"></i>
+                                ${formatCurrency(product.estimatedPrice || product.price || 0)}
+                            </div>
+                        </div>
+
+                        <div style="background: #f3f4f6; padding: 12px; border-radius: 8px;">
+                            <div style="color: #6b7280; font-size: 12px; margin-bottom: 4px;">Planting Date</div>
+                            <div style="color: #1f2937; font-size: 16px; font-weight: 500;">
+                                <i class="fas fa-calendar" style="color: #25D366; margin-right: 8px;"></i>
+                                ${product.plantingDate || 'N/A'}
+                            </div>
+                        </div>
+
+                        <div style="background: #f3f4f6; padding: 12px; border-radius: 8px;">
+                            <div style="color: #6b7280; font-size: 12px; margin-bottom: 4px;">Harvest Date</div>
+                            <div style="color: #1f2937; font-size: 16px; font-weight: 500;">
+                                <i class="fas fa-calendar-check" style="color: #25D366; margin-right: 8px;"></i>
+                                ${product.expectedHarvestDate || 'N/A'}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="background: #f3f4f6; padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                        <div style="color: #6b7280; font-size: 12px; margin-bottom: 8px;">Additional Information</div>
+                        <div style="display: grid; gap: 8px;">
+                            <div style="color: #1f2937;">
+                                <strong>Location:</strong> ${escapeHtml(product.location || 'Not specified')}
+                            </div>
+                            <div style="color: #1f2937;">
+                                <strong>Area Planted:</strong> ${product.areaPlanted || 'N/A'} ha
+                            </div>
+                            <div style="color: #1f2937;">
+                                <strong>Season:</strong> ${product.season || 'N/A'}
+                            </div>
+                            <div style="color: #1f2937;">
+                                <strong>Status:</strong> <span style="background: #25D366; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px;">${product.productionStatus || 'ACTIVE'}</span>
+                            </div>
+                            ${product.notes ? `<div style="color: #1f2937; margin-top: 8px;"><strong>Notes:</strong> ${escapeHtml(product.notes)}</div>` : ''}
+                        </div>
+                    </div>
+
+                    ${STATE.currentUser.role === 'BUYER' ? `
+                        <button onclick="initiateOrder('${product.id}'); this.closest('.product-details-modal').remove();"
+                                style="width: 100%; background: #25D366; color: white; border: none; padding: 14px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <i class="fas fa-shopping-cart"></i>
+                            Place Order Now
+                        </button>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+
+        // Fermer au clic en dehors
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.remove();
+            }
+        });
+
+    } catch (error) {
+        console.error('Error loading product details:', error);
+        showNotification('Failed to load product details', 'error');
+    }
+};
+
+            window.initiateOrder = async function(productId) {
+                if (STATE.currentUser.role !== 'BUYER') {
+                    showNotification('Only buyers can place orders', 'warning');
+                    return;
+                }
+
+                const quantity = prompt('Enter quantity (kg):');
+                if (!quantity || isNaN(quantity) || quantity <= 0) {
+                    showNotification('Invalid quantity', 'warning');
+                    return;
+                }
+
+                try {
+                    const token = getAuthToken();
+
+                    // Get product details
+                    const productResponse = await fetch(
+                        `${CONFIG.API_BASE_URL}/v1/crop-productions/${productId}`,
+                        { headers: { 'Authorization': `Bearer ${token}` } }
+                    );
+
+                    if (!productResponse.ok) throw new Error('Failed to load product');
+
+                    const productData = await productResponse.json();
+                    const product = productData.data || productData;
+
+                    // Create transaction
+                    const deliveryDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+                        .toISOString().split('T')[0];
+
+                    const transactionData = {
+                        transactionCode: generateTransactionCode(),
+                        buyerId: STATE.currentUser.id,
+                        farmerId: product.farmerId,
+                        cropId: product.cropId,
+                        cropProductionId: product.id,
+                        quantity: parseFloat(quantity),
+                        pricePerUnit: product.estimatedPrice,
+                        totalAmount: product.estimatedPrice * parseFloat(quantity),
+                        transactionStatus: 'PENDING',
+                        paymentStatus: 'PENDING',
+                        paymentMethod: 'CASH',
+                        deliveryLocation: STATE.currentUser.address || 'To be confirmed',
+                        deliveryDate: deliveryDate,
+                        qualityGrade: product.qualityGrade || 'STANDARD',
+                        packaging: product.packaging || 'BAG',
+                        notes: `Order placed via chat with ${STATE.selectedContact.fullName}`
+                    };
+
+                    const response = await fetch(`${CONFIG.API_BASE_URL}/transactions`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify(transactionData)
+                    });
+
+                    if (!response.ok) throw new Error('Failed to create order');
+
+                    const order = await response.json();
+
+                    // Send order message
+                    const orderMessage = {
+                        content: `Order placed: ${product.cropName}`,
+                        senderId: STATE.currentUser.email,
+                        recipientId: STATE.selectedContact.email,
+                        type: 'ORDER',
+                        orderData: {
+                            orderCode: transactionData.transactionCode,
+                            cropName: product.cropName,
+                            quantity: parseFloat(quantity),
+                            pricePerKg: product.estimatedPrice,
+                            totalAmount: transactionData.totalAmount,
+                            status: 'PENDING'
+                        },
+                        timestamp: new Date().toISOString(),
+                        read: false
+                    };
+
+                    if (STATE.stompClient && STATE.stompClient.connected) {
+                        STATE.stompClient.send('/app/chat.private', {}, JSON.stringify(orderMessage));
+                    } else {
+                        await sendMessageViaAPI(orderMessage);
+                    }
+
+                    addMessageToLocal(orderMessage);
+                    showNotification('Order placed successfully!', 'success');
+                } catch (error) {
+                    console.error('Error creating order:', error);
+                    showNotification('Failed to place order: ' + error.message, 'error');
+                }
+            };
+
+            function generateTransactionCode() {
+                const timestamp = Date.now().toString(36);
+                const random = Math.random().toString(36).substring(2, 8);
+                return `TXN-${timestamp}-${random}`.toUpperCase();
+            }
+
+            // ==================== WEBSOCKET ====================
+            function connectWebSocket() {
+                try {
+                    const socket = new SockJS(CONFIG.WS_URL);
+                    STATE.stompClient = Stomp.over(socket);
+                    const token = getAuthToken();
+
+                    STATE.stompClient.connect(
+                        { Authorization: `Bearer ${token}` },
+                        (frame) => {
+                            console.log('WebSocket connected:', frame);
+
+                            STATE.stompClient.subscribe(`/user/queue/private`, (message) => {
+                                handleIncomingMessage(JSON.parse(message.body));
+                            });
+
+                            STATE.stompClient.subscribe(`/user/queue/typing`, (message) => {
+                                handleTypingIndicator(JSON.parse(message.body));
+                            });
+
+                            STATE.stompClient.subscribe(`/topic/user.status`, (message) => {
+                                handleUserStatus(JSON.parse(message.body));
+                            });
+
+                            sendUserStatus('ONLINE');
+                        },
+                        (error) => {
+                            console.error('WebSocket error:', error);
+                            setTimeout(connectWebSocket, 5000);
+                        }
+                    );
+
+                    window.addEventListener('beforeunload', () => {
+                        sendUserStatus('OFFLINE');
+                        if (STATE.stompClient) STATE.stompClient.disconnect();
+                    });
+                } catch (error) {
+                    console.error('Error connecting WebSocket:', error);
+                }
+            }
+
+            function sendUserStatus(status) {
+                if (STATE.stompClient && STATE.stompClient.connected) {
+                    STATE.stompClient.send('/app/user.' + status.toLowerCase(), {}, JSON.stringify({
+                        userId: STATE.currentUser.email
+                    }));
+                }
+            }
+
+            function handleIncomingMessage(message) {
+                console.log('Received message:', message);
+                addMessageToLocal(message);
+
+                if (!STATE.selectedContact || STATE.selectedContact.email !== message.senderId) {
+                    const sender = STATE.contacts.find(c => c.email === message.senderId);
+                    if (sender) {
+                        showNotification(sender.fullName, message.content);
+                        const currentCount = STATE.unreadCounts.get(sender.id) || 0;
+                        STATE.unreadCounts.set(sender.id, currentCount + 1);
+                        renderContacts();
+                    }
+                } else {
+                    markMessageAsRead(message.id);
+                }
+            }
+
+            function sendTypingIndicator(isTyping) {
+                if (STATE.stompClient && STATE.stompClient.connected && STATE.selectedContact) {
+                    STATE.stompClient.send('/app/message.typing', {}, JSON.stringify({
+                        senderId: STATE.currentUser.email,
+                        recipientId: STATE.selectedContact.email,
+                        isTyping: isTyping
+                    }));
+                }
+            }
+
+            function handleTypingIndicator(data) {
+                if (STATE.selectedContact && STATE.selectedContact.email === data.senderId) {
+                    const indicator = document.getElementById('typingIndicator');
+                    const status = document.getElementById('chatUserStatus');
+
+                    if (data.isTyping) {
+                        indicator.classList.add('active');
+                        status.textContent = 'typing...';
+                        status.classList.add('typing');
+                    } else {
+                        indicator.classList.remove('active');
+                        updateContactStatus(STATE.selectedContact);
+                    }
+
+                    scrollToBottom();
+                }
+            }
+
+            function handleUserStatus(data) {
+                if (data.status === 'ONLINE') {
+                    STATE.onlineUsers.add(data.userId);
+                } else {
+                    STATE.onlineUsers.delete(data.userId);
+                }
+
+                renderContacts();
+
+                if (STATE.selectedContact && STATE.selectedContact.email === data.userId) {
+                    updateContactStatus(STATE.selectedContact);
+                }
+            }
+
+            async function markMessagesAsRead(contactEmail) {
+                try {
+                    const token = getAuthToken();
+                    await fetch(`${CONFIG.API_BASE_URL}/chat/mark-read`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ senderId: contactEmail })
+                    });
+                } catch (error) {
+                    console.error('Error marking messages as read:', error);
+                }
+            }
+
+            async function markMessageAsRead(messageId) {
+                try {
+                    const token = getAuthToken();
+                    await fetch(`${CONFIG.API_BASE_URL}/chat/mark-read/${messageId}`, {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                } catch (error) {
+                    console.error('Error marking message as read:', error);
+                }
+            }
+
+            // ==================== UTILITY FUNCTIONS ====================
+            function getAuthToken() {
+                return localStorage.getItem('agriguard_jwt_token');
+            }
+
+            function formatCurrency(amount) {
+                return new Intl.NumberFormat('en-RW', {
+                    style: 'currency',
+                    currency: 'RWF',
+                    minimumFractionDigits: 0
+                }).format(amount);
+            }
+
+            function formatTime(timestamp) {
+                const date = new Date(timestamp);
+                const now = new Date();
+                const diff = now - date;
+
+                if (diff < 24 * 60 * 60 * 1000) {
+                    return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                } else if (diff < 7 * 24 * 60 * 60 * 1000) {
+                    return date.toLocaleDateString('en-US', { weekday: 'short' });
+                } else {
+                    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                }
+            }
+
+            function escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            function scrollToBottom() {
+                const container = document.getElementById('messagesContainer');
+                container.scrollTop = container.scrollHeight;
+            }
+
+            function showNotification(title, message) {
+                const toast = document.getElementById('notificationToast');
+                toast.className = 'notification-toast show';
+
+                const icon = toast.querySelector('.notification-icon');
+                if (message === 'error') {
+                    toast.classList.add('error');
+                    icon.className = 'fas fa-exclamation-circle notification-icon';
+                } else if (message === 'success') {
+                    toast.classList.add('success');
+                    icon.className = 'fas fa-check-circle notification-icon';
+                } else {
+                    toast.classList.add('info');
+                    icon.className = 'fas fa-info-circle notification-icon';
+                }
+
+                toast.querySelector('#notificationTitle').textContent = title;
+                toast.querySelector('#notificationMessage').textContent = message;
+
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 3000);
+            }
+
+            // ==================== ADVANCED FEATURES ====================
+
+            // Bulk order functionality for buyers
+            window.createBulkOrder = async function() {
+                if (STATE.currentUser.role !== 'BUYER') {
+                    showNotification('Error', 'Only buyers can create bulk orders');
+                    return;
+                }
+
+                const products = STATE.selectedProducts;
+                if (products.length === 0) {
+                    showNotification('Warning', 'Please select products first');
+                    return;
+                }
+
+                try {
+                    const token = getAuthToken();
+                    const orders = [];
+
+                    for (const product of products) {
+                        const quantity = prompt(`Enter quantity for ${product.cropName} (kg):`);
+                        if (!quantity || isNaN(quantity) || quantity <= 0) continue;
+
+                        const deliveryDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+                            .toISOString().split('T')[0];
+
+                        const transactionData = {
+                            transactionCode: generateTransactionCode(),
+                            buyerId: STATE.currentUser.id,
+                            farmerId: product.farmerId,
+                            cropId: product.cropId,
+                            cropProductionId: product.id,
+                            quantity: parseFloat(quantity),
+                            pricePerUnit: product.estimatedPrice,
+                            totalAmount: product.estimatedPrice * parseFloat(quantity),
+                            transactionStatus: 'PENDING',
+                            paymentStatus: 'PENDING',
+                            paymentMethod: 'CASH',
+                            deliveryLocation: STATE.currentUser.address || 'To be confirmed',
+                            deliveryDate: deliveryDate,
+                            qualityGrade: product.qualityGrade || 'STANDARD',
+                            packaging: product.packaging || 'BAG',
+                            notes: `Bulk order via chat`
+                        };
+
+                        const response = await fetch(`${CONFIG.API_BASE_URL}/transactions`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify(transactionData)
+                        });
+
+                        if (response.ok) {
+                            orders.push(await response.json());
+                        }
+                    }
+
+                    if (orders.length > 0) {
+                        showNotification('Success', `${orders.length} orders created successfully!`);
+
+                        // Send notification message
+                        const message = {
+                            content: `Bulk order placed: ${orders.length} items`,
+                            senderId: STATE.currentUser.email,
+                            recipientId: STATE.selectedContact.email,
+                            type: 'CHAT',
+                            timestamp: new Date().toISOString(),
+                            read: false
+                        };
+
+                        if (STATE.stompClient && STATE.stompClient.connected) {
+                            STATE.stompClient.send('/app/chat.private', {}, JSON.stringify(message));
+                        }
+
+                        addMessageToLocal(message);
+                    }
+                } catch (error) {
+                    console.error('Error creating bulk order:', error);
+                    showNotification('Error', 'Failed to create bulk order');
+                }
+            };
+
+            // Price negotiation feature
+            window.negotiatePrice = async function(productId, currentPrice) {
+                if (STATE.currentUser.role !== 'BUYER') {
+                    showNotification('Error', 'Only buyers can negotiate prices');
+                    return;
+                }
+
+                const proposedPrice = prompt(`Current price: ${formatCurrency(currentPrice)}/kg\nEnter your proposed price (RWF/kg):`);
+                if (!proposedPrice || isNaN(proposedPrice) || proposedPrice <= 0) {
+                    showNotification('Warning', 'Invalid price');
+                    return;
+                }
+
+                try {
+                    const message = {
+                        content: `Price negotiation: Proposed ${formatCurrency(proposedPrice)}/kg (Current: ${formatCurrency(currentPrice)}/kg)`,
+                        senderId: STATE.currentUser.email,
+                        recipientId: STATE.selectedContact.email,
+                        type: 'NEGOTIATION',
+                        negotiationData: {
+                            productId: productId,
+                            currentPrice: currentPrice,
+                            proposedPrice: parseFloat(proposedPrice),
+                            status: 'PENDING'
+                        },
+                        timestamp: new Date().toISOString(),
+                        read: false
+                    };
+
+                    if (STATE.stompClient && STATE.stompClient.connected) {
+                        STATE.stompClient.send('/app/chat.private', {}, JSON.stringify(message));
+                    } else {
+                        await sendMessageViaAPI(message);
+                    }
+
+                    addMessageToLocal(message);
+                    showNotification('Success', 'Price negotiation sent');
+                } catch (error) {
+                    console.error('Error sending negotiation:', error);
+                    showNotification('Error', 'Failed to send negotiation');
+                }
+            };
+
+            // Request product availability
+            window.requestAvailability = async function(cropType) {
+                if (STATE.currentUser.role !== 'BUYER') {
+                    showNotification('Error', 'Only buyers can request availability');
+                    return;
+                }
+
+                const quantity = prompt(`Enter required quantity for ${cropType} (kg):`);
+                if (!quantity || isNaN(quantity) || quantity <= 0) {
+                    showNotification('Warning', 'Invalid quantity');
+                    return;
+                }
+
+                try {
+                    const message = {
+                        content: `Availability request: ${cropType} - ${quantity} kg`,
+                        senderId: STATE.currentUser.email,
+                        recipientId: STATE.selectedContact.email,
+                        type: 'AVAILABILITY_REQUEST',
+                        requestData: {
+                            cropType: cropType,
+                            quantity: parseFloat(quantity),
+                            requestDate: new Date().toISOString()
+                        },
+                        timestamp: new Date().toISOString(),
+                        read: false
+                    };
+
+                    if (STATE.stompClient && STATE.stompClient.connected) {
+                        STATE.stompClient.send('/app/chat.private', {}, JSON.stringify(message));
+                    } else {
+                        await sendMessageViaAPI(message);
+                    }
+
+                    addMessageToLocal(message);
+                    showNotification('Success', 'Availability request sent');
+                } catch (error) {
+                    console.error('Error sending request:', error);
+                    showNotification('Error', 'Failed to send request');
+                }
+            };
+
+            // Schedule delivery
+            window.scheduleDelivery = async function(orderId) {
+                const deliveryDate = prompt('Enter preferred delivery date (YYYY-MM-DD):');
+                if (!deliveryDate) return;
+
+                const deliveryTime = prompt('Enter preferred delivery time (HH:MM):');
+                if (!deliveryTime) return;
+
+                try {
+                    const token = getAuthToken();
+                    const response = await fetch(`${CONFIG.API_BASE_URL}/transactions/${orderId}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            deliveryDate: deliveryDate,
+                            deliveryTime: deliveryTime
+                        })
+                    });
+
+                    if (!response.ok) throw new Error('Failed to schedule delivery');
+
+                    showNotification('Success', 'Delivery scheduled successfully');
+
+                    const message = {
+                        content: `Delivery scheduled for ${deliveryDate} at ${deliveryTime}`,
+                        senderId: STATE.currentUser.email,
+                        recipientId: STATE.selectedContact.email,
+                        type: 'CHAT',
+                        timestamp: new Date().toISOString(),
+                        read: false
+                    };
+
+                    if (STATE.stompClient && STATE.stompClient.connected) {
+                        STATE.stompClient.send('/app/chat.private', {}, JSON.stringify(message));
+                    }
+
+                    addMessageToLocal(message);
+                } catch (error) {
+                    console.error('Error scheduling delivery:', error);
+                    showNotification('Error', 'Failed to schedule delivery');
+                }
+            };
+
+            // Track order status
+            window.trackOrder = async function(orderCode) {
+                try {
+                    const token = getAuthToken();
+                    const response = await fetch(
+                        `${CONFIG.API_BASE_URL}/transactions?transactionCode=${orderCode}`,
+                        { headers: { 'Authorization': `Bearer ${token}` } }
+                    );
+
+                    if (!response.ok) throw new Error('Failed to track order');
+
+                    const orders = await response.json();
+                    const order = orders.find(o => o.transactionCode === orderCode);
+
+                    if (order) {
+                        const statusMessage = `Order Status: ${order.transactionStatus}\nPayment: ${order.paymentStatus}\nDelivery: ${order.deliveryDate || 'Not scheduled'}`;
+                        alert(statusMessage);
+                    } else {
+                        showNotification('Error', 'Order not found');
+                    }
+                } catch (error) {
+                    console.error('Error tracking order:', error);
+                    showNotification('Error', 'Failed to track order');
+                }
+            };
+
+            // Request quality certificate
+            window.requestQualityCertificate = async function(productId) {
+                if (STATE.currentUser.role !== 'BUYER') {
+                    showNotification('Error', 'Only buyers can request certificates');
+                    return;
+                }
+
+                try {
+                    const message = {
+                        content: 'Quality certificate request',
+                        senderId: STATE.currentUser.email,
+                        recipientId: STATE.selectedContact.email,
+                        type: 'CERTIFICATE_REQUEST',
+                        requestData: {
+                            productId: productId,
+                            requestDate: new Date().toISOString()
+                        },
+                        timestamp: new Date().toISOString(),
+                        read: false
+                    };
+
+                    if (STATE.stompClient && STATE.stompClient.connected) {
+                        STATE.stompClient.send('/app/chat.private', {}, JSON.stringify(message));
+                    } else {
+                        await sendMessageViaAPI(message);
+                    }
+
+                    addMessageToLocal(message);
+                    showNotification('Success', 'Certificate request sent');
+                } catch (error) {
+                    console.error('Error requesting certificate:', error);
+                    showNotification('Error', 'Failed to request certificate');
+                }
+            };
+
+            // Share harvest calendar
+            window.shareHarvestCalendar = async function() {
+                if (STATE.currentUser.role !== 'FARMER') {
+                    showNotification('Error', 'Only farmers can share harvest calendars');
+                    return;
+                }
+
+                try {
+                    const token = getAuthToken();
+                    const response = await fetch(
+                        `${CONFIG.API_BASE_URL}/v1/crop-productions/farmer/${STATE.currentUser.id}`,
+                        { headers: { 'Authorization': `Bearer ${token}` } }
+                    );
+
+                    if (!response.ok) throw new Error('Failed to load harvest calendar');
+
+                    const data = await response.json();
+                    const productions = data.data || data || [];
+
+                    const calendar = productions.map(p => ({
+                        crop: p.cropName,
+                        harvestDate: p.expectedHarvestDate,
+                        quantity: p.expectedYield
+                    }));
+
+                    const message = {
+                        content: 'Harvest Calendar',
+                        senderId: STATE.currentUser.email,
+                        recipientId: STATE.selectedContact.email,
+                        type: 'HARVEST_CALENDAR',
+                        calendarData: calendar,
+                        timestamp: new Date().toISOString(),
+                        read: false
+                    };
+
+                    if (STATE.stompClient && STATE.stompClient.connected) {
+                        STATE.stompClient.send('/app/chat.private', {}, JSON.stringify(message));
+                    } else {
+                        await sendMessageViaAPI(message);
+                    }
+
+                    addMessageToLocal(message);
+                    showNotification('Success', 'Harvest calendar shared');
+                } catch (error) {
+                    console.error('Error sharing calendar:', error);
+                    showNotification('Error', 'Failed to share calendar');
+                }
+            };
+
+            // Export conversation
+            window.exportConversation = function() {
+                if (!STATE.selectedContact) return;
+
+                const messages = STATE.messages.get(STATE.selectedContact.email) || [];
+                const conversationText = messages.map(msg => {
+                    const time = formatTime(msg.timestamp);
+                    const sender = msg.senderId === STATE.currentUser.email ? 'You' : STATE.selectedContact.fullName;
+                    return `[${time}] ${sender}: ${msg.content}`;
+                }).join('\n');
+
+                const blob = new Blob([conversationText], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `conversation_${STATE.selectedContact.fullName}_${new Date().toISOString().split('T')[0]}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                showNotification('Success', 'Conversation exported');
+            };
+
+            // ==================== EXPOSE GLOBAL FUNCTIONS ====================
+            window.FarmerBuyerChat = {
+                selectContact,
+                sendMessage,
+                openProductPicker,
+                closeProductPicker,
+                shareSelectedProducts,
+                viewProductDetails: window.viewProductDetails,
+                initiateOrder: window.initiateOrder,
+                createBulkOrder: window.createBulkOrder,
+                negotiatePrice: window.negotiatePrice,
+                requestAvailability: window.requestAvailability,
+                scheduleDelivery: window.scheduleDelivery,
+                trackOrder: window.trackOrder,
+                requestQualityCertificate: window.requestQualityCertificate,
+                shareHarvestCalendar: window.shareHarvestCalendar,
+                exportConversation: window.exportConversation,
+                getState: () => STATE,
+                getConfig: () => CONFIG
+            };
+
+            console.log('✅ FarmerBuyerWhatsapp.js loaded successfully');
+            console.log('Available functions:', Object.keys(window.FarmerBuyerChat));
+
+        })();
+</script>
+</body>
+</html>

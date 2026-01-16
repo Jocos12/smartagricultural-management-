@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgriGuard AI - Smart Agriculture & Food Security</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-green: #2E7D45;
+            --light-green: #E8F5E9;
+            --white: #FFFFFF;
+            --dark: #1a1a1a;
+            --text-gray: #555;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--dark);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: var(--white);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        nav.scrolled {
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.2rem 2rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-green);
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--primary-green);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2.5rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary-green);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-green);
+        }
+
+        .cta-button {
+            background: var(--primary-green);
+            color: white;
+            padding: 0.8rem 2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: 2px solid var(--primary-green);
+        }
+
+        .cta-button:hover {
+            background: transparent;
+            color: var(--primary-green);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(46, 125, 69, 0.3);
+        }
+
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            gap: 5px;
+        }
+
+        .hamburger span {
+            width: 25px;
+            height: 3px;
+            background: var(--primary-green);
+            transition: all 0.3s ease;
+            border-radius: 3px;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--light-green) 0%, var(--white) 100%);
+            padding-top: 80px;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                linear-gradient(90deg, rgba(46, 125, 69, 0.05) 1px, transparent 1px),
+                linear-gradient(rgba(46, 125, 69, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        .hero-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-content {
+            animation: fadeInLeft 1s ease;
+        }
+
+        @keyframes fadeInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 50px;
+            color: var(--primary-green);
+            font-weight: 600;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+            color: var(--dark);
+        }
+
+        .hero h1 .highlight {
+            color: var(--primary-green);
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-gray);
+            margin-bottom: 2.5rem;
+            line-height: 1.8;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            background: var(--primary-green);
+            color: white;
+            padding: 1rem 2.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: 2px solid var(--primary-green);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary:hover {
+            background: transparent;
+            color: var(--primary-green);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(46, 125, 69, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary-green);
+            padding: 1rem 2.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            border: 2px solid var(--primary-green);
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary-green);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(46, 125, 69, 0.3);
+        }
+
+        .hero-visual {
+            position: relative;
+            animation: fadeInRight 1s ease;
+        }
+
+        @keyframes fadeInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+
+.video-container {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(46, 125, 69, 0.3);
+    border: 8px solid white;
+    animation: pulse 4s ease-in-out infinite;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #2E7D45 0%, #1a5a32 100%);
+}
+
+.video-container video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Responsive pour mobile */
+@media (max-width: 768px) {
+    .video-container {
+        max-width: 350px;
+    }
+}
+
+@media (max-width: 640px) {
+    .video-container {
+        max-width: 280px;
+    }
+}
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 20px 60px rgba(46, 125, 69, 0.3);
+                transform: scale(1);
+            }
+            50% {
+                box-shadow: 0 25px 80px rgba(46, 125, 69, 0.4);
+                transform: scale(1.02);
+            }
+        }
+
+
+
+        /* Features Section */
+        .features {
+            padding: 6rem 2rem;
+            background: var(--white);
+            position: relative;
+        }
+
+        .section-header {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto 4rem;
+        }
+
+        .section-badge {
+            display: inline-block;
+            background: var(--light-green);
+            color: var(--primary-green);
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .section-header h2 {
+            font-size: 2.5rem;
+            color: var(--dark);
+            margin-bottom: 1rem;
+        }
+
+        .section-header p {
+            font-size: 1.1rem;
+            color: var(--text-gray);
+            line-height: 1.8;
+        }
+
+        .features-grid {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2.5rem;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 16px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--primary-green);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(46, 125, 69, 0.2);
+            border-color: var(--light-green);
+        }
+
+        .feature-icon {
+            width: 70px;
+            height: 70px;
+            background: var(--light-green);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover .feature-icon {
+            background: var(--primary-green);
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            color: var(--dark);
+            margin-bottom: 1rem;
+        }
+
+        .feature-card p {
+            color: var(--text-gray);
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .feature-list li {
+            color: var(--text-gray);
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .feature-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--primary-green);
+            font-weight: bold;
+        }
+
+        /* Impact Section */
+        .impact {
+            padding: 6rem 2rem;
+            background: var(--light-green);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .impact::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: -10%;
+            width: 40%;
+            height: 100%;
+            background: var(--primary-green);
+            opacity: 0.05;
+            border-radius: 50%;
+            transform: scale(1.5);
+        }
+
+        .impact-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .impact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2.5rem;
+            margin-top: 3rem;
+        }
+
+        .impact-card {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 16px;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+
+        .impact-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(46, 125, 69, 0.2);
+        }
+
+        .impact-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .impact-card h3 {
+            font-size: 2rem;
+            color: var(--primary-green);
+            margin-bottom: 0.5rem;
+        }
+
+        .impact-card p {
+            color: var(--text-gray);
+            font-size: 1.1rem;
+        }
+
+        /* Technology Section */
+        .technology {
+            padding: 6rem 2rem;
+            background: white;
+        }
+
+        .tech-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .tech-content h3 {
+            font-size: 2rem;
+            color: var(--dark);
+            margin-bottom: 1.5rem;
+        }
+
+        .tech-content p {
+            color: var(--text-gray);
+            line-height: 1.8;
+            margin-bottom: 2rem;
+        }
+
+        .tech-features {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .tech-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1.5rem;
+            background: var(--light-green);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .tech-item:hover {
+            background: var(--primary-green);
+            color: white;
+            transform: translateX(10px);
+        }
+
+        .tech-item-icon {
+            font-size: 2rem;
+            min-width: 50px;
+        }
+
+        .tech-visual {
+            position: relative;
+        }
+
+        .tech-image {
+            width: 100%;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 6rem 2rem;
+            background: linear-gradient(135deg, var(--primary-green) 0%, #1a5a32 100%);
+            color: white;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: ctaMove 20s linear infinite;
+        }
+
+        @keyframes ctaMove {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            100% { transform: translate(50px, 50px) rotate(360deg); }
+        }
+
+        .cta-content {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .cta-content h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .cta-content p {
+            font-size: 1.2rem;
+            margin-bottom: 2.5rem;
+            opacity: 0.9;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-white {
+            background: white;
+            color: var(--primary-green);
+            padding: 1rem 2.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: 2px solid white;
+        }
+
+        .btn-white:hover {
+            background: transparent;
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(255,255,255,0.3);
+        }
+
+        /* Contact Section */
+        .contact {
+            padding: 6rem 2rem;
+            background: white;
+        }
+
+        .contact-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .contact-content {
+            background: var(--light-green);
+            padding: 3rem;
+            border-radius: 16px;
+            text-align: center;
+        }
+
+        .contact-content h2 {
+            font-size: 2.5rem;
+            color: var(--dark);
+            margin-bottom: 1rem;
+        }
+
+        .contact-content p {
+            color: var(--text-gray);
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+
+        .contact-info {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .contact-item-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--primary-green);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .contact-item a {
+            color: var(--primary-green);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .contact-item a:hover {
+            color: var(--dark);
+        }
+
+        /* Footer */
+        footer {
+            background: var(--dark);
+            color: white;
+            padding: 3rem 2rem 1.5rem;
+        }
+
+        .footer-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h3 {
+            color: var(--primary-green);
+            margin-bottom: 1.5rem;
+        }
+
+        .footer-section p,
+        .footer-section a {
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            display: block;
+            margin-bottom: 0.8rem;
+            transition: color 0.3s ease;
+        }
+
+        .footer-section a:hover {
+            color: var(--primary-green);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.6);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 968px) {
+            .hamburger {
+                display: flex;
+            }
+
+            .nav-links {
+                position: fixed;
+                top: 70px;
+                left: -100%;
+                width: 100%;
+                height: calc(100vh - 70px);
+                background: white;
+                flex-direction: column;
+                padding: 2rem;
+                transition: left 0.3s ease;
+                box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            }
+
+            .nav-links.active {
+                left: 0;
+            }
+
+            .hero-container,
+            .tech-container {
+                grid-template-columns: 1fr;
+                gap: 3rem;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero-visual {
+                order: -1;
+            }
+
+            .features-grid,
+            .impact-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero p {
+                font-size: 1rem;
+            }
+
+            .section-header h2 {
+                font-size: 2rem;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+            }
+
+            .btn-primary,
+            .btn-secondary {
+                width: 100%;
+                text-align: center;
+                justify-content: center;
+            }
+
+            .contact-info {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+        }
+
+
+        .logo-icon {
+    width: 40px;
+    height: 40px;
+    background: var(--primary-green);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden; /* Important pour que l'image ne dépasse pas */
+}
+
+/* Nouveau style pour l'image du logo */
+.logo-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Ajuste l'image pour remplir le conteneur */
+    display: block;
+}
+
+/* Alternative: Si vous voulez garder l'image dans ses proportions */
+.logo-icon img.contain {
+    object-fit: contain; /* Garde les proportions originales */
+    padding: 5px; /* Ajoute un peu d'espace autour */
+}
+    </style>
+</head>
+<body>
+<!-- Navigation -->
+<nav id="navbar">
+    <div class="nav-container">
+        <div class="logo">
+            <div class="logo-icon">
+                <img src="images/logo.jpeg" alt="AgriGuard AI Logo">
+            </div>
+            <span>AgriGuard AI</span>
+        </div>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="#home">Home</a></li>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#impact">Impact</a></li>
+            <li><a href="#technology">Technology</a></li>
+            <li><a href="#contact">Contact</a></li>
+            <li><a href="login.html" class="cta-button">Get Started</a></li>
+        </ul>
+        <div class="hamburger" id="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="hero" id="home">
+    <div class="hero-container">
+        <div class="hero-content">
+            <div class="hero-badge">
+                🛡️ AI-Powered Agricultural Intelligence
+            </div>
+            <h1>
+                <span class="highlight">AgriGuard AI</span><br>
+                Smart Agriculture<br>
+                Food Security
+            </h1>
+            <p>
+                Enhancing agricultural production and food security monitoring through AI-driven data collection, processing, and analytics. Real-time insights for efficient resource management.
+            </p>
+            <div class="hero-buttons">
+                <a href="login.html" class="btn-primary">
+                    Get Started →
+                </a>
+                <a href="#features" class="btn-secondary">
+                    Learn More
+                </a>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <div class="video-container">
+                <video autoplay loop muted playsinline>
+                    <source src="./videos/v1.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features" id="features">
+    <div class="section-header">
+        <span class="section-badge">Key Features</span>
+        <h2>Comprehensive Agricultural Intelligence System</h2>
+        <p>Our AI-powered platform provides end-to-end solutions for modern agricultural challenges, from data collection to actionable insights.</p>
+    </div>
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon">📊</div>
+            <h3>AI-Powered Data Collection & Analysis</h3>
+            <p>Advanced machine learning algorithms analyze agricultural patterns and trends.</p>
+            <ul class="feature-list">
+                <li>Automates data collection from farmers and markets</li>
+                <li>Uses ML to analyze production patterns</li>
+                <li>Provides predictive insights</li>
+                <li>Real-time data processing</li>
+            </ul>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">⚠️</div>
+            <h3>Food Security Early Warning System</h3>
+            <p>Proactive monitoring and alert system for food security challenges.</p>
+            <ul class="feature-list">
+                <li>Monitors food availability continuously</li>
+                <li>Tracks crop yields and supply chains</li>
+                <li>Sends alerts on potential shortages</li>
+                <li>Drought and production decline detection</li>
+            </ul>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">♻️</div>
+            <h3>Smart Resource Management</h3>
+            <p>Optimize agricultural resources for maximum efficiency and sustainability.</p>
+            <ul class="feature-list">
+                <li>Tracks soil quality and irrigation levels</li>
+                <li>Monitors fertilizer usage</li>
+                <li>Predictive analytics for farming strategies</li>
+                <li>Resource optimization recommendations</li>
+            </ul>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">💼</div>
+            <h3>Market & Supply Chain Intelligence</h3>
+            <p>Connect farmers with markets and optimize supply chain efficiency.</p>
+            <ul class="feature-list">
+                <li>Real-time pricing and market trends</li>
+                <li>Connects farmers with buyers</li>
+                <li>Enhances market access</li>
+                <li>Improves profitability</li>
+            </ul>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">🌍</div>
+            <h3>Environmental Monitoring</h3>
+            <p>Sustainable agriculture through climate impact analysis and adaptation.</p>
+            <ul class="feature-list">
+                <li>Analyzes climate impact on production</li>
+                <li>Suggests adaptive strategies</li>
+                <li>Promotes sustainable land use</li>
+                <li>Resource conservation initiatives</li>
+            </ul>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">📈</div>
+            <h3>Policy Support & Analytics</h3>
+            <p>Evidence-based insights for government and stakeholder decision-making.</p>
+            <ul class="feature-list">
+                <li>Comprehensive data analytics</li>
+                <li>Policy-making support</li>
+                <li>Stakeholder collaboration tools</li>
+                <li>Performance tracking dashboards</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<!-- Impact Section -->
+<section class="impact" id="impact">
+    <div class="impact-container">
+        <div class="section-header">
+            <span class="section-badge">Expected Impact</span>
+            <h2>Transforming Agriculture & Food Security</h2>
+            <p>Our platform delivers measurable results that benefit farmers, communities, and governments.</p>
+        </div>
+        <div class="impact-grid">
+            <div class="impact-card">
+                <div class="impact-icon">✅</div>
+                <h3>Improved</h3>
+                <p>Food Security Monitoring & Response Strategies</p>
+            </div>
+            <div class="impact-card">
+                <div class="impact-icon">🌾</div>
+                <h3>Enhanced</h3>
+                <p>Agricultural Production Efficiency & Sustainability</p>
+            </div>
+            <div class="impact-card">
+                <div class="impact-icon">📉</div>
+                <h3>Reduced</h3>
+                <p>Post-Harvest Losses Through Optimized Supply Chain</p>
+            </div>
+            <div class="impact-card">
+                <div class="impact-icon">🎯</div>
+                <h3>Supported</h3>
+                <p>Evidence-Based Policy Making for Stakeholders</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Technology Section -->
+<section class="technology" id="technology">
+    <div class="tech-container">
+        <div class="tech-content">
+            <span class="section-badge">Advanced Technology</span>
+            <h3>Cutting-Edge AI & Machine Learning</h3>
+            <p>Our platform leverages the latest artificial intelligence and machine learning technologies to provide accurate, real-time insights for agricultural management and food security monitoring.</p>
+            <div class="tech-features">
+                <div class="tech-item">
+                    <div class="tech-item-icon">🤖</div>
+                    <div>
+                        <h4>Machine Learning Algorithms</h4>
+                        <p>Advanced pattern recognition and predictive analytics</p>
+                    </div>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-item-icon">☁️</div>
+                    <div>
+                        <h4>Cloud-Based Infrastructure</h4>
+                        <p>Scalable, secure, and accessible from anywhere</p>
+                    </div>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-item-icon">📱</div>
+                    <div>
+                        <h4>Mobile Integration</h4>
+                        <p>Real-time data collection and monitoring on the go</p>
+                    </div>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-item-icon">🔒</div>
+                    <div>
+                        <h4>Data Security</h4>
+                        <p>Enterprise-grade encryption and privacy protection</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tech-visual">
+            <div class="video-container">
+                <video autoplay loop muted playsinline>
+                    <source src="./videos/v2.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+    <div class="cta-content">
+        <h2>Ready to Transform Your Agricultural Operations?</h2>
+        <p>Join thousands of farmers, organizations, and government agencies using AgriGuard AI to improve food security and agricultural productivity.</p>
+        <div class="cta-buttons">
+            <a href="#contact" class="btn-white">Get Started Today</a>
+            <a href="#features" class="btn-secondary" style="border-color: white; color: white;">Explore Features</a>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Section -->
+<section class="contact" id="contact">
+    <div class="contact-container">
+        <div class="contact-content">
+            <h2>Get In Touch</h2>
+            <p>Have questions or want to learn more about AgriGuard AI? We'd love to hear from you.</p>
+            <div class="contact-info">
+                <div class="contact-item">
+                    <div class="contact-item-icon">📧</div>
+                    <div>
+                        <p>Email Us</p>
+                        <a href="mailto:agricultureconacil@gmail.com">agricultureconacil@gmail.com</a>
+                    </div>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-item-icon">🌐</div>
+                    <div>
+                        <p>Visit Us</p>
+                        <a href="#">www.aguriguardai.com</a>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top: 2rem;">
+                <a href="mailto:agricultureconacil@gmail.com" class="btn-primary">Send Message</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer>
+    <div class="footer-container">
+        <div class="footer-section">
+            <h3>AgriGuard AI</h3>
+            <p>Transforming agriculture through artificial intelligence and data-driven insights for a food-secure future.</p>
+        </div>
+        <div class="footer-section">
+            <h3>Quick Links</h3>
+            <a href="#home">Home</a>
+            <a href="#features">Features</a>
+            <a href="#impact">Impact</a>
+            <a href="#technology">Technology</a>
+        </div>
+        <div class="footer-section">
+            <h3>Resources</h3>
+            <a href="#">Documentation</a>
+            <a href="#">API Reference</a>
+            <a href="#">Case Studies</a>
+            <a href="#">Blog</a>
+        </div>
+        <div class="footer-section">
+            <h3>Contact</h3>
+            <a href="mailto:agricultureconacil@gmail.com">agricultureconacil@gmail.com</a>
+            <p style="margin-top: 1rem;">Follow Us</p>
+            <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
+                <a href="#" style="display: inline;">Twitter</a>
+                <a href="#" style="display: inline;">LinkedIn</a>
+                <a href="#" style="display: inline;">Facebook</a>
+            </div>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>&copy; 2025 AgriGuard AI. All rights reserved. Empowering agriculture through innovation.</p>
+    </div>
+</footer>
+
+<script>
+    // Navbar scroll effect
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 50) {
+            navbar.classList.add('scrolled');
+        } else {
+            navbar.classList.remove('scrolled');
+        }
+    });
+
+    // Mobile menu toggle
+    const hamburger = document.getElementById('hamburger');
+    const navLinks = document.getElementById('navLinks');
+
+    hamburger.addEventListener('click', () => {
+        navLinks.classList.toggle('active');
+
+        // Animate hamburger
+        const spans = hamburger.querySelectorAll('span');
+        if (navLinks.classList.contains('active')) {
+            spans[0].style.transform = 'rotate(45deg) translateY(8px)';
+            spans[1].style.opacity = '0';
+            spans[2].style.transform = 'rotate(-45deg) translateY(-8px)';
+        } else {
+            spans[0].style.transform = 'none';
+            spans[1].style.opacity = '1';
+            spans[2].style.transform = 'none';
+        }
+    });
+
+    // Close mobile menu when clicking on a link
+    document.querySelectorAll('.nav-links a').forEach(link => {
+        link.addEventListener('click', () => {
+            navLinks.classList.remove('active');
+            const spans = hamburger.querySelectorAll('span');
+            spans[0].style.transform = 'none';
+            spans[1].style.opacity = '1';
+            spans[2].style.transform = 'none';
+        });
+    });
+
+    // Smooth scrolling for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+
+    // Intersection Observer for animations
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -100px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+
+    // Observe feature cards
+    document.querySelectorAll('.feature-card, .impact-card, .tech-item').forEach(card => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(30px)';
+        card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        observer.observe(card);
+    });
+
+    // Video fallback - show color circle if video fails
+    const videos = document.querySelectorAll('video');
+    videos.forEach(video => {
+        video.addEventListener('error', function() {
+            const container = this.parentElement;
+            container.style.background = 'linear-gradient(135deg, #2E7D45 0%, #1a5a32 100%)';
+            this.style.display = 'none';
+
+            // Add animated overlay
+            const overlay = document.createElement('div');
+            overlay.style.cssText = `
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: radial-gradient(circle at 30% 40%, rgba(255,255,255,0.2) 0%, transparent 60%);
+                animation: rotate 10s linear infinite;
+            `;
+            container.appendChild(overlay);
+        });
+    });
+
+    // Add counter animation for impact section
+    const counters = document.querySelectorAll('.impact-card h3');
+    const counterObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting && !entry.target.classList.contains('counted')) {
+                entry.target.classList.add('counted');
+                animateCounter(entry.target);
+            }
+        });
+    }, { threshold: 0.5 });
+
+    function animateCounter(element) {
+        const text = element.textContent;
+        if (!isNaN(text)) {
+            let count = 0;
+            const target = parseInt(text);
+            const increment = target / 50;
+            const timer = setInterval(() => {
+                count += increment;
+                if (count >= target) {
+                    element.textContent = target;
+                    clearInterval(timer);
+                } else {
+                    element.textContent = Math.floor(count);
+                }
+            }, 30);
+        }
+    }
+
+    counters.forEach(counter => counterObserver.observe(counter));
+
+    // Add parallax effect to hero section
+    window.addEventListener('scroll', () => {
+        const scrolled = window.pageYOffset;
+        const heroVisual = document.querySelector('.hero-visual');
+        if (heroVisual && scrolled < window.innerHeight) {
+            heroVisual.style.transform = `translateY(${scrolled * 0.3}px)`;
+        }
+    });
+
+    // Add typing effect to hero title (optional enhancement)
+    const heroTitle = document.querySelector('.hero h1');
+    if (heroTitle) {
+        const originalText = heroTitle.innerHTML;
+        heroTitle.style.opacity = '1';
+    }
+
+    console.log('AgriGuard AI - Smart Agriculture & Food Security System Loaded Successfully! 🌱');
+</script>
+</body>
+</html>

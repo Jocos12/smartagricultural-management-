@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Food Security Alerts - AgriGuard AI</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+
+
+
+  :root {
+    --primary-green: #22c55e;
+    --primary-dark: #16a34a;
+    --critical-red: #ef4444;
+    --warning-orange: #f59e0b;
+    --info-blue: #3b82f6;
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8f9fa;
+    --text-primary: #333333;
+    --border-color: #e0e0e0;
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    --gradient-primary: linear-gradient(135deg, var(--primary-green), #10b981);
+}
+
+.dark-mode {
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #2d2d2d;
+    --text-primary: #ffffff;
+    --border-color: #404040;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    transition: all 0.3s ease;
+}
+
+.dashboard-container {
+    display: flex;
+    height: 100vh;
+}
+
+.sidebar {
+    width: 280px;
+    background: var(--bg-primary);
+    border-right: 1px solid var(--border-color);
+    position: fixed;
+    height: 100vh;
+    z-index: 1000;
+    transition: all 0.3s ease;
+}
+
+.sidebar.collapsed {
+    width: 70px;
+}
+
+.sidebar-header {
+    padding: 20px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+   .logo {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--gradient-primary);
+            color: white;
+            font-size: 24px;
+            box-shadow: var(--shadow);
+            animation: pulse 2s infinite;
+        }
+
+.company-info {
+    flex: 1;
+}
+
+.company-name {
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.company-tagline {
+    font-size: 11px;
+    color: var(--primary-green);
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.sidebar-nav {
+    padding: 20px 0;
+}
+
+.nav-section-title {
+    padding: 0 20px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--primary-green);
+    text-transform: uppercase;
+}
+
+.nav-menu {
+    list-style: none;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    padding: 14px 20px;
+    color: var(--text-primary);
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.nav-link i {
+    width: 22px;
+    margin-right: 14px;
+    font-size: 18px;
+}
+
+.nav-link:hover {
+    background: rgba(34, 197, 94, 0.1);
+    color: var(--primary-green);
+}
+
+.nav-item.active .nav-link {
+    background: var(--gradient-primary);
+    color: white;
+}
+
+.main-content {
+    flex: 1;
+    margin-left: 280px;
+    display: flex;
+    flex-direction: column;
+}
+
+.header {
+    background: var(--bg-primary);
+    border-bottom: 1px solid var(--border-color);
+    padding: 0 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 80px;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.sidebar-toggle {
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    font-size: 20px;
+    cursor: pointer;
+    padding: 12px;
+    border-radius: 12px;
+}
+
+.greeting-text {
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.current-date {
+    font-size: 14px;
+    color: #666;
+}
+
+.search-container {
+    position: relative;
+    width: 400px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 12px 50px 12px 20px;
+    border: 2px solid var(--border-color);
+    border-radius: 25px;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.theme-toggle {
+    background: var(--bg-primary);
+    border: 2px solid var(--border-color);
+    padding: 12px 16px;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.profile-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 16px;
+    border-radius: 12px;
+}
+
+.profile-avatar {
+    width: 45px;
+    height: 45px;
+    background: var(--gradient-primary);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+}
+
+.content {
+    flex: 1;
+    padding: 32px;
+    overflow-y: auto;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
+.stat-card {
+    background: var(--bg-primary);
+    padding: 24px;
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+}
+
+.stat-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: white;
+    margin-bottom: 12px;
+}
+
+.stat-icon.total { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+.stat-icon.critical { background: linear-gradient(135deg, #ef4444, #dc2626); }
+.stat-icon.active { background: linear-gradient(135deg, #22c55e, #16a34a); }
+.stat-icon.resolved { background: linear-gradient(135deg, #10b981, #047857); }
+.stat-icon.population { background: linear-gradient(135deg, #f59e0b, #d97706); }
+.stat-icon.overdue { background: linear-gradient(135deg, #ef4444, #dc2626); }
+
+.stat-value {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.stat-label {
+    font-size: 14px;
+    color: #666;
+    text-transform: uppercase;
+}
+
+.charts-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+    gap: 24px;
+}
+
+.chart-card {
+    background: var(--bg-primary);
+    padding: 24px;
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+}
+
+.chart-container {
+    height: 300px;
+}
+
+.table-section {
+    background: var(--bg-primary);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+
+.table-header {
+    padding: 24px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th,
+.data-table td {
+    padding: 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.data-table th {
+    background: var(--bg-secondary);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 14px;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-primary {
+    background: var(--gradient-primary);
+    color: white;
+}
+
+.btn-secondary {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.modal.show {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background: var(--bg-primary);
+    border-radius: 16px;
+    padding: 32px;
+    width: 90%;
+    max-width: 700px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.form-input,
+.form-select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+.content-section {
+    display: none;
+}
+
+.content-section.active {
+    display: block;
+}
+
+.loading-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+}
+
+.loading-overlay.show {
+    display: flex;
+}
+
+.loader {
+    border: 8px solid #f3f3f3;
+    border-top: 8px solid var(--primary-green);
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+</style>
+</head>
+<body>
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loader"></div>
+</div>
+<div class="toast-container" id="toastContainer"></div>
+
+<div class="dashboard-container">
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <img src="images/logo.jpeg" alt="AgriGuard AI Logo" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;">
+      </div>
+      <div class="company-info">
+        <div class="company-name">AgriGuard AI</div>
+        <div class="company-tagline">Food Security</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <h3 class="nav-section-title">Main</h3>
+        <ul class="nav-menu">
+          <li class="nav-item active">
+            <a class="nav-link" onclick="showSection('dashboard')">
+              <i class="fas fa-chart-line"></i>
+              <span>Dashboard</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" onclick="showSection('alerts')">
+              <i class="fas fa-exclamation-triangle"></i>
+              <span>All Alerts</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" onclick="showSection('critical')">
+              <i class="fas fa-fire"></i>
+              <span>Critical Alerts</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content" id="mainContent">
+    <header class="header">
+      <div class="header-left">
+        <button class="sidebar-toggle" onclick="toggleSidebar()">
+          <i class="fas fa-bars"></i>
+        </button>
+        <div class="greeting-section">
+          <div class="greeting-text" id="greetingText">Good Morning!</div>
+          <div class="current-date" id="currentDate"></div>
+        </div>
+      </div>
+
+      <div class="search-container">
+        <input type="text" class="search-input" placeholder="Search alerts..." id="globalSearch" onkeyup="handleGlobalSearch()">
+        <i class="fas fa-search search-icon"></i>
+      </div>
+
+      <div class="header-right">
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">
+          <i class="fas fa-moon"></i>
+          <span>Dark Mode</span>
+        </button>
+        <div style="position: relative;">
+          <button class="notification-btn" onclick="toggleNotifications()">
+            <i class="fas fa-bell"></i>
+            <span class="notification-badge" id="notificationCount">0</span>
+          </button>
+          <div class="notification-dropdown" id="notificationDropdown">
+            <div class="notification-header">Notifications</div>
+            <div id="notificationList"></div>
+          </div>
+        </div>
+        <div class="profile-section">
+          <div class="profile-avatar">U</div>
+          <div class="profile-info">
+            <div class="profile-name">User</div>
+            <div class="profile-role">Role</div>
+          </div>
+          <button class="logout-btn" onclick="handleLogout()" title="Logout">
+            <i class="fas fa-sign-out-alt"></i>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="content">
+      <!-- Dashboard Section -->
+      <div id="dashboardSection" class="content-section active">
+        <div class="dashboard-grid">
+          <div class="stat-card">
+            <div class="stat-icon total"><i class="fas fa-exclamation-circle"></i></div>
+            <div class="stat-value" id="totalAlerts">0</div>
+            <div class="stat-label">Total Alerts</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon critical"><i class="fas fa-fire"></i></div>
+            <div class="stat-value" id="criticalAlerts">0</div>
+            <div class="stat-label">Critical Alerts</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon active"><i class="fas fa-bell"></i></div>
+            <div class="stat-value" id="activeAlerts">0</div>
+            <div class="stat-label">Active Alerts</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon resolved"><i class="fas fa-check-circle"></i></div>
+            <div class="stat-value" id="resolvedAlerts">0</div>
+            <div class="stat-label">Resolved Alerts</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon population"><i class="fas fa-users"></i></div>
+            <div class="stat-value" id="affectedPopulation">0</div>
+            <div class="stat-label">Affected Population</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon overdue"><i class="fas fa-clock"></i></div>
+            <div class="stat-value" id="overdueAlerts">0</div>
+            <div class="stat-label">Overdue Alerts</div>
+          </div>
+        </div>
+
+        <div class="charts-section">
+          <div class="chart-card">
+            <div class="chart-header">
+              <h3 class="chart-title">Alert Categories</h3>
+            </div>
+            <div class="chart-container">
+              <canvas id="categoryChart"></canvas>
+            </div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-header">
+              <h3 class="chart-title">Alert Levels</h3>
+            </div>
+            <div class="chart-container">
+              <canvas id="levelChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Alerts Section -->
+      <div id="alertsSection" class="content-section">
+        <div class="table-section">
+          <div class="table-header">
+            <h2 class="table-title">Food Security Alerts</h2>
+            <div class="table-actions">
+              <button class="btn btn-primary" onclick="showAddAlertModal()">
+                <i class="fas fa-plus"></i>
+                Add Alert
+              </button>
+              <button class="btn btn-secondary" onclick="loadAllAlerts()">
+                <i class="fas fa-sync-alt"></i>
+                Refresh
+              </button>
+            </div>
+          </div>
+          <div style="overflow-x: auto;">
+            <table class="data-table">
+              <thead>
+              <tr>
+                <th>Alert Code</th>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Level</th>
+                <th>Region</th>
+                <th>Population</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+              </thead>
+              <tbody id="alertsTableBody">
+              <tr>
+                <td colspan="8" class="empty-state">
+                  <i class="fas fa-spinner fa-spin"></i>
+                  <p>Loading alerts...</p>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Critical Section -->
+      <div id="criticalSection" class="content-section">
+        <div class="table-section">
+          <div class="table-header">
+            <h2 class="table-title">Critical Alerts</h2>
+          </div>
+          <div style="overflow-x: auto;">
+            <table class="data-table">
+              <thead>
+              <tr>
+                <th>Alert Code</th>
+                <th>Title</th>
+                <th>Region</th>
+                <th>Severity</th>
+                <th>Actions</th>
+              </tr>
+              </thead>
+              <tbody id="criticalTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal" id="alertModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 class="modal-title" id="alertModalTitle">Add Alert</h2>
+      <button class="modal-close" onclick="closeAlertModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <form id="alertForm" onsubmit="submitAlertForm(event)">
+      <input type="hidden" id="alertId">
+
+      <div class="form-group">
+        <label class="form-label">Alert Title *</label>
+        <input type="text" class="form-input" id="alertTitle" required>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Category *</label>
+          <select class="form-select" id="alertCategory" required>
+            <option value="">Select Category</option>
+            <option value="PRODUCTION">Production</option>
+            <option value="WEATHER">Weather</option>
+            <option value="MARKET">Market</option>
+            <option value="DISEASE">Disease</option>
+            <option value="POLICY">Policy</option>
+            <option value="INFRASTRUCTURE">Infrastructure</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Alert Level *</label>
+          <select class="form-select" id="alertLevel" required>
+            <option value="">Select Level</option>
+            <option value="INFO">Info</option>
+            <option value="LOW">Low</option>
+            <option value="MEDIUM">Medium</option>
+            <option value="HIGH">High</option>
+            <option value="CRITICAL">Critical</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Description *</label>
+        <textarea class="form-input" id="description" rows="4" required></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Affected Region</label>
+          <input type="text" class="form-input" id="affectedRegion">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Affected Population</label>
+          <input type="number" class="form-input" id="affectedPopulation">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Source *</label>
+        <input type="text" class="form-input" id="source" required>
+      </div>
+
+      <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px;">
+        <button type="button" class="btn btn-secondary" onclick="closeAlertModal()">Cancel</button>
+        <button type="submit" class="btn btn-primary">
+          <i class="fas fa-save"></i>
+          Save Alert
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="js/SessionTracker.js"></script>
+<script src="js/user_session_handler.js"></script>
+<script >
+
+
+
+  const API_BASE_URL = 'http://localhost:1010/api/food-security-alerts';
+let allAlerts = [];
+let charts = {};
+let sessionHandler = null;
+let currentLoggedInUser = null;
+
+function initializeSessionHandler() {
+    try {
+        sessionHandler = UserSessionHandler.getInstance();
+        currentLoggedInUser = sessionHandler.getCurrentUser();
+        if (!currentLoggedInUser) {
+            window.location.href = '/login.html';
+            return false;
+        }
+        return true;
+    } catch (error) {
+        window.location.href = '/login.html';
+        return false;
+    }
+}
+
+function updateUIWithCurrentUser() {
+    if (!currentLoggedInUser) return;
+    const hour = new Date().getHours();
+    let greeting = hour < 12 ? 'Good Morning' : hour < 18 ? 'Good Afternoon' : 'Good Evening';
+    document.getElementById('greetingText').textContent = `${greeting}, ${currentLoggedInUser.fullName}!`;
+    document.querySelector('.profile-name').textContent = currentLoggedInUser.fullName;
+    const initials = currentLoggedInUser.fullName.split(' ').map(n => n[0]).join('').toUpperCase();
+    document.querySelector('.profile-avatar').textContent = initials;
+}
+
+document.addEventListener('DOMContentLoaded', async function() {
+    if (!initializeSessionHandler()) return;
+    updateUIWithCurrentUser();
+    updateDateTime();
+    setInterval(updateDateTime, 60000);
+    await initializeDashboard();
+});
+
+async function initializeDashboard() {
+    showLoading(true);
+    try {
+        await Promise.all([
+            loadStatistics(),
+            loadAllAlerts(),
+            loadCriticalAlerts()
+        ]);
+        initializeCharts();
+    } catch (error) {
+        showToast('Error loading dashboard', 'error');
+    } finally {
+        showLoading(false);
+    }
+}
+
+async function loadStatistics() {
+    try {
+        const [statsRes, activeRes, criticalRes, overdueRes] = await Promise.all([
+            fetch(`${API_BASE_URL}/statistics`),
+            fetch(`${API_BASE_URL}/active?size=1000`),
+            fetch(`${API_BASE_URL}/critical`),
+            fetch(`${API_BASE_URL}/overdue`)
+        ]);
+
+        const stats = await statsRes.json();
+        const active = await activeRes.json();
+        const critical = await criticalRes.json();
+        const overdue = await overdueRes.json();
+
+        document.getElementById('totalAlerts').textContent = stats.data?.totalAlerts || 0;
+        document.getElementById('criticalAlerts').textContent = critical.data?.length || 0;
+        document.getElementById('activeAlerts').textContent = active.data?.content?.length || 0;
+        document.getElementById('resolvedAlerts').textContent = stats.data?.resolvedCount || 0;
+        document.getElementById('affectedPopulation').textContent = formatNumber(stats.data?.totalAffectedPopulation || 0);
+        document.getElementById('overdueAlerts').textContent = overdue.data?.length || 0;
+    } catch (error) {
+        console.error('Error loading statistics:', error);
+    }
+}
+
+async function loadAllAlerts() {
+    try {
+        const response = await fetch(`${API_BASE_URL}?size=1000`);
+        const data = await response.json();
+        allAlerts = data.data?.content || [];
+        renderAlertsTable(allAlerts);
+    } catch (error) {
+        console.error('Error loading alerts:', error);
+    }
+}
+
+async function loadCriticalAlerts() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/critical`);
+        const data = await response.json();
+        renderCriticalTable(data.data || []);
+    } catch (error) {
+        console.error('Error loading critical alerts:', error);
+    }
+}
+
+function renderAlertsTable(alerts) {
+    const tbody = document.getElementById('alertsTableBody');
+    if (!alerts || alerts.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><i class="fas fa-inbox"></i><p>No alerts found</p></td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = alerts.map(alert => `
+        <tr>
+            <td>${alert.alertCode}</td>
+            <td>${alert.alertTitle}</td>
+            <td><span class="badge badge-${alert.alertCategory.toLowerCase()}">${alert.alertCategory}</span></td>
+            <td><span class="badge badge-${alert.alertLevel.toLowerCase()}">${alert.alertLevel}</span></td>
+            <td>${alert.affectedRegion || 'N/A'}</td>
+            <td>${formatNumber(alert.affectedPopulation || 0)}</td>
+            <td><span class="badge badge-${alert.resolutionStatus.toLowerCase().replace('_', '-')}">${alert.resolutionStatus.replace('_', ' ')}</span></td>
+            <td>
+                <button class="action-btn action-btn-view" onclick="viewAlert('${alert.id}')"><i class="fas fa-eye"></i></button>
+                <button class="action-btn action-btn-edit" onclick="editAlert('${alert.id}')"><i class="fas fa-edit"></i></button>
+                ${alert.resolutionStatus === 'UNRESOLVED' ? `<button class="action-btn action-btn-resolve" onclick="resolveAlert('${alert.id}')"><i class="fas fa-check"></i></button>` : ''}
+            </td>
+        </tr>
+    `).join('');
+}
+
+function renderCriticalTable(alerts) {
+    const tbody = document.getElementById('criticalTableBody');
+    tbody.innerHTML = alerts.map(alert => `
+        <tr>
+            <td>${alert.alertCode}</td>
+            <td>${alert.alertTitle}</td>
+            <td>${alert.affectedRegion || 'N/A'}</td>
+            <td><span class="badge badge-critical">${alert.severityScore}/10</span></td>
+            <td>
+                <button class="action-btn action-btn-escalate" onclick="escalateAlert('${alert.id}')"><i class="fas fa-arrow-up"></i> Escalate</button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function initializeCharts() {
+    const categoryData = {};
+    const levelData = {};
+    allAlerts.forEach(alert => {
+        categoryData[alert.alertCategory] = (categoryData[alert.alertCategory] || 0) + 1;
+        levelData[alert.alertLevel] = (levelData[alert.alertLevel] || 0) + 1;
+    });
+
+    if (charts.category) charts.category.destroy();
+    charts.category = new Chart(document.getElementById('categoryChart'), {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(categoryData),
+            datasets: [{
+                data: Object.values(categoryData),
+                backgroundColor: ['#22c55e', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4']
+            }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+    });
+
+    if (charts.level) charts.level.destroy();
+    charts.level = new Chart(document.getElementById('levelChart'), {
+        type: 'bar',
+        data: {
+            labels: Object.keys(levelData),
+            datasets: [{
+                label: 'Count',
+                data: Object.values(levelData),
+                backgroundColor: ['#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#dc2626']
+            }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+    });
+}
+
+function showSection(section) {
+    document.querySelectorAll('.content-section').forEach(el => el.classList.remove('active'));
+    document.getElementById(section + 'Section').classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+    event.target.closest('.nav-item').classList.add('active');
+}
+
+function showAddAlertModal() {
+    document.getElementById('alertModalTitle').textContent = 'Add Alert';
+    document.getElementById('alertForm').reset();
+    document.getElementById('alertModal').classList.add('show');
+}
+
+function closeAlertModal() {
+    document.getElementById('alertModal').classList.remove('show');
+}
+
+async function submitAlertForm(event) {
+    event.preventDefault();
+    const formData = {
+        alertTitle: document.getElementById('alertTitle').value,
+        alertCategory: document.getElementById('alertCategory').value,
+        description: document.getElementById('description').value,
+        alertLevel: document.getElementById('alertLevel').value,
+        affectedRegion: document.getElementById('affectedRegion').value,
+        affectedPopulation: parseInt(document.getElementById('affectedPopulation').value) || 0,
+        source: document.getElementById('source').value
+    };
+
+    try {
+        showLoading(true);
+        const response = await fetch(API_BASE_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+        });
+        if (response.ok) {
+            showToast('Alert created successfully', 'success');
+            closeAlertModal();
+            await initializeDashboard();
+        }
+    } catch (error) {
+        showToast('Error creating alert', 'error');
+    } finally {
+        showLoading(false);
+    }
+}
+
+async function resolveAlert(id) {
+    if (!confirm('Mark this alert as resolved?')) return;
+    try {
+        await fetch(`${API_BASE_URL}/${id}/resolve`, { method: 'PUT' });
+        showToast('Alert resolved', 'success');
+        await initializeDashboard();
+    } catch (error) {
+        showToast('Error resolving alert', 'error');
+    }
+}
+
+async function escalateAlert(id) {
+    try {
+        await fetch(`${API_BASE_URL}/${id}/escalate`, { method: 'PUT' });
+        showToast('Alert escalated', 'success');
+        await initializeDashboard();
+    } catch (error) {
+        showToast('Error escalating alert', 'error');
+    }
+}
+
+function formatNumber(num) {
+    if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+    if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+    return num.toString();
+}
+
+function updateDateTime() {
+    const now = new Date();
+    document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('collapsed');
+}
+
+function toggleTheme() {
+    document.body.classList.toggle('dark-mode');
+}
+
+function showLoading(show) {
+    document.getElementById('loadingOverlay').classList.toggle('show', show);
+}
+
+function showToast(message, type) {
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `<p>${message}</p>`;
+    document.getElementById('toastContainer').appendChild(toast);
+    setTimeout(() => toast.remove(), 5000);
+}
+
+function handleLogout() {
+    if (confirm('Logout?')) {
+        sessionHandler.logout();
+    }
+}
+
+function toggleNotifications() {
+    document.getElementById('notificationDropdown').classList.toggle('show');
+}
+
+function handleGlobalSearch() {
+    const search = document.getElementById('globalSearch').value.toLowerCase();
+    const filtered = allAlerts.filter(a =>
+        a.alertTitle.toLowerCase().includes(search) ||
+        a.alertCode.toLowerCase().includes(search)
+    );
+    renderAlertsTable(filtered);
+}
+
+</script>
+</body>
+</html>

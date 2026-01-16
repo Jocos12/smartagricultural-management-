@@ -1,0 +1,5491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Policy Data Management - AgriGuard AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+
+
+        :root {
+     --primary-green: #22c55e;
+     --primary-dark: #16a34a;
+     --secondary-green: #10b981;
+     --accent-green: #34d399;
+     --light-green: #dcfce7;
+     --dark-green: #166534;
+     --success-color: #22c55e;
+     --warning-color: #f59e0b;
+     --error-color: #ef4444;
+     --bg-primary: #ffffff;
+     --bg-secondary: #f8f9fa;
+     --bg-sidebar: #e8f5e8;
+     --text-primary: #333333;
+     --text-secondary: #666666;
+     --border-color: #e0e0e0;
+     --hover-bg: rgba(34, 197, 94, 0.1);
+     --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+     --shadow-lg: 0 8px 25px rgba(34, 197, 94, 0.15);
+     --gradient-primary: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+     --gradient-bg: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%);
+     --card-bg: #ffffff;
+     --modal-bg: rgba(0, 0, 0, 0.5);
+ }
+
+ .dark-mode {
+     --bg-primary: #1a1a1a;
+     --bg-secondary: #2d2d2d;
+     --bg-sidebar: #1f2937;
+     --text-primary: #ffffff;
+     --text-secondary: #cccccc;
+     --border-color: #404040;
+     --hover-bg: rgba(34, 197, 94, 0.2);
+     --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+     --card-bg: #374151;
+     --gradient-bg: linear-gradient(135deg, #1f2937 0%, #374151 50%, #4b5563 100%);
+ }
+
+ * {
+     margin: 0;
+     padding: 0;
+     box-sizing: border-box;
+ }
+
+ body {
+     font-family: 'Inter', sans-serif;
+     background: var(--gradient-bg);
+     color: var(--text-primary);
+     transition: all 0.3s ease;
+     overflow-x: hidden;
+ }
+
+ .dashboard-container {
+     display: flex;
+     height: 100vh;
+ }
+
+ .sidebar {
+     width: 280px;
+     background: var(--bg-sidebar);
+     border-right: 1px solid var(--border-color);
+     display: flex;
+     flex-direction: column;
+     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+     position: fixed;
+     height: 100vh;
+     z-index: 1000;
+     box-shadow: var(--shadow);
+ }
+
+ .sidebar.collapsed {
+     width: 70px;
+ }
+
+ .sidebar-header {
+     padding: 20px;
+     border-bottom: 1px solid var(--border-color);
+     display: flex;
+     align-items: center;
+     gap: 12px;
+ }
+
+ .logo, .logo-fallback {
+     width: 45px;
+     height: 45px;
+     border-radius: 12px;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     background: var(--gradient-primary);
+     color: white;
+     font-size: 24px;
+     box-shadow: var(--shadow);
+ }
+
+ .logo img {
+     width: 100%;
+     height: 100%;
+     object-fit: contain;
+ }
+
+ .company-info {
+     flex: 1;
+     transition: opacity 0.3s ease;
+ }
+
+ .company-name {
+     font-size: 18px;
+     font-weight: 700;
+     color: var(--text-primary);
+     margin-bottom: 2px;
+ }
+
+ .company-tagline {
+     font-size: 11px;
+     color: var(--primary-green);
+     font-weight: 600;
+     text-transform: uppercase;
+     letter-spacing: 0.5px;
+ }
+
+ .sidebar.collapsed .company-info {
+     opacity: 0;
+     width: 0;
+ }
+
+ .sidebar-nav {
+     flex: 1;
+     padding: 20px 0;
+     overflow-y: auto;
+ }
+
+ .nav-section {
+     margin-bottom: 30px;
+ }
+
+ .nav-section-title {
+     padding: 0 20px 10px;
+     font-size: 11px;
+     font-weight: 700;
+     color: var(--primary-green);
+     text-transform: uppercase;
+     letter-spacing: 1px;
+     transition: opacity 0.3s ease;
+ }
+
+ .sidebar.collapsed .nav-section-title {
+     opacity: 0;
+     height: 0;
+     margin: 0;
+     padding: 0;
+ }
+
+ .nav-menu {
+     list-style: none;
+ }
+
+ .nav-item {
+     margin-bottom: 4px;
+ }
+
+ .nav-link {
+     display: flex;
+     align-items: center;
+     padding: 14px 20px;
+     color: var(--text-primary);
+     text-decoration: none;
+     border-radius: 0 25px 25px 0;
+     margin-right: 20px;
+     transition: all 0.3s ease;
+     cursor: pointer;
+ }
+
+ .nav-link i {
+     width: 22px;
+     margin-right: 14px;
+     font-size: 18px;
+     flex-shrink: 0;
+ }
+
+ .nav-link span {
+     transition: opacity 0.3s ease;
+     white-space: nowrap;
+     font-weight: 500;
+ }
+
+ .sidebar.collapsed .nav-link span {
+     opacity: 0;
+ }
+
+ .nav-link:hover {
+     background: var(--hover-bg);
+     color: var(--primary-green);
+     transform: translateX(5px);
+ }
+
+ .nav-item.active .nav-link {
+     background: var(--gradient-primary);
+     color: white;
+     box-shadow: var(--shadow);
+ }
+
+ .main-content {
+     flex: 1;
+     display: flex;
+     flex-direction: column;
+     margin-left: 280px;
+     transition: margin-left 0.3s ease;
+ }
+
+ .main-content.sidebar-collapsed {
+     margin-left: 70px;
+ }
+
+ .header {
+     background: var(--card-bg);
+     border-bottom: 1px solid var(--border-color);
+     padding: 0 32px;
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+     height: 80px;
+     box-shadow: var(--shadow);
+ }
+
+ .header-left {
+     display: flex;
+     align-items: center;
+     gap: 24px;
+ }
+
+ .sidebar-toggle {
+     background: none;
+     border: none;
+     color: var(--text-primary);
+     font-size: 20px;
+     cursor: pointer;
+     padding: 12px;
+     border-radius: 12px;
+     transition: all 0.3s ease;
+ }
+
+ .sidebar-toggle:hover {
+     background: var(--hover-bg);
+     color: var(--primary-green);
+ }
+
+ .greeting-section {
+     display: flex;
+     flex-direction: column;
+ }
+
+ .greeting-text {
+     font-size: 24px;
+     font-weight: 700;
+     color: var(--text-primary);
+ }
+
+ .current-date {
+     font-size: 14px;
+     color: var(--text-secondary);
+     font-weight: 500;
+ }
+
+ .search-container {
+     position: relative;
+     width: 400px;
+ }
+
+ .search-input {
+     width: 100%;
+     padding: 12px 50px 12px 20px;
+     border: 2px solid var(--border-color);
+     border-radius: 25px;
+     background: var(--bg-secondary);
+     color: var(--text-primary);
+     font-size: 15px;
+     transition: all 0.3s ease;
+ }
+
+ .search-input:focus {
+     outline: none;
+     border-color: var(--primary-green);
+     box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
+ }
+
+ .search-icon {
+     position: absolute;
+     right: 18px;
+     top: 50%;
+     transform: translateY(-50%);
+     color: var(--text-secondary);
+ }
+
+ .header-right {
+     display: flex;
+     align-items: center;
+     gap: 20px;
+ }
+
+ .theme-toggle {
+     background: var(--card-bg);
+     border: 2px solid var(--border-color);
+     color: var(--text-primary);
+     padding: 12px 16px;
+     border-radius: 12px;
+     cursor: pointer;
+     transition: all 0.3s ease;
+     display: flex;
+     align-items: center;
+     gap: 8px;
+ }
+
+ .theme-toggle:hover {
+     background: var(--hover-bg);
+     border-color: var(--primary-green);
+ }
+
+ .notification-btn {
+     background: none;
+     border: none;
+     color: var(--text-primary);
+     font-size: 20px;
+     cursor: pointer;
+     position: relative;
+     padding: 12px;
+     border-radius: 12px;
+     transition: all 0.3s ease;
+ }
+
+ .notification-btn:hover {
+     background: var(--hover-bg);
+     color: var(--primary-green);
+ }
+
+ .notification-badge {
+     position: absolute;
+     top: 8px;
+     right: 8px;
+     background: var(--error-color);
+     color: white;
+     border-radius: 50%;
+     width: 20px;
+     height: 20px;
+     font-size: 11px;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     font-weight: 700;
+ }
+
+ .profile-section {
+     display: flex;
+     align-items: center;
+     gap: 12px;
+     cursor: pointer;
+     padding: 8px 16px;
+     border-radius: 12px;
+     transition: all 0.3s ease;
+ }
+
+ .profile-section:hover {
+     background: var(--hover-bg);
+ }
+
+ .profile-avatar {
+     width: 45px;
+     height: 45px;
+     background: var(--gradient-primary);
+     color: white;
+     border-radius: 50%;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     font-weight: 700;
+     font-size: 16px;
+     box-shadow: var(--shadow);
+ }
+
+ .profile-info {
+     display: flex;
+     flex-direction: column;
+ }
+
+ .profile-name {
+     font-size: 14px;
+     font-weight: 600;
+     color: var(--text-primary);
+ }
+
+ .profile-role {
+     font-size: 12px;
+     color: var(--primary-green);
+     font-weight: 500;
+ }
+
+ .logout-btn {
+     background: transparent;
+     border: none;
+     color: var(--text-secondary);
+     font-size: 20px;
+     cursor: pointer;
+     padding: 8px;
+     border-radius: 8px;
+     transition: all 0.3s ease;
+ }
+
+ .logout-btn:hover {
+     background: rgba(239, 68, 68, 0.1);
+     color: var(--error-color);
+ }
+
+.content {
+    flex: 1;
+    padding: 32px;
+    background: var(--bg-secondary);
+    overflow-y: auto;
+    overflow-x: hidden; /* Add this line */
+}
+
+ .dashboard-grid {
+     display: grid;
+     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+     gap: 24px;
+     margin-bottom: 32px;
+ }
+
+ .stat-card {
+     background: var(--card-bg);
+     padding: 24px;
+     border-radius: 16px;
+     box-shadow: var(--shadow);
+     transition: all 0.3s ease;
+     border: 1px solid var(--border-color);
+ }
+
+ .stat-card:hover {
+     transform: translateY(-5px);
+     box-shadow: var(--shadow-lg);
+ }
+
+ .stat-icon {
+     width: 50px;
+     height: 50px;
+     border-radius: 12px;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     font-size: 24px;
+     color: white;
+     margin-bottom: 12px;
+ }
+
+ .stat-icon.total { background: linear-gradient(135deg, #22c55e, #16a34a); }
+ .stat-icon.active { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+ .stat-icon.budget { background: linear-gradient(135deg, #f59e0b, #d97706); }
+ .stat-icon.beneficiaries { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+ .stat-icon.subsidy { background: linear-gradient(135deg, #ec4899, #db2777); }
+ .stat-icon.credit { background: linear-gradient(135deg, #14b8a6, #0d9488); }
+
+ .stat-value {
+     font-size: 32px;
+     font-weight: 700;
+     color: var(--text-primary);
+     margin-bottom: 4px;
+ }
+
+ .stat-label {
+     font-size: 14px;
+     color: var(--text-secondary);
+     font-weight: 500;
+     text-transform: uppercase;
+     letter-spacing: 0.5px;
+ }
+
+ .charts-section {
+     display: grid;
+     grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+     gap: 24px;
+     margin-bottom: 32px;
+ }
+
+ .chart-card {
+     background: var(--card-bg);
+     padding: 24px;
+     border-radius: 16px;
+     box-shadow: var(--shadow);
+     border: 1px solid var(--border-color);
+ }
+
+ .chart-header {
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+     margin-bottom: 20px;
+ }
+
+ .chart-title {
+     font-size: 18px;
+     font-weight: 600;
+     color: var(--text-primary);
+ }
+
+ .chart-container {
+     position: relative;
+     height: 300px;
+ }
+
+ .table-header {
+     padding: 24px;
+     border-bottom: 1px solid var(--border-color);
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+     flex-wrap: wrap;
+     gap: 16px;
+ }
+
+ .table-title {
+     font-size: 20px;
+     font-weight: 600;
+     color: var(--text-primary);
+ }
+
+ .table-actions {
+     display: flex;
+     gap: 12px;
+     flex-wrap: wrap;
+ }
+
+ .btn {
+     padding: 10px 20px;
+     border: none;
+     border-radius: 8px;
+     font-size: 14px;
+     font-weight: 600;
+     cursor: pointer;
+     transition: all 0.3s ease;
+     display: flex;
+     align-items: center;
+     gap: 8px;
+ }
+
+ .btn-primary {
+     background: var(--gradient-primary);
+     color: white;
+     box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+ }
+
+ .btn-primary:hover {
+     transform: translateY(-2px);
+     box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
+ }
+
+ .btn-secondary {
+     background: var(--bg-secondary);
+     color: var(--text-primary);
+     border: 1px solid var(--border-color);
+ }
+
+ .btn-secondary:hover {
+     background: var(--hover-bg);
+     border-color: var(--primary-green);
+ }
+
+ .btn-info {
+     background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+     color: white;
+ }
+
+ .btn-info:hover {
+     transform: translateY(-2px);
+     box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+ }
+
+ .btn-danger {
+     background: linear-gradient(135deg, #ef4444, #dc2626);
+     color: white;
+ }
+
+ .btn-danger:hover {
+     transform: translateY(-2px);
+     box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+ }
+
+ .btn-warning {
+     background: linear-gradient(135deg, #f59e0b, #d97706);
+     color: white;
+ }
+
+ .btn-warning:hover {
+     transform: translateY(-2px);
+     box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+ }
+
+.filter-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* Change this line */
+    gap: 12px;
+    margin-bottom: 20px;
+    padding: 0 24px; /* Add this line */
+}
+
+
+
+
+
+
+ /* ================================================================= */
+ /* TABLE SCROLLABLE - SOLUTION ULTRA-FORTE QUI FONCTIONNE */
+ /* ================================================================= */
+/* ================================================================= */
+/* TABLE SCROLLABLE - SOLUTION ULTRA-FORTE QUI FONCTIONNE */
+/* ================================================================= */
+
+.table-section {
+    background: var(--card-bg);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+    margin-bottom: 32px;
+    max-width: 100%; /* Add this line */
+    overflow: hidden;
+}
+
+.data-table-wrapper {
+    width: 100%;
+    overflow-x: auto !important;
+    overflow-y: visible;
+    padding: 0 24px 24px 24px;
+    position: relative;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    max-width: calc(100vw - 380px); /* Add this line - adjusts for sidebar and padding */
+}
+
+/* SCROLLBAR ULTRA-VISIBLE */
+.data-table-wrapper::-webkit-scrollbar {
+    height: 16px !important;
+    background: #e5e7eb;
+}
+
+.data-table-wrapper::-webkit-scrollbar-track {
+    background: linear-gradient(to right, #d1d5db, #e5e7eb);
+    border-radius: 10px;
+    margin: 0 20px;
+    border: 2px solid #9ca3af;
+    box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+}
+
+.data-table-wrapper::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #22c55e, #16a34a, #15803d);
+    border-radius: 10px;
+    border: 3px solid #e5e7eb;
+    box-shadow: 0 2px 10px rgba(34, 197, 94, 0.6);
+    transition: all 0.3s ease;
+}
+
+.data-table-wrapper::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #16a34a, #15803d, #166534);
+    box-shadow: 0 4px 15px rgba(34, 197, 94, 0.8);
+    cursor: grab;
+    border-width: 2px;
+}
+
+.data-table-wrapper::-webkit-scrollbar-thumb:active {
+    cursor: grabbing;
+    background: #15803d;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+}
+
+/* Pour Firefox */
+.data-table-wrapper {
+    scrollbar-width: auto;
+    scrollbar-color: #22c55e #e5e7eb;
+}
+
+/* TABLE EXTRA-LARGE POUR GARANTIR LE SCROLL */
+.data-table {
+    min-width: 1800px !important; /* FORCE une largeur minimale */
+    width: max-content !important;
+    table-layout: fixed !important; /* CHANGÉ: fixed pour forcer les largeurs */
+    border-collapse: collapse;
+    margin-bottom: 0;
+}
+
+.data-table th,
+.data-table td {
+    white-space: nowrap !important;
+    padding: 16px 20px !important;
+    border-bottom: 1px solid var(--border-color);
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.data-table thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--bg-secondary);
+}
+
+.data-table th {
+    background: var(--bg-secondary);
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Largeurs FIXES pour chaque colonne */
+.data-table th:nth-child(1),
+.data-table td:nth-child(1) { width: 180px; min-width: 180px; max-width: 180px; }
+
+.data-table th:nth-child(2),
+.data-table td:nth-child(2) { width: 350px; min-width: 350px; max-width: 350px; }
+
+.data-table th:nth-child(3),
+.data-table td:nth-child(3) { width: 180px; min-width: 180px; max-width: 180px; }
+
+.data-table th:nth-child(4),
+.data-table td:nth-child(4) { width: 180px; min-width: 180px; max-width: 180px; }
+
+.data-table th:nth-child(5),
+.data-table td:nth-child(5) { width: 150px; min-width: 150px; max-width: 150px; }
+
+.data-table th:nth-child(6),
+.data-table td:nth-child(6) {
+    width: 200px; min-width: 200px; max-width: 200px;
+    text-align: right;
+}
+
+.data-table th:nth-child(7),
+.data-table td:nth-child(7) {
+    width: 180px; min-width: 180px; max-width: 180px;
+    text-align: right;
+}
+
+.data-table th:nth-child(8),
+.data-table td:nth-child(8) { width: 180px; min-width: 180px; max-width: 180px; }
+
+.data-table th:nth-child(9),
+.data-table td:nth-child(9) {
+    width: 280px; min-width: 280px; max-width: 280px;
+    position: sticky;
+    right: 0;
+    background: var(--card-bg);
+    z-index: 5;
+    box-shadow: -4px 0 8px rgba(0,0,0,0.1);
+}
+
+.data-table tr:hover {
+    background: var(--hover-bg);
+}
+
+/* SCROLL HINT - Indicateur visuel */
+.scroll-hint {
+    position: fixed;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 28px;
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: white;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 700;
+    box-shadow: 0 8px 25px rgba(34, 197, 94, 0.6);
+    animation: scrollPulse 2s ease-in-out infinite;
+    pointer-events: none;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.scroll-hint i {
+    font-size: 18px;
+    animation: scrollArrow 1.5s ease-in-out infinite;
+}
+
+@keyframes scrollPulse {
+    0%, 100% {
+        opacity: 1;
+        transform: translateX(-50%) scale(1);
+    }
+    50% {
+        opacity: 0.9;
+        transform: translateX(-50%) scale(1.08);
+    }
+}
+
+@keyframes scrollArrow {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(8px); }
+}
+
+/* Responsive */
+@media (max-width: 1400px) {
+    .data-table { min-width: 1600px !important; }
+}
+
+@media (max-width: 1024px) {
+    .data-table { min-width: 1400px !important; }
+}
+
+@media (max-width: 768px) {
+    .data-table { min-width: 1200px !important; }
+    .data-table-wrapper::-webkit-scrollbar { height: 12px !important; }
+    .scroll-hint {
+        font-size: 12px;
+        padding: 10px 20px;
+        bottom: 25px;
+    }
+}
+
+@media (max-width: 480px) {
+    .data-table { min-width: 1000px !important; }
+}
+
+ .status-badge {
+     padding: 6px 12px;
+     border-radius: 20px;
+     font-size: 12px;
+     font-weight: 600;
+     text-transform: uppercase;
+ }
+
+ .status-draft { background: rgba(156, 163, 175, 0.1); color: #6b7280; }
+ .status-active { background: rgba(34, 197, 94, 0.1); color: #22c55e; }
+ .status-suspended { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+ .status-expired { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+ .status-cancelled { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+ .status-under-review { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+
+ .action-buttons {
+     display: flex;
+     gap: 8px;
+ }
+
+ .action-btn {
+     padding: 6px 12px;
+     border: none;
+     border-radius: 6px;
+     font-size: 12px;
+     font-weight: 600;
+     cursor: pointer;
+     transition: all 0.3s ease;
+ }
+
+ .action-btn-view { background: rgba(34, 197, 94, 0.1); color: #22c55e; }
+ .action-btn-view:hover { background: #22c55e; color: white; }
+
+ .action-btn-edit { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+ .action-btn-edit:hover { background: #3b82f6; color: white; }
+
+ .action-btn-delete { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+ .action-btn-delete:hover { background: #ef4444; color: white; }
+
+ .action-btn-activate { background: rgba(34, 197, 94, 0.1); color: #22c55e; }
+ .action-btn-activate:hover { background: #22c55e; color: white; }
+
+ .action-btn-suspend { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+ .action-btn-suspend:hover { background: #f59e0b; color: white; }
+
+ .modal {
+     display: none;
+     position: fixed;
+     z-index: 2000;
+     left: 0;
+     top: 0;
+     width: 100%;
+     height: 100%;
+     background: var(--modal-bg);
+     backdrop-filter: blur(5px);
+ }
+
+ .modal.show {
+     display: flex;
+     align-items: center;
+     justify-content: center;
+ }
+
+ .modal-content {
+     background: var(--card-bg);
+     border-radius: 16px;
+     padding: 32px;
+     width: 90%;
+     max-width: 1200px;
+     max-height: 90vh;
+     overflow-y: auto;
+     box-shadow: var(--shadow-lg);
+ }
+
+ .modal-large {
+     max-width: 1400px;
+ }
+
+ .modal-header {
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+     margin-bottom: 24px;
+     padding-bottom: 16px;
+     border-bottom: 1px solid var(--border-color);
+ }
+
+ .modal-title {
+     font-size: 24px;
+     font-weight: 700;
+     color: var(--text-primary);
+ }
+
+ .modal-close {
+     background: none;
+     border: none;
+     font-size: 24px;
+     color: var(--text-secondary);
+     cursor: pointer;
+     padding: 8px;
+     border-radius: 8px;
+     transition: all 0.3s ease;
+ }
+
+ .modal-close:hover {
+     background: var(--hover-bg);
+     color: var(--primary-green);
+ }
+
+ .form-row {
+     display: grid;
+     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+     gap: 16px;
+     margin-bottom: 20px;
+ }
+
+
+
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 14px;
+    color: var(--text-primary);
+    background: var(--bg-secondary);
+    transition: all 0.3s ease;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+    outline: none;
+    border-color: var(--primary-green);
+    box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
+}
+
+.form-textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.form-checkbox {
+    width: auto;
+    margin-right: 8px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.loading-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+}
+
+.loading-overlay.show {
+    display: flex;
+}
+
+.loader {
+    border: 8px solid #f3f3f3;
+    border-top: 8px solid var(--primary-green);
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 3000;
+}
+
+.toast {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 12px;
+    box-shadow: var(--shadow-lg);
+    border-left: 4px solid;
+    animation: slideInRight 0.3s ease;
+    max-width: 400px;
+}
+
+.toast.success { border-left-color: var(--success-color); }
+.toast.error { border-left-color: var(--error-color); }
+.toast.warning { border-left-color: var(--warning-color); }
+.toast.info { border-left-color: var(--primary-green); }
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.toast-message {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.content-section {
+    display: none;
+}
+
+.content-section.active {
+    display: block;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-secondary);
+}
+
+.empty-state i {
+    font-size: 64px;
+    margin-bottom: 20px;
+    opacity: 0.5;
+}
+
+.empty-state p {
+    font-size: 18px;
+    margin-top: 12px;
+}
+
+.tabs-container {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.tab-btn {
+    padding: 12px 24px;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.tab-btn:hover {
+    color: var(--primary-green);
+}
+
+.tab-btn.active {
+    color: var(--primary-green);
+    border-bottom-color: var(--primary-green);
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.info-item {
+    padding: 12px;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.info-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+
+.info-value {
+    font-size: 14px;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+/* Scrollbar globale */
+::-webkit-scrollbar {
+    width: 16px;
+    height: 16px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #22c55e 0%, #16a34a 50%, #15803d 100%);
+    border-radius: 10px;
+    border: 3px solid #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #16a34a 0%, #15803d 50%, #166534 100%);
+}
+
+/* Dark mode scrollbar */
+.dark-mode ::-webkit-scrollbar-track {
+    background: #374151;
+}
+
+.dark-mode ::-webkit-scrollbar-thumb {
+    border-color: #374151;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .search-container {
+        width: 300px;
+    }
+
+    .dashboard-grid {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    }
+
+    .charts-section {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+
+    .sidebar.show {
+        transform: translateX(0);
+    }
+
+    .main-content {
+        margin-left: 0;
+    }
+
+    .header {
+        padding: 0 16px;
+    }
+
+    .search-container {
+        width: 200px;
+    }
+
+    .greeting-text {
+        font-size: 18px;
+    }
+
+    .header-right {
+        gap: 12px;
+    }
+
+    .theme-toggle span {
+        display: none;
+    }
+
+    .profile-info {
+        display: none;
+    }
+
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .content {
+        padding: 16px;
+    }
+
+    .table-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .table-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .modal-content {
+        width: 95%;
+        padding: 20px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .stat-card {
+        padding: 16px;
+    }
+
+    .stat-value {
+        font-size: 24px;
+    }
+
+    .stat-label {
+        font-size: 12px;
+    }
+
+    .chart-container {
+        height: 250px;
+    }
+
+    .btn {
+        font-size: 12px;
+        padding: 8px 14px;
+    }
+
+    .data-table th,
+    .data-table td {
+        padding: 12px 16px !important;
+    }
+}
+
+/* Print styles */
+@media print {
+    .sidebar,
+    .header,
+    .btn,
+    .action-buttons,
+    .scroll-hint {
+        display: none !important;
+    }
+
+    .main-content {
+        margin-left: 0;
+    }
+
+    .content {
+        padding: 0;
+    }
+
+    .stat-card,
+    .chart-card,
+    .table-section {
+        break-inside: avoid;
+        box-shadow: none;
+    }
+
+    .data-table-wrapper {
+        overflow: visible !important;
+    }
+
+    .data-table {
+        min-width: 100% !important;
+    }
+}
+
+/* Animation pour les cartes */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.stat-card,
+.chart-card,
+.table-section {
+    animation: fadeInUp 0.5s ease;
+}
+
+/* Amélioration de l'accessibilité */
+.btn:focus,
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus,
+.nav-link:focus {
+    outline: 2px solid var(--primary-green);
+    outline-offset: 2px;
+}
+
+/* Skip to content link pour accessibilité */
+.skip-to-content {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: var(--primary-green);
+    color: white;
+    padding: 8px 16px;
+    text-decoration: none;
+    z-index: 10000;
+}
+
+.skip-to-content:focus {
+    top: 0;
+}
+
+/* Highlight actif pour les éléments interactifs */
+.nav-link:active,
+.btn:active,
+.action-btn:active {
+    transform: scale(0.95);
+}
+
+/* Indicateur de chargement pour les images */
+.logo img,
+.profile-avatar img {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* État désactivé pour les boutons */
+.btn:disabled,
+.action-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* Amélioration visuelle des formulaires */
+.form-input:invalid:not(:focus),
+.form-select:invalid:not(:focus),
+.form-textarea:invalid:not(:focus) {
+    border-color: var(--error-color);
+}
+
+.form-input:valid,
+.form-select:valid,
+.form-textarea:valid {
+    border-color: var(--success-color);
+}
+
+/* Style pour les tooltips (si nécessaire) */
+[data-tooltip] {
+    position: relative;
+    cursor: help;
+}
+
+[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 1000;
+}
+
+[data-tooltip]:hover::after {
+    opacity: 1;
+}
+
+/* Transitions fluides */
+* {
+    transition: background-color 0.3s ease,
+                color 0.3s ease,
+                border-color 0.3s ease;
+}
+
+/* Performance optimizations */
+.chart-container canvas,
+.data-table {
+    will-change: transform;
+}
+
+/* Focus visible amélioré */
+:focus-visible {
+    outline: 3px solid var(--primary-green);
+    outline-offset: 2px;
+}
+
+/* Amélioration du contraste en dark mode */
+.dark-mode .form-input,
+.dark-mode .form-select,
+.dark-mode .form-textarea {
+    background: #1f2937;
+    color: #ffffff;
+}
+
+.dark-mode .data-table th {
+    background: #1f2937;
+}
+
+.dark-mode .data-table tr:hover {
+    background: rgba(34, 197, 94, 0.15);
+}
+
+/* État de sélection pour les lignes de tableau */
+.data-table tr.selected {
+    background: rgba(34, 197, 94, 0.2);
+    border-left: 4px solid var(--primary-green);
+}
+
+/* Amélioration du style des checkboxes */
+.form-checkbox {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border-color);
+    border-radius: 4px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.form-checkbox:checked {
+    background: var(--primary-green);
+    border-color: var(--primary-green);
+}
+
+.form-checkbox:checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+/* Style pour les badges de notification */
+.notification-badge.pulse {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 0.8;
+    }
+}
+
+/* Amélioration des modals */
+.modal {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.modal-content {
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Style pour le drag and drop (si implémenté) */
+.draggable {
+    cursor: move;
+}
+
+.dragging {
+    opacity: 0.5;
+}
+
+.drop-zone {
+    border: 2px dashed var(--primary-green);
+    background: rgba(34, 197, 94, 0.1);
+}
+
+/* Style pour les cards en état hover prolongé */
+.stat-card:hover .stat-icon {
+    transform: scale(1.1) rotate(5deg);
+    transition: transform 0.3s ease;
+}
+
+/* Amélioration de la lisibilité des nombres */
+.stat-value,
+.info-value {
+    font-feature-settings: 'tnum';
+    font-variant-numeric: tabular-nums;
+}
+
+
+
+/* Container de la table */
+.table-container {
+    width: 100%;
+    overflow-x: auto !important;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 20px;
+}
+
+/* Table principale */
+.policies-table {
+    width: 100%;
+    min-width: 800px; /* Force une largeur minimale pour activer le scroll */
+    border-collapse: collapse;
+    table-layout: auto; /* Permet aux colonnes de s'ajuster */
+}
+
+/* Headers de colonnes */
+.policies-table th {
+    white-space: nowrap; /* Empêche le texte de se diviser */
+    padding: 12px 16px;
+    min-width: 150px; /* Largeur minimale pour chaque colonne */
+}
+
+/* Cellules de données */
+.policies-table td {
+    white-space: nowrap; /* Empêche le texte de se couper */
+    padding: 12px 16px;
+    overflow: hidden;
+    text-overflow: ellipsis; /* Ajoute "..." si le texte est trop long */
+}
+
+/* Colonne POLICY CODE - plus large */
+.policies-table td:first-child,
+.policies-table th:first-child {
+    min-width: 200px;
+}
+
+/* Colonne POLICY NAME - plus large */
+.policies-table td:nth-child(2),
+.policies-table th:nth-child(2) {
+    min-width: 250px;
+}
+
+/* Scrollbar personnalisée (optionnel mais plus visible) */
+.table-container::-webkit-scrollbar {
+    height: 12px;
+}
+
+.table-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 6px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 6px;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+
+        /* FORCER L'AFFICHAGE DU SCROLLBAR */
+.data-table-wrapper::-webkit-scrollbar {
+    -webkit-appearance: none;
+    height: 16px !important;
+}
+
+.data-table-wrapper {
+    overflow-x: scroll !important; /* scroll au lieu de auto */
+}
+
+    </style>
+</head>
+<body>
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loader"></div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<div class="dashboard-container">
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div style="width: 45px; height: 45px; flex-shrink: 0;">
+                <img src="images/logo.jpeg" alt="AgriGuard AI Logo" style="width: 100%; height: 100%; object-fit: cover; border-radius: 10px;">
+            </div>
+            <div class="company-info" style="flex: 1; min-width: 0;">
+                <div class="company-name" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">AgriGuard AI</div>
+                <div class="company-tagline" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Policy Management</div>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-section">
+                <h3 class="nav-section-title">Main</h3>
+                <ul class="nav-menu">
+                    <li class="nav-item active">
+                        <a class="nav-link" onclick="showSection('dashboard')">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="showSection('policies')">
+                            <i class="fas fa-file-contract"></i>
+                            <span>Policies</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="showSection('analytics')">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>Analytics</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="showSection('performance')">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <span>Performance</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="nav-section">
+                <h3 class="nav-section-title">Reports</h3>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="showSection('reports')">
+                            <i class="fas fa-file-alt"></i>
+                            <span>Generate Reports</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+
+    <div class="main-content" id="mainContent">
+        <header class="header">
+            <div class="header-left">
+                <button class="sidebar-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="greeting-section">
+                    <div class="greeting-text" id="greetingText">Good Morning!</div>
+                    <div class="current-date" id="currentDate"></div>
+                </div>
+            </div>
+
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search policies..." id="globalSearch" onkeyup="handleGlobalSearch()">
+                <i class="fas fa-search search-icon"></i>
+            </div>
+
+            <div class="header-right">
+                <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                    <span>Dark Mode</span>
+                </button>
+                <button class="notification-btn">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge" id="notificationCount">0</span>
+                </button>
+                <div class="profile-section">
+                    <div class="profile-avatar">U</div>
+                    <div class="profile-info">
+                        <div class="profile-name">User</div>
+                        <div class="profile-role">Admin</div>
+                    </div>
+                    <button class="logout-btn" onclick="handleLogout()" title="Logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="content">
+            <div id="dashboardSection" class="content-section active">
+                <div class="dashboard-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon total">
+                            <i class="fas fa-file-contract"></i>
+                        </div>
+                        <div class="stat-value" id="totalPolicies">0</div>
+                        <div class="stat-label">Total Policies</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon active">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-value" id="activePolicies">0</div>
+                        <div class="stat-label">Active Policies</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon budget">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="stat-value" id="totalBudget">0</div>
+                        <div class="stat-label">Total Budget (RWF)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon beneficiaries">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-value" id="totalBeneficiaries">0</div>
+                        <div class="stat-label">Total Beneficiaries</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon subsidy">
+                            <i class="fas fa-hand-holding-usd"></i>
+                        </div>
+                        <div class="stat-value" id="subsidyPolicies">0</div>
+                        <div class="stat-label">Subsidy Programs</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon credit">
+                            <i class="fas fa-credit-card"></i>
+                        </div>
+                        <div class="stat-value" id="creditPrograms">0</div>
+                        <div class="stat-label">Credit Programs</div>
+                    </div>
+                </div>
+
+                <div class="charts-section">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Policy Status Distribution</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="statusChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Policy Types</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="typeChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="charts-section">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Policy Categories</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="categoryChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Budget Allocation by Category</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="budgetAllocationChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-section">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Geographic Scope Distribution</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="geographicChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Budget Utilization Rate</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="utilizationChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="policiesSection" class="content-section">
+                <div class="table-section">
+                    <div class="table-header">
+                        <h2 class="table-title">Policy Management</h2>
+                        <div class="table-actions">
+                            <button class="btn btn-primary" onclick="showAddPolicyModal()">
+                                <i class="fas fa-plus"></i>
+                                New Policy
+                            </button>
+                            <button class="btn btn-secondary" onclick="loadAllPolicies()">
+                                <i class="fas fa-sync-alt"></i>
+                                Refresh
+                            </button>
+                            <button class="btn btn-info" onclick="exportPoliciesToExcel()">
+                                <i class="fas fa-file-excel"></i>
+                                Export Excel
+                            </button>
+                        </div>
+                    </div>
+
+
+
+                    <div style="padding: 0 24px;">
+                        <div class="filter-row">
+                            <select class="form-select" id="filterStatus" onchange="applyFilters()">
+                                <option value="">All Status</option>
+                                <option value="DRAFT">Draft</option>
+                                <option value="ACTIVE">Active</option>
+                                <option value="SUSPENDED">Suspended</option>
+                                <option value="EXPIRED">Expired</option>
+                                <option value="CANCELLED">Cancelled</option>
+                                <option value="UNDER_REVIEW">Under Review</option>
+                            </select>
+                            <select class="form-select" id="filterType" onchange="applyFilters()">
+                                <option value="">All Types</option>
+                                <option value="SUBSIDY">Subsidy</option>
+                                <option value="TAX">Tax</option>
+                                <option value="REGULATION">Regulation</option>
+                                <option value="SUPPORT_PROGRAM">Support Program</option>
+                                <option value="TRADE_POLICY">Trade Policy</option>
+                                <option value="LAND_REFORM">Land Reform</option>
+                                <option value="CREDIT_PROGRAM">Credit Program</option>
+                                <option value="INSURANCE">Insurance</option>
+                                <option value="RESEARCH_FUNDING">Research Funding</option>
+                            </select>
+                            <select class="form-select" id="filterCategory" onchange="applyFilters()">
+                                <option value="">All Categories</option>
+                                <option value="PRODUCTION">Production</option>
+                                <option value="MARKET">Market</option>
+                                <option value="ENVIRONMENT">Environment</option>
+                                <option value="SOCIAL">Social</option>
+                                <option value="TECHNOLOGY">Technology</option>
+                                <option value="INFRASTRUCTURE">Infrastructure</option>
+                            </select>
+                            <input type="text" class="search-input" placeholder="Search policies..." id="policySearch" onkeyup="searchPolicies()">
+                        </div>
+                    </div>
+
+                    <div class="data-table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                            <tr>
+                                <th>Policy Code</th>
+                                <th>Policy Name</th>
+                                <th>Type</th>
+                                <th>Category</th>
+                                <th>Status</th>
+                                <th>Budget (RWF)</th>
+                                <th>Beneficiaries</th>
+                                <th>Effective Date</th>
+                                <th>Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody id="policyTableBody">
+                            <tr>
+                                <td colspan="9" class="empty-state">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                    <p>Loading policies...</p>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <!-- Indicateur de scroll -->
+                        <!-- Dans les deux sections de table, remplacez l'indicateur par : -->
+                        <!-- Remplacez les 2 occurrences de scroll-hint par ceci : -->
+                        <div class="scroll-hint">
+                            <i class="fas fa-arrows-alt-h"></i>
+                            <span>SCROLL BAR →</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <div id="analyticsSection" class="content-section">
+                <div class="charts-section">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Top Implementing Agencies</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="agenciesChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Budget vs Utilized (Top 10)</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="budgetUtilizedChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-section">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Farmers vs Cooperatives Benefited</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="beneficiariesChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Climate Smart & Youth Focused Policies</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="specialFocusChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-section">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Monthly Policy Creation Trend</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="monthlyTrendChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Policies by Scope</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="scopeDistributionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="performanceSection" class="content-section">
+                <div class="charts-section">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Top Performing Policies (Utilization Rate)</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="topPerformingChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Low Performing Policies</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="lowPerformingChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-section">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Average Utilization by Type</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="avgUtilizationChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Policy Effectiveness Rating</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="effectivenessChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-section">
+                    <div class="table-header">
+                        <h2 class="table-title">Policies Requiring Review</h2>
+                        <div class="table-actions">
+                            <button class="btn btn-secondary" onclick="loadPoliciesRequiringReview()">
+                                <i class="fas fa-sync-alt"></i>
+                                Refresh
+                            </button>
+                        </div>
+                    </div>
+                    <div class="data-table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                            <tr>
+                                <th>Policy Code</th>
+                                <th>Policy Name</th>
+                                <th>Type</th>
+                                <th>Next Review Date</th>
+                                <th>Days Overdue</th>
+                                <th>Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody id="reviewTableBody">
+                            <tr>
+                                <td colspan="6" class="empty-state">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                    <p>Loading...</p>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <!-- Indicateur de scroll -->
+                        <!-- Dans les deux sections de table, remplacez l'indicateur par : -->
+                        <!-- Remplacez les 2 occurrences de scroll-hint par ceci : -->
+                        <div class="scroll-hint">
+                            <i class="fas fa-arrows-alt-h"></i>
+                            <span>SCROLL BAR →</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="reportsSection" class="content-section">
+                <div class="chart-card" style="margin-bottom: 24px;">
+                    <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 20px; color: var(--text-primary);">Report Configuration</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 20px;">
+                        <div>
+                            <label style="display: block; font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px;">Report Type</label>
+                            <select class="form-select" id="reportType" onchange="toggleDateRange()">
+                                <option value="all">All Policies</option>
+                                <option value="active">Active Policies</option>
+                                <option value="expired">Expired Policies</option>
+                                <option value="high-performing">High Performing</option>
+                                <option value="low-performing">Low Performing</option>
+                                <option value="custom">Custom Range</option>
+                            </select>
+                        </div>
+                        <div id="customDateRange" style="display: none;">
+                            <label style="display: block; font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px;">Date Range</label>
+                            <div style="display: flex; gap: 8px;">
+                                <input type="date" class="form-input" id="startDate">
+                                <input type="date" class="form-input" id="endDate">
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 12px; margin-top: 20px;">
+                        <button class="btn btn-primary" onclick="generatePDFReport()">
+                            <i class="fas fa-file-pdf"></i>
+                            Generate PDF Report
+                        </button>
+                        <button class="btn btn-info" onclick="generateExcelReport()">
+                            <i class="fas fa-file-excel"></i>
+                            Generate Excel Report
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<div class="modal" id="policyModal">
+    <div class="modal-content modal-large">
+        <div class="modal-header">
+            <h2 class="modal-title" id="policyModalTitle">New Policy</h2>
+            <button class="modal-close" onclick="closePolicyModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <form id="policyForm" onsubmit="submitPolicyForm(event)">
+            <input type="hidden" id="policyId" name="policyId">
+
+            <div class="tabs-container">
+                <button type="button" class="tab-btn active" onclick="showTab('basic')">Basic Info</button>
+                <button type="button" class="tab-btn" onclick="showTab('details')">Details</button>
+                <button type="button" class="tab-btn" onclick="showTab('financial')">Financial</button>
+                <button type="button" class="tab-btn" onclick="showTab('implementation')">Implementation</button>
+                <button type="button" class="tab-btn" onclick="showTab('performance')">Performance</button>
+            </div>
+
+            <div id="basicTab" class="tab-content active">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Policy Name *</label>
+                        <input type="text" class="form-input" id="policyName" name="policyName" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Policy Type *</label>
+                        <select class="form-select" id="policyType" name="policyType" required>
+                            <option value="">Select Type</option>
+                            <option value="SUBSIDY">Subsidy</option>
+                            <option value="TAX">Tax</option>
+                            <option value="REGULATION">Regulation</option>
+                            <option value="SUPPORT_PROGRAM">Support Program</option>
+                            <option value="TRADE_POLICY">Trade Policy</option>
+                            <option value="LAND_REFORM">Land Reform</option>
+                            <option value="CREDIT_PROGRAM">Credit Program</option>
+                            <option value="INSURANCE">Insurance</option>
+                            <option value="RESEARCH_FUNDING">Research Funding</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Policy Category *</label>
+                        <select class="form-select" id="policyCategory" name="policyCategory" required>
+                            <option value="">Select Category</option>
+                            <option value="PRODUCTION">Production</option>
+                            <option value="MARKET">Market</option>
+                            <option value="ENVIRONMENT">Environment</option>
+                            <option value="SOCIAL">Social</option>
+                            <option value="TECHNOLOGY">Technology</option>
+                            <option value="INFRASTRUCTURE">Infrastructure</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Geographic Scope *</label>
+                        <select class="form-select" id="geographicScope" name="geographicScope" required>
+                            <option value="">Select Scope</option>
+                            <option value="NATIONAL">National</option>
+                            <option value="PROVINCIAL">Provincial</option>
+                            <option value="DISTRICT">District</option>
+                            <option value="SECTOR">Sector</option>
+                            <option value="LOCAL">Local</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Description *</label>
+                    <textarea class="form-textarea" id="description" name="description" required rows="4"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Objectives</label>
+                    <textarea class="form-textarea" id="objectives" name="objectives" rows="3"></textarea>
+                </div>
+            </div>
+
+            <div id="detailsTab" class="tab-content" style="display: none;">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Effective Date *</label>
+                        <input type="date" class="form-input" id="effectiveDate" name="effectiveDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Expiry Date</label>
+                        <input type="date" class="form-input" id="expiryDate" name="expiryDate">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Implementation Period</label>
+                    <input type="text" class="form-input" id="implementationPeriod" name="implementationPeriod" placeholder="e.g., 2024-2026">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Target Beneficiaries</label>
+                    <textarea class="form-textarea" id="targetBeneficiaries" name="targetBeneficiaries" rows="3"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Affected Regions</label>
+                    <textarea class="form-textarea" id="affectedRegions" name="affectedRegions" rows="3"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Eligibility Criteria</label>
+                    <textarea class="form-textarea" id="eligibilityCriteria" name="eligibilityCriteria" rows="3"></textarea>
+                </div>
+            </div>
+            <div id="financialTab" class="tab-content" style="display: none;">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Total Budget (RWF)</label>
+                        <input type="number" step="0.01" class="form-input"
+                               id="totalBudget" name="totalBudget" min="0"
+                               oninput="validateBudgetFields()">
+                        <small style="color: var(--text-secondary); font-size: 12px;">
+                            Maximum budget for this policy
+                        </small>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Budget Allocated (RWF)</label>
+                        <input type="number" step="0.01" class="form-input"
+                               id="budgetAllocated" name="budgetAllocated" min="0"
+                               oninput="validateBudgetFields()">
+                        <small style="color: var(--text-secondary); font-size: 12px;">
+                            Must be ≤ Total Budget
+                        </small>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Budget Utilized (RWF)</label>
+                        <input type="number" step="0.01" class="form-input"
+                               id="budgetUtilized" name="budgetUtilized" min="0"
+                               oninput="validateBudgetFields()">
+                        <small style="color: var(--text-secondary); font-size: 12px;">
+                            Must be ≤ Budget Allocated
+                        </small>
+                    </div>
+                </div>
+
+                <!-- Message d'erreur -->
+                <div id="budgetErrorMessage" style="display: none; color: var(--error-color);
+         padding: 12px; background: rgba(239, 68, 68, 0.1); border-radius: 8px;
+         margin-bottom: 16px; font-size: 14px; font-weight: 600;">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Funding Source</label>
+                        <input type="text" class="form-input" id="fundingSource" name="fundingSource">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Currency</label>
+                        <input type="text" class="form-input" id="currency" name="currency" value="RWF" readonly>
+                    </div>
+                </div>
+
+                <!-- Indicateur visuel -->
+                <div style="padding: 12px; background: var(--bg-secondary); border-radius: 8px; margin-top: 16px;">
+                    <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 8px; color: var(--text-primary);">
+                        ⚠️ Budget Rules:
+                    </h4>
+                    <div style="color: var(--text-secondary); font-size: 13px; line-height: 1.8;">
+                        <strong>Total Budget</strong> ≥ <strong>Budget Allocated</strong> ≥ <strong>Budget Utilized</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div id="implementationTab" class="tab-content" style="display: none;">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Implementing Agency *</label>
+                        <input type="text" class="form-input" id="implementingAgency" name="implementingAgency" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Ministry Responsible</label>
+                        <input type="text" class="form-input" id="ministryResponsible" name="ministryResponsible">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Key Stakeholders</label>
+                    <textarea class="form-textarea" id="keyStakeholders" name="keyStakeholders" rows="3"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" class="form-checkbox" id="publicConsultation" name="publicConsultation">
+                            Public Consultation
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" class="form-checkbox" id="parliamentaryApproval" name="parliamentaryApproval">
+                            Parliamentary Approval
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" class="form-checkbox" id="trainingProvided" name="trainingProvided">
+                            Training Provided
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" class="form-checkbox" id="climateSmart" name="climateSmart">
+                            Climate Smart
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" class="form-checkbox" id="youthFocus" name="youthFocus">
+                            Youth Focus
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" class="form-checkbox" id="environmentalClearance" name="environmentalClearance">
+                            Environmental Clearance
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div id="performanceTab" class="tab-content" style="display: none;">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Beneficiaries Count</label>
+                        <input type="number" class="form-input" id="beneficiariesCount" name="beneficiariesCount" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Farmers Benefited</label>
+                        <input type="number" class="form-input" id="farmersBenefited" name="farmersBenefited" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Cooperatives Benefited</label>
+                        <input type="number" class="form-input" id="cooperativesBenefited" name="cooperativesBenefited" min="0">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Expected Outcomes</label>
+                    <textarea class="form-textarea" id="expectedOutcomes" name="expectedOutcomes" rows="3"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Actual Outcomes</label>
+                    <textarea class="form-textarea" id="actualOutcomes" name="actualOutcomes" rows="3"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Challenges Faced</label>
+                    <textarea class="form-textarea" id="challengesFaced" name="challengesFaced" rows="3"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Next Review Date</label>
+                        <input type="date" class="form-input" id="nextReviewDate" name="nextReviewDate">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Status</label>
+                        <select class="form-select" id="status" name="status">
+                            <option value="DRAFT">Draft</option>
+                            <option value="ACTIVE">Active</option>
+                            <option value="SUSPENDED">Suspended</option>
+                            <option value="EXPIRED">Expired</option>
+                            <option value="CANCELLED">Cancelled</option>
+                            <option value="UNDER_REVIEW">Under Review</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px;">
+                <button type="button" class="btn btn-secondary" onclick="closePolicyModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary" id="policySubmitBtn">
+                    <i class="fas fa-save"></i>
+                    Save Policy
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="js/SessionTracker.js"></script>
+<script src="js/user_session_handler.js"></script>
+<script >
+
+
+
+    // =======================================================================================
+// POLICY DASHBOARD - COMPLETE BACKEND INTEGRATION
+// =======================================================================================
+
+// Configuration
+const CONFIG = {
+    API_BASE_URL: 'http://localhost:1010/api/policies',
+    DEFAULT_PAGE_SIZE: 20,
+    TOAST_DURATION: 3000,
+    AUTO_REFRESH_INTERVAL: 300000, // 5 minutes
+    DATE_FORMAT: 'YYYY-MM-DD',
+    CURRENCY: 'RWF'
+};
+
+// =======================================================================================
+// STATE MANAGEMENT
+// =======================================================================================
+
+const AppState = {
+    currentUser: {
+        name: 'User',
+        role: 'Admin',
+        email: 'user@agriguard.com'
+    },
+    policies: [],
+    filteredPolicies: [],
+    statistics: {},
+    charts: {},
+    currentSection: 'dashboard',
+    currentTab: 'basic',
+    isDarkMode: false,
+    isSidebarCollapsed: false,
+    filters: {
+        status: '',
+        type: '',
+        category: '',
+        searchTerm: ''
+    },
+    pagination: {
+        currentPage: 0,
+        totalPages: 0,
+        totalElements: 0
+    }
+};
+
+// =======================================================================================
+// API SERVICE
+// =======================================================================================
+
+const ApiService = {
+    // Generic request handler
+    async request(endpoint, options = {}) {
+        const url = `${CONFIG.API_BASE_URL}${endpoint}`;
+        const defaultOptions = {
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        };
+
+        try {
+            showLoading();
+            const response = await fetch(url, { ...defaultOptions, ...options });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || 'Request failed');
+            }
+
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('API Error:', error);
+            showToast(error.message || 'An error occurred', 'error');
+            throw error;
+        } finally {
+            hideLoading();
+        }
+    },
+
+    // CRUD Operations
+    async getAllPolicies(page = 0, size = CONFIG.DEFAULT_PAGE_SIZE, sortBy = 'lastUpdated', sortDir = 'desc') {
+        return this.request(`?page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`);
+    },
+
+    async getPolicyById(id) {
+        return this.request(`/${id}`);
+    },
+
+    async createPolicy(policyData) {
+        return this.request('', {
+            method: 'POST',
+            body: JSON.stringify(policyData)
+        });
+    },
+
+    async updatePolicy(id, policyData) {
+        return this.request(`/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(policyData)
+        });
+    },
+
+    async deletePolicy(id) {
+        return this.request(`/${id}`, {
+            method: 'DELETE'
+        });
+    },
+
+    // Status Management
+    async updatePolicyStatus(id, status, updatedBy = 'Admin') {
+        return this.request(`/${id}/status?status=${status}&updatedBy=${updatedBy}`, {
+            method: 'PUT'
+        });
+    },
+
+    async activatePolicy(id) {
+        return this.request(`/${id}/activate`, {
+            method: 'PUT'
+        });
+    },
+
+    async suspendPolicy(id, reason) {
+        return this.request(`/${id}/suspend?reason=${encodeURIComponent(reason)}`, {
+            method: 'PUT'
+        });
+    },
+
+    async renewPolicy(id, newExpiryDate) {
+        return this.request(`/${id}/renew?newExpiryDate=${newExpiryDate}`, {
+            method: 'PUT'
+        });
+    },
+
+    // Search and Filter
+    async searchPolicies(keyword) {
+        return this.request(`/search?keyword=${encodeURIComponent(keyword)}`);
+    },
+
+    async getPoliciesByType(type) {
+        return this.request(`/filter/type/${type}`);
+    },
+
+    async getPoliciesByCategory(category) {
+        return this.request(`/filter/category/${category}`);
+    },
+
+    async getPoliciesByStatus(status) {
+        return this.request(`/filter/status/${status}`);
+    },
+
+    async getActivePolicies() {
+        return this.request('/active');
+    },
+
+    async getExpiredPolicies() {
+        return this.request('/expired');
+    },
+
+    async getPoliciesRequiringReview() {
+        return this.request('/requiring-review');
+    },
+
+    async advancedSearch(criteria) {
+        return this.request('/search/advanced', {
+            method: 'POST',
+            body: JSON.stringify(criteria)
+        });
+    },
+
+    // Statistics
+    async getStatistics() {
+        return this.request('/statistics');
+    },
+
+    async getPolicyCountByStatus() {
+        return this.request('/statistics/by-status');
+    },
+
+    async getPolicyCountByType() {
+        return this.request('/statistics/by-type');
+    },
+
+    async getPolicyCountByCategory() {
+        return this.request('/statistics/by-category');
+    },
+
+    async getTotalActiveBudget() {
+        return this.request('/statistics/total-budget');
+    },
+
+    // Performance
+    async getHighPerformingPolicies(minRate = 80) {
+        return this.request(`/performance/high-performing?minUtilizationRate=${minRate}`);
+    },
+
+    async getLowPerformingPolicies(threshold = 40) {
+        return this.request(`/performance/low-performing?threshold=${threshold}`);
+    },
+
+    async getTopPerformingPolicies() {
+        return this.request('/performance/top');
+    }
+};
+
+// =======================================================================================
+// INITIALIZATION
+// =======================================================================================
+
+document.addEventListener('DOMContentLoaded', async () => {
+    initializeApp();
+});
+
+
+function initializeScrollbars() {
+    console.log('🎯 Initializing enhanced scrollbars...');
+
+    const tableWrappers = document.querySelectorAll('.data-table-wrapper');
+
+    tableWrappers.forEach((wrapper, index) => {
+        const table = wrapper.querySelector('.data-table');
+
+        if (table) {
+            // FORCE le scroll en garantissant que la table est plus large que le wrapper
+            table.style.minWidth = '1800px';
+
+            // Attendre que le DOM soit mis à jour
+            setTimeout(() => {
+                const hasScroll = table.scrollWidth > wrapper.clientWidth;
+
+                console.log(`✅ Table ${index + 1}: Largeur table=${table.scrollWidth}px, wrapper=${wrapper.clientWidth}px, Scroll=${hasScroll ? 'OUI' : 'NON'}`);
+
+                wrapper.classList.add('has-scroll');
+                updateScrollShadows(wrapper);
+
+                // Ajouter les événements de scroll
+                wrapper.addEventListener('scroll', () => updateScrollShadows(wrapper));
+            }, 100);
+        }
+    });
+}
+
+
+
+
+function addScrollIndicator(wrapper) {
+    // Vérifier si l'indicateur existe déjà
+    if (wrapper.querySelector('.scroll-hint')) return;
+
+    const indicator = document.createElement('div');
+    indicator.className = 'scroll-hint';
+    indicator.innerHTML = `
+        <i class="fas fa-arrows-left-right"></i>
+        <span>Défilez horizontalement pour voir toutes les colonnes</span>
+        <i class="fas fa-arrows-left-right"></i>
+    `;
+
+    wrapper.appendChild(indicator);
+}
+
+
+
+function enableSmoothScrolling() {
+    const tableWrappers = document.querySelectorAll('.data-table-wrapper');
+
+    tableWrappers.forEach(wrapper => {
+        // Défilement avec la molette (horizontal)
+        wrapper.addEventListener('wheel', (e) => {
+            if (wrapper.scrollWidth > wrapper.clientWidth) {
+                e.preventDefault();
+                wrapper.scrollLeft += e.deltaY * 2;
+            }
+        }, { passive: false });
+
+        // Support drag & drop pour desktop
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+
+        wrapper.addEventListener('mousedown', (e) => {
+            isDown = true;
+            wrapper.style.cursor = 'grabbing';
+            wrapper.style.userSelect = 'none';
+            startX = e.pageX - wrapper.offsetLeft;
+            scrollLeft = wrapper.scrollLeft;
+        });
+
+        wrapper.addEventListener('mouseleave', () => {
+            isDown = false;
+            wrapper.style.cursor = 'default';
+        });
+
+        wrapper.addEventListener('mouseup', () => {
+            isDown = false;
+            wrapper.style.cursor = 'default';
+            wrapper.style.userSelect = 'auto';
+        });
+
+        wrapper.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - wrapper.offsetLeft;
+            const walk = (x - startX) * 2;
+            wrapper.scrollLeft = scrollLeft - walk;
+        });
+    });
+}
+
+
+
+
+// Appeler lors de l'initialisation
+document.addEventListener('DOMContentLoaded', () => {
+    initializeScrollbars();
+    enableSmoothScrolling();
+});
+
+// Réinitialiser après chargement de données
+function refreshScrollbars() {
+    setTimeout(() => {
+        initializeScrollbars();
+    }, 100);
+}
+
+
+function checkScrollbarsVisibility() {
+    const tableWrappers = document.querySelectorAll('.data-table-wrapper');
+
+    tableWrappers.forEach((wrapper, index) => {
+        const hasHorizontalScroll = wrapper.scrollWidth > wrapper.clientWidth;
+        const hasVerticalScroll = wrapper.scrollHeight > wrapper.clientHeight;
+
+        console.log(`🔍 Scroll check Table ${index + 1}:`, {
+            horizontal: hasHorizontalScroll,
+            vertical: hasVerticalScroll,
+            wrapperWidth: wrapper.clientWidth,
+            contentWidth: wrapper.scrollWidth
+        });
+
+        // Afficher/masquer l'indicateur de scroll
+        const scrollHint = wrapper.querySelector('.scroll-hint');
+        if (scrollHint) {
+            scrollHint.style.display = hasHorizontalScroll ? 'flex' : 'none';
+        }
+
+        if (hasHorizontalScroll) {
+            console.log(`✅ Scrollbar horizontale ACTIVÉE pour la table ${index + 1}`);
+        } else {
+            console.log(`❌ Scrollbar horizontale DÉSACTIVÉE pour la table ${index + 1}`);
+        }
+    });
+}
+
+// Fonction pour forcer le refresh des scrollbars
+function refreshScrollbars() {
+    console.log('🔄 Refreshing scrollbars...');
+
+    const tableWrappers = document.querySelectorAll('.data-table-wrapper');
+
+    tableWrappers.forEach(wrapper => {
+        // Technique pour forcer le recalcul des scrollbars
+        wrapper.style.overflow = 'hidden';
+        void wrapper.offsetHeight; // Force reflow
+        wrapper.style.overflow = 'auto';
+    });
+
+    setTimeout(() => {
+        checkScrollbarsVisibility();
+        forceHorizontalScroll();
+    }, 300);
+}
+
+// NOUVELLE FONCTION: Forcer le défilement horizontal
+function forceHorizontalScroll() {
+    const tableWrappers = document.querySelectorAll('.data-table-wrapper');
+
+    tableWrappers.forEach(wrapper => {
+        const table = wrapper.querySelector('.data-table');
+        if (table && wrapper.scrollWidth <= wrapper.clientWidth) {
+            console.log('🎯 Forcing horizontal scroll...');
+            // Technique 1: Augmenter la largeur minimale
+            table.style.minWidth = '1600px';
+
+            // Technique 2: Ajouter une marge invisible
+            const lastCell = table.querySelector('td:last-child, th:last-child');
+            if (lastCell) {
+                lastCell.style.paddingRight = '50px';
+            }
+        }
+    });
+}
+
+// Fonction pour tester le défilement
+function testScroll() {
+    const wrapper = document.querySelector('.data-table-wrapper');
+    if (wrapper) {
+        wrapper.scrollLeft = 100;
+        setTimeout(() => {
+            wrapper.scrollLeft = 0;
+        }, 1000);
+    }
+}
+
+
+function updateScrollShadows(wrapper) {
+    const scrollLeft = wrapper.scrollLeft;
+    const maxScroll = wrapper.scrollWidth - wrapper.clientWidth;
+
+    // Ajouter/retirer les classes selon la position
+    if (scrollLeft > 0) {
+        wrapper.classList.add('scrolled-left');
+    } else {
+        wrapper.classList.remove('scrolled-left');
+    }
+
+    if (scrollLeft < maxScroll - 1) {
+        wrapper.classList.add('scrolled-right');
+    } else {
+        wrapper.classList.remove('scrolled-right');
+    }
+}
+
+
+
+
+function updateScrollIndicators() {
+    const tableWrappers = document.querySelectorAll('.data-table-wrapper');
+
+    tableWrappers.forEach(wrapper => {
+        const table = wrapper.querySelector('.data-table');
+        if (table && table.scrollWidth > wrapper.clientWidth) {
+            wrapper.classList.add('has-horizontal-scroll');
+        } else {
+            wrapper.classList.remove('has-horizontal-scroll');
+        }
+    });
+}
+
+function setupSmoothScrolling() {
+    // Défilement fluide pour les tables
+    const tableWrappers = document.querySelectorAll('.data-table-wrapper');
+
+    tableWrappers.forEach(wrapper => {
+        wrapper.addEventListener('wheel', (e) => {
+            if (e.deltaY !== 0) {
+                e.preventDefault();
+                wrapper.scrollLeft += e.deltaY;
+            }
+        }, { passive: false });
+    });
+}
+
+function setupResizeObserver() {
+    if ('ResizeObserver' in window) {
+        const resizeObserver = new ResizeObserver(entries => {
+            updateScrollIndicators();
+        });
+
+        // Observer les changements de taille des conteneurs de table
+        document.querySelectorAll('.data-table-wrapper').forEach(wrapper => {
+            resizeObserver.observe(wrapper);
+        });
+
+        // Observer les changements de taille de la fenêtre
+        window.addEventListener('resize', updateScrollIndicators);
+    }
+}
+
+// Fonction pour faire défiler vers un élément spécifique dans la table
+function scrollToTableElement(elementSelector) {
+    const element = document.querySelector(elementSelector);
+    const wrapper = document.querySelector('.data-table-wrapper');
+
+    if (element && wrapper) {
+        const elementRect = element.getBoundingClientRect();
+        const wrapperRect = wrapper.getBoundingClientRect();
+
+        if (elementRect.left < wrapperRect.left || elementRect.right > wrapperRect.right) {
+            wrapper.scrollLeft = element.offsetLeft - wrapper.offsetLeft - 100;
+        }
+    }
+}
+
+// Fonction pour faire défiler jusqu'au début de la table
+function scrollToTableStart() {
+    const wrapper = document.querySelector('.data-table-wrapper');
+    if (wrapper) {
+        wrapper.scrollLeft = 0;
+    }
+}
+
+// Fonction pour faire défiler jusqu'à la fin de la table
+function scrollToTableEnd() {
+    const wrapper = document.querySelector('.data-table-wrapper');
+    if (wrapper) {
+        wrapper.scrollLeft = wrapper.scrollWidth;
+    }
+}
+
+// Mettre à jour l'apparence des scrollbars lors du changement de thème
+function updateScrollbarsOnThemeChange() {
+    // Les scrollbars CSS s'ajustent automatiquement grâce aux variables CSS
+    updateScrollIndicators();
+}
+
+
+async function initializeApp() {
+    setupEventListeners();
+    updateDateTime();
+    setInterval(updateDateTime, 60000);
+
+    // Load theme preference
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+        document.body.classList.add('dark-mode');
+        AppState.isDarkMode = true;
+        updateThemeToggle();
+    }
+
+    // Initialiser les scrollbars
+    initializeScrollbars();
+
+    // Initial data load
+    await loadDashboardData();
+
+    // Rafraîchir les scrollbars après le chargement des données
+    setTimeout(() => {
+        refreshScrollbars();
+        forceHorizontalScroll(); // FORCER le scroll horizontal
+    }, 2000);
+
+    // Setup auto-refresh
+    setInterval(() => {
+        if (AppState.currentSection === 'dashboard') {
+            loadDashboardData();
+        }
+    }, CONFIG.AUTO_REFRESH_INTERVAL);
+}
+
+
+
+// =======================================================================================
+// DATA LOADING FUNCTIONS
+// =======================================================================================
+
+
+async function loadDashboardData() {
+    try {
+        // Charger les statistiques et politiques en parallèle
+        const [statisticsResult, policiesResult] = await Promise.allSettled([
+            ApiService.getStatistics().catch(err => {
+                console.warn('Statistics load failed:', err);
+                return {
+                    success: true,
+                    data: {
+                        totalPolicies: 0,
+                        activePolicies: 0,
+                        totalBudget: 0,
+                        totalBeneficiaries: 0,
+                        subsidyPrograms: 0,
+                        creditPrograms: 0
+                    }
+                };
+            }),
+            ApiService.getAllPolicies(0, 100).catch(err => {
+                console.warn('Policies load failed:', err);
+                return {
+                    success: true,
+                    data: {
+                        content: [],
+                        number: 0,
+                        totalPages: 0,
+                        totalElements: 0
+                    }
+                };
+            })
+        ]);
+
+        // Traiter les statistiques
+        if (statisticsResult.status === 'fulfilled' && statisticsResult.value.success) {
+            AppState.statistics = statisticsResult.value.data;
+            updateDashboardStats(statisticsResult.value.data);
+        }
+
+        // Traiter les politiques
+        if (policiesResult.status === 'fulfilled' && policiesResult.value.success) {
+            AppState.policies = policiesResult.value.data.content || [];
+
+            // FIX: Mettre à jour tous les graphiques une seule fois
+            await updateAllCharts();
+
+            // FIX: Ne charger les politiques nécessitant révision qu'une fois
+            if (AppState.currentSection === 'performance') {
+                await loadPoliciesRequiringReview();
+            }
+        }
+
+        console.log('Dashboard loaded with', AppState.policies.length, 'policies');
+
+    } catch (error) {
+        console.error('Error loading dashboard:', error);
+        showToast('Failed to load dashboard data', 'error');
+
+        // Initialiser avec des données vides
+        AppState.statistics = {
+            totalPolicies: 0,
+            activePolicies: 0,
+            totalBudget: 0,
+            totalBeneficiaries: 0,
+            subsidyPrograms: 0,
+            creditPrograms: 0
+        };
+        AppState.policies = [];
+        updateDashboardStats(AppState.statistics);
+    }
+}
+
+
+
+
+// Dans loadAllPolicies() - ajoutez à la fin :
+async function loadAllPolicies() {
+    try {
+        const response = await ApiService.getAllPolicies(
+            AppState.pagination.currentPage,
+            CONFIG.DEFAULT_PAGE_SIZE
+        );
+
+        if (response.success) {
+            AppState.policies = response.data.content || [];
+            AppState.pagination = {
+                currentPage: response.data.number,
+                totalPages: response.data.totalPages,
+                totalElements: response.data.totalElements
+            };
+            renderPolicyTable(AppState.policies);
+
+            // Rafraîchir les scrollbars après le rendu
+            setTimeout(refreshScrollbars, 500);
+        }
+    } catch (error) {
+        console.error('Error loading policies:', error);
+    }
+}
+
+
+async function loadPoliciesRequiringReview() {
+    try {
+        const response = await ApiService.getPoliciesRequiringReview();
+        if (response.success) {
+            renderReviewTable(response.data);
+
+            // ✅ AJOUTEZ CETTE LIGNE
+            refreshScrollbars();
+        }
+    } catch (error) {
+        console.error('Error loading policies requiring review:', error);
+    }
+}
+
+
+// =======================================================================================
+// DASHBOARD STATISTICS UPDATE
+// =======================================================================================
+
+function updateDashboardStats(stats) {
+    document.getElementById('totalPolicies').textContent = formatNumber(stats.totalPolicies || 0);
+    document.getElementById('activePolicies').textContent = formatNumber(stats.activePolicies || 0);
+    document.getElementById('totalBudget').textContent = formatCurrency(stats.totalBudget || 0);
+    document.getElementById('totalBeneficiaries').textContent = formatNumber(stats.totalBeneficiaries || 0);
+    document.getElementById('subsidyPolicies').textContent = formatNumber(stats.subsidyPrograms || 0);
+    document.getElementById('creditPrograms').textContent = formatNumber(stats.creditPrograms || 0);
+}
+
+// =======================================================================================
+// CHART RENDERING
+// =======================================================================================
+async function updateAllCharts() {
+    const chartPromises = [
+        renderStatusChart().catch(e => console.error('Status chart error:', e)),
+        renderTypeChart().catch(e => console.error('Type chart error:', e)),
+        renderCategoryChart().catch(e => console.error('Category chart error:', e)),
+        renderBudgetAllocationChart().catch(e => console.error('Budget chart error:', e)),
+        renderGeographicChart().catch(e => console.error('Geographic chart error:', e)),
+        renderUtilizationChart().catch(e => console.error('Utilization chart error:', e)),
+        renderAgenciesChart().catch(e => console.error('Agencies chart error:', e)),
+        renderBudgetUtilizedChart().catch(e => console.error('Budget utilized chart error:', e)),
+        renderBeneficiariesChart().catch(e => console.error('Beneficiaries chart error:', e)),
+        renderSpecialFocusChart().catch(e => console.error('Special focus chart error:', e)),
+        renderMonthlyTrendChart().catch(e => console.error('Monthly trend chart error:', e)),
+        renderScopeDistributionChart().catch(e => console.error('Scope chart error:', e)),
+        renderTopPerformingChart().catch(e => console.error('Top performing chart error:', e)),
+        renderLowPerformingChart().catch(e => console.error('Low performing chart error:', e)),
+        renderAvgUtilizationChart().catch(e => console.error('Avg utilization chart error:', e)),
+        renderEffectivenessChart().catch(e => console.error('Effectiveness chart error:', e))
+    ];
+
+    try {
+        await Promise.allSettled(chartPromises);
+        console.log('All charts rendering completed');
+    } catch (error) {
+        console.error('Error updating charts:', error);
+    }
+}
+
+
+
+
+async function renderStatusChart() {
+    const ctx = document.getElementById('statusChart');
+    if (!ctx) return;
+
+    try {
+        const response = await ApiService.getPolicyCountByStatus();
+        if (!response.success) return;
+
+        const data = response.data;
+        const labels = Object.keys(data);
+        const values = Object.values(data);
+
+        destroyChart('statusChart');
+
+        AppState.charts.statusChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: labels.map(formatEnumValue),
+                datasets: [{
+                    data: values,
+                    backgroundColor: [
+                        '#22c55e', '#3b82f6', '#f59e0b',
+                        '#ef4444', '#6b7280', '#8b5cf6'
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: { color: getComputedStyle(document.body).getPropertyValue('--text-primary') }
+                    },
+                    title: {
+                        display: false
+                    }
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Error rendering status chart:', error);
+    }
+}
+
+
+
+async function renderTypeChart() {
+    const ctx = document.getElementById('typeChart');
+    if (!ctx) return;
+
+    try {
+        const response = await ApiService.getPolicyCountByType();
+        if (!response.success) return;
+
+        const data = response.data;
+        const labels = Object.keys(data);
+        const values = Object.values(data);
+
+        destroyChart('typeChart');
+
+        AppState.charts.typeChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels.map(formatEnumValue),
+                datasets: [{
+                    label: 'Number of Policies',
+                    data: values,
+                    backgroundColor: 'rgba(34, 197, 94, 0.8)',
+                    borderColor: '#22c55e',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            color: getComputedStyle(document.body).getPropertyValue('--text-primary'),
+                            stepSize: 1
+                        },
+                        grid: { color: 'rgba(0, 0, 0, 0.1)' }
+                    },
+                    x: {
+                        ticks: { color: getComputedStyle(document.body).getPropertyValue('--text-primary') },
+                        grid: { display: false }
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Error rendering type chart:', error);
+    }
+}
+
+
+async function renderTopPerformingChart() {
+    const ctx = document.getElementById('topPerformingChart');
+    if (!ctx) return;
+
+    try {
+        const response = await ApiService.getTopPerformingPolicies();
+        const policies = response.success ? response.data : [];
+
+        const topPolicies = policies.slice(0, 10);
+
+        destroyChart('topPerformingChart');
+
+        AppState.charts.topPerformingChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: topPolicies.map(p => p.policyName.substring(0, 25)),
+                datasets: [{
+                    label: 'Utilization Rate (%)',
+                    data: topPolicies.map(p => {
+                        if (p.totalBudget > 0) {
+                            return ((p.budgetUtilized || 0) / p.totalBudget * 100).toFixed(2);
+                        }
+                        return 0;
+                    }),
+                    backgroundColor: 'rgba(34, 197, 94, 0.8)',
+                    borderColor: '#22c55e',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            color: getComputedStyle(document.body).getPropertyValue('--text-primary'),
+                            callback: value => value + '%'
+                        },
+                        grid: { color: 'rgba(0, 0, 0, 0.1)' }
+                    },
+                    y: {
+                        ticks: { color: getComputedStyle(document.body).getPropertyValue('--text-primary') },
+                        grid: { display: false }
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Error rendering top performing chart:', error);
+    }
+}
+
+async function renderLowPerformingChart() {
+    const ctx = document.getElementById('lowPerformingChart');
+    if (!ctx) return;
+
+    try {
+        const response = await ApiService.getLowPerformingPolicies(40);
+        const policies = response.success ? response.data : [];
+
+        const lowPolicies = policies.slice(0, 10);
+
+        destroyChart('lowPerformingChart');
+
+        AppState.charts.lowPerformingChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: lowPolicies.map(p => p.policyName.substring(0, 25)),
+                datasets: [{
+                    label: 'Utilization Rate (%)',
+                    data: lowPolicies.map(p => {
+                        if (p.totalBudget > 0) {
+                            return ((p.budgetUtilized || 0) / p.totalBudget * 100).toFixed(2);
+                        }
+                        return 0;
+                    }),
+                    backgroundColor: 'rgba(239, 68, 68, 0.8)',
+                    borderColor: '#ef4444',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            color: getComputedStyle(document.body).getPropertyValue('--text-primary'),
+                            callback: value => value + '%'
+                        },
+                        grid: { color: 'rgba(0, 0, 0, 0.1)' }
+                    },
+                    y: {
+                        ticks: { color: getComputedStyle(document.body).getPropertyValue('--text-primary') },
+                        grid: { display: false }
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Error rendering low performing chart:', error);
+    }
+}
+
+async function renderAvgUtilizationChart() {
+    const ctx = document.getElementById('avgUtilizationChart');
+    if (!ctx) return;
+
+    const typeUtilization = {};
+    const typeCounts = {};
+
+    AppState.policies.forEach(p => {
+        const type = p.policyType || 'UNKNOWN';
+        if (p.totalBudget > 0) {
+            const rate = (p.budgetUtilized || 0) / p.totalBudget * 100;
+            typeUtilization[type] = (typeUtilization[type] || 0) + rate;
+            typeCounts[type] = (typeCounts[type] || 0) + 1;
+        }
+    });
+
+    const avgData = Object.keys(typeUtilization).map(type => ({
+        type: type,
+        avg: typeUtilization[type] / typeCounts[type]
+    }));
+
+    destroyChart('avgUtilizationChart');
+
+    AppState.charts.avgUtilizationChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: avgData.map(d => formatEnumValue(d.type)),
+            datasets: [{
+                label: 'Average Utilization (%)',
+                data: avgData.map(d => d.avg.toFixed(2)),
+                backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                borderColor: '#3b82f6',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: {
+                        color: getComputedStyle(document.body).getPropertyValue('--text-primary'),
+                        callback: value => value + '%'
+                    },
+                    grid: { color: 'rgba(0, 0, 0, 0.1)' }
+                },
+                x: {
+                    ticks: { color: getComputedStyle(document.body).getPropertyValue('--text-primary') },
+                    grid: { display: false }
+                }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+}
+
+async function renderEffectivenessChart() {
+    const ctx = document.getElementById('effectivenessChart');
+    if (!ctx) return;
+
+    const effectivenessRatings = {
+        'Excellent': 0,
+        'Good': 0,
+        'Fair': 0,
+        'Poor': 0,
+        'Needs Review': 0
+    };
+
+    AppState.policies.forEach(p => {
+        if (p.totalBudget > 0) {
+            const rate = (p.budgetUtilized || 0) / p.totalBudget * 100;
+            if (rate >= 90) effectivenessRatings['Excellent']++;
+            else if (rate >= 70) effectivenessRatings['Good']++;
+            else if (rate >= 50) effectivenessRatings['Fair']++;
+            else if (rate >= 30) effectivenessRatings['Poor']++;
+            else effectivenessRatings['Needs Review']++;
+        }
+    });
+
+    destroyChart('effectivenessChart');
+
+    AppState.charts.effectivenessChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(effectivenessRatings),
+            datasets: [{
+                data: Object.values(effectivenessRatings),
+                backgroundColor: [
+                    'rgba(34, 197, 94, 0.8)',
+                    'rgba(59, 130, 246, 0.8)',
+                    'rgba(245, 158, 11, 0.8)',
+                    'rgba(239, 68, 68, 0.8)',
+                    'rgba(156, 163, 175, 0.8)'
+                ],
+                borderWidth: 2,
+                borderColor: '#ffffff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: { color: getComputedStyle(document.body).getPropertyValue('--text-primary') }
+                }
+            }
+        }
+    });
+}
+
+async function loadPoliciesRequiringReview() {
+    try {
+        const response = await ApiService.getPoliciesRequiringReview();
+        if (response.success) {
+            renderReviewTable(response.data);
+        }
+    } catch (error) {
+        console.error('Error loading policies requiring review:', error);
+    }
+}
+
+function renderReviewTable(policies) {
+    const tbody = document.getElementById('reviewTableBody');
+    if (!tbody) return;
+
+    if (policies.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="6" class="empty-state">
+                    <i class="fas fa-check-circle"></i>
+                    <p>No policies requiring review at this time</p>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    tbody.innerHTML = policies.map(policy => {
+        const nextReview = policy.nextReviewDate ? new Date(policy.nextReviewDate) : null;
+        const today = new Date();
+        const daysOverdue = nextReview && nextReview < today ?
+            Math.floor((today - nextReview) / (1000 * 60 * 60 * 24)) : 0;
+
+        return `
+            <tr>
+                <td>${escapeHtml(policy.policyCode || 'N/A')}</td>
+                <td>${escapeHtml(policy.policyName)}</td>
+                <td>${formatEnumValue(policy.policyType)}</td>
+                <td>${nextReview ? formatDate(nextReview) : 'Not Set'}</td>
+                <td style="color: ${daysOverdue > 0 ? 'var(--error-color)' : 'var(--text-primary)'}">
+                    ${daysOverdue > 0 ? daysOverdue + ' days' : 'Not Overdue'}
+                </td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="action-btn action-btn-view" onclick="viewPolicy('${policy.id}')">
+                            <i class="fas fa-eye"></i> View
+                        </button>
+                        <button class="action-btn action-btn-edit" onclick="editPolicy('${policy.id}')">
+                            <i class="fas fa-edit"></i> Review
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+
+
+
+function renderPolicyTable(policies) {
+    const tbody = document.getElementById('policyTableBody');
+    if (!tbody) return;
+
+    if (policies.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="9" class="empty-state">
+                    <i class="fas fa-folder-open"></i>
+                    <p>No policies found</p>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    tbody.innerHTML = policies.map(policy => `
+        <tr>
+            <td><strong>${escapeHtml(policy.policyCode || 'N/A')}</strong></td>
+            <td>${escapeHtml(policy.policyName)}</td>
+            <td>${formatEnumValue(policy.policyType)}</td>
+            <td>${formatEnumValue(policy.policyCategory)}</td>
+            <td><span class="status-badge status-${(policy.status || 'draft').toLowerCase()}">${formatEnumValue(policy.status)}</span></td>
+            <td>${formatCurrency(policy.totalBudget || 0)}</td>
+            <td>${formatNumber(policy.beneficiariesCount || 0)}</td>
+            <td>${policy.effectiveDate ? formatDate(policy.effectiveDate) : 'N/A'}</td>
+            <td>
+                <div class="action-buttons">
+                    <button class="action-btn action-btn-view" onclick="viewPolicy('${policy.id}')" title="View Details">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="action-btn action-btn-edit" onclick="editPolicy('${policy.id}')" title="Edit">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    ${policy.status === 'DRAFT' ? `
+                        <button class="action-btn action-btn-activate" onclick="activatePolicyConfirm('${policy.id}')" title="Activate">
+                            <i class="fas fa-check"></i>
+                        </button>
+                    ` : ''}
+                    ${policy.status === 'ACTIVE' ? `
+                        <button class="action-btn action-btn-suspend" onclick="suspendPolicyConfirm('${policy.id}')" title="Suspend">
+                            <i class="fas fa-pause"></i>
+                        </button>
+                    ` : ''}
+                    <button class="action-btn action-btn-delete" onclick="deletePolicyConfirm('${policy.id}')" title="Delete">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+
+    // ✅ AJOUTEZ CETTE LIGNE
+    refreshScrollbars();
+}
+
+
+
+
+// =======================================================================================
+// POLICY CRUD OPERATIONS
+// =======================================================================================
+
+
+function showAddPolicyModal() {
+    document.getElementById('policyModalTitle').textContent = 'New Policy';
+    const form = document.getElementById('policyForm');
+    form.reset();
+    document.getElementById('policyId').value = '';
+
+    // FIX: Définir la date d'aujourd'hui par défaut
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('effectiveDate').value = today;
+
+    // FIX: Afficher l'onglet "Implementation" par défaut pour éviter l'erreur
+    // OU retirer temporairement l'attribut required
+    showTab('basic'); // Commence par l'onglet basic
+
+    // Retirer temporairement 'required' des champs dans les onglets cachés
+    document.querySelectorAll('.tab-content:not(.active) input[required], .tab-content:not(.active) select[required], .tab-content:not(.active) textarea[required]').forEach(input => {
+        input.removeAttribute('required');
+        input.dataset.wasRequired = 'true'; // Marquer pour restaurer plus tard
+    });
+
+    document.getElementById('policyModal').classList.add('show');
+}
+
+
+
+
+
+
+
+function closePolicyModal() {
+    document.getElementById('policyModal').classList.remove('show');
+    document.getElementById('policyForm').reset();
+}
+
+async function viewPolicy(id) {
+    try {
+        const response = await ApiService.getPolicyById(id);
+        if (response.success) {
+            showPolicyDetails(response.data);
+        }
+    } catch (error) {
+        console.error('Error viewing policy:', error);
+    }
+}
+
+async function editPolicy(id) {
+    try {
+        const response = await ApiService.getPolicyById(id);
+        if (response.success) {
+            populatePolicyForm(response.data);
+            document.getElementById('policyModalTitle').textContent = 'Edit Policy';
+            document.getElementById('policyModal').classList.add('show');
+        }
+    } catch (error) {
+        console.error('Error loading policy:', error);
+    }
+}
+
+function populatePolicyForm(policy) {
+    document.getElementById('policyId').value = policy.id || '';
+    document.getElementById('policyName').value = policy.policyName || '';
+    document.getElementById('policyType').value = policy.policyType || '';
+    document.getElementById('policyCategory').value = policy.policyCategory || '';
+    document.getElementById('geographicScope').value = policy.geographicScope || '';
+    document.getElementById('description').value = policy.description || '';
+    document.getElementById('objectives').value = policy.objectives || '';
+    document.getElementById('effectiveDate').value = policy.effectiveDate || '';
+    document.getElementById('expiryDate').value = policy.expiryDate || '';
+    document.getElementById('implementationPeriod').value = policy.implementationPeriod || '';
+    document.getElementById('targetBeneficiaries').value = policy.targetBeneficiaries || '';
+    document.getElementById('affectedRegions').value = policy.affectedRegions || '';
+    document.getElementById('eligibilityCriteria').value = policy.eligibilityCriteria || '';
+    document.getElementById('totalBudget').value = policy.totalBudget || '';
+    document.getElementById('budgetAllocated').value = policy.budgetAllocated || '';
+    document.getElementById('budgetUtilized').value = policy.budgetUtilized || '';
+    document.getElementById('fundingSource').value = policy.fundingSource || '';
+    document.getElementById('currency').value = policy.currency || 'RWF';
+    document.getElementById('implementingAgency').value = policy.implementingAgency || '';
+    document.getElementById('ministryResponsible').value = policy.ministryResponsible || '';
+    document.getElementById('keyStakeholders').value = policy.keyStakeholders || '';
+    document.getElementById('publicConsultation').checked = policy.publicConsultation || false;
+    document.getElementById('parliamentaryApproval').checked = policy.parliamentaryApproval || false;
+    document.getElementById('trainingProvided').checked = policy.trainingProvided || false;
+    document.getElementById('climateSmart').checked = policy.climateSmart || false;
+    document.getElementById('youthFocus').checked = policy.youthFocus || false;
+    document.getElementById('environmentalClearance').checked = policy.environmentalClearance || false;
+    document.getElementById('beneficiariesCount').value = policy.beneficiariesCount || '';
+    document.getElementById('farmersBenefited').value = policy.farmersBenefited || '';
+    document.getElementById('cooperativesBenefited').value = policy.cooperativesBenefited || '';
+    document.getElementById('expectedOutcomes').value = policy.expectedOutcomes || '';
+    document.getElementById('actualOutcomes').value = policy.actualOutcomes || '';
+    document.getElementById('challengesFaced').value = policy.challengesFaced || '';
+    document.getElementById('nextReviewDate').value = policy.nextReviewDate || '';
+    document.getElementById('status').value = policy.status || 'DRAFT';
+}
+
+
+
+
+// =======================================================================================
+// BUDGET VALIDATION
+// =======================================================================================
+
+function validateBudgetFields() {
+    const totalBudget = parseFloat(document.getElementById('totalBudget').value) || 0;
+    const budgetAllocated = parseFloat(document.getElementById('budgetAllocated').value) || 0;
+    const budgetUtilized = parseFloat(document.getElementById('budgetUtilized').value) || 0;
+
+    let isValid = true;
+    let errorMessage = '';
+
+    // Réinitialiser les bordures
+    document.getElementById('totalBudget').style.borderColor = '';
+    document.getElementById('budgetAllocated').style.borderColor = '';
+    document.getElementById('budgetUtilized').style.borderColor = '';
+
+    // Validation 1: Budget Allocated ne peut pas dépasser Total Budget
+    if (budgetAllocated > 0 && totalBudget > 0 && budgetAllocated > totalBudget) {
+        isValid = false;
+        errorMessage = `Budget Allocated (${budgetAllocated}) cannot exceed Total Budget (${totalBudget})`;
+        document.getElementById('budgetAllocated').style.borderColor = 'var(--error-color)';
+        document.getElementById('totalBudget').style.borderColor = 'var(--error-color)';
+    }
+
+    // Validation 2: Budget Utilized ne peut pas dépasser Budget Allocated
+    if (budgetUtilized > 0 && budgetAllocated > 0 && budgetUtilized > budgetAllocated) {
+        isValid = false;
+        errorMessage = `Budget Utilized (${budgetUtilized}) cannot exceed Budget Allocated (${budgetAllocated})`;
+        document.getElementById('budgetUtilized').style.borderColor = 'var(--error-color)';
+        document.getElementById('budgetAllocated').style.borderColor = 'var(--error-color)';
+    }
+
+    // Afficher le message d'erreur
+    const errorDiv = document.getElementById('budgetErrorMessage');
+    if (errorDiv) {
+        if (!isValid) {
+            errorDiv.textContent = errorMessage;
+            errorDiv.style.display = 'block';
+        } else {
+            errorDiv.style.display = 'none';
+        }
+    } else {
+        // Créer le div d'erreur s'il n'existe pas
+        if (!isValid) {
+            showToast(errorMessage, 'error');
+        }
+    }
+
+    return isValid;
+}
+
+
+
+
+async function submitPolicyForm(event) {
+    event.preventDefault();
+    event.stopPropagation(); // ← AJOUTÉ pour empêcher la propagation
+
+    // FIX: Empêcher les soumissions multiples
+    const submitBtn = document.getElementById('policySubmitBtn');
+    if (submitBtn.disabled) {
+        console.log('Form already submitting...');
+        return; // ← Sortir si déjà en cours de soumission
+    }
+
+    // Désactiver le bouton immédiatement
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+    try {
+        // Valider les budgets AVANT tout
+        if (!validateBudgetFields()) {
+            showToast('Please correct the budget values before submitting', 'error');
+            // Afficher automatiquement l'onglet Financial
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector('.tab-btn:nth-child(3)').classList.add('active');
+            document.querySelectorAll('.tab-content').forEach(content => content.style.display = 'none');
+            document.getElementById('financialTab').style.display = 'block';
+            return;
+        }
+
+        // Restaurer tous les 'required' avant validation
+        document.querySelectorAll('input[data-was-required], select[data-was-required], textarea[data-was-required]').forEach(input => {
+            input.setAttribute('required', '');
+        });
+
+        // Vérifier la validité du formulaire
+        const form = document.getElementById('policyForm');
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+
+        // Fonction helper pour obtenir la valeur de manière sécurisée
+        const getFieldValue = (id) => {
+            const element = document.getElementById(id);
+            return element ? (element.value || '').trim() : '';
+        };
+
+        const getNumberValue = (id) => {
+            const value = getFieldValue(id);
+            return value ? parseFloat(value) : null;
+        };
+
+        const getIntValue = (id) => {
+            const value = getFieldValue(id);
+            return value ? parseInt(value) : 0;
+        };
+
+        const getCheckboxValue = (id) => {
+            const element = document.getElementById(id);
+            return element ? element.checked : false;
+        };
+
+        // Construction de l'objet formData
+        const formData = {
+            policyName: getFieldValue('policyName'),
+            policyType: getFieldValue('policyType'),
+            policyCategory: getFieldValue('policyCategory'),
+            geographicScope: getFieldValue('geographicScope'),
+            description: getFieldValue('description'),
+            objectives: getFieldValue('objectives'),
+            effectiveDate: getFieldValue('effectiveDate'),
+            expiryDate: getFieldValue('expiryDate') || null,
+            implementationPeriod: getFieldValue('implementationPeriod'),
+            targetBeneficiaries: getFieldValue('targetBeneficiaries'),
+            affectedRegions: getFieldValue('affectedRegions'),
+            eligibilityCriteria: getFieldValue('eligibilityCriteria'),
+            totalBudget: getNumberValue('totalBudget'),
+            budgetAllocated: getNumberValue('budgetAllocated'),
+            budgetUtilized: getNumberValue('budgetUtilized'),
+            fundingSource: getFieldValue('fundingSource'),
+            currency: getFieldValue('currency') || 'RWF',
+            implementingAgency: getFieldValue('implementingAgency'),
+            ministryResponsible: getFieldValue('ministryResponsible'),
+            keyStakeholders: getFieldValue('keyStakeholders'),
+            publicConsultation: getCheckboxValue('publicConsultation'),
+            parliamentaryApproval: getCheckboxValue('parliamentaryApproval'),
+            trainingProvided: getCheckboxValue('trainingProvided'),
+            climateSmart: getCheckboxValue('climateSmart'),
+            youthFocus: getCheckboxValue('youthFocus'),
+            environmentalClearance: getCheckboxValue('environmentalClearance'),
+            beneficiariesCount: getIntValue('beneficiariesCount'),
+            farmersBenefited: getIntValue('farmersBenefited'),
+            cooperativesBenefited: getIntValue('cooperativesBenefited'),
+            expectedOutcomes: getFieldValue('expectedOutcomes'),
+            actualOutcomes: getFieldValue('actualOutcomes'),
+            challengesFaced: getFieldValue('challengesFaced'),
+            nextReviewDate: getFieldValue('nextReviewDate') || null,
+            status: getFieldValue('status') || 'DRAFT'
+        };
+
+        const policyId = getFieldValue('policyId');
+
+        let response;
+        if (policyId) {
+            response = await ApiService.updatePolicy(policyId, formData);
+            showToast('Policy updated successfully', 'success');
+        } else {
+            response = await ApiService.createPolicy(formData);
+            showToast('Policy created successfully', 'success');
+        }
+
+        if (response.success) {
+            closePolicyModal();
+            await loadAllPolicies();
+            await loadDashboardData();
+        }
+    } catch (error) {
+        console.error('Error saving policy:', error);
+        showToast('Failed to save policy: ' + error.message, 'error');
+    } finally {
+        // IMPORTANT: Réactiver le bouton à la fin
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-save"></i> Save Policy';
+    }
+}
+
+
+
+
+
+
+
+async function deletePolicyConfirm(id) {
+    if (confirm('Are you sure you want to delete this policy? This action cannot be undone.')) {
+        try {
+            const response = await ApiService.deletePolicy(id);
+            if (response.success) {
+                showToast('Policy deleted successfully', 'success');
+                await loadAllPolicies();
+                await loadDashboardData();
+            }
+        } catch (error) {
+            console.error('Error deleting policy:', error);
+        }
+    }
+}
+
+async function activatePolicyConfirm(id) {
+    if (confirm('Are you sure you want to activate this policy?')) {
+        try {
+            const response = await ApiService.activatePolicy(id);
+            if (response.success) {
+                showToast('Policy activated successfully', 'success');
+                await loadAllPolicies();
+                await loadDashboardData();
+            }
+        } catch (error) {
+            console.error('Error activating policy:', error);
+        }
+    }
+}
+
+async function suspendPolicyConfirm(id) {
+    const reason = prompt('Please enter the reason for suspending this policy:');
+    if (reason) {
+        try {
+            const response = await ApiService.suspendPolicy(id, reason);
+            if (response.success) {
+                showToast('Policy suspended successfully', 'success');
+                await loadAllPolicies();
+                await loadDashboardData();
+            }
+        } catch (error) {
+            console.error('Error suspending policy:', error);
+        }
+    }
+}
+
+// =======================================================================================
+// FILTER AND SEARCH
+// =======================================================================================
+
+async function applyFilters() {
+    const status = document.getElementById('filterStatus').value;
+    const type = document.getElementById('filterType').value;
+    const category = document.getElementById('filterCategory').value;
+
+    AppState.filters = { status, type, category, searchTerm: AppState.filters.searchTerm };
+
+    try {
+        if (status || type || category) {
+            const criteria = {
+                policyType: type || null,
+                policyCategory: category || null,
+                status: status || null
+            };
+            const response = await ApiService.advancedSearch(criteria);
+            if (response.success) {
+                AppState.filteredPolicies = response.data;
+                renderPolicyTable(AppState.filteredPolicies);
+            }
+        } else {
+            await loadAllPolicies();
+        }
+    } catch (error) {
+        console.error('Error applying filters:', error);
+    }
+}
+
+function searchPolicies() {
+    const searchTerm = document.getElementById('policySearch').value.toLowerCase();
+    AppState.filters.searchTerm = searchTerm;
+
+    if (!searchTerm) {
+        renderPolicyTable(AppState.policies);
+        return;
+    }
+
+    const filtered = AppState.policies.filter(policy =>
+        (policy.policyName || '').toLowerCase().includes(searchTerm) ||
+        (policy.policyCode || '').toLowerCase().includes(searchTerm) ||
+        (policy.description || '').toLowerCase().includes(searchTerm) ||
+        (policy.implementingAgency || '').toLowerCase().includes(searchTerm)
+    );
+
+    renderPolicyTable(filtered);
+}
+
+async function handleGlobalSearch() {
+    const searchTerm = document.getElementById('globalSearch').value;
+
+    if (searchTerm.length < 3) return;
+
+    try {
+        const response = await ApiService.searchPolicies(searchTerm);
+        if (response.success) {
+            AppState.filteredPolicies = response.data;
+            showSection('policies');
+            renderPolicyTable(AppState.filteredPolicies);
+        }
+    } catch (error) {
+        console.error('Error in global search:', error);
+    }
+}
+
+// =======================================================================================
+// PDF REPORT GENERATION
+// =======================================================================================
+
+async function generatePDFReport() {
+    const reportType = document.getElementById('reportType').value;
+    let policies = [];
+    let reportTitle = '';
+
+    try {
+        showLoading();
+
+        switch (reportType) {
+            case 'all':
+                const allResponse = await ApiService.getAllPolicies(0, 1000);
+                policies = allResponse.data.content || [];
+                reportTitle = 'All Policies Report';
+                break;
+            case 'active':
+                const activeResponse = await ApiService.getActivePolicies();
+                policies = activeResponse.data || [];
+                reportTitle = 'Active Policies Report';
+                break;
+            case 'expired':
+                const expiredResponse = await ApiService.getExpiredPolicies();
+                policies = expiredResponse.data || [];
+                reportTitle = 'Expired Policies Report';
+                break;
+            case 'high-performing':
+                const highResponse = await ApiService.getHighPerformingPolicies(80);
+                policies = highResponse.data || [];
+                reportTitle = 'High Performing Policies Report';
+                break;
+            case 'low-performing':
+                const lowResponse = await ApiService.getLowPerformingPolicies(40);
+                policies = lowResponse.data || [];
+                reportTitle = 'Low Performing Policies Report';
+                break;
+            case 'custom':
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
+                // Filter by date range
+                const customResponse = await ApiService.getAllPolicies(0, 1000);
+                policies = (customResponse.data.content || []).filter(p => {
+                    const effectiveDate = new Date(p.effectiveDate);
+                    return effectiveDate >= new Date(startDate) && effectiveDate <= new Date(endDate);
+                });
+                reportTitle = `Policies Report (${startDate} to ${endDate})`;
+                break;
+        }
+
+        await createPDFDocument(policies, reportTitle);
+        hideLoading();
+        showToast('PDF report generated successfully', 'success');
+    } catch (error) {
+        console.error('Error generating PDF:', error);
+        hideLoading();
+        showToast('Failed to generate PDF report', 'error');
+    }
+}
+
+async function createPDFDocument(policies, reportTitle) {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('l', 'mm', 'a4'); // Landscape orientation
+
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const margin = 15;
+    let yPosition = margin;
+
+
+
+
+
+
+
+
+
+// Header with logo and title
+doc.setFillColor(34, 197, 94);
+doc.rect(0, 0, pageWidth, 35, 'F');
+
+// Add logo image
+const logoImg = document.querySelector('.sidebar-header img');
+if (logoImg) {
+    try {
+        // Draw circular clip for logo
+        doc.circle(margin + 12.5, 17.5, 12.5, 'S');
+        doc.addImage(logoImg.src, 'JPEG', margin, 5, 25, 25);
+    } catch (error) {
+        console.log('Could not add logo to PDF');
+    }
+}
+
+doc.setTextColor(255, 255, 255);
+doc.setFontSize(24);
+doc.setFont('helvetica', 'bold');
+doc.text('AgriGuard AI', margin + 30, 15);
+
+
+
+
+
+
+
+
+
+
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Agricultural Policy Management System', margin, 23);
+
+    doc.setFontSize(12);
+    const currentDate = new Date().toLocaleDateString('en-US', {
+        year: 'numeric', month: 'long', day: 'numeric'
+    });
+    doc.text(`Generated on: ${currentDate}`, pageWidth - margin - 70, 15);
+    doc.text(`Total Policies: ${policies.length}`, pageWidth - margin - 70, 23);
+
+    yPosition = 45;
+
+    // Report Title
+    doc.setTextColor(34, 197, 94);
+    doc.setFontSize(18);
+    doc.setFont('helvetica', 'bold');
+    doc.text(reportTitle, margin, yPosition);
+    yPosition += 12;
+
+    // Summary Statistics Box
+    const stats = calculateReportStatistics(policies);
+    drawStatisticsBox(doc, stats, margin, yPosition, pageWidth - 2 * margin);
+    yPosition += 45;
+
+    // Check if we need a new page
+    if (yPosition > pageHeight - 60) {
+        doc.addPage();
+        yPosition = margin;
+    }
+
+    // Policies Table Header
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Policy Details', margin, yPosition);
+    yPosition += 8;
+
+
+
+
+
+
+
+// Table
+const tableHeaders = ['Code', 'Name', 'Type', 'Status', 'Budget (RWF)', 'Utilization %', 'Beneficiaries'];
+const columnWidths = [35, 25, 35, 25, 35, 30, 30];
+
+
+
+
+
+    const startX = margin;
+
+    // Draw table header
+    doc.setFillColor(240, 240, 240);
+    doc.rect(startX, yPosition - 5, pageWidth - 2 * margin, 10, 'F');
+
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+
+    let xPos = startX + 2;
+    tableHeaders.forEach((header, i) => {
+        doc.text(header, xPos, yPosition);
+        xPos += columnWidths[i];
+    });
+    yPosition += 8;
+
+    // Draw table rows
+    doc.setFont('helvetica', 'normal');
+    policies.forEach((policy, index) => {
+        if (yPosition > pageHeight - 20) {
+            doc.addPage();
+            yPosition = margin;
+
+            // Redraw header on new page
+            doc.setFillColor(240, 240, 240);
+            doc.rect(startX, yPosition - 5, pageWidth - 2 * margin, 10, 'F');
+            doc.setFontSize(9);
+            doc.setFont('helvetica', 'bold');
+            xPos = startX + 2;
+            tableHeaders.forEach((header, i) => {
+                doc.text(header, xPos, yPosition);
+                xPos += columnWidths[i];
+            });
+            yPosition += 8;
+            doc.setFont('helvetica', 'normal');
+        }
+
+        // Alternate row colors
+        if (index % 2 === 0) {
+            doc.setFillColor(250, 250, 250);
+            doc.rect(startX, yPosition - 5, pageWidth - 2 * margin, 8, 'F');
+        }
+
+        xPos = startX + 2;
+        const utilizationRate = policy.totalBudget > 0 ?
+            ((policy.budgetUtilized || 0) / policy.totalBudget * 100).toFixed(1) : '0.0';
+
+        const rowData = [
+            truncateText(policy.policyCode || 'N/A', 20),
+            truncateText(policy.policyName || '', 45),
+            truncateText(formatEnumValue(policy.policyType), 28),
+            truncateText(formatEnumValue(policy.status), 20),
+            formatCurrency(policy.totalBudget || 0),
+            utilizationRate + '%',
+            formatNumber(policy.beneficiariesCount || 0)
+        ];
+
+        rowData.forEach((data, i) => {
+            doc.text(String(data), xPos, yPosition);
+            xPos += columnWidths[i];
+        });
+
+        yPosition += 8;
+    });
+
+    // Footer
+    const totalPages = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= totalPages; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.setTextColor(128, 128, 128);
+        doc.text(`Page ${i} of ${totalPages}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
+        doc.text('AgriGuard AI - Policy Management System', margin, pageHeight - 10);
+        doc.text(`© ${new Date().getFullYear()}`, pageWidth - margin - 20, pageHeight - 10);
+    }
+
+    // Save the PDF
+    const fileName = `${reportTitle.replace(/\s+/g, '_')}_${Date.now()}.pdf`;
+    doc.save(fileName);
+}
+
+function drawStatisticsBox(doc, stats, x, y, width) {
+    const boxHeight = 35;
+    const colWidth = width / 4;
+
+    // Draw background
+    doc.setFillColor(248, 250, 252);
+    doc.roundedRect(x, y, width, boxHeight, 3, 3, 'F');
+
+    // Draw border
+    doc.setDrawColor(34, 197, 94);
+    doc.setLineWidth(0.5);
+    doc.roundedRect(x, y, width, boxHeight, 3, 3, 'S');
+
+    // Draw statistics
+    const statItems = [
+        { label: 'Total Budget', value: formatCurrency(stats.totalBudget), color: [34, 197, 94] },
+        { label: 'Avg Utilization', value: stats.avgUtilization.toFixed(1) + '%', color: [59, 130, 246] },
+        { label: 'Total Beneficiaries', value: formatNumber(stats.totalBeneficiaries), color: [245, 158, 11] },
+        { label: 'Active Policies', value: stats.activePolicies, color: [139, 92, 246] }
+    ];
+
+    statItems.forEach((item, index) => {
+        const colX = x + (index * colWidth) + 10;
+
+        doc.setFontSize(10);
+        doc.setTextColor(100, 100, 100);
+        doc.setFont('helvetica', 'normal');
+        doc.text(item.label, colX, y + 12);
+
+        doc.setFontSize(16);
+        doc.setTextColor(...item.color);
+        doc.setFont('helvetica', 'bold');
+        doc.text(String(item.value), colX, y + 24);
+    });
+}
+
+function calculateReportStatistics(policies) {
+    let totalBudget = 0;
+    let totalUtilized = 0;
+    let totalBeneficiaries = 0;
+    let activePolicies = 0;
+    let budgetCount = 0;
+
+    policies.forEach(p => {
+        totalBudget += parseFloat(p.totalBudget) || 0;
+        totalUtilized += parseFloat(p.budgetUtilized) || 0;
+        totalBeneficiaries += parseInt(p.beneficiariesCount) || 0;
+        if (p.status === 'ACTIVE') activePolicies++;
+        if (p.totalBudget > 0) budgetCount++;
+    });
+
+    const avgUtilization = budgetCount > 0 ? (totalUtilized / totalBudget * 100) : 0;
+
+    return {
+        totalBudget,
+        totalUtilized,
+        avgUtilization,
+        totalBeneficiaries,
+        activePolicies
+    };
+}
+
+// =======================================================================================
+// EXCEL REPORT GENERATION
+// =======================================================================================
+
+async function generateExcelReport() {
+    const reportType = document.getElementById('reportType').value;
+    let policies = [];
+
+    try {
+        showLoading();
+
+        switch (reportType) {
+            case 'all':
+                const allResponse = await ApiService.getAllPolicies(0, 1000);
+                policies = allResponse.data.content || [];
+                break;
+            case 'active':
+                const activeResponse = await ApiService.getActivePolicies();
+                policies = activeResponse.data || [];
+                break;
+            case 'expired':
+                const expiredResponse = await ApiService.getExpiredPolicies();
+                policies = expiredResponse.data || [];
+                break;
+            case 'high-performing':
+                const highResponse = await ApiService.getHighPerformingPolicies(80);
+                policies = highResponse.data || [];
+                break;
+            case 'low-performing':
+                const lowResponse = await ApiService.getLowPerformingPolicies(40);
+                policies = lowResponse.data || [];
+                break;
+            case 'custom':
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
+                const customResponse = await ApiService.getAllPolicies(0, 1000);
+                policies = (customResponse.data.content || []).filter(p => {
+                    const effectiveDate = new Date(p.effectiveDate);
+                    return effectiveDate >= new Date(startDate) && effectiveDate <= new Date(endDate);
+                });
+                break;
+        }
+
+        createExcelDocument(policies, reportType);
+        hideLoading();
+        showToast('Excel report generated successfully', 'success');
+    } catch (error) {
+        console.error('Error generating Excel:', error);
+        hideLoading();
+        showToast('Failed to generate Excel report', 'error');
+    }
+}
+
+function createExcelDocument(policies, reportType) {
+    const wb = XLSX.utils.book_new();
+
+    // Summary Sheet
+    const summaryData = [
+        ['AgriGuard AI - Policy Management System'],
+        ['Report Generated:', new Date().toLocaleString()],
+        ['Report Type:', reportType.toUpperCase()],
+        ['Total Policies:', policies.length],
+        [],
+        ['Summary Statistics'],
+        ['Metric', 'Value'],
+        ['Total Budget (RWF)', policies.reduce((sum, p) => sum + (parseFloat(p.totalBudget) || 0), 0)],
+        ['Budget Utilized (RWF)', policies.reduce((sum, p) => sum + (parseFloat(p.budgetUtilized) || 0), 0)],
+        ['Total Beneficiaries', policies.reduce((sum, p) => sum + (parseInt(p.beneficiariesCount) || 0), 0)],
+        ['Active Policies', policies.filter(p => p.status === 'ACTIVE').length],
+        ['Farmers Benefited', policies.reduce((sum, p) => sum + (parseInt(p.farmersBenefited) || 0), 0)],
+        ['Cooperatives Benefited', policies.reduce((sum, p) => sum + (parseInt(p.cooperativesBenefited) || 0), 0)]
+    ];
+
+    const summarySheet = XLSX.utils.aoa_to_sheet(summaryData);
+    summarySheet['!cols'] = [{ wch: 30 }, { wch: 30 }];
+    XLSX.utils.book_append_sheet(wb, summarySheet, 'Summary');
+
+    // Policies Data Sheet
+    const policiesData = policies.map(p => ({
+        'Policy Code': p.policyCode || 'N/A',
+        'Policy Name': p.policyName || '',
+        'Type': formatEnumValue(p.policyType),
+        'Category': formatEnumValue(p.policyCategory),
+        'Status': formatEnumValue(p.status),
+        'Geographic Scope': formatEnumValue(p.geographicScope),
+        'Implementing Agency': p.implementingAgency || '',
+        'Effective Date': p.effectiveDate || '',
+        'Expiry Date': p.expiryDate || '',
+        'Total Budget (RWF)': p.totalBudget || 0,
+        'Budget Allocated (RWF)': p.budgetAllocated || 0,
+        'Budget Utilized (RWF)': p.budgetUtilized || 0,
+        'Utilization Rate (%)': p.totalBudget > 0 ? ((p.budgetUtilized || 0) / p.totalBudget * 100).toFixed(2) : 0,
+        'Beneficiaries Count': p.beneficiariesCount || 0,
+        'Farmers Benefited': p.farmersBenefited || 0,
+        'Cooperatives Benefited': p.cooperativesBenefited || 0,
+        'Climate Smart': p.climateSmart ? 'Yes' : 'No',
+        'Youth Focus': p.youthFocus ? 'Yes' : 'No',
+        'Description': p.description || '',
+        'Objectives': p.objectives || ''
+    }));
+
+    const policiesSheet = XLSX.utils.json_to_sheet(policiesData);
+    policiesSheet['!cols'] = [
+        { wch: 15 }, { wch: 40 }, { wch: 20 }, { wch: 20 }, { wch: 15 },
+        { wch: 18 }, { wch: 30 }, { wch: 15 }, { wch: 15 }, { wch: 18 },
+        { wch: 18 }, { wch: 18 }, { wch: 15 }, { wch: 18 }, { wch: 18 },
+        { wch: 18 }, { wch: 15 }, { wch: 15 }, { wch: 50 }, { wch: 50 }
+    ];
+    XLSX.utils.book_append_sheet(wb, policiesSheet, 'Policies');
+
+    // Status Distribution Sheet
+    const statusCounts = {};
+    policies.forEach(p => {
+        const status = p.status || 'UNKNOWN';
+        statusCounts[status] = (statusCounts[status] || 0) + 1;
+    });
+
+    const statusData = [
+        ['Status', 'Count'],
+        ...Object.entries(statusCounts).map(([status, count]) => [formatEnumValue(status), count])
+    ];
+
+    const statusSheet = XLSX.utils.aoa_to_sheet(statusData);
+    statusSheet['!cols'] = [{ wch: 20 }, { wch: 15 }];
+    XLSX.utils.book_append_sheet(wb, statusSheet, 'Status Distribution');
+
+    // Type Distribution Sheet
+    const typeCounts = {};
+    policies.forEach(p => {
+        const type = p.policyType || 'UNKNOWN';
+        typeCounts[type] = (typeCounts[type] || 0) + 1;
+    });
+
+    const typeData = [
+        ['Type', 'Count'],
+        ...Object.entries(typeCounts).map(([type, count]) => [formatEnumValue(type), count])
+    ];
+
+    const typeSheet = XLSX.utils.aoa_to_sheet(typeData);
+    typeSheet['!cols'] = [{ wch: 25 }, { wch: 15 }];
+    XLSX.utils.book_append_sheet(wb, typeSheet, 'Type Distribution');
+
+    // Category Distribution Sheet
+    const categoryCounts = {};
+    policies.forEach(p => {
+        const category = p.policyCategory || 'UNKNOWN';
+        categoryCounts[category] = (categoryCounts[category] || 0) + 1;
+    });
+
+    const categoryData = [
+        ['Category', 'Count'],
+        ...Object.entries(categoryCounts).map(([category, count]) => [formatEnumValue(category), count])
+    ];
+
+    const categorySheet = XLSX.utils.aoa_to_sheet(categoryData);
+    categorySheet['!cols'] = [{ wch: 25 }, { wch: 15 }];
+    XLSX.utils.book_append_sheet(wb, categorySheet, 'Category Distribution');
+
+    // Save the file
+    const fileName = `AgriGuard_Policy_Report_${reportType}_${Date.now()}.xlsx`;
+    XLSX.writeFile(wb, fileName);
+}
+
+async function exportPoliciesToExcel() {
+    const policies = AppState.policies;
+    if (policies.length === 0) {
+        showToast('No policies to export', 'warning');
+        return;
+    }
+
+    createExcelDocument(policies, 'all');
+    showToast('Policies exported successfully', 'success');
+}
+
+// =======================================================================================
+// UI HELPER FUNCTIONS
+// =======================================================================================
+
+function showSection(sectionName) {
+    // Update active nav item
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    event.target.closest('.nav-item').classList.add('active');
+
+    // Hide all sections
+    document.querySelectorAll('.content-section').forEach(section => {
+        section.classList.remove('active');
+    });
+
+    // Show selected section
+    const sectionMap = {
+        'dashboard': 'dashboardSection',
+        'policies': 'policiesSection',
+        'analytics': 'analyticsSection',
+        'performance': 'performanceSection',
+        'reports': 'reportsSection'
+    };
+
+    const sectionId = sectionMap[sectionName];
+    if (sectionId) {
+        document.getElementById(sectionId).classList.add('active');
+        AppState.currentSection = sectionName;
+
+        // Load section-specific data
+        switch (sectionName) {
+            case 'dashboard':
+                loadDashboardData();
+                break;
+            case 'policies':
+                loadAllPolicies();
+                break;
+            case 'analytics':
+                updateAllCharts();
+                break;
+            case 'performance':
+                loadPoliciesRequiringReview();
+                updateAllCharts();
+                break;
+        }
+    }
+}
+
+
+
+function showTab(tabName) {
+    // Update active tab button
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+
+    // Hide all tab contents
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.style.display = 'none';
+    });
+
+    // Show selected tab
+    const tabMap = {
+        'basic': 'basicTab',
+        'details': 'detailsTab',
+        'financial': 'financialTab',
+        'implementation': 'implementationTab',
+        'performance': 'performanceTab'
+    };
+
+    const tabId = tabMap[tabName];
+    if (tabId) {
+        document.getElementById(tabId).style.display = 'block';
+        AppState.currentTab = tabName;
+
+        // FIX: Restaurer les attributs 'required' pour l'onglet actif
+        document.querySelectorAll(`#${tabId} input[data-was-required], #${tabId} select[data-was-required], #${tabId} textarea[data-was-required]`).forEach(input => {
+            input.setAttribute('required', '');
+        });
+    }
+}
+
+
+
+
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('mainContent');
+
+    sidebar.classList.toggle('collapsed');
+    mainContent.classList.toggle('sidebar-collapsed');
+
+    AppState.isSidebarCollapsed = !AppState.isSidebarCollapsed;
+}
+
+function toggleTheme() {
+    document.body.classList.toggle('dark-mode');
+    AppState.isDarkMode = !AppState.isDarkMode;
+
+    localStorage.setItem('theme', AppState.isDarkMode ? 'dark' : 'light');
+    updateThemeToggle();
+    updateScrollbarsOnThemeChange();
+
+    // Update all charts with new colors
+    updateAllCharts();
+}
+
+
+
+
+function updateThemeToggle() {
+    const themeBtn = document.getElementById('themeToggle');
+    if (AppState.isDarkMode) {
+        themeBtn.innerHTML = '<i class="fas fa-sun"></i><span>Light Mode</span>';
+    } else {
+        themeBtn.innerHTML = '<i class="fas fa-moon"></i><span>Dark Mode</span>';
+    }
+}
+
+function toggleDateRange() {
+    const reportType = document.getElementById('reportType').value;
+    const dateRangeDiv = document.getElementById('customDateRange');
+
+    if (reportType === 'custom') {
+        dateRangeDiv.style.display = 'block';
+    } else {
+        dateRangeDiv.style.display = 'none';
+    }
+}
+
+function updateDateTime() {
+    const now = new Date();
+    const hours = now.getHours();
+
+    let greeting = 'Good Morning';
+    if (hours >= 12 && hours < 17) greeting = 'Good Afternoon';
+    else if (hours >= 17) greeting = 'Good Evening';
+
+    document.getElementById('greetingText').textContent = greeting + '!';
+
+    const dateOptions = {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    };
+    document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', dateOptions);
+}
+
+function showLoading() {
+    document.getElementById('loadingOverlay').classList.add('show');
+}
+
+function hideLoading() {
+    document.getElementById('loadingOverlay').classList.remove('show');
+}
+
+function showToast(message, type = 'info') {
+    const toastContainer = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `<div class="toast-message">${message}</div>`;
+
+    toastContainer.appendChild(toast);
+
+    setTimeout(() => {
+        toast.remove();
+    }, CONFIG.TOAST_DURATION);
+}
+
+function showPolicyDetails(policy) {
+    // Créer le modal manuellement
+    const modal = document.createElement('div');
+    modal.className = 'modal show';
+    modal.id = 'detailsModal';
+    modal.onclick = function(event) {
+        if (event.target === this) closeDetailsModal();
+    };
+
+    const modalContent = document.createElement('div');
+    modalContent.className = 'modal-content modal-large';
+
+    // Header
+    const header = document.createElement('div');
+    header.className = 'modal-header';
+    header.innerHTML = `
+        <h2 class="modal-title">Policy Details - ${escapeHtml(policy.policyName)}</h2>
+        <button class="modal-close" onclick="closeDetailsModal()">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+
+    // Content wrapper
+    const contentWrapper = document.createElement('div');
+    contentWrapper.style.maxHeight = '70vh';
+    contentWrapper.style.overflowY = 'auto';
+
+    // Info grid
+    const infoGrid = document.createElement('div');
+    infoGrid.className = 'info-grid';
+    infoGrid.innerHTML = `
+        <div class="info-item">
+            <div class="info-label">Policy Code</div>
+            <div class="info-value">${escapeHtml(policy.policyCode || 'N/A')}</div>
+        </div>
+        <div class="info-item">
+            <div class="info-label">Status</div>
+            <div class="info-value">
+                <span class="status-badge status-${(policy.status || 'draft').toLowerCase()}">
+                    ${formatEnumValue(policy.status)}
+                </span>
+            </div>
+        </div>
+        <div class="info-item">
+            <div class="info-label">Type</div>
+            <div class="info-value">${formatEnumValue(policy.policyType)}</div>
+        </div>
+        <div class="info-item">
+            <div class="info-label">Category</div>
+            <div class="info-value">${formatEnumValue(policy.policyCategory)}</div>
+        </div>
+        <div class="info-item">
+            <div class="info-label">Geographic Scope</div>
+            <div class="info-value">${formatEnumValue(policy.geographicScope)}</div>
+        </div>
+        <div class="info-item">
+            <div class="info-label">Implementing Agency</div>
+            <div class="info-value">${escapeHtml(policy.implementingAgency || 'N/A')}</div>
+        </div>
+        <div class="info-item">
+            <div class="info-label">Effective Date</div>
+            <div class="info-value">${policy.effectiveDate ? formatDate(policy.effectiveDate) : 'N/A'}</div>
+        </div>
+        <div class="info-item">
+            <div class="info-label">Expiry Date</div>
+            <div class="info-value">${policy.expiryDate ? formatDate(policy.expiryDate) : 'N/A'}</div>
+        </div>
+        <div class="info-item">
+            <div class="info-label">Total Budget</div>
+            <div class="info-value">${formatCurrency(policy.totalBudget || 0)}</div>
+        </div>
+        <div class="info-item">
+            <div class="info-label">Budget Utilized</div>
+            <div class="info-value">${formatCurrency(policy.budgetUtilized || 0)}</div>
+        </div>
+        <div class="info-item">
+            <div class="info-label">Utilization Rate</div>
+            <div class="info-value">
+                ${policy.totalBudget > 0 ? ((policy.budgetUtilized || 0) / policy.totalBudget * 100).toFixed(2) : 0}%
+            </div>
+        </div>
+        <div class="info-item">
+            <div class="info-label">Total Beneficiaries</div>
+            <div class="info-value">${formatNumber(policy.beneficiariesCount || 0)}</div>
+        </div>
+        <div class="info-item">
+            <div class="info-label">Farmers Benefited</div>
+            <div class="info-value">${formatNumber(policy.farmersBenefited || 0)}</div>
+        </div>
+        <div class="info-item">
+            <div class="info-label">Cooperatives Benefited</div>
+            <div class="info-value">${formatNumber(policy.cooperativesBenefited || 0)}</div>
+        </div>
+        <div class="info-item">
+            <div class="info-label">Climate Smart</div>
+            <div class="info-value">${policy.climateSmart ? '✓ Yes' : '✗ No'}</div>
+        </div>
+        <div class="info-item">
+            <div class="info-label">Youth Focus</div>
+            <div class="info-value">${policy.youthFocus ? '✓ Yes' : '✗ No'}</div>
+        </div>
+    `;
+
+    contentWrapper.appendChild(infoGrid);
+
+    // Add description if exists
+    if (policy.description) {
+        const descDiv = document.createElement('div');
+        descDiv.style.marginTop = '20px';
+        descDiv.style.padding = '16px';
+        descDiv.style.background = 'var(--bg-secondary)';
+        descDiv.style.borderRadius = '8px';
+        descDiv.innerHTML = `
+            <h3 style="font-size: 14px; font-weight: 600; margin-bottom: 8px; color: var(--text-primary);">Description</h3>
+            <p style="color: var(--text-primary); line-height: 1.6;">${escapeHtml(policy.description)}</p>
+        `;
+        contentWrapper.appendChild(descDiv);
+    }
+
+    // Add objectives if exists
+    if (policy.objectives) {
+        const objDiv = document.createElement('div');
+        objDiv.style.marginTop = '16px';
+        objDiv.style.padding = '16px';
+        objDiv.style.background = 'var(--bg-secondary)';
+        objDiv.style.borderRadius = '8px';
+        objDiv.innerHTML = `
+            <h3 style="font-size: 14px; font-weight: 600; margin-bottom: 8px; color: var(--text-primary);">Objectives</h3>
+            <p style="color: var(--text-primary); line-height: 1.6;">${escapeHtml(policy.objectives)}</p>
+        `;
+        contentWrapper.appendChild(objDiv);
+    }
+
+    // Add expected outcomes if exists
+    if (policy.expectedOutcomes) {
+        const outDiv = document.createElement('div');
+        outDiv.style.marginTop = '16px';
+        outDiv.style.padding = '16px';
+        outDiv.style.background = 'var(--bg-secondary)';
+        outDiv.style.borderRadius = '8px';
+        outDiv.innerHTML = `
+            <h3 style="font-size: 14px; font-weight: 600; margin-bottom: 8px; color: var(--text-primary);">Expected Outcomes</h3>
+            <p style="color: var(--text-primary); line-height: 1.6;">${escapeHtml(policy.expectedOutcomes)}</p>
+        `;
+        contentWrapper.appendChild(outDiv);
+    }
+
+    // Footer
+    const footer = document.createElement('div');
+    footer.style.display = 'flex';
+    footer.style.gap = '12px';
+    footer.style.justifyContent = 'flex-end';
+    footer.style.marginTop = '24px';
+    footer.style.paddingTop = '16px';
+    footer.style.borderTop = '1px solid var(--border-color)';
+    footer.innerHTML = `
+        <button class="btn btn-secondary" onclick="closeDetailsModal()">Close</button>
+        <button class="btn btn-primary" onclick="closeDetailsModal(); editPolicy('${policy.id}')">
+            <i class="fas fa-edit"></i> Edit
+        </button>
+    `;
+
+    // Assemble everything
+    modalContent.appendChild(header);
+    modalContent.appendChild(contentWrapper);
+    modalContent.appendChild(footer);
+    modal.appendChild(modalContent);
+
+    document.body.appendChild(modal);
+}
+
+
+function closeDetailsModal() {
+    const modal = document.getElementById('detailsModal');
+    if (modal) modal.remove();
+}
+
+function handleLogout() {
+    if (confirm('Are you sure you want to logout?')) {
+        // Clear any session data
+        localStorage.removeItem('userSession');
+        // Redirect to login page or show login modal
+        showToast('Logged out successfully', 'success');
+        // window.location.href = '/login.html';
+    }
+}
+
+// =======================================================================================
+// UTILITY FUNCTIONS
+// =======================================================================================
+
+function formatCurrency(value) {
+    return new Intl.NumberFormat('en-RW', {
+        style: 'decimal',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    }).format(value);
+}
+
+function formatNumber(value) {
+    return new Intl.NumberFormat('en-US').format(value);
+}
+
+function formatDate(dateString) {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+}
+
+function formatEnumValue(value) {
+    if (!value) return 'N/A';
+    return value
+        .replace(/_/g, ' ')
+        .toLowerCase()
+        .replace(/\b\w/g, l => l.toUpperCase());
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function truncateText(text, maxLength) {
+    if (!text) return '';
+    return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+}
+
+function destroyChart(chartId) {
+    if (AppState.charts[chartId]) {
+        AppState.charts[chartId].destroy();
+        delete AppState.charts[chartId];
+    }
+}
+
+// =======================================================================================
+// EVENT LISTENERS
+// =======================================================================================
+
+function setupEventListeners() {
+    // Close modals on escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closePolicyModal();
+            closeDetailsModal();
+        }
+    });
+
+    // Handle form submissions
+   <!-- document.getElementById('policyForm')?.addEventListener('submit', submitPolicyForm);
+-->
+    // Update notification count periodically
+    setInterval(updateNotificationCount, 60000);
+}
+
+async function updateNotificationCount() {
+    try {
+        const response = await ApiService.getPoliciesRequiringReview();
+        if (response.success) {
+            const count = response.data.length;
+            document.getElementById('notificationCount').textContent = count;
+        }
+    } catch (error) {
+        console.error('Error updating notification count:', error);
+    }
+}
+
+// =======================================================================================
+// EXPORT FUNCTIONS FOR GLOBAL ACCESS
+// =======================================================================================
+
+window.showSection = showSection;
+window.showTab = showTab;
+window.toggleSidebar = toggleSidebar;
+window.toggleTheme = toggleTheme;
+window.toggleDateRange = toggleDateRange;
+window.showAddPolicyModal = showAddPolicyModal;
+window.closePolicyModal = closePolicyModal;
+window.viewPolicy = viewPolicy;
+window.editPolicy = editPolicy;
+window.submitPolicyForm = submitPolicyForm;
+window.deletePolicyConfirm = deletePolicyConfirm;
+window.activatePolicyConfirm = activatePolicyConfirm;
+window.suspendPolicyConfirm = suspendPolicyConfirm;
+window.applyFilters = applyFilters;
+window.searchPolicies = searchPolicies;
+window.handleGlobalSearch = handleGlobalSearch;
+window.loadAllPolicies = loadAllPolicies;
+window.loadPoliciesRequiringReview = loadPoliciesRequiringReview;
+window.generatePDFReport = generatePDFReport;
+window.generateExcelReport = generateExcelReport;
+window.exportPoliciesToExcel = exportPoliciesToExcel;
+window.closeDetailsModal = closeDetailsModal;
+window.handleLogout = handleLogout;
+window.scrollToTableElement = scrollToTableElement;
+window.scrollToTableStart = scrollToTableStart;
+window.scrollToTableEnd = scrollToTableEnd;
+
+
+console.log('✅ AgriGuard AI Policy Dashboard initialized successfully');
+
+
+async function renderCategoryChart() {
+    const ctx = document.getElementById('categoryChart');
+    if (!ctx) return;
+
+    try {
+        const response = await ApiService.getPolicyCountByCategory();
+        if (!response.success) return;
+
+        const data = response.data;
+        const labels = Object.keys(data);
+        const values = Object.values(data);
+
+        destroyChart('categoryChart');
+
+        AppState.charts.categoryChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: labels.map(formatEnumValue),
+                datasets: [{
+                    data: values,
+                    backgroundColor: [
+                        '#22c55e', '#3b82f6', '#f59e0b',
+                        '#ec4899', '#8b5cf6', '#14b8a6'
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: { color: getComputedStyle(document.body).getPropertyValue('--text-primary') }
+                    }
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Error rendering category chart:', error);
+    }
+}
+
+async function renderBudgetAllocationChart() {
+    const ctx = document.getElementById('budgetAllocationChart');
+    if (!ctx) return;
+
+    const categoryBudgets = {};
+    AppState.policies.forEach(p => {
+        const cat = p.policyCategory || 'UNKNOWN';
+        categoryBudgets[cat] = (categoryBudgets[cat] || 0) + (parseFloat(p.totalBudget) || 0);
+    });
+
+    destroyChart('budgetAllocationChart');
+
+    AppState.charts.budgetAllocationChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(categoryBudgets).map(formatEnumValue),
+            datasets: [{
+                label: 'Budget (RWF)',
+                data: Object.values(categoryBudgets),
+                backgroundColor: 'rgba(245, 158, 11, 0.8)',
+                borderColor: '#f59e0b',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        color: getComputedStyle(document.body).getPropertyValue('--text-primary'),
+                        callback: value => formatCurrency(value)
+                    },
+                    grid: { color: 'rgba(0, 0, 0, 0.1)' }
+                },
+                x: {
+                    ticks: { color: getComputedStyle(document.body).getPropertyValue('--text-primary') },
+                    grid: { display: false }
+                }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+}
+
+async function renderGeographicChart() {
+    const ctx = document.getElementById('geographicChart');
+    if (!ctx) return;
+
+    const scopeCounts = {};
+    AppState.policies.forEach(p => {
+        const scope = p.geographicScope || 'UNKNOWN';
+        scopeCounts[scope] = (scopeCounts[scope] || 0) + 1;
+    });
+
+    destroyChart('geographicChart');
+
+    AppState.charts.geographicChart = new Chart(ctx, {
+        type: 'polarArea',
+        data: {
+            labels: Object.keys(scopeCounts).map(formatEnumValue),
+            datasets: [{
+                data: Object.values(scopeCounts),
+                backgroundColor: [
+                    'rgba(34, 197, 94, 0.7)',
+                    'rgba(59, 130, 246, 0.7)',
+                    'rgba(245, 158, 11, 0.7)',
+                    'rgba(236, 72, 153, 0.7)',
+                    'rgba(139, 92, 246, 0.7)'
+                ],
+                borderWidth: 2,
+                borderColor: '#ffffff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: { color: getComputedStyle(document.body).getPropertyValue('--text-primary') }
+                }
+            }
+        }
+    });
+}
+
+
+async function renderUtilizationChart() {
+    const ctx = document.getElementById('utilizationChart');
+    if (!ctx) return;
+
+    const utilizationData = AppState.policies
+        .filter(p => p.totalBudget > 0)
+        .map(p => ({
+            name: p.policyName,
+            rate: ((p.budgetUtilized || 0) / p.totalBudget * 100).toFixed(2)
+        }))
+        .slice(0, 10);
+
+    destroyChart('utilizationChart');
+
+    // FIX: Utiliser 'bar' au lieu de 'horizontalBar'
+    AppState.charts.utilizationChart = new Chart(ctx, {
+        type: 'bar', // ← CHANGÉ de 'horizontalBar' à 'bar'
+        data: {
+            labels: utilizationData.map(d => d.name.substring(0, 30)),
+            datasets: [{
+                label: 'Utilization Rate (%)',
+                data: utilizationData.map(d => d.rate),
+                backgroundColor: 'rgba(20, 184, 166, 0.8)',
+                borderColor: '#14b8a6',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: 'y', // ← AJOUTÉ pour rendre horizontal
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: {
+                        color: getComputedStyle(document.body).getPropertyValue('--text-primary'),
+                        callback: value => value + '%'
+                    },
+                    grid: { color: 'rgba(0, 0, 0, 0.1)' }
+                },
+                y: {
+                    ticks: { color: getComputedStyle(document.body).getPropertyValue('--text-primary') },
+                    grid: { display: false }
+                }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+}
+
+
+
+
+async function renderAgenciesChart() {
+    const ctx = document.getElementById('agenciesChart');
+    if (!ctx) return;
+
+    const agencyCounts = {};
+    AppState.policies.forEach(p => {
+        const agency = p.implementingAgency || 'Unknown';
+        agencyCounts[agency] = (agencyCounts[agency] || 0) + 1;
+    });
+
+    const topAgencies = Object.entries(agencyCounts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 10);
+
+    destroyChart('agenciesChart');
+
+    AppState.charts.agenciesChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: topAgencies.map(a => a[0].substring(0, 20)),
+            datasets: [{
+                label: 'Number of Policies',
+                data: topAgencies.map(a => a[1]),
+                backgroundColor: 'rgba(139, 92, 246, 0.8)',
+                borderColor: '#8b5cf6',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: 'y',
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    ticks: {
+                        color: getComputedStyle(document.body).getPropertyValue('--text-primary'),
+                        stepSize: 1
+                    },
+                    grid: { color: 'rgba(0, 0, 0, 0.1)' }
+                },
+                y: {
+                    ticks: { color: getComputedStyle(document.body).getPropertyValue('--text-primary') },
+                    grid: { display: false }
+                }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+}
+
+async function renderBudgetUtilizedChart() {
+    const ctx = document.getElementById('budgetUtilizedChart');
+    if (!ctx) return;
+
+    const topPolicies = AppState.policies
+        .filter(p => p.totalBudget > 0)
+        .sort((a, b) => b.totalBudget - a.totalBudget)
+        .slice(0, 10);
+
+    destroyChart('budgetUtilizedChart');
+
+    AppState.charts.budgetUtilizedChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: topPolicies.map(p => p.policyName.substring(0, 20)),
+            datasets: [
+                {
+                    label: 'Total Budget',
+                    data: topPolicies.map(p => p.totalBudget),
+                    backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                    borderColor: '#3b82f6',
+                    borderWidth: 2
+                },
+                {
+                    label: 'Budget Utilized',
+                    data: topPolicies.map(p => p.budgetUtilized || 0),
+                    backgroundColor: 'rgba(34, 197, 94, 0.8)',
+                    borderColor: '#22c55e',
+                    borderWidth: 2
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        color: getComputedStyle(document.body).getPropertyValue('--text-primary'),
+                        callback: value => formatCurrency(value)
+                    },
+                    grid: { color: 'rgba(0, 0, 0, 0.1)' }
+                },
+                x: {
+                    ticks: { color: getComputedStyle(document.body).getPropertyValue('--text-primary') },
+                    grid: { display: false }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: true,
+                    labels: { color: getComputedStyle(document.body).getPropertyValue('--text-primary') }
+                }
+            }
+        }
+    });
+}
+
+async function renderBeneficiariesChart() {
+    const ctx = document.getElementById('beneficiariesChart');
+    if (!ctx) return;
+
+    const topPolicies = AppState.policies
+        .filter(p => (p.farmersBenefited || 0) + (p.cooperativesBenefited || 0) > 0)
+        .sort((a, b) => {
+            const aTotal = (a.farmersBenefited || 0) + (a.cooperativesBenefited || 0);
+            const bTotal = (b.farmersBenefited || 0) + (b.cooperativesBenefited || 0);
+            return bTotal - aTotal;
+        })
+        .slice(0, 10);
+
+    destroyChart('beneficiariesChart');
+
+    AppState.charts.beneficiariesChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: topPolicies.map(p => p.policyName.substring(0, 20)),
+            datasets: [
+                {
+                    label: 'Farmers',
+                    data: topPolicies.map(p => p.farmersBenefited || 0),
+                    backgroundColor: 'rgba(34, 197, 94, 0.8)',
+                    borderColor: '#22c55e',
+                    borderWidth: 2
+                },
+                {
+                    label: 'Cooperatives',
+                    data: topPolicies.map(p => p.cooperativesBenefited || 0),
+                    backgroundColor: 'rgba(245, 158, 11, 0.8)',
+                    borderColor: '#f59e0b',
+                    borderWidth: 2
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        color: getComputedStyle(document.body).getPropertyValue('--text-primary'),
+                        stepSize: 1
+                    },
+                    grid: { color: 'rgba(0, 0, 0, 0.1)' }
+                },
+                x: {
+                    ticks: { color: getComputedStyle(document.body).getPropertyValue('--text-primary') },
+                    grid: { display: false }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: true,
+                    labels: { color: getComputedStyle(document.body).getPropertyValue('--text-primary') }
+                }
+            }
+        }
+    });
+}
+
+async function renderSpecialFocusChart() {
+    const ctx = document.getElementById('specialFocusChart');
+    if (!ctx) return;
+
+    const climateSmart = AppState.policies.filter(p => p.climateSmart).length;
+    const youthFocus = AppState.policies.filter(p => p.youthFocus).length;
+    const both = AppState.policies.filter(p => p.climateSmart && p.youthFocus).length;
+    const neither = AppState.policies.length - climateSmart - youthFocus + both;
+
+    destroyChart('specialFocusChart');
+
+    AppState.charts.specialFocusChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Climate Smart Only', 'Youth Focus Only', 'Both', 'Neither'],
+            datasets: [{
+                data: [climateSmart - both, youthFocus - both, both, neither],
+                backgroundColor: [
+                    'rgba(34, 197, 94, 0.8)',
+                    'rgba(59, 130, 246, 0.8)',
+                    'rgba(139, 92, 246, 0.8)',
+                    'rgba(156, 163, 175, 0.8)'
+                ],
+                borderWidth: 2,
+                borderColor: '#ffffff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: { color: getComputedStyle(document.body).getPropertyValue('--text-primary') }
+                }
+            }
+        }
+    });
+}
+
+async function renderMonthlyTrendChart() {
+    const ctx = document.getElementById('monthlyTrendChart');
+    if (!ctx) return;
+
+    const monthlyData = {};
+    AppState.policies.forEach(p => {
+        if (p.createdDate) {
+            const month = new Date(p.createdDate).toISOString().substring(0, 7);
+            monthlyData[month] = (monthlyData[month] || 0) + 1;
+        }
+    });
+
+    const sortedMonths = Object.keys(monthlyData).sort();
+    const last12Months = sortedMonths.slice(-12);
+
+    destroyChart('monthlyTrendChart');
+
+    AppState.charts.monthlyTrendChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: last12Months.map(m => {
+                const [year, month] = m.split('-');
+                return `${['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][parseInt(month) - 1]} ${year}`;
+            }),
+            datasets: [{
+                label: 'Policies Created',
+                data: last12Months.map(m => monthlyData[m]),
+                borderColor: '#22c55e',
+                backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        color: getComputedStyle(document.body).getPropertyValue('--text-primary'),
+                        stepSize: 1
+                    },
+                    grid: { color: 'rgba(0, 0, 0, 0.1)' }
+                },
+                x: {
+                    ticks: { color: getComputedStyle(document.body).getPropertyValue('--text-primary') },
+                    grid: { display: false }
+                }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+}
+
+
+
+    async function renderScopeDistributionChart() {
+    const ctx = document.getElementById('scopeDistributionChart');
+    if (!ctx) return;
+
+    const scopeCounts = {};
+    AppState.policies.forEach(p => {
+        const scope = p.geographicScope || 'UNKNOWN';
+        scopeCounts[scope] = (scopeCounts[scope] || 0) + 1;
+    });
+
+    destroyChart('scopeDistributionChart');
+
+    AppState.charts.scopeDistributionChart = new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: Object.keys(scopeCounts).map(formatEnumValue),
+            datasets: [{
+                label: 'Number of Policies',
+                data: Object.values(scopeCounts),
+                backgroundColor: 'rgba(34, 197, 94, 0.2)',
+                borderColor: '#22c55e',
+                borderWidth: 2,
+                pointBackgroundColor: '#22c55e',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: '#22c55e'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    beginAtZero: true,
+                    ticks: {
+                        color: getComputedStyle(document.body).getPropertyValue('--text-primary'),
+                        stepSize: 1
+                    },
+                    grid: { color: 'rgba(0, 0, 0, 0.1)' },
+                    pointLabels: {
+                        color: getComputedStyle(document.body).getPropertyValue('--text-primary')
+                    }
+                }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+}
+</script>
+</body>
+</html>

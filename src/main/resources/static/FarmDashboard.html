@@ -1,0 +1,2995 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farm Management Dashboard - AgriGuard AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --primary-green: #22c55e;
+            --primary-dark: #16a34a;
+            --secondary-green: #10b981;
+            --accent-green: #34d399;
+            --light-green: #dcfce7;
+            --dark-green: #166534;
+            --forest-green: #065f46;
+            --success-color: #22c55e;
+            --warning-color: #f59e0b;
+            --error-color: #ef4444;
+            --info-color: #3b82f6;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-sidebar: #e8f5e8;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --border-color: #e0e0e0;
+            --hover-bg: rgba(34, 197, 94, 0.1);
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 8px 25px rgba(34, 197, 94, 0.15);
+            --gradient-primary: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+            --gradient-bg: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%);
+            --card-bg: #ffffff;
+            --modal-bg: rgba(0, 0, 0, 0.5);
+        }
+
+        .dark-mode {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --bg-sidebar: #1f2937;
+            --text-primary: #ffffff;
+            --text-secondary: #cccccc;
+            --border-color: #404040;
+            --hover-bg: rgba(34, 197, 94, 0.2);
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            --card-bg: #374151;
+            --gradient-bg: linear-gradient(135deg, #1f2937 0%, #374151 50%, #4b5563 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--gradient-bg);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            overflow-x: hidden;
+        }
+
+        .dashboard-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: var(--bg-sidebar);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: fixed;
+            height: 100vh;
+            z-index: 1000;
+            box-shadow: var(--shadow);
+        }
+
+        .sidebar.collapsed {
+            width: 70px;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--gradient-primary);
+            color: white;
+            font-size: 24px;
+            box-shadow: var(--shadow);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .company-info {
+            flex: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .company-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .company-tagline {
+            font-size: 11px;
+            color: var(--primary-green);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .sidebar.collapsed .company-info {
+            opacity: 0;
+            width: 0;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 20px 0;
+            overflow-y: auto;
+        }
+
+        .nav-section {
+            margin-bottom: 30px;
+        }
+
+        .nav-section-title {
+            padding: 0 20px 10px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--primary-green);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar.collapsed .nav-section-title {
+            opacity: 0;
+            height: 0;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 4px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 14px 20px;
+            color: var(--text-primary);
+            text-decoration: none;
+            border-radius: 0 25px 25px 0;
+            margin-right: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(34, 197, 94, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .nav-link:hover::before {
+            left: 100%;
+        }
+
+        .nav-link i {
+            width: 22px;
+            margin-right: 14px;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .nav-link span {
+            transition: opacity 0.3s ease;
+            white-space: nowrap;
+            font-weight: 500;
+        }
+
+        .sidebar.collapsed .nav-link span {
+            opacity: 0;
+        }
+
+        .sidebar.collapsed .nav-link {
+            margin-right: 0;
+            border-radius: 0;
+            justify-content: center;
+        }
+
+        .nav-link:hover {
+            background: var(--hover-bg);
+            color: var(--primary-green);
+            transform: translateX(5px);
+        }
+
+        .nav-item.active .nav-link {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: var(--shadow);
+        }
+
+        .nav-item.active .nav-link:hover {
+            background: var(--gradient-primary);
+            color: white;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            margin-left: 280px;
+            transition: margin-left 0.3s ease;
+        }
+
+        .main-content.sidebar-collapsed {
+            margin-left: 70px;
+        }
+
+        .header {
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 80px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .sidebar-toggle {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 12px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-toggle:hover {
+            background: var(--hover-bg);
+            color: var(--primary-green);
+            transform: scale(1.1);
+        }
+
+        .greeting-section {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .greeting-text {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .current-date {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .search-container {
+            position: relative;
+            width: 400px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 50px 12px 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 25px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 15px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-green);
+            box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 18px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .theme-toggle {
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 12px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .theme-toggle:hover {
+            background: var(--hover-bg);
+            border-color: var(--primary-green);
+            transform: translateY(-2px);
+        }
+
+        .notification-btn {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 20px;
+            cursor: pointer;
+            position: relative;
+            padding: 12px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .notification-btn:hover {
+            background: var(--hover-bg);
+            color: var(--primary-green);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: var(--error-color);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-5px); }
+            60% { transform: translateY(-3px); }
+        }
+
+        .profile-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .profile-section:hover {
+            background: var(--hover-bg);
+        }
+
+        .profile-avatar {
+            width: 45px;
+            height: 45px;
+            background: var(--gradient-primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+            background-size: cover;
+            background-position: center;
+        }
+
+        .profile-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .profile-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .profile-role {
+            font-size: 12px;
+            color: var(--primary-green);
+            font-weight: 500;
+            text-transform: capitalize;
+        }
+
+        .logout-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            margin-left: 12px;
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error-color);
+            transform: scale(1.1);
+        }
+
+        .content {
+            flex: 1;
+            padding: 32px;
+            background: var(--bg-secondary);
+            overflow-y: auto;
+            min-height: calc(100vh - 80px);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            margin-bottom: 12px;
+        }
+
+        .stat-icon.farms { background: linear-gradient(135deg, #22c55e, #16a34a); }
+        .stat-icon.area { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+        .stat-icon.avg { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+        .stat-icon.large { background: linear-gradient(135deg, #f59e0b, #d97706); }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .charts-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .chart-card {
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .chart-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+
+        .table-section {
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            margin-bottom: 32px;
+        }
+
+        .table-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .table-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--hover-bg);
+            border-color: var(--primary-green);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+        }
+
+        .btn-info:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .data-table th {
+            background: var(--bg-secondary);
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .data-table td {
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .data-table tr:hover {
+            background: var(--hover-bg);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .action-btn-edit {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+        }
+
+        .action-btn-edit:hover {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .action-btn-delete {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        .action-btn-delete:hover {
+            background: #ef4444;
+            color: white;
+        }
+
+        .action-btn-view {
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+        }
+
+        .action-btn-view:hover {
+            background: #22c55e;
+            color: white;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--modal-bg);
+            backdrop-filter: blur(5px);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 32px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: var(--hover-bg);
+            color: var(--primary-green);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            color: var(--text-primary);
+            background: var(--bg-secondary);
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-green);
+            box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            color: var(--text-primary);
+            background: var(--bg-secondary);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: var(--primary-green);
+            box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 3000;
+        }
+
+        .toast {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            box-shadow: var(--shadow-lg);
+            border-left: 4px solid;
+            animation: slideInRight 0.3s ease;
+            max-width: 400px;
+        }
+
+        .toast.success { border-left-color: var(--success-color); }
+        .toast.error { border-left-color: var(--error-color); }
+        .toast.warning { border-left-color: var(--warning-color); }
+        .toast.info { border-left-color: var(--primary-green); }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .toast-message {
+            color: var(--text-primary);
+            font-weight: 500;
+            margin: 0;
+        }
+
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loading-overlay.show {
+            display: flex;
+        }
+
+        .loader {
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid var(--primary-green);
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state i {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            font-size: 18px;
+            margin-top: 12px;
+        }
+
+        .report-filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .prediction-card {
+            background: linear-gradient(135deg, var(--info-color), #2563eb);
+            color: white;
+            padding: 24px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .prediction-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .prediction-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .prediction-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-green);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
+
+        @media (max-width: 1200px) {
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .header {
+                padding: 0 16px;
+            }
+
+            .search-container {
+                width: 200px;
+            }
+
+            .content {
+                padding: 20px 16px;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .greeting-text {
+                font-size: 18px;
+            }
+
+            .profile-info {
+                display: none;
+            }
+
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loader"></div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<div class="dashboard-container">
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <img src="images/logo.jpeg" alt="AgriGuard AI Logo" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;">
+            </div>
+            <div class="company-info">
+                <div class="company-name">AgriGuard AI</div>
+                <div class="company-tagline">Farm Management</div>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-section">
+                <h3 class="nav-section-title">Main</h3>
+                <ul class="nav-menu">
+                    <li class="nav-item active">
+                        <a class="nav-link" onclick="showSection('dashboard')">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="showSection('farms')">
+                            <i class="fas fa-tractor"></i>
+                            <span>My Farms</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="showSection('analytics')">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>Analytics</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="showSection('predictions')">
+                            <i class="fas fa-brain"></i>
+                            <span>AI Predictions</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="nav-section">
+                <h3 class="nav-section-title">Reports</h3>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="showSection('reports')">
+                            <i class="fas fa-file-alt"></i>
+                            <span>Generate Reports</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+
+
+            <div class="nav-section">
+                <h3 class="nav-section-title">Quick Links</h3>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a class="nav-link" href="CropDashboard.html">
+                            <i class="fas fa-seedling"></i>
+                            <span>Crop Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="CropProductionDashboard.html">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>Crop Production</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="adminDashboard.html">
+                            <i class="fas fa-home"></i>
+                            <span>Users Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="FertilizerDashboard.html">
+                            <i class="fas fa-flask"></i>
+                            <span>Fertilizer Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="InventoryDashboard.html">
+                            <i class="fas fa-boxes"></i>
+                            <span>Inventory Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="IrrigationDashboard.html">
+                            <i class="fas fa-tint"></i>
+                            <span>Irrigation Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="ProductPrediction.html">
+                            <i class="fas fa-brain"></i>
+                            <span>Product Prediction</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="WhatsApp.html">
+                            <i class="fab fa-whatsapp"></i>
+                            <span>WhatsApp</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+
+    <div class="main-content" id="mainContent">
+        <header class="header">
+            <div class="header-left">
+                <button class="sidebar-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="greeting-section">
+                    <div class="greeting-text" id="greetingText">Good Morning!</div>
+                    <div class="current-date" id="currentDate"></div>
+                </div>
+            </div>
+
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search farms..." id="globalSearch" onkeyup="handleGlobalSearch()">
+                <i class="fas fa-search search-icon"></i>
+            </div>
+
+            <div class="header-right">
+                <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                    <span>Dark Mode</span>
+                </button>
+                <button class="notification-btn">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge" id="notificationCount">0</span>
+                </button>
+                <div class="profile-section">
+                    <div class="profile-avatar" id="profileAvatar">F</div>
+                    <div class="profile-info">
+                        <div class="profile-name" id="profileName">Farmer</div>
+                        <div class="profile-role" id="profileRole">Farmer</div>
+                    </div>
+                </div>
+                <button class="logout-btn" onclick="handleLogout()" title="Logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </header>
+
+        <main class="content">
+            <!-- Dashboard Section -->
+            <div id="dashboardSection" class="content-section active">
+                <div class="dashboard-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon farms">
+                            <i class="fas fa-tractor"></i>
+                        </div>
+                        <div class="stat-value" id="totalFarms">0</div>
+                        <div class="stat-label">Total Farms</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon area">
+                            <i class="fas fa-map"></i>
+                        </div>
+                        <div class="stat-value" id="totalArea">0</div>
+                        <div class="stat-label">Total Area (Ha)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon avg">
+                            <i class="fas fa-chart-area"></i>
+                        </div>
+                        <div class="stat-value" id="avgSize">0</div>
+                        <div class="stat-label">Average Size (Ha)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon large">
+                            <i class="fas fa-seedling"></i>
+                        </div>
+                        <div class="stat-value" id="largeFarms">0</div>
+                        <div class="stat-label">Large Farms (>10 Ha)</div>
+                    </div>
+                </div>
+
+                <div class="charts-section">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Farm Size Distribution</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="sizeDistributionChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Soil Type Distribution</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="soilTypeChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Irrigation Systems</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="irrigationChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Farm Topography</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="topographyChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Farms Section -->
+            <div id="farmsSection" class="content-section">
+                <div class="table-section">
+                    <div class="table-header">
+                        <h2 class="table-title">My Farms</h2>
+                        <div class="table-actions">
+                            <button class="btn btn-primary" onclick="showAddFarmModal()">
+                                <i class="fas fa-plus"></i>
+                                Add Farm
+                            </button>
+                            <button class="btn btn-secondary" onclick="loadFarms()">
+                                <i class="fas fa-sync-alt"></i>
+                                Refresh
+                            </button>
+                            <button class="btn btn-info" onclick="exportFarmsToExcel()">
+                                <i class="fas fa-file-excel"></i>
+                                Export Excel
+                            </button>
+                        </div>
+                    </div>
+                    <div style="padding: 0 24px 24px;">
+                        <input type="text" class="search-input" placeholder="Search farms..." id="farmsSearch" onkeyup="searchInTable('farmsTableBody', 'farmsSearch')">
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table class="data-table">
+                            <thead>
+                            <tr>
+                                <th>Farm Name</th>
+                                <th>Farm Code</th>
+                                <th>Size (Ha)</th>
+                                <th>Soil Type</th>
+                                <th>Irrigation</th>
+                                <th>Location</th>
+                                <th>Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody id="farmsTableBody">
+                            <tr>
+                                <td colspan="7" class="empty-state">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                    <p>Loading farms...</p>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Section -->
+            <div id="analyticsSection" class="content-section">
+                <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 24px; color: var(--text-primary);">Advanced Analytics</h2>
+
+                <div class="charts-section">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Farm Size Trends</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="sizeTrendChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Altitude Distribution</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="altitudeChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Electricity Availability</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="electricityChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Road Access Quality</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="roadAccessChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Farm Size Comparison</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="comparisonChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Monthly Growth Analysis</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="growthChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Predictions Section -->
+            <div id="predictionsSection" class="content-section">
+                <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 24px; color: var(--text-primary);">AI-Powered Predictions</h2>
+
+                <div class="dashboard-grid" id="predictionsGrid">
+                    <!-- Predictions will be loaded here -->
+                </div>
+
+                <div class="charts-section">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Predicted Farm Growth</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="predictionGrowthChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Predicted Area Expansion</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="predictionAreaChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports Section -->
+            <div id="reportsSection" class="content-section">
+                <div class="chart-card" style="margin-bottom: 24px;">
+                    <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 20px; color: var(--text-primary);">Generate Farm Reports</h3>
+
+                    <div class="report-filters">
+                        <div class="filter-group">
+                            <label class="filter-label">Report Type</label>
+                            <select class="form-select" id="reportType">
+                                <option value="all">All Farms</option>
+                                <option value="large">Large Farms</option>
+                                <option value="medium">Medium Farms</option>
+                                <option value="small">Small Farms</option>
+                                <option value="irrigation">By Irrigation</option>
+                                <option value="soil">By Soil Type</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label class="filter-label">Time Period</label>
+                            <select class="form-select" id="timePeriod">
+                                <option value="today">Today</option>
+                                <option value="week">This Week</option>
+                                <option value="month">This Month</option>
+                                <option value="year">This Year</option>
+                                <option value="all">All Time</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label class="filter-label">From Date</label>
+                            <input type="date" class="form-input" id="fromDate">
+                        </div>
+                        <div class="filter-group">
+                            <label class="filter-label">To Date</label>
+                            <input type="date" class="form-input" id="toDate">
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 12px; margin-top: 20px;">
+                        <button class="btn btn-primary" onclick="generatePDFReport()">
+                            <i class="fas fa-file-pdf"></i>
+                            Generate PDF Report
+                        </button>
+                        <button class="btn btn-info" onclick="generateExcelReport()">
+                            <i class="fas fa-file-excel"></i>
+                            Generate Excel Report
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Add/Edit Farm Modal -->
+<div class="modal" id="farmModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title" id="farmModalTitle">Add Farm</h2>
+            <button class="modal-close" onclick="closeFarmModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <form id="farmForm" onsubmit="submitFarmForm(event)">
+            <input type="hidden" id="farmId" name="farmId">
+
+            <div class="form-group">
+                <label class="form-label">Farm Name *</label>
+                <input type="text" class="form-input" id="farmName" name="farmName" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Farm Code</label>
+                <input type="text" class="form-input" id="farmCode" name="farmCode" placeholder="Optional cadastral code">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Farm Size (Hectares) *</label>
+                <input type="number" step="0.01" class="form-input" id="farmSize" name="farmSize" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Soil Type *</label>
+                <select class="form-select" id="soilType" name="soilType" required>
+                    <option value="">Select Soil Type</option>
+                    <option value="CLAY">Clay</option>
+                    <option value="SANDY">Sandy</option>
+                    <option value="LOAM">Loam</option>
+                    <option value="SILT">Silt</option>
+                    <option value="PEAT">Peat</option>
+                    <option value="CHALK">Chalk</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Latitude *</label>
+                <input type="number" step="0.00000001" class="form-input" id="latitude" name="latitude" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Longitude *</label>
+                <input type="number" step="0.00000001" class="form-input" id="longitude" name="longitude" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Altitude (Meters)</label>
+                <input type="number" step="0.01" class="form-input" id="altitude" name="altitude">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Irrigation System *</label>
+                <select class="form-select" id="irrigationSystem" name="irrigationSystem" required>
+                    <option value="RAIN_FED">Rain Fed</option>
+                    <option value="SPRINKLER">Sprinkler</option>
+                    <option value="DRIP">Drip Irrigation</option>
+                    <option value="FLOOD">Flood Irrigation</option>
+                    <option value="MANUAL">Manual Irrigation</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Topography</label>
+                <select class="form-select" id="topography" name="topography">
+                    <option value="">Select Topography</option>
+                    <option value="FLAT">Flat</option>
+                    <option value="HILLY">Hilly</option>
+                    <option value="MOUNTAINOUS">Mountainous</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Water Source</label>
+                <input type="text" class="form-input" id="waterSource" name="waterSource" placeholder="e.g., Well, River, Municipal">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Electricity Available</label>
+                <select class="form-select" id="electricityAvailable" name="electricityAvailable">
+                    <option value="false">No</option>
+                    <option value="true">Yes</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Road Access Quality</label>
+                <select class="form-select" id="roadAccessQuality" name="roadAccessQuality">
+                    <option value="MODERATE">Moderate</option>
+                    <option value="GOOD">Good</option>
+                    <option value="POOR">Poor</option>
+                </select>
+            </div>
+
+            <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px;">
+                <button type="button" class="btn btn-secondary" onclick="closeFarmModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary" id="farmSubmitBtn">
+                    <i class="fas fa-save"></i>
+                    Save Farm
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="js/SessionTracker.js"></script>
+<script src="js/user_session_handler.js"></script>
+<script>
+    const API_BASE_URL = 'http://localhost:1010/api';
+    const FARMS_API = `${API_BASE_URL}/farms`;
+    const USERS_API = `${API_BASE_URL}/users`;
+
+    let allFarms = [];
+    let allFarmers = [];
+    let charts = {};
+    let currentEditingFarmId = null;
+    let sessionHandler = null;
+    let currentLoggedInUser = null;
+
+    // Initialize session handler
+    function initializeSessionHandler() {
+        try {
+            sessionHandler = UserSessionHandler.getInstance();
+            currentLoggedInUser = sessionHandler.getCurrentUser();
+
+            if (!currentLoggedInUser) {
+                console.warn('No user session found, redirecting to login');
+                window.location.href = '/login.html';
+                return false;
+            }
+
+            console.log('Session loaded for user:', currentLoggedInUser.fullName);
+            return true;
+        } catch (error) {
+            console.error('Error initializing session:', error);
+            window.location.href = '/login.html';
+            return false;
+        }
+    }
+
+    // Update UI with current user
+    function updateUIWithCurrentUser() {
+        if (!currentLoggedInUser) return;
+
+        const greetingText = document.getElementById('greetingText');
+        if (greetingText) {
+            const hour = new Date().getHours();
+            let greeting = 'Good Morning';
+            if (hour >= 12 && hour < 18) greeting = 'Good Afternoon';
+            else if (hour >= 18) greeting = 'Good Evening';
+
+            greetingText.textContent = `${greeting}, ${currentLoggedInUser.fullName}!`;
+        }
+
+        const profileName = document.getElementById('profileName');
+        if (profileName) {
+            profileName.textContent = currentLoggedInUser.fullName;
+        }
+
+        const profileRole = document.getElementById('profileRole');
+        if (profileRole) {
+            profileRole.textContent = formatRole(currentLoggedInUser.role);
+        }
+
+        const profileAvatar = document.getElementById('profileAvatar');
+        if (profileAvatar && currentLoggedInUser.fullName) {
+            const initials = currentLoggedInUser.fullName
+                .split(' ')
+                .map(n => n[0])
+                .join('')
+                .toUpperCase();
+            profileAvatar.textContent = initials;
+
+            if (currentLoggedInUser.photo || currentLoggedInUser.profileImageUrl) {
+                const photoUrl = currentLoggedInUser.photo || currentLoggedInUser.profileImageUrl;
+                if (photoUrl.startsWith('http') || photoUrl.startsWith('data:')) {
+                    profileAvatar.style.backgroundImage = `url(${photoUrl})`;
+                    profileAvatar.style.backgroundSize = 'cover';
+                    profileAvatar.textContent = '';
+                } else {
+                    const fullUrl = `http://localhost:1010/${photoUrl}`;
+                    profileAvatar.style.backgroundImage = `url(${fullUrl})`;
+                    profileAvatar.style.backgroundSize = 'cover';
+                    profileAvatar.textContent = '';
+                }
+            }
+        }
+
+        console.log('UI updated with user info:', {
+            name: currentLoggedInUser.fullName,
+            role: currentLoggedInUser.role,
+            email: currentLoggedInUser.email
+        });
+    }
+
+    function formatRole(role) {
+        if (!role) return 'User';
+        return role.split('_')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+            .join(' ');
+    }
+
+    function handleLogout() {
+        if (confirm('Are you sure you want to logout?')) {
+            if (currentLoggedInUser && window.sessionTracker) {
+                const userId = currentLoggedInUser.userId || currentLoggedInUser.id;
+                window.sessionTracker.endSession(userId);
+            }
+
+            if (sessionHandler) {
+                sessionHandler.logout();
+            } else {
+                window.location.href = '/login.html';
+            }
+        }
+    }
+
+    // Initialize dashboard
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeDashboard();
+        updateDateTime();
+        setInterval(updateDateTime, 60000);
+        loadSavedTheme();
+    });
+
+    async function initializeDashboard() {
+        if (!initializeSessionHandler()) {
+            return;
+        }
+
+        updateUIWithCurrentUser();
+        showLoading(true);
+
+        try {
+            await Promise.all([
+                loadFarmers(),
+                loadFarms()
+            ]);
+            initializeCharts();
+        } catch (error) {
+            console.error('Error initializing dashboard:', error);
+            showToast('Error loading dashboard data', 'error');
+        } finally {
+            showLoading(false);
+        }
+    }
+
+    async function loadFarmers() {
+        try {
+            const response = await fetch(`${USERS_API}/farmers`);
+            if (!response.ok) throw new Error('Failed to load farmers');
+
+            allFarmers = await response.json();
+            console.log('Loaded farmers:', allFarmers.length);
+        } catch (error) {
+            console.error('Error loading farmers:', error);
+            showToast('Error loading farmers list', 'error');
+        }
+    }
+
+    async function loadFarms() {
+        if (!currentLoggedInUser) {
+            showToast('User session not found', 'error');
+            return;
+        }
+
+        try {
+            const farmerId = currentLoggedInUser.id || currentLoggedInUser.userId;
+            const response = await fetch(`${FARMS_API}/farmer/${farmerId}/all`);
+
+            if (!response.ok) throw new Error('Failed to load farms');
+
+            allFarms = await response.json();
+            console.log('Loaded farms:', allFarms.length);
+
+            updateStatistics();
+            renderFarmsTable(allFarms);
+            updateAllCharts();
+        } catch (error) {
+            console.error('Error loading farms:', error);
+            document.getElementById('farmsTableBody').innerHTML = `
+                <tr>
+                    <td colspan="7" class="empty-state">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <p>Error loading farms. Please try again.</p>
+                    </td>
+                </tr>
+            `;
+            showToast('Error loading farms', 'error');
+        }
+    }
+
+    function updateStatistics() {
+        document.getElementById('totalFarms').textContent = allFarms.length;
+
+        const totalArea = allFarms.reduce((sum, farm) => sum + (parseFloat(farm.farmSize) || 0), 0);
+        document.getElementById('totalArea').textContent = totalArea.toFixed(2);
+
+        const avgSize = allFarms.length > 0 ? totalArea / allFarms.length : 0;
+        document.getElementById('avgSize').textContent = avgSize.toFixed(2);
+
+        const largeFarms = allFarms.filter(farm => parseFloat(farm.farmSize) > 10).length;
+        document.getElementById('largeFarms').textContent = largeFarms;
+
+        document.getElementById('notificationCount').textContent = allFarms.length;
+    }
+
+    function renderFarmsTable(farms) {
+        const tbody = document.getElementById('farmsTableBody');
+
+        if (!farms || farms.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>No farms found. Add your first farm to get started!</p>
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        tbody.innerHTML = farms.map(farm => {
+            return `
+                <tr>
+                    <td><strong>${farm.farmName || 'N/A'}</strong></td>
+                    <td>${farm.farmCode || 'N/A'}</td>
+                    <td>${farm.farmSize ? parseFloat(farm.farmSize).toFixed(2) : 'N/A'}</td>
+                    <td>${farm.soilType || 'N/A'}</td>
+                    <td>${formatIrrigationSystem(farm.irrigationSystem)}</td>
+                    <td>${farm.latitude && farm.longitude ? `${parseFloat(farm.latitude).toFixed(4)}, ${parseFloat(farm.longitude).toFixed(4)}` : 'N/A'}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="action-btn action-btn-view" onclick="viewFarm('${farm.id}')" title="View Details">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="action-btn action-btn-edit" onclick="editFarm('${farm.id}')" title="Edit Farm">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="action-btn action-btn-delete" onclick="deleteFarm('${farm.id}')" title="Delete Farm">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    function formatIrrigationSystem(system) {
+        if (!system) return 'N/A';
+        return system.replace(/_/g, ' ').toLowerCase()
+            .split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
+    }
+
+    function initializeCharts() {
+        initializeSizeDistributionChart();
+        initializeSoilTypeChart();
+        initializeIrrigationChart();
+        initializeTopographyChart();
+        initializeAnalyticsCharts();
+        initializePredictions();
+    }
+
+    function updateAllCharts() {
+        updateSizeDistributionChart();
+        updateSoilTypeChart();
+        updateIrrigationChart();
+        updateTopographyChart();
+        updateAnalyticsCharts();
+        updatePredictions();
+    }
+
+    function initializeSizeDistributionChart() {
+        const ctx = document.getElementById('sizeDistributionChart');
+        if (!ctx) return;
+
+        if (charts.sizeDistribution) {
+            charts.sizeDistribution.destroy();
+        }
+
+        const small = allFarms.filter(f => parseFloat(f.farmSize) <= 2).length;
+        const medium = allFarms.filter(f => parseFloat(f.farmSize) > 2 && parseFloat(f.farmSize) <= 10).length;
+        const large = allFarms.filter(f => parseFloat(f.farmSize) > 10).length;
+
+        charts.sizeDistribution = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Small (≤2 Ha)', 'Medium (2-10 Ha)', 'Large (>10 Ha)'],
+                datasets: [{
+                    data: [small, medium, large],
+                    backgroundColor: ['#f59e0b', '#3b82f6', '#22c55e']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    }
+
+    function updateSizeDistributionChart() {
+        if (charts.sizeDistribution) {
+            const small = allFarms.filter(f => parseFloat(f.farmSize) <= 2).length;
+            const medium = allFarms.filter(f => parseFloat(f.farmSize) > 2 && parseFloat(f.farmSize) <= 10).length;
+            const large = allFarms.filter(f => parseFloat(f.farmSize) > 10).length;
+
+            charts.sizeDistribution.data.datasets[0].data = [small, medium, large];
+            charts.sizeDistribution.update();
+        }
+    }
+
+    function initializeSoilTypeChart() {
+        const ctx = document.getElementById('soilTypeChart');
+        if (!ctx) return;
+
+        if (charts.soilType) {
+            charts.soilType.destroy();
+        }
+
+        const soilTypes = {};
+        allFarms.forEach(farm => {
+            const soil = farm.soilType || 'Unknown';
+            soilTypes[soil] = (soilTypes[soil] || 0) + 1;
+        });
+
+        charts.soilType = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(soilTypes),
+                datasets: [{
+                    label: 'Number of Farms',
+                    data: Object.values(soilTypes),
+                    backgroundColor: '#3b82f6'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function updateSoilTypeChart() {
+        if (charts.soilType) {
+            const soilTypes = {};
+            allFarms.forEach(farm => {
+                const soil = farm.soilType || 'Unknown';
+                soilTypes[soil] = (soilTypes[soil] || 0) + 1;
+            });
+
+            charts.soilType.data.labels = Object.keys(soilTypes);
+            charts.soilType.data.datasets[0].data = Object.values(soilTypes);
+            charts.soilType.update();
+        }
+    }
+
+    function initializeIrrigationChart() {
+        const ctx = document.getElementById('irrigationChart');
+        if (!ctx) return;
+
+        if (charts.irrigation) {
+            charts.irrigation.destroy();
+        }
+
+        const irrigation = {};
+        allFarms.forEach(farm => {
+            const system = farm.irrigationSystem || 'Unknown';
+            irrigation[system] = (irrigation[system] || 0) + 1;
+        });
+
+        charts.irrigation = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: Object.keys(irrigation).map(formatIrrigationSystem),
+                datasets: [{
+                    data: Object.values(irrigation),
+                    backgroundColor: ['#22c55e', '#3b82f6', '#f59e0b', '#8b5cf6', '#ef4444']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    }
+
+    function updateIrrigationChart() {
+        if (charts.irrigation) {
+            const irrigation = {};
+            allFarms.forEach(farm => {
+                const system = farm.irrigationSystem || 'Unknown';
+                irrigation[system] = (irrigation[system] || 0) + 1;
+            });
+
+            charts.irrigation.data.labels = Object.keys(irrigation).map(formatIrrigationSystem);
+            charts.irrigation.data.datasets[0].data = Object.values(irrigation);
+            charts.irrigation.update();
+        }
+    }
+
+    function initializeTopographyChart() {
+        const ctx = document.getElementById('topographyChart');
+        if (!ctx) return;
+
+        if (charts.topography) {
+            charts.topography.destroy();
+        }
+
+        const topography = {};
+        allFarms.forEach(farm => {
+            const topo = farm.topography || 'Unknown';
+            topography[topo] = (topography[topo] || 0) + 1;
+        });
+
+        charts.topography = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(topography),
+                datasets: [{
+                    label: 'Number of Farms',
+                    data: Object.values(topography),
+                    backgroundColor: '#22c55e'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function updateTopographyChart() {
+        if (charts.topography) {
+            const topography = {};
+            allFarms.forEach(farm => {
+                const topo = farm.topography || 'Unknown';
+                topography[topo] = (topography[topo] || 0) + 1;
+            });
+
+            charts.topography.data.labels = Object.keys(topography);
+            charts.topography.data.datasets[0].data = Object.values(topography);
+            charts.topography.update();
+        }
+    }
+
+    function initializeAnalyticsCharts() {
+        // Size Trend Chart
+        const trendCtx = document.getElementById('sizeTrendChart');
+        if (trendCtx) {
+            if (charts.sizeTrend) charts.sizeTrend.destroy();
+
+            const sortedFarms = [...allFarms].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+
+            charts.sizeTrend = new Chart(trendCtx, {
+                type: 'line',
+                data: {
+                    labels: sortedFarms.map(f => new Date(f.createdAt).toLocaleDateString()),
+                    datasets: [{
+                        label: 'Farm Size (Ha)',
+                        data: sortedFarms.map(f => parseFloat(f.farmSize)),
+                        borderColor: '#22c55e',
+                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Altitude Distribution
+        const altitudeCtx = document.getElementById('altitudeChart');
+        if (altitudeCtx) {
+            if (charts.altitude) charts.altitude.destroy();
+
+            const altitudes = allFarms.filter(f => f.altitude).map(f => parseFloat(f.altitude));
+
+            charts.altitude = new Chart(altitudeCtx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Altitude (m)',
+                        data: altitudes.map((alt, idx) => ({ x: idx, y: alt })),
+                        backgroundColor: '#3b82f6'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Electricity Availability
+        const electricityCtx = document.getElementById('electricityChart');
+        if (electricityCtx) {
+            if (charts.electricity) charts.electricity.destroy();
+
+            const withElectricity = allFarms.filter(f => f.electricityAvailable).length;
+            const withoutElectricity = allFarms.length - withElectricity;
+
+            charts.electricity = new Chart(electricityCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['With Electricity', 'Without Electricity'],
+                    datasets: [{
+                        data: [withElectricity, withoutElectricity],
+                        backgroundColor: ['#22c55e', '#ef4444']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Road Access Quality
+        const roadCtx = document.getElementById('roadAccessChart');
+        if (roadCtx) {
+            if (charts.roadAccess) charts.roadAccess.destroy();
+
+            const roadAccess = {};
+            allFarms.forEach(farm => {
+                const quality = farm.roadAccessQuality || 'Unknown';
+                roadAccess[quality] = (roadAccess[quality] || 0) + 1;
+            });
+
+            charts.roadAccess = new Chart(roadCtx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(roadAccess),
+                    datasets: [{
+                        label: 'Number of Farms',
+                        data: Object.values(roadAccess),
+                        backgroundColor: ['#22c55e', '#f59e0b', '#ef4444']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Comparison Chart
+        const comparisonCtx = document.getElementById('comparisonChart');
+        if (comparisonCtx) {
+            if (charts.comparison) charts.comparison.destroy();
+
+            const topFarms = [...allFarms]
+                .sort((a, b) => parseFloat(b.farmSize) - parseFloat(a.farmSize))
+                .slice(0, 10);
+
+            charts.comparison = new Chart(comparisonCtx, {
+                type: 'bar',
+                data: {
+                    labels: topFarms.map(f => f.farmName),
+                    datasets: [{
+                        label: 'Farm Size (Ha)',
+                        data: topFarms.map(f => parseFloat(f.farmSize)),
+                        backgroundColor: '#22c55e'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+
+        // Growth Analysis
+        const growthCtx = document.getElementById('growthChart');
+        if (growthCtx) {
+            if (charts.growth) charts.growth.destroy();
+
+            const monthlyData = getMonthlyGrowth();
+
+            charts.growth = new Chart(growthCtx, {
+                type: 'line',
+                data: {
+                    labels: monthlyData.labels,
+                    datasets: [{
+                        label: 'Farms Added',
+                        data: monthlyData.data,
+                        borderColor: '#22c55e',
+                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    function updateAnalyticsCharts() {
+        initializeAnalyticsCharts();
+    }
+
+    function getMonthlyGrowth() {
+        const monthlyCount = {};
+        allFarms.forEach(farm => {
+            if (farm.createdAt) {
+                const date = new Date(farm.createdAt);
+                const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                monthlyCount[monthKey] = (monthlyCount[monthKey] || 0) + 1;
+            }
+        });
+
+        const sortedKeys = Object.keys(monthlyCount).sort();
+        return {
+            labels: sortedKeys.map(key => {
+                const [year, month] = key.split('-');
+                return new Date(year, month - 1).toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
+            }),
+            data: sortedKeys.map(key => monthlyCount[key])
+        };
+    }
+
+    function initializePredictions() {
+        const predictionsGrid = document.getElementById('predictionsGrid');
+        if (!predictionsGrid) return;
+
+        // Calculate predictions based on real data
+        const predictions = calculatePredictions();
+
+        predictionsGrid.innerHTML = `
+            <div class="prediction-card" style="background: linear-gradient(135deg, #22c55e, #16a34a);">
+                <div class="prediction-title">Predicted Farms Next Month</div>
+                <div class="prediction-value">${predictions.nextMonthFarms}</div>
+                <div class="prediction-subtitle">Based on growth trend analysis</div>
+            </div>
+            <div class="prediction-card" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);">
+                <div class="prediction-title">Predicted Total Area</div>
+                <div class="prediction-value">${predictions.nextMonthArea} Ha</div>
+                <div class="prediction-subtitle">Expected area expansion</div>
+            </div>
+            <div class="prediction-card" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
+                <div class="prediction-title">Growth Rate</div>
+                <div class="prediction-value">${predictions.growthRate}%</div>
+                <div class="prediction-subtitle">Month-over-month</div>
+            </div>
+            <div class="prediction-card" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                <div class="prediction-title">Recommended Investment</div>
+                <div class="prediction-value">$${predictions.recommendedInvestment}</div>
+                <div class="prediction-subtitle">For optimal expansion</div>
+            </div>
+        `;
+
+        // Prediction charts
+        const predGrowthCtx = document.getElementById('predictionGrowthChart');
+        if (predGrowthCtx) {
+            if (charts.predGrowth) charts.predGrowth.destroy();
+
+            charts.predGrowth = new Chart(predGrowthCtx, {
+                type: 'line',
+                data: {
+                    labels: predictions.forecastLabels,
+                    datasets: [{
+                        label: 'Historical',
+                        data: predictions.historicalData,
+                        borderColor: '#22c55e',
+                        backgroundColor: 'rgba(34, 197, 94, 0.1)'
+                    }, {
+                        label: 'Predicted',
+                        data: predictions.predictedData,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderDash: [5, 5]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true
+                        }
+                    }
+                }
+            });
+        }
+
+        const predAreaCtx = document.getElementById('predictionAreaChart');
+        if (predAreaCtx) {
+            if (charts.predArea) charts.predArea.destroy();
+
+            charts.predArea = new Chart(predAreaCtx, {
+                type: 'bar',
+                data: {
+                    labels: predictions.areaLabels,
+                    datasets: [{
+                        label: 'Historical Area',
+                        data: predictions.historicalArea,
+                        backgroundColor: '#22c55e'
+                    }, {
+                        label: 'Predicted Area',
+                        data: predictions.predictedArea,
+                        backgroundColor: '#3b82f6'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    function updatePredictions() {
+        initializePredictions();
+    }
+
+    function calculatePredictions() {
+        const currentCount = allFarms.length;
+        const currentArea = allFarms.reduce((sum, farm) => sum + parseFloat(farm.farmSize || 0), 0);
+
+        // Simple linear regression for growth prediction
+        const monthlyGrowth = getMonthlyGrowth();
+        const avgMonthlyGrowth = monthlyGrowth.data.length > 0
+            ? monthlyGrowth.data.reduce((a, b) => a + b, 0) / monthlyGrowth.data.length
+            : 1;
+
+        const growthRate = monthlyGrowth.data.length > 1
+            ? ((monthlyGrowth.data[monthlyGrowth.data.length - 1] - monthlyGrowth.data[0]) / monthlyGrowth.data[0] * 100)
+            : 10;
+
+        const nextMonthFarms = Math.round(currentCount + avgMonthlyGrowth);
+        const nextMonthArea = (currentArea + (avgMonthlyGrowth * (currentArea / currentCount))).toFixed(2);
+        const recommendedInvestment = Math.round(nextMonthArea * 500); // $500 per hectare estimate
+
+        // Generate forecast data
+        const last6Months = monthlyGrowth.labels.slice(-6);
+        const last6Data = monthlyGrowth.data.slice(-6);
+        const next3Months = ['Next Month', 'Month +2', 'Month +3'];
+
+        const predictedValues = [
+            Math.round(currentCount + avgMonthlyGrowth),
+            Math.round(currentCount + avgMonthlyGrowth * 2),
+            Math.round(currentCount + avgMonthlyGrowth * 3)
+        ];
+
+        return {
+            nextMonthFarms,
+            nextMonthArea,
+            growthRate: growthRate.toFixed(1),
+            recommendedInvestment: recommendedInvestment.toLocaleString(),
+            forecastLabels: [...last6Months, ...next3Months],
+            historicalData: [...last6Data, ...Array(3).fill(null)],
+            predictedData: [...Array(6).fill(null), ...predictedValues],
+            areaLabels: ['Current', 'Predicted'],
+            historicalArea: [currentArea.toFixed(2), 0],
+            predictedArea: [0, nextMonthArea]
+        };
+    }
+
+    function showSection(sectionName) {
+        document.querySelectorAll('.content-section').forEach(section => {
+            section.classList.remove('active');
+        });
+
+        const section = document.getElementById(sectionName + 'Section');
+        if (section) {
+            section.classList.add('active');
+        }
+
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.classList.remove('active');
+        });
+        event.target.closest('.nav-item').classList.add('active');
+
+        if (sectionName === 'farms') {
+            loadFarms();
+        }
+    }
+
+    function showAddFarmModal() {
+        currentEditingFarmId = null;
+        document.getElementById('farmModalTitle').textContent = 'Add Farm';
+        document.getElementById('farmForm').reset();
+        document.getElementById('farmId').value = '';
+        document.getElementById('farmModal').classList.add('show');
+    }
+
+    function closeFarmModal() {
+        document.getElementById('farmModal').classList.remove('show');
+        document.getElementById('farmForm').reset();
+        currentEditingFarmId = null;
+    }
+
+    async function submitFarmForm(event) {
+        event.preventDefault();
+
+        if (!currentLoggedInUser) {
+            showToast('User session not found', 'error');
+            return;
+        }
+
+        const formData = {
+            farmerId: currentLoggedInUser.id || currentLoggedInUser.userId,
+            farmName: document.getElementById('farmName').value,
+            farmCode: document.getElementById('farmCode').value || null,
+            farmSize: parseFloat(document.getElementById('farmSize').value),
+            soilType: document.getElementById('soilType').value,
+            latitude: parseFloat(document.getElementById('latitude').value),
+            longitude: parseFloat(document.getElementById('longitude').value),
+            altitude: document.getElementById('altitude').value ? parseFloat(document.getElementById('altitude').value) : null,
+            irrigationSystem: document.getElementById('irrigationSystem').value,
+            topography: document.getElementById('topography').value || null,
+            waterSource: document.getElementById('waterSource').value || null,
+            electricityAvailable: document.getElementById('electricityAvailable').value === 'true',
+            roadAccessQuality: document.getElementById('roadAccessQuality').value
+        };
+
+        try {
+            showLoading(true);
+            let response;
+
+            if (currentEditingFarmId) {
+                response = await fetch(`${FARMS_API}/${currentEditingFarmId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+            } else {
+                response = await fetch(FARMS_API, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+            }
+
+            if (!response.ok) throw new Error('Failed to save farm');
+
+            showToast(currentEditingFarmId ? 'Farm updated successfully' : 'Farm created successfully', 'success');
+            closeFarmModal();
+            await loadFarms();
+        } catch (error) {
+            console.error('Error saving farm:', error);
+            showToast('Error saving farm', 'error');
+        } finally {
+            showLoading(false);
+        }
+    }
+
+    async function editFarm(farmId) {
+        try {
+            showLoading(true);
+            const response = await fetch(`${FARMS_API}/${farmId}`);
+            if (!response.ok) throw new Error('Failed to load farm');
+
+            const farm = await response.json();
+            currentEditingFarmId = farmId;
+
+            document.getElementById('farmModalTitle').textContent = 'Edit Farm';
+            document.getElementById('farmId').value = farm.id;
+            document.getElementById('farmName').value = farm.farmName || '';
+            document.getElementById('farmCode').value = farm.farmCode || '';
+            document.getElementById('farmSize').value = farm.farmSize || '';
+            document.getElementById('soilType').value = farm.soilType || '';
+            document.getElementById('latitude').value = farm.latitude || '';
+            document.getElementById('longitude').value = farm.longitude || '';
+            document.getElementById('altitude').value = farm.altitude || '';
+            document.getElementById('irrigationSystem').value = farm.irrigationSystem || 'RAIN_FED';
+            document.getElementById('topography').value = farm.topography || '';
+            document.getElementById('waterSource').value = farm.waterSource || '';
+            document.getElementById('electricityAvailable').value = farm.electricityAvailable ? 'true' : 'false';
+            document.getElementById('roadAccessQuality').value = farm.roadAccessQuality || 'MODERATE';
+
+            document.getElementById('farmModal').classList.add('show');
+        } catch (error) {
+            console.error('Error loading farm:', error);
+            showToast('Error loading farm data', 'error');
+        } finally {
+            showLoading(false);
+        }
+    }
+
+    async function viewFarm(farmId) {
+        await editFarm(farmId);
+        document.querySelectorAll('#farmForm input, #farmForm select').forEach(input => {
+            input.disabled = true;
+        });
+        document.getElementById('farmSubmitBtn').style.display = 'none';
+        document.getElementById('farmModalTitle').textContent = 'View Farm Details';
+    }
+
+    async function deleteFarm(farmId) {
+        if (!confirm('Are you sure you want to delete this farm? This action cannot be undone.')) {
+            return;
+        }
+
+        try {
+            showLoading(true);
+            const response = await fetch(`${FARMS_API}/${farmId}`, {
+                method: 'DELETE'
+            });
+
+            if (!response.ok) throw new Error('Failed to delete farm');
+
+            showToast('Farm deleted successfully', 'success');
+            await loadFarms();
+        } catch (error) {
+            console.error('Error deleting farm:', error);
+            showToast('Error deleting farm', 'error');
+        } finally {
+            showLoading(false);
+        }
+    }
+
+    function searchInTable(tableBodyId, searchInputId) {
+        const searchValue = document.getElementById(searchInputId).value.toLowerCase();
+        const tbody = document.getElementById(tableBodyId);
+        const rows = tbody.getElementsByTagName('tr');
+
+        for (let row of rows) {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(searchValue) ? '' : 'none';
+        }
+    }
+
+    function handleGlobalSearch() {
+        const searchValue = document.getElementById('globalSearch').value.toLowerCase();
+        const visibleSection = document.querySelector('.content-section.active');
+
+        if (visibleSection) {
+            const tbody = visibleSection.querySelector('tbody');
+            if (tbody) {
+                const rows = tbody.getElementsByTagName('tr');
+                for (let row of rows) {
+                    const text = row.textContent.toLowerCase();
+                    row.style.display = text.includes(searchValue) ? '' : 'none';
+                }
+            }
+        }
+    }
+
+    function exportFarmsToExcel() {
+        if (allFarms.length === 0) {
+            showToast('No data to export', 'warning');
+            return;
+        }
+
+        const exportData = allFarms.map(farm => ({
+            'Farm Name': farm.farmName || 'N/A',
+            'Farm Code': farm.farmCode || 'N/A',
+            'Size (Ha)': farm.farmSize || 'N/A',
+            'Soil Type': farm.soilType || 'N/A',
+            'Irrigation System': formatIrrigationSystem(farm.irrigationSystem),
+            'Latitude': farm.latitude || 'N/A',
+            'Longitude': farm.longitude || 'N/A',
+            'Altitude (m)': farm.altitude || 'N/A',
+            'Topography': farm.topography || 'N/A',
+            'Water Source': farm.waterSource || 'N/A',
+            'Electricity': farm.electricityAvailable ? 'Yes' : 'No',
+            'Road Access': farm.roadAccessQuality || 'N/A',
+            'Created Date': farm.createdAt ? new Date(farm.createdAt).toLocaleDateString() : 'N/A'
+        }));
+
+        const ws = XLSX.utils.json_to_sheet(exportData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Farms');
+        XLSX.writeFile(wb, `farms_export_${Date.now()}.xlsx`);
+
+        showToast('Excel file exported successfully', 'success');
+    }
+
+    async function generatePDFReport() {
+        const reportType = document.getElementById('reportType').value;
+        const timePeriod = document.getElementById('timePeriod').value;
+        const fromDate = document.getElementById('fromDate').value;
+        const toDate = document.getElementById('toDate').value;
+
+        let filteredFarms = filterFarmsByReportType(reportType);
+        filteredFarms = filterFarmsByTimePeriod(filteredFarms, timePeriod, fromDate, toDate);
+
+        if (filteredFarms.length === 0) {
+            showToast('No data to generate report', 'warning');
+            return;
+        }
+
+        showLoading(true);
+
+        try {
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const pageWidth = pdf.internal.pageSize.getWidth();
+            const pageHeight = pdf.internal.pageSize.getHeight();
+
+            // Add logo
+            try {
+                const logoImg = await loadImage('images/logo.jpg');
+                pdf.addImage(logoImg, 'JPEG', 15, 10, 30, 30);
+            } catch (error) {
+                console.warn('Could not load logo:', error);
+            }
+
+            // Header
+            pdf.setFontSize(20);
+            pdf.setTextColor(34, 197, 94);
+            pdf.text('AgriGuard AI', 50, 20);
+
+            pdf.setFontSize(16);
+            pdf.setTextColor(0, 0, 0);
+            pdf.text('Farm Management Report', 50, 30);
+
+            pdf.setFontSize(10);
+            pdf.setTextColor(100, 100, 100);
+            pdf.text(`Farmer: ${currentLoggedInUser.fullName}`, 50, 37);
+            pdf.text(`Generated: ${new Date().toLocaleString()}`, 50, 42);
+
+            // Statistics
+            pdf.setFontSize(14);
+            pdf.setTextColor(0, 0, 0);
+            pdf.text('Summary Statistics', 15, 55);
+
+            const stats = [
+                ['Total Farms:', filteredFarms.length.toString()],
+                ['Total Area:', `${filteredFarms.reduce((sum, f) => sum + parseFloat(f.farmSize || 0), 0).toFixed(2)} Ha`],
+                ['Average Size:', `${(filteredFarms.reduce((sum, f) => sum + parseFloat(f.farmSize || 0), 0) / filteredFarms.length).toFixed(2)} Ha`],
+                ['Report Period:', getTimePeriodLabel(timePeriod, fromDate, toDate)]
+            ];
+
+            let yPos = 62;
+            stats.forEach(([label, value]) => {
+                pdf.setFontSize(10);
+                pdf.setTextColor(100, 100, 100);
+                pdf.text(label, 15, yPos);
+                pdf.setTextColor(0, 0, 0);
+                pdf.text(value, 80, yPos);
+                yPos += 7;
+            });
+
+            // Farms table
+            const tableData = filteredFarms.map(farm => [
+                farm.farmName || 'N/A',
+                (farm.farmSize || 0).toFixed(2),
+                farm.soilType || 'N/A',
+                formatIrrigationSystem(farm.irrigationSystem),
+                farm.electricityAvailable ? 'Yes' : 'No'
+            ]);
+
+            pdf.autoTable({
+                head: [['Farm Name', 'Size (Ha)', 'Soil Type', 'Irrigation', 'Electricity']],
+                body: tableData,
+                startY: yPos + 5,
+                theme: 'grid',
+                headStyles: {
+                    fillColor: [34, 197, 94],
+                    textColor: [255, 255, 255],
+                    fontStyle: 'bold'
+                },
+                styles: {
+                    fontSize: 9,
+                    cellPadding: 3
+                },
+                alternateRowStyles: {
+                    fillColor: [245, 245, 245]
+                }
+            });
+
+            // Footer
+            const totalPages = pdf.internal.getNumberOfPages();
+            for (let i = 1; i <= totalPages; i++) {
+                pdf.setPage(i);
+                pdf.setFontSize(8);
+                pdf.setTextColor(150, 150, 150);
+                pdf.text(
+                    `Page ${i} of ${totalPages}`,
+                    pageWidth / 2,
+                    pageHeight - 10,
+                    { align: 'center' }
+                );
+                pdf.text(
+                    'AgriGuard AI - Smart Agriculture Management',
+                    pageWidth / 2,
+                    pageHeight - 5,
+                    { align: 'center' }
+                );
+            }
+
+            pdf.save(`farm_report_${Date.now()}.pdf`);
+            showToast('PDF report generated successfully', 'success');
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+            showToast('Error generating PDF report', 'error');
+        } finally {
+            showLoading(false);
+        }
+    }
+
+    async function generateExcelReport() {
+        const reportType = document.getElementById('reportType').value;
+        const timePeriod = document.getElementById('timePeriod').value;
+        const fromDate = document.getElementById('fromDate').value;
+        const toDate = document.getElementById('toDate').value;
+
+        let filteredFarms = filterFarmsByReportType(reportType);
+        filteredFarms = filterFarmsByTimePeriod(filteredFarms, timePeriod, fromDate, toDate);
+
+        if (filteredFarms.length === 0) {
+            showToast('No data to generate report', 'warning');
+            return;
+        }
+
+        const exportData = filteredFarms.map(farm => ({
+            'Farm Name': farm.farmName || 'N/A',
+            'Farm Code': farm.farmCode || 'N/A',
+            'Size (Ha)': farm.farmSize || 'N/A',
+            'Soil Type': farm.soilType || 'N/A',
+            'Irrigation System': formatIrrigationSystem(farm.irrigationSystem),
+            'Latitude': farm.latitude || 'N/A',
+            'Longitude': farm.longitude || 'N/A',
+            'Altitude (m)': farm.altitude || 'N/A',
+            'Topography': farm.topography || 'N/A',
+            'Water Source': farm.waterSource || 'N/A',
+            'Electricity': farm.electricityAvailable ? 'Yes' : 'No',
+            'Road Access': farm.roadAccessQuality || 'N/A',
+            'Created Date': farm.createdAt ? new Date(farm.createdAt).toLocaleDateString() : 'N/A'
+        }));
+
+        const ws = XLSX.utils.json_to_sheet(exportData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Farm Report');
+        XLSX.writeFile(wb, `farm_report_${Date.now()}.xlsx`);
+
+        showToast('Excel report generated successfully', 'success');
+    }
+
+    function filterFarmsByReportType(type) {
+        switch (type) {
+            case 'large':
+                return allFarms.filter(f => parseFloat(f.farmSize) > 10);
+            case 'medium':
+                return allFarms.filter(f => parseFloat(f.farmSize) > 2 && parseFloat(f.farmSize) <= 10);
+            case 'small':
+                return allFarms.filter(f => parseFloat(f.farmSize) <= 2);
+            case 'irrigation':
+                return allFarms;
+            case 'soil':
+                return allFarms;
+            default:
+                return allFarms;
+        }
+    }
+
+    function filterFarmsByTimePeriod(farms, period, fromDate, toDate) {
+        const now = new Date();
+
+        if (fromDate && toDate) {
+            const from = new Date(fromDate);
+            const to = new Date(toDate);
+            return farms.filter(farm => {
+                const created = new Date(farm.createdAt);
+                return created >= from && created <= to;
+            });
+        }
+
+        switch (period) {
+            case 'today':
+                return farms.filter(farm => {
+                    const created = new Date(farm.createdAt);
+                    return created.toDateString() === now.toDateString();
+                });
+            case 'week':
+                const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                return farms.filter(farm => new Date(farm.createdAt) >= weekAgo);
+            case 'month':
+                const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+                return farms.filter(farm => new Date(farm.createdAt) >= monthAgo);
+            case 'year':
+                const yearAgo = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+                return farms.filter(farm => new Date(farm.createdAt) >= yearAgo);
+            default:
+                return farms;
+        }
+    }
+
+    function getTimePeriodLabel(period, fromDate, toDate) {
+        if (fromDate && toDate) {
+            return `${new Date(fromDate).toLocaleDateString()} - ${new Date(toDate).toLocaleDateString()}`;
+        }
+
+        switch (period) {
+            case 'today': return 'Today';
+            case 'week': return 'This Week';
+            case 'month': return 'This Month';
+            case 'year': return 'This Year';
+            default: return 'All Time';
+        }
+    }
+
+    function loadImage(url) {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => resolve(img);
+            img.onerror = reject;
+            img.src = url;
+        });
+    }
+
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('mainContent');
+
+        sidebar.classList.toggle('collapsed');
+        mainContent.classList.toggle('sidebar-collapsed');
+    }
+
+    function toggleTheme() {
+        document.body.classList.toggle('dark-mode');
+        const isDark = document.body.classList.contains('dark-mode');
+
+        const themeToggle = document.getElementById('themeToggle');
+        themeToggle.innerHTML = isDark
+            ? '<i class="fas fa-sun"></i><span>Light Mode</span>'
+            : '<i class="fas fa-moon"></i><span>Dark Mode</span>';
+
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    }
+
+    function loadSavedTheme() {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            document.getElementById('themeToggle').innerHTML = '<i class="fas fa-sun"></i><span>Light Mode</span>';
+        }
+    }
+
+    function updateDateTime() {
+        const now = new Date();
+
+        const dateOptions = {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        };
+
+        const currentDateElement = document.getElementById('currentDate');
+        if (currentDateElement) {
+            currentDateElement.textContent = now.toLocaleDateString('en-US', dateOptions);
+        }
+
+        if (currentLoggedInUser) {
+            const greetingText = document.getElementById('greetingText');
+            if (greetingText) {
+                const hour = now.getHours();
+                let greeting = 'Good Morning';
+                if (hour >= 12 && hour < 18) greeting = 'Good Afternoon';
+                else if (hour >= 18) greeting = 'Good Evening';
+
+                greetingText.textContent = `${greeting}, ${currentLoggedInUser.fullName}!`;
+            }
+        }
+    }
+
+    function showLoading(show) {
+        document.getElementById('loadingOverlay').classList.toggle('show', show);
+    }
+
+    function showToast(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `<p class="toast-message">${message}</p>`;
+
+        document.getElementById('toastContainer').appendChild(toast);
+
+        setTimeout(() => {
+            toast.remove();
+        }, 5000);
+    }
+</script>
+</body>
+</html>

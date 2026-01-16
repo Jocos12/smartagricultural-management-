@@ -1,0 +1,3645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Production Predictions - AgriGuard AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+
+
+
+
+
+        :root {
+    --primary-green: #22c55e;
+    --primary-dark: #16a34a;
+    --secondary-green: #10b981;
+    --accent-green: #34d399;
+    --light-green: #dcfce7;
+    --dark-green: #166534;
+    --forest-green: #065f46;
+    --success-color: #22c55e;
+    --warning-color: #f59e0b;
+    --error-color: #ef4444;
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8f9fa;
+    --bg-sidebar: #e8f5e8;
+    --text-primary: #333333;
+    --text-secondary: #666666;
+    --border-color: #e0e0e0;
+    --hover-bg: rgba(34, 197, 94, 0.1);
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 8px 25px rgba(34, 197, 94, 0.15);
+    --gradient-primary: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+    --gradient-bg: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%);
+    --card-bg: #ffffff;
+    --modal-bg: rgba(0, 0, 0, 0.5);
+}
+
+.dark-mode {
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #2d2d2d;
+    --bg-sidebar: #1f2937;
+    --text-primary: #ffffff;
+    --text-secondary: #cccccc;
+    --border-color: #404040;
+    --hover-bg: rgba(34, 197, 94, 0.2);
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    --card-bg: #374151;
+    --gradient-bg: linear-gradient(135deg, #1f2937 0%, #374151 50%, #4b5563 100%);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: var(--gradient-bg);
+    color: var(--text-primary);
+    transition: all 0.3s ease;
+    overflow-x: hidden;
+}
+
+.dashboard-container {
+    display: flex;
+    height: 100vh;
+}
+
+.sidebar {
+    width: 280px;
+    background: var(--bg-sidebar);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: fixed;
+    height: 100vh;
+    z-index: 1000;
+    box-shadow: var(--shadow);
+}
+
+.sidebar.collapsed {
+    width: 70px;
+}
+
+.sidebar-header {
+    padding: 20px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo {
+    width: 45px;
+    height: 45px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow);
+    animation: pulse 2s infinite;
+    overflow: hidden;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.company-info {
+    flex: 1;
+    transition: opacity 0.3s ease;
+}
+
+.company-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+}
+
+.company-tagline {
+    font-size: 11px;
+    color: var(--primary-green);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.sidebar.collapsed .company-info {
+    opacity: 0;
+    width: 0;
+}
+
+.sidebar-nav {
+    flex: 1;
+    padding: 20px 0;
+    overflow-y: auto;
+}
+
+.nav-section {
+    margin-bottom: 30px;
+}
+
+.nav-section-title {
+    padding: 0 20px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--primary-green);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: opacity 0.3s ease;
+}
+
+.sidebar.collapsed .nav-section-title {
+    opacity: 0;
+    height: 0;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-menu {
+    list-style: none;
+}
+
+.nav-item {
+    margin-bottom: 4px;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    padding: 14px 20px;
+    color: var(--text-primary);
+    text-decoration: none;
+    border-radius: 0 25px 25px 0;
+    margin-right: 20px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.nav-link::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(34, 197, 94, 0.1), transparent);
+    transition: left 0.5s ease;
+}
+
+.nav-link:hover::before {
+    left: 100%;
+}
+
+.nav-link i {
+    width: 22px;
+    margin-right: 14px;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.nav-link span {
+    transition: opacity 0.3s ease;
+    white-space: nowrap;
+    font-weight: 500;
+}
+
+.sidebar.collapsed .nav-link span {
+    opacity: 0;
+}
+
+.sidebar.collapsed .nav-link {
+    margin-right: 0;
+    border-radius: 0;
+    justify-content: center;
+}
+
+.nav-link:hover {
+    background: var(--hover-bg);
+    color: var(--primary-green);
+    transform: translateX(5px);
+}
+
+.nav-item.active .nav-link {
+    background: var(--gradient-primary);
+    color: white;
+    box-shadow: var(--shadow);
+}
+
+.nav-item.active .nav-link:hover {
+    background: var(--gradient-primary);
+    color: white;
+}
+
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    margin-left: 280px;
+    transition: margin-left 0.3s ease;
+}
+
+.main-content.sidebar-collapsed {
+    margin-left: 70px;
+}
+
+.header {
+    background: var(--card-bg);
+    border-bottom: 1px solid var(--border-color);
+    padding: 0 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 80px;
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(10px);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.sidebar-toggle {
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    font-size: 20px;
+    cursor: pointer;
+    padding: 12px;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.sidebar-toggle:hover {
+    background: var(--hover-bg);
+    color: var(--primary-green);
+    transform: scale(1.1);
+}
+
+.greeting-section {
+    display: flex;
+    flex-direction: column;
+}
+
+.greeting-text {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+}
+
+.current-date {
+    font-size: 14px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.search-container {
+    position: relative;
+    width: 400px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 12px 50px 12px 20px;
+    border: 2px solid var(--border-color);
+    border-radius: 25px;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    font-size: 15px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--primary-green);
+    box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
+}
+
+.search-icon {
+    position: absolute;
+    right: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+    font-size: 18px;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.theme-toggle {
+    background: var(--card-bg);
+    border: 2px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 12px 16px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.theme-toggle:hover {
+    background: var(--hover-bg);
+    border-color: var(--primary-green);
+    transform: translateY(-2px);
+}
+
+.notification-btn {
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    font-size: 20px;
+    cursor: pointer;
+    position: relative;
+    padding: 12px;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.notification-btn:hover {
+    background: var(--hover-bg);
+    color: var(--primary-green);
+}
+
+.notification-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: var(--error-color);
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    animation: bounce 1s infinite;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-5px); }
+    60% { transform: translateY(-3px); }
+}
+
+.profile-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    padding: 8px 16px;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.profile-section:hover {
+    background: var(--hover-bg);
+}
+
+.profile-avatar {
+    width: 45px;
+    height: 45px;
+    background: var(--gradient-primary);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow);
+}
+
+.profile-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.profile-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.profile-role {
+    font-size: 12px;
+    color: var(--primary-green);
+    font-weight: 500;
+    text-transform: capitalize;
+}
+
+.logout-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 20px;
+    cursor: pointer;
+    padding: 12px;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--error-color);
+    transform: scale(1.1);
+}
+
+.content {
+    flex: 1;
+    padding: 32px;
+    background: var(--bg-secondary);
+    overflow-y: auto;
+    min-height: calc(100vh - 80px);
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
+.stat-card {
+    background: var(--card-bg);
+    padding: 24px;
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    transition: all 0.3s ease;
+    border: 1px solid var(--border-color);
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--gradient-primary);
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.stat-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: white;
+    margin-bottom: 12px;
+}
+
+.stat-icon.total { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+.stat-icon.active { background: linear-gradient(135deg, #10b981, #047857); }
+.stat-icon.inactive { background: linear-gradient(135deg, #f59e0b, #d97706); }
+.stat-icon.farmers { background: linear-gradient(135deg, #22c55e, #16a34a); }
+
+.stat-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.stat-label {
+    font-size: 14px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.charts-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
+.chart-card {
+    background: var(--card-bg);
+    padding: 24px;
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+}
+
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.chart-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.chart-container {
+    position: relative;
+    height: 300px;
+}
+
+.table-section {
+    background: var(--card-bg);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    margin-bottom: 32px;
+}
+
+.table-header {
+    padding: 24px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.table-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.table-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+}
+
+.btn-primary {
+    background: var(--gradient-primary);
+    color: white;
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
+}
+
+.btn-secondary {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+    background: var(--hover-bg);
+    border-color: var(--primary-green);
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+}
+
+.btn-danger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+}
+
+.btn-info {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    color: white;
+}
+
+.btn-info:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th,
+.data-table td {
+    padding: 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.data-table th {
+    background: var(--bg-secondary);
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.data-table td {
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+.data-table tr:hover {
+    background: var(--hover-bg);
+}
+
+.status-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-validated {
+    background: rgba(34, 197, 94, 0.1);
+    color: var(--success-color);
+}
+
+.status-pending {
+    background: rgba(245, 158, 11, 0.1);
+    color: var(--warning-color);
+}
+
+.status-rejected {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--error-color);
+}
+
+.action-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.action-btn {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.action-btn-edit {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+}
+
+.action-btn-edit:hover {
+    background: #3b82f6;
+    color: white;
+}
+
+.action-btn-delete {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+.action-btn-delete:hover {
+    background: #ef4444;
+    color: white;
+}
+
+.action-btn-view {
+    background: rgba(34, 197, 94, 0.1);
+    color: #22c55e;
+}
+
+.action-btn-view:hover {
+    background: #22c55e;
+    color: white;
+}
+
+.action-btn-validate {
+    background: rgba(34, 197, 94, 0.1);
+    color: #22c55e;
+}
+
+.action-btn-validate:hover {
+    background: #22c55e;
+    color: white;
+}
+
+.action-btn-reject {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+.action-btn-reject:hover {
+    background: #ef4444;
+    color: white;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--modal-bg);
+    backdrop-filter: blur(5px);
+    animation: fadeIn 0.3s ease;
+}
+
+.modal.show {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-content {
+    background: var(--card-bg);
+    border-radius: 16px;
+    padding: 32px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-lg);
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.modal-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.modal-close:hover {
+    background: var(--hover-bg);
+    color: var(--primary-green);
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+.form-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 14px;
+    color: var(--text-primary);
+    background: var(--bg-secondary);
+    transition: all 0.3s ease;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--primary-green);
+    box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
+}
+
+.form-select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 14px;
+    color: var(--text-primary);
+    background: var(--bg-secondary);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.form-select:focus {
+    outline: none;
+    border-color: var(--primary-green);
+    box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
+}
+
+.loading-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+}
+
+.loading-overlay.show {
+    display: flex;
+}
+
+.loader {
+    border: 8px solid #f3f3f3;
+    border-top: 8px solid var(--primary-green);
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 3000;
+}
+
+.toast {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 12px;
+    box-shadow: var(--shadow-lg);
+    border-left: 4px solid;
+    animation: slideInRight 0.3s ease;
+    max-width: 400px;
+}
+
+.toast.success { border-left-color: var(--success-color); }
+.toast.error { border-left-color: var(--error-color); }
+.toast.warning { border-left-color: var(--warning-color); }
+.toast.info { border-left-color: var(--primary-green); }
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.toast-message {
+    color: var(--text-primary);
+    font-weight: 500;
+    margin: 0;
+}
+
+.content-section {
+    display: none;
+}
+
+.content-section.active {
+    display: block;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-secondary);
+}
+
+.empty-state i {
+    font-size: 64px;
+    margin-bottom: 20px;
+    opacity: 0.5;
+}
+
+.empty-state p {
+    font-size: 18px;
+    margin-top: 12px;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary-green);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-dark);
+}
+
+@media (max-width: 1200px) {
+    .charts-section {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+
+    .sidebar.mobile-open {
+        transform: translateX(0);
+    }
+
+    .main-content {
+        margin-left: 0;
+    }
+
+    .header {
+        padding: 0 16px;
+    }
+
+    .search-container {
+        width: 200px;
+    }
+
+    .content {
+        padding: 20px 16px;
+    }
+
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .greeting-text {
+        font-size: 18px;
+    }
+
+    .profile-info {
+        display: none;
+    }
+}
+
+
+
+
+
+        /* ========================================
+   TABLE WRAPPER WITH HORIZONTAL SCROLL
+   ======================================== */
+
+.table-wrapper-scroll {
+    overflow-x: auto;
+    overflow-y: visible;
+    width: 100%;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    position: relative;
+}
+
+/* Style de la scrollbar horizontale */
+.table-wrapper-scroll::-webkit-scrollbar {
+    height: 10px;
+}
+
+.table-wrapper-scroll::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+    border-radius: 5px;
+    margin: 0 24px; /* Marge pour aligner avec le contenu */
+}
+
+.table-wrapper-scroll::-webkit-scrollbar-thumb {
+    background: var(--primary-green);
+    border-radius: 5px;
+    transition: background 0.3s ease;
+}
+
+.table-wrapper-scroll::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-dark);
+}
+
+/* Firefox scrollbar */
+.table-wrapper-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-green) var(--bg-secondary);
+}
+
+/* S'assurer que la table prend toute la largeur nécessaire */
+.table-wrapper-scroll .data-table {
+    min-width: 1200px; /* Largeur minimale pour forcer le scroll */
+    width: 100%;
+}
+
+/* Sticky header pour la table (optionnel mais recommandé) */
+.table-wrapper-scroll .data-table thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.table-wrapper-scroll .data-table thead th {
+    background: var(--bg-secondary);
+}
+
+/* Amélioration pour mobile */
+@media (max-width: 768px) {
+    .table-wrapper-scroll .data-table {
+        min-width: 900px; /* Réduire légèrement pour mobile */
+    }
+
+    .table-wrapper-scroll::-webkit-scrollbar {
+        height: 8px;
+    }
+}
+
+/* Indicateur visuel pour scroll horizontal */
+.table-wrapper-scroll::after {
+    content: '← Scroll horizontalement pour voir plus →';
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--primary-green);
+    color: white;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 5;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.table-wrapper-scroll:hover::after {
+    opacity: 0.8;
+}
+
+/* Animation du scroll */
+.table-wrapper-scroll {
+    scroll-behavior: smooth;
+}
+
+/* Style pour les cellules de la table */
+.table-wrapper-scroll .data-table th,
+.table-wrapper-scroll .data-table td {
+    white-space: nowrap; /* Empêche le retour à la ligne */
+    min-width: 120px; /* Largeur minimale pour chaque colonne */
+}
+
+/* Exceptions pour certaines colonnes */
+.table-wrapper-scroll .data-table th:first-child,
+.table-wrapper-scroll .data-table td:first-child {
+    min-width: 150px; /* Code plus large */
+    position: sticky;
+    left: 0;
+    background: var(--card-bg);
+    z-index: 5;
+    box-shadow: 2px 0 4px rgba(0, 0, 0, 0.05);
+}
+
+.table-wrapper-scroll .data-table th:last-child,
+.table-wrapper-scroll .data-table td:last-child {
+    min-width: 180px; /* Actions plus larges */
+    position: sticky;
+    right: 0;
+    background: var(--card-bg);
+    z-index: 5;
+    box-shadow: -2px 0 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Dark mode adjustments */
+.dark-mode .table-wrapper-scroll .data-table th:first-child,
+.dark-mode .table-wrapper-scroll .data-table td:first-child,
+.dark-mode .table-wrapper-scroll .data-table th:last-child,
+.dark-mode .table-wrapper-scroll .data-table td:last-child {
+    background: var(--card-bg);
+}
+    </style>
+</head>
+<body>
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loader"></div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<div class="dashboard-container">
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <img src="images/logo.jpeg" alt="AgriGuard AI" style="width: 100%; height: 100%; object-fit: contain; border-radius: 12px;">
+            </div>
+            <div class="company-info">
+                <div class="company-name">AgriGuard AI</div>
+                <div class="company-tagline">Smart Agriculture</div>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-section">
+                <h3 class="nav-section-title">Main</h3>
+                <ul class="nav-menu">
+                    <li class="nav-item active">
+                        <a class="nav-link" onclick="showSection('dashboard')">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="showSection('predictions')">
+                            <i class="fas fa-brain"></i>
+                            <span>All Predictions</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="showSection('validated')">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Validated</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="showSection('pending')">
+                            <i class="fas fa-clock"></i>
+                            <span>Pending</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="showSection('rejected')">
+                            <i class="fas fa-times-circle"></i>
+                            <span>Rejected</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="nav-section">
+                <h3 class="nav-section-title">Analytics</h3>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="showSection('analytics')">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>Analytics</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="showSection('reports')">
+                            <i class="fas fa-file-alt"></i>
+                            <span>Reports</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="showSection('model-performance')">
+                            <i class="fas fa-robot"></i>
+                            <span>Model Performance</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+
+
+
+            <div class="nav-section">
+                <h3 class="nav-section-title">Quick Links</h3>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a class="nav-link" href="CropDashboard.html">
+                            <i class="fas fa-seedling"></i>
+                            <span>Crop Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="CropProductionDashboard.html">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>Crop Production</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="FarmDashboard.html">
+                            <i class="fas fa-home"></i>
+                            <span>Farm Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="FertilizerDashboard.html">
+                            <i class="fas fa-flask"></i>
+                            <span>Fertilizer Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="InventoryDashboard.html">
+                            <i class="fas fa-boxes"></i>
+                            <span>Inventory Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="IrrigationDashboard.html">
+                            <i class="fas fa-tint"></i>
+                            <span>Irrigation Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="ProductPrediction.html">
+                            <i class="fas fa-brain"></i>
+                            <span>Product Prediction</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="WhatsApp.html">
+                            <i class="fab fa-whatsapp"></i>
+                            <span>WhatsApp</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+
+    <div class="main-content" id="mainContent">
+        <header class="header">
+            <div class="header-left">
+                <button class="sidebar-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="greeting-section">
+                    <div class="greeting-text" id="greetingText">Good Morning, User!</div>
+                    <div class="current-date" id="currentDate"></div>
+                </div>
+            </div>
+
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search predictions..." id="globalSearch" onkeyup="handleGlobalSearch()">
+                <i class="fas fa-search search-icon"></i>
+            </div>
+
+            <div class="header-right">
+                <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                    <span>Dark Mode</span>
+                </button>
+                <button class="notification-btn">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge" id="notificationCount">0</span>
+                </button>
+                <div class="profile-section">
+                    <div class="profile-avatar" id="profileAvatar">U</div>
+                    <div class="profile-info">
+                        <div class="profile-name" id="profileName">User</div>
+                        <div class="profile-role" id="profileRole">Role</div>
+                    </div>
+                </div>
+                <button class="logout-btn" onclick="handleLogout()" title="Logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </header>
+
+        <main class="content">
+            <!-- Dashboard Section -->
+            <div id="dashboardSection" class="content-section active">
+                <div class="dashboard-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon total">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <div class="stat-value" id="totalPredictions">0</div>
+                        <div class="stat-label">Total Predictions</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon active">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-value" id="validatedPredictions">0</div>
+                        <div class="stat-label">Validated</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon inactive">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-value" id="pendingPredictions">0</div>
+                        <div class="stat-label">Pending</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon farmers">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="stat-value" id="avgAccuracy">0%</div>
+                        <div class="stat-label">Avg Accuracy</div>
+                    </div>
+                </div>
+
+                <div class="charts-section">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Validation Status Distribution</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="statusDistributionChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Prediction Types</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="predictionTypesChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Seasonal Predictions</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="seasonalChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Confidence Levels</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="confidenceChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
+
+
+            <!-- All Predictions Section -->
+            <div id="predictionsSection" class="content-section">
+                <div class="table-section">
+                    <div class="table-header">
+                        <h2 class="table-title">All Predictions Management</h2>
+                        <div class="table-actions">
+                            <button class="btn btn-primary" onclick="showAddPredictionModal()">
+                                <i class="fas fa-plus"></i>
+                                Add Prediction
+                            </button>
+                            <button class="btn btn-secondary" onclick="loadAllPredictions()">
+                                <i class="fas fa-sync-alt"></i>
+                                Refresh
+                            </button>
+                            <button class="btn btn-info" onclick="exportPredictionsToExcel('all')">
+                                <i class="fas fa-file-excel"></i>
+                                Export Excel
+                            </button>
+                        </div>
+                    </div>
+                    <div style="padding: 0 24px 24px;">
+                        <input type="text" class="search-input" placeholder="Search predictions..." id="predictionsSearch" onkeyup="searchInTable('predictionsTableBody', 'predictionsSearch')">
+                    </div>
+                    <!-- ✅ WRAPPER AVEC SCROLL HORIZONTAL -->
+                    <div class="table-wrapper-scroll">
+                        <table class="data-table">
+                            <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Crop</th>
+                                <th>Region</th>
+                                <th>Year</th>
+                                <th>Season</th>
+                                <th>Type</th>
+                                <th>Predicted Value</th>
+                                <th>Confidence</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody id="predictionsTableBody">
+                            <tr>
+                                <td colspan="10" class="empty-state">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                    <p>Loading predictions...</p>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
+
+            <!-- Validated Predictions Section -->
+            <div id="validatedSection" class="content-section">
+                <div class="table-section">
+                    <div class="table-header">
+                        <h2 class="table-title">Validated Predictions</h2>
+                        <div class="table-actions">
+                            <button class="btn btn-secondary" onclick="loadValidatedPredictions()">
+                                <i class="fas fa-sync-alt"></i>
+                                Refresh
+                            </button>
+                            <button class="btn btn-info" onclick="exportPredictionsToExcel('validated')">
+                                <i class="fas fa-file-excel"></i>
+                                Export Excel
+                            </button>
+                        </div>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table class="data-table">
+                            <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Crop</th>
+                                <th>Region</th>
+                                <th>Predicted Value</th>
+                                <th>Actual Value</th>
+                                <th>Accuracy</th>
+                                <th>Confidence</th>
+                                <th>Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody id="validatedTableBody">
+                            <tr>
+                                <td colspan="8" class="empty-state">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                    <p>Loading validated predictions...</p>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pending Predictions Section -->
+            <div id="pendingSection" class="content-section">
+                <div class="table-section">
+                    <div class="table-header">
+                        <h2 class="table-title">Pending Predictions</h2>
+                        <div class="table-actions">
+                            <button class="btn btn-secondary" onclick="loadPendingPredictions()">
+                                <i class="fas fa-sync-alt"></i>
+                                Refresh
+                            </button>
+                        </div>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table class="data-table">
+                            <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Crop</th>
+                                <th>Region</th>
+                                <th>Predicted Value</th>
+                                <th>Confidence</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody id="pendingTableBody">
+                            <tr>
+                                <td colspan="7" class="empty-state">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                    <p>Loading pending predictions...</p>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rejected Predictions Section -->
+            <div id="rejectedSection" class="content-section">
+                <div class="table-section">
+                    <div class="table-header">
+                        <h2 class="table-title">Rejected Predictions</h2>
+                        <div class="table-actions">
+                            <button class="btn btn-secondary" onclick="loadRejectedPredictions()">
+                                <i class="fas fa-sync-alt"></i>
+                                Refresh
+                            </button>
+                        </div>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table class="data-table">
+                            <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Crop</th>
+                                <th>Region</th>
+                                <th>Predicted Value</th>
+                                <th>Confidence</th>
+                                <th>Rejected Date</th>
+                                <th>Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody id="rejectedTableBody">
+                            <tr>
+                                <td colspan="7" class="empty-state">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                    <p>Loading rejected predictions...</p>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Section -->
+            <div id="analyticsSection" class="content-section">
+                <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 24px; color: var(--text-primary);">Advanced Analytics</h2>
+
+                <div class="charts-section">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Accuracy Distribution</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="accuracyHistogramChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Confidence vs Accuracy</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="confidenceAccuracyScatterChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Predictions Timeline</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="timelineLineChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Regional Performance</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="regionalBarChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Model Performance Comparison</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="modelComparisonChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Variance Analysis</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="varianceViolinChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Model Performance Section -->
+            <div id="model-performanceSection" class="content-section">
+                <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 24px; color: var(--text-primary);">Model Performance Analysis</h2>
+
+                <div class="charts-section">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Models Accuracy Comparison</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="modelsAccuracyChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Model Usage Distribution</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="modelUsageChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports Section -->
+            <div id="reportsSection" class="content-section">
+                <div class="chart-card" style="margin-bottom: 24px;">
+                    <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 20px; color: var(--text-primary);">Report Configuration</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 20px;">
+                        <div>
+                            <label style="display: block; font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px;">Report Type</label>
+                            <select class="form-select" id="reportType">
+                                <option value="all">All Predictions</option>
+                                <option value="validated">Validated Only</option>
+                                <option value="pending">Pending Only</option>
+                                <option value="rejected">Rejected Only</option>
+                                <option value="high-confidence">High Confidence</option>
+                                <option value="accurate">Accurate Predictions</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px;">Report Period</label>
+                            <select class="form-select" id="reportPeriod">
+                                <option value="all">All Time</option>
+                                <option value="today">Today</option>
+                                <option value="week">This Week</option>
+                                <option value="month">This Month</option>
+                                <option value="year">This Year</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 12px; margin-top: 20px;">
+                        <button class="btn btn-primary" onclick="generatePDFReport()">
+                            <i class="fas fa-file-pdf"></i>
+                            Generate PDF Report
+                        </button>
+                        <button class="btn btn-info" onclick="generateExcelReport()">
+                            <i class="fas fa-file-excel"></i>
+                            Generate Excel Report
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Add/Edit Prediction Modal -->
+<div class="modal" id="predictionModal">
+    <div class="modal-content" style="max-width: 800px;">
+        <div class="modal-header">
+            <h2 class="modal-title" id="predictionModalTitle">Add Prediction</h2>
+            <button class="modal-close" onclick="closePredictionModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <form id="predictionForm" onsubmit="submitPredictionForm(event)">
+            <input type="hidden" id="predictionId" name="predictionId">
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="form-group">
+                    <label class="form-label">Crop ID *</label>
+                    <select class="form-select" id="cropId" name="cropId" required>
+                        <option value="">Select a crop</option>
+                        <!-- Options will be populated dynamically -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Region *</label>
+                    <input type="text" class="form-input" id="region" name="region" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">District</label>
+                    <input type="text" class="form-input" id="district" name="district">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Year *</label>
+                    <input type="number" class="form-input" id="year" name="year" min="2000" max="2100" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Season *</label>
+                    <select class="form-select" id="season" name="season" required>
+                        <option value="">Select Season</option>
+                        <option value="SEASON_A">Season A</option>
+                        <option value="SEASON_B">Season B</option>
+                        <option value="SEASON_C">Season C</option>
+                        <option value="ANNUAL">Annual</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Prediction Type *</label>
+                    <select class="form-select" id="predictionType" name="predictionType" required>
+                        <option value="">Select Type</option>
+                        <option value="YIELD">Yield Prediction</option>
+                        <option value="TOTAL_PRODUCTION">Total Production</option>
+                        <option value="PLANTED_AREA">Planted Area</option>
+                        <option value="HARVEST_PERIOD">Harvest Period</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Predicted Value *</label>
+                    <input type="number" class="form-input" id="predictedValue" name="predictedValue" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Unit *</label>
+                    <input type="text" class="form-input" id="unit" name="unit" required placeholder="e.g., tons, kg">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Confidence Level (%) *</label>
+                    <input type="number" class="form-input" id="confidenceLevel" name="confidenceLevel" min="0" max="100" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Model Used *</label>
+                    <input type="text" class="form-input" id="modelUsed" name="modelUsed" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Model Version</label>
+                    <input type="text" class="form-input" id="modelVersion" name="modelVersion">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Algorithm</label>
+                    <input type="text" class="form-input" id="algorithm" name="algorithm">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Target Date *</label>
+                    <input type="date" class="form-input" id="targetDate" name="targetDate" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Historical Accuracy (%)</label>
+                    <input type="number" class="form-input" id="historicalAccuracy" name="historicalAccuracy" min="0" max="100" step="0.01">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Assumptions</label>
+                <textarea class="form-input" id="assumptions" name="assumptions" rows="3"></textarea>
+            </div>
+
+            <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px;">
+                <button type="button" class="btn btn-secondary" onclick="closePredictionModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary" id="predictionSubmitBtn">
+                    <i class="fas fa-save"></i>
+                    Save Prediction
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- View Prediction Modal -->
+<div class="modal" id="viewPredictionModal">
+    <div class="modal-content" style="max-width: 900px;">
+        <div class="modal-header">
+            <h2 class="modal-title">Prediction Details</h2>
+            <button class="modal-close" onclick="closeViewPredictionModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div id="predictionDetailsContent" style="padding: 20px;">
+            <!-- Content will be populated dynamically -->
+        </div>
+    </div>
+</div>
+
+<script src="js/SessionTracker.js"></script>
+<script src="js/user_session_handler.js"></script>
+<script >
+
+
+
+
+    const API_BASE_URL = 'http://localhost:1010/api/predictions';
+let allPredictions = [];
+let charts = {};
+let currentEditingPredictionId = null;
+let sessionHandler = null;
+let currentLoggedInUser = null;
+
+// Initialize session handler
+function initializeSessionHandler() {
+    try {
+        sessionHandler = UserSessionHandler.getInstance();
+        currentLoggedInUser = sessionHandler.getCurrentUser();
+
+        if (!currentLoggedInUser) {
+            console.warn('No user session found, redirecting to login');
+            window.location.href = '/login.html';
+            return false;
+        }
+
+        console.log('Session loaded for user:', currentLoggedInUser.fullName);
+        return true;
+    } catch (error) {
+        console.error('Error initializing session:', error);
+        window.location.href = '/login.html';
+        return false;
+    }
+}
+
+// Update UI with current user
+function updateUIWithCurrentUser() {
+    if (!currentLoggedInUser) return;
+
+    const greetingText = document.getElementById('greetingText');
+    if (greetingText) {
+        const hour = new Date().getHours();
+        let greeting = 'Good Morning';
+        if (hour >= 12 && hour < 18) greeting = 'Good Afternoon';
+        else if (hour >= 18) greeting = 'Good Evening';
+
+        greetingText.textContent = `${greeting}, ${currentLoggedInUser.fullName}!`;
+    }
+
+    const profileName = document.getElementById('profileName');
+    if (profileName) {
+        profileName.textContent = currentLoggedInUser.fullName;
+    }
+
+    const profileRole = document.getElementById('profileRole');
+    if (profileRole) {
+        profileRole.textContent = formatRole(currentLoggedInUser.role);
+    }
+
+    const profileAvatar = document.getElementById('profileAvatar');
+    if (profileAvatar && currentLoggedInUser.fullName) {
+        const initials = currentLoggedInUser.fullName
+            .split(' ')
+            .map(n => n[0])
+            .join('')
+            .toUpperCase();
+        profileAvatar.textContent = initials;
+    }
+
+    if (currentLoggedInUser.profileImageUrl && profileAvatar) {
+        const photoUrl = currentLoggedInUser.profileImageUrl;
+        profileAvatar.style.backgroundImage = `url(${photoUrl})`;
+        profileAvatar.style.backgroundSize = 'cover';
+        profileAvatar.textContent = '';
+    }
+}
+
+// Format role
+function formatRole(role) {
+    if (!role) return 'User';
+    return role.split('_')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join(' ');
+}
+
+// Track user activity
+function trackUserActivity() {
+    if (!currentLoggedInUser || !window.sessionTracker) return;
+    const userId = currentLoggedInUser.userId || currentLoggedInUser.id;
+    window.sessionTracker.updateLastActivity(userId);
+}
+
+// Start session monitoring
+function startSessionMonitoring() {
+    setInterval(() => {
+        if (sessionHandler && sessionHandler.isAuthenticated()) {
+            trackUserActivity();
+        } else {
+            console.warn('Session expired or invalid');
+            handleSessionExpired();
+        }
+    }, 30000);
+
+    const activityEvents = ['click', 'keypress', 'mousemove', 'scroll'];
+    activityEvents.forEach(eventType => {
+        document.addEventListener(eventType, () => {
+            trackUserActivity();
+        }, { passive: true });
+    });
+}
+
+// Handle session expired
+function handleSessionExpired() {
+    showToast('Your session has expired. Please login again.', 'warning');
+    setTimeout(() => {
+        if (sessionHandler) {
+            sessionHandler.logout();
+        } else {
+            window.location.href = '/login.html';
+        }
+    }, 2000);
+}
+
+// Handle logout
+function handleLogout() {
+    if (confirm('Are you sure you want to logout?')) {
+        if (currentLoggedInUser && window.sessionTracker) {
+            const userId = currentLoggedInUser.userId || currentLoggedInUser.id;
+            window.sessionTracker.endSession(userId);
+        }
+
+        if (sessionHandler) {
+            sessionHandler.logout();
+        } else {
+            window.location.href = '/login.html';
+        }
+    }
+}
+
+// Initialize dashboard
+document.addEventListener('DOMContentLoaded', function() {
+    initializeDashboard();
+    updateDateTime();
+    setInterval(updateDateTime, 60000);
+    loadSavedTheme();
+});
+
+async function initializeDashboard() {
+    if (!initializeSessionHandler()) {
+        return;
+    }
+
+    updateUIWithCurrentUser();
+    startSessionMonitoring();
+
+    showLoading(true);
+    try {
+        await Promise.all([
+            loadDashboardStatistics(),
+            loadAllPredictions()
+        ]);
+        initializeCharts();
+    } catch (error) {
+        console.error('Error initializing dashboard:', error);
+        showToast('Error loading dashboard data', 'error');
+    } finally {
+        showLoading(false);
+    }
+}
+
+// Load dashboard statistics
+async function loadDashboardStatistics() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/dashboard/statistics`);
+        if (!response.ok) throw new Error('Failed to load statistics');
+
+        const result = await response.json();
+        const data = result.data || result;
+
+        document.getElementById('totalPredictions').textContent = data.totalPredictions || 0;
+        document.getElementById('validatedPredictions').textContent = data.validatedPredictions || 0;
+        document.getElementById('pendingPredictions').textContent = data.pendingPredictions || 0;
+
+        const avgAccuracy = data.averageAccuracy || 0;
+        document.getElementById('avgAccuracy').textContent = avgAccuracy.toFixed(1) + '%';
+
+        const notificationCount = data.pendingPredictions || 0;
+        document.getElementById('notificationCount').textContent = notificationCount;
+    } catch (error) {
+        console.error('Error loading statistics:', error);
+        throw error;
+    }
+}
+
+// Load all predictions
+async function loadAllPredictions() {
+    try {
+        const response = await fetch(`${API_BASE_URL}`);
+        if (!response.ok) throw new Error('Failed to load predictions');
+
+        const result = await response.json();
+        allPredictions = result.data?.content || result.content || result;
+        renderPredictionsTable(allPredictions, 'predictionsTableBody', true);
+    } catch (error) {
+        console.error('Error loading predictions:', error);
+        document.getElementById('predictionsTableBody').innerHTML = `
+            <tr>
+                <td colspan="10" class="empty-state">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <p>Error loading predictions. Please try again.</p>
+                </td>
+            </tr>
+        `;
+        throw error;
+    }
+}
+
+// Load validated predictions
+async function loadValidatedPredictions() {
+    try {
+        showLoading(true);
+        const response = await fetch(`${API_BASE_URL}/status/VALIDATED`);
+        if (!response.ok) throw new Error('Failed to load validated predictions');
+
+        const result = await response.json();
+        const predictions = result.data?.content || result.content || result;
+        renderValidatedTable(predictions);
+    } catch (error) {
+        console.error('Error loading validated predictions:', error);
+        showToast('Error loading validated predictions', 'error');
+    } finally {
+        showLoading(false);
+    }
+}
+
+// Load pending predictions
+async function loadPendingPredictions() {
+    try {
+        showLoading(true);
+        const response = await fetch(`${API_BASE_URL}/status/PENDING`);
+        if (!response.ok) throw new Error('Failed to load pending predictions');
+
+        const result = await response.json();
+        const predictions = result.data?.content || result.content || result;
+        renderPendingTable(predictions);
+    } catch (error) {
+        console.error('Error loading pending predictions:', error);
+        showToast('Error loading pending predictions', 'error');
+    } finally {
+        showLoading(false);
+    }
+}
+
+// Load rejected predictions
+async function loadRejectedPredictions() {
+    try {
+        showLoading(true);
+        const response = await fetch(`${API_BASE_URL}/status/REJECTED`);
+        if (!response.ok) throw new Error('Failed to load rejected predictions');
+
+        const result = await response.json();
+        const predictions = result.data?.content || result.content || result;
+        renderRejectedTable(predictions);
+    } catch (error) {
+        console.error('Error loading rejected predictions:', error);
+        showToast('Error loading rejected predictions', 'error');
+    } finally {
+        showLoading(false);
+    }
+}
+
+// Render predictions table
+function renderPredictionsTable(predictions, tableBodyId, includeAllActions) {
+    const tbody = document.getElementById(tableBodyId);
+
+    if (!predictions || predictions.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="10" class="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <p>No predictions found</p>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    tbody.innerHTML = predictions.map(prediction => {
+        const statusClass = `status-${(prediction.validationStatus || 'pending').toLowerCase()}`;
+        const confidenceValue = prediction.confidenceLevel || 0;
+        const confidenceColor = confidenceValue >= 80 ? '#22c55e' : confidenceValue >= 60 ? '#f59e0b' : '#ef4444';
+
+        return `
+            <tr>
+                <td><strong>${prediction.predictionCode || 'N/A'}</strong></td>
+                <td>${prediction.cropId || 'N/A'}</td>
+                <td>${prediction.region || 'N/A'}</td>
+                <td>${prediction.year || 'N/A'}</td>
+                <td>${formatSeason(prediction.season)}</td>
+                <td>${formatPredictionType(prediction.predictionType)}</td>
+                <td><strong>${prediction.predictedValue || 0} ${prediction.unit || ''}</strong></td>
+                <td>
+                    <span style="color: ${confidenceColor}; font-weight: 600;">
+                        ${confidenceValue.toFixed(1)}%
+                    </span>
+                </td>
+                <td>
+                    <span class="status-badge ${statusClass}">
+                        ${prediction.validationStatus || 'PENDING'}
+                    </span>
+                </td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="action-btn action-btn-view" onclick="viewPrediction('${prediction.id}')" title="View Details">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="action-btn action-btn-edit" onclick="editPrediction('${prediction.id}')" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        ${prediction.validationStatus === 'PENDING' ? `
+                            <button class="action-btn action-btn-validate" onclick="validatePrediction('${prediction.id}')" title="Validate">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            <button class="action-btn action-btn-reject" onclick="rejectPrediction('${prediction.id}')" title="Reject">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        ` : ''}
+                        <button class="action-btn action-btn-delete" onclick="deletePrediction('${prediction.id}')" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+// Render validated table
+function renderValidatedTable(predictions) {
+    const tbody = document.getElementById('validatedTableBody');
+
+    if (!predictions || predictions.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="8" class="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <p>No validated predictions found</p>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    tbody.innerHTML = predictions.map(prediction => {
+        const accuracy = prediction.accuracyAchieved || 0;
+        const accuracyColor = accuracy >= 80 ? '#22c55e' : accuracy >= 60 ? '#f59e0b' : '#ef4444';
+
+        return `
+            <tr>
+                <td><strong>${prediction.predictionCode || 'N/A'}</strong></td>
+                <td>${prediction.cropId || 'N/A'}</td>
+                <td>${prediction.region || 'N/A'}</td>
+                <td>${prediction.predictedValue || 0} ${prediction.unit || ''}</td>
+                <td>${prediction.actualValue || 'N/A'} ${prediction.unit || ''}</td>
+                <td>
+                    <span style="color: ${accuracyColor}; font-weight: 600;">
+                        ${accuracy.toFixed(1)}%
+                    </span>
+                </td>
+                <td>${(prediction.confidenceLevel || 0).toFixed(1)}%</td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="action-btn action-btn-view" onclick="viewPrediction('${prediction.id}')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="action-btn action-btn-edit" onclick="editPrediction('${prediction.id}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+// Render pending table
+function renderPendingTable(predictions) {
+    const tbody = document.getElementById('pendingTableBody');
+
+    if (!predictions || predictions.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="7" class="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <p>No pending predictions found</p>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    tbody.innerHTML = predictions.map(prediction => {
+        const createdDate = prediction.createdAt ? new Date(prediction.createdAt).toLocaleDateString() : 'N/A';
+
+        return `
+            <tr>
+                <td><strong>${prediction.predictionCode || 'N/A'}</strong></td>
+                <td>${prediction.cropId || 'N/A'}</td>
+                <td>${prediction.region || 'N/A'}</td>
+                <td>${prediction.predictedValue || 0} ${prediction.unit || ''}</td>
+                <td>${(prediction.confidenceLevel || 0).toFixed(1)}%</td>
+                <td>${createdDate}</td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="action-btn action-btn-view" onclick="viewPrediction('${prediction.id}')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="action-btn action-btn-validate" onclick="validatePrediction('${prediction.id}')">
+                            <i class="fas fa-check"></i> Validate
+                        </button>
+                        <button class="action-btn action-btn-reject" onclick="rejectPrediction('${prediction.id}')">
+                            <i class="fas fa-times"></i> Reject
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+// Render rejected table
+function renderRejectedTable(predictions) {
+    const tbody = document.getElementById('rejectedTableBody');
+
+    if (!predictions || predictions.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="7" class="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <p>No rejected predictions found</p>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    tbody.innerHTML = predictions.map(prediction => {
+        const rejectedDate = prediction.validationDate ? new Date(prediction.validationDate).toLocaleDateString() : 'N/A';
+
+        return `
+            <tr>
+                <td><strong>${prediction.predictionCode || 'N/A'}</strong></td>
+                <td>${prediction.cropId || 'N/A'}</td>
+                <td>${prediction.region || 'N/A'}</td>
+                <td>${prediction.predictedValue || 0} ${prediction.unit || ''}</td>
+                <td>${(prediction.confidenceLevel || 0).toFixed(1)}%</td>
+                <td>${rejectedDate}</td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="action-btn action-btn-view" onclick="viewPrediction('${prediction.id}')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="action-btn action-btn-delete" onclick="deletePrediction('${prediction.id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+// Format season
+function formatSeason(season) {
+    const seasonMap = {
+        'SEASON_A': 'Season A',
+        'SEASON_B': 'Season B',
+        'SEASON_C': 'Season C',
+        'ANNUAL': 'Annual'
+    };
+    return seasonMap[season] || season || 'N/A';
+}
+
+// Format prediction type
+function formatPredictionType(type) {
+    const typeMap = {
+        'YIELD': 'Yield',
+        'TOTAL_PRODUCTION': 'Total Production',
+        'PLANTED_AREA': 'Planted Area',
+        'HARVEST_PERIOD': 'Harvest Period'
+    };
+    return typeMap[type] || type || 'N/A';
+}
+
+// Initialize charts
+function initializeCharts() {
+    initializeStatusDistributionChart();
+    initializePredictionTypesChart();
+    initializeSeasonalChart();
+    initializeConfidenceChart();
+}
+
+// Status distribution chart
+function initializeStatusDistributionChart() {
+    const ctx = document.getElementById('statusDistributionChart');
+    if (!ctx) return;
+
+    const validated = allPredictions.filter(p => p.validationStatus === 'VALIDATED').length;
+    const pending = allPredictions.filter(p => p.validationStatus === 'PENDING').length;
+    const rejected = allPredictions.filter(p => p.validationStatus === 'REJECTED').length;
+
+    if (charts.statusDistribution) {
+        charts.statusDistribution.destroy();
+    }
+
+    charts.statusDistribution = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Validated', 'Pending', 'Rejected'],
+            datasets: [{
+                data: [validated, pending, rejected],
+                backgroundColor: ['#22c55e', '#f59e0b', '#ef4444']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+}
+
+// Prediction types chart
+function initializePredictionTypesChart() {
+    const ctx = document.getElementById('predictionTypesChart');
+    if (!ctx) return;
+
+    const types = {};
+    allPredictions.forEach(p => {
+        const type = formatPredictionType(p.predictionType);
+        types[type] = (types[type] || 0) + 1;
+    });
+
+    if (charts.predictionTypes) {
+        charts.predictionTypes.destroy();
+    }
+
+    charts.predictionTypes = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: Object.keys(types),
+            datasets: [{
+                data: Object.values(types),
+                backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+}
+
+// Seasonal chart
+function initializeSeasonalChart() {
+    const ctx = document.getElementById('seasonalChart');
+    if (!ctx) return;
+
+    const seasons = {};
+    allPredictions.forEach(p => {
+        const season = formatSeason(p.season);
+        seasons[season] = (seasons[season] || 0) + 1;
+    });
+
+    if (charts.seasonal) {
+        charts.seasonal.destroy();
+    }
+
+    charts.seasonal = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(seasons),
+            datasets: [{
+                label: 'Predictions by Season',
+                data: Object.values(seasons),
+                backgroundColor: '#22c55e'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Confidence chart
+function initializeConfidenceChart() {
+    const ctx = document.getElementById('confidenceChart');
+    if (!ctx) return;
+
+    const confidenceLevels = {
+        'High (80-100%)': 0,
+        'Medium (60-80%)': 0,
+        'Low (0-60%)': 0
+    };
+
+    allPredictions.forEach(p => {
+        const confidence = p.confidenceLevel || 0;
+        if (confidence >= 80) confidenceLevels['High (80-100%)']++;
+        else if (confidence >= 60) confidenceLevels['Medium (60-80%)']++;
+        else confidenceLevels['Low (0-60%)']++;
+    });
+
+    if (charts.confidence) {
+        charts.confidence.destroy();
+    }
+
+    charts.confidence = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(confidenceLevels),
+            datasets: [{
+                data: Object.values(confidenceLevels),
+                backgroundColor: ['#22c55e', '#f59e0b', '#ef4444']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+}
+
+// Initialize analytics charts
+async function initializeAnalyticsCharts() {
+    try {
+        showLoading(true);
+
+        // Load analytics data
+        const [accuracyData, confidenceAccuracyData, regionalData, modelData] = await Promise.all([
+            fetch(`${API_BASE_URL}/analytics/model-performance`).then(r => r.json()),
+            fetch(`${API_BASE_URL}/analytics/confidence-accuracy-correlation`).then(r => r.json()),
+            fetch(`${API_BASE_URL}/analytics/regional?year=${new Date().getFullYear()}`).then(r => r.json()),
+            fetch(`${API_BASE_URL}/analytics/model-performance`).then(r => r.json())
+        ]);
+
+        initializeAccuracyHistogram(accuracyData);
+        initializeConfidenceAccuracyScatter(confidenceAccuracyData);
+        initializeTimelineLine();
+        initializeRegionalBar(regionalData);
+        initializeModelComparison(modelData);
+        initializeVarianceViolin();
+
+    } catch (error) {
+        console.error('Error initializing analytics charts:', error);
+        showToast('Error loading analytics data', 'error');
+    } finally {
+        showLoading(false);
+    }
+}
+
+// Accuracy histogram
+function initializeAccuracyHistogram(data) {
+    const ctx = document.getElementById('accuracyHistogramChart');
+    if (!ctx) return;
+
+    const validatedPredictions = allPredictions.filter(p => p.accuracyAchieved != null);
+    const accuracyRanges = {
+        '0-20%': 0,
+        '20-40%': 0,
+        '40-60%': 0,
+        '60-80%': 0,
+        '80-100%': 0
+    };
+
+    validatedPredictions.forEach(p => {
+        const accuracy = p.accuracyAchieved;
+        if (accuracy < 20) accuracyRanges['0-20%']++;
+        else if (accuracy < 40) accuracyRanges['20-40%']++;
+        else if (accuracy < 60) accuracyRanges['40-60%']++;
+        else if (accuracy < 80) accuracyRanges['60-80%']++;
+        else accuracyRanges['80-100%']++;
+    });
+
+    if (charts.accuracyHistogram) {
+        charts.accuracyHistogram.destroy();
+    }
+
+    charts.accuracyHistogram = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(accuracyRanges),
+            datasets: [{
+                label: 'Number of Predictions',
+                data: Object.values(accuracyRanges),
+                backgroundColor: '#3b82f6'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Confidence vs Accuracy scatter
+function initializeConfidenceAccuracyScatter(data) {
+    const ctx = document.getElementById('confidenceAccuracyScatterChart');
+    if (!ctx) return;
+
+    const validatedPredictions = allPredictions.filter(p => p.accuracyAchieved != null);
+    const scatterData = validatedPredictions.map(p => ({
+        x: p.confidenceLevel || 0,
+        y: p.accuracyAchieved || 0
+    }));
+
+    if (charts.confidenceAccuracyScatter) {
+        charts.confidenceAccuracyScatter.destroy();
+    }
+
+    charts.confidenceAccuracyScatter = new Chart(ctx, {
+        type: 'scatter',
+        data: {
+            datasets: [{
+                label: 'Confidence vs Accuracy',
+                data: scatterData,
+                backgroundColor: 'rgba(34, 197, 94, 0.6)',
+                borderColor: '#22c55e',
+                pointRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true
+                }
+            },
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Confidence Level (%)'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Accuracy (%)'
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Timeline line chart
+function initializeTimelineLine() {
+    const ctx = document.getElementById('timelineLineChart');
+    if (!ctx) return;
+
+    const sortedPredictions = [...allPredictions].sort((a, b) =>
+        new Date(a.predictionDate) - new Date(b.predictionDate)
+    );
+
+    const last30 = sortedPredictions.slice(-30);
+    const labels = last30.map(p => new Date(p.predictionDate).toLocaleDateString());
+    const confidenceData = last30.map(p => p.confidenceLevel || 0);
+
+    if (charts.timelineLine) {
+        charts.timelineLine.destroy();
+    }
+
+    charts.timelineLine = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Confidence Level',
+                data: confidenceData,
+                borderColor: '#22c55e',
+                backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
+}
+
+// Regional bar chart
+function initializeRegionalBar(data) {
+    const ctx = document.getElementById('regionalBarChart');
+    if (!ctx) return;
+
+    const regions = {};
+    allPredictions.forEach(p => {
+        if (p.region) {
+            regions[p.region] = (regions[p.region] || 0) + 1;
+        }
+    });
+
+    if (charts.regionalBar) {
+        charts.regionalBar.destroy();
+    }
+
+    charts.regionalBar = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(regions),
+            datasets: [{
+                label: 'Predictions by Region',
+                data: Object.values(regions),
+                backgroundColor: '#10b981'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: 'y',
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Model comparison chart
+function initializeModelComparison(data) {
+    const ctx = document.getElementById('modelComparisonChart');
+    if (!ctx) return;
+
+    const models = {};
+    allPredictions.forEach(p => {
+        if (p.modelUsed) {
+            if (!models[p.modelUsed]) {
+                models[p.modelUsed] = { count: 0, totalAccuracy: 0, predictions: 0 };
+            }
+            models[p.modelUsed].count++;
+            if (p.accuracyAchieved != null) {
+                models[p.modelUsed].totalAccuracy += p.accuracyAchieved;
+                models[p.modelUsed].predictions++;
+            }
+        }
+    });
+
+    const modelNames = Object.keys(models);
+    const avgAccuracies = modelNames.map(name => {
+        const model = models[name];
+        return model.predictions > 0 ? model.totalAccuracy / model.predictions : 0;
+    });
+
+    if (charts.modelComparison) {
+        charts.modelComparison.destroy();
+    }
+
+    charts.modelComparison = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: modelNames,
+            datasets: [{
+                label: 'Average Accuracy (%)',
+                data: avgAccuracies,
+                backgroundColor: '#8b5cf6'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
+}
+
+// Variance violin chart (simulated with box plot)
+function initializeVarianceViolin() {
+    const ctx = document.getElementById('varianceViolinChart');
+    if (!ctx) return;
+
+    const validatedPredictions = allPredictions.filter(p =>
+        p.actualValue != null && p.predictedValue != null
+    );
+
+    const variances = validatedPredictions.map(p => {
+        const variance = ((p.actualValue - p.predictedValue) / p.predictedValue) * 100;
+        return Math.abs(variance);
+    });
+
+    const ranges = {
+        '0-5%': 0,
+        '5-10%': 0,
+        '10-20%': 0,
+        '20-50%': 0,
+        '50%+': 0
+    };
+
+    variances.forEach(v => {
+        if (v < 5) ranges['0-5%']++;
+        else if (v < 10) ranges['5-10%']++;
+        else if (v < 20) ranges['10-20%']++;
+        else if (v < 50) ranges['20-50%']++;
+        else ranges['50%+']++;
+    });
+
+    if (charts.varianceViolin) {
+        charts.varianceViolin.destroy();
+    }
+
+    charts.varianceViolin = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(ranges),
+            datasets: [{
+                label: 'Variance Distribution',
+                data: Object.values(ranges),
+                backgroundColor: '#f59e0b'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Initialize model performance charts
+function initializeModelPerformanceCharts() {
+    initializeModelsAccuracyChart();
+    initializeModelUsageChart();
+}
+
+// Models accuracy chart
+function initializeModelsAccuracyChart() {
+    const ctx = document.getElementById('modelsAccuracyChart');
+    if (!ctx) return;
+
+    const models = {};
+    allPredictions.forEach(p => {
+        if (p.modelUsed && p.accuracyAchieved != null) {
+            if (!models[p.modelUsed]) {
+                models[p.modelUsed] = { totalAccuracy: 0, count: 0 };
+            }
+            models[p.modelUsed].totalAccuracy += p.accuracyAchieved;
+            models[p.modelUsed].count++;
+        }
+    });
+
+    const modelNames = Object.keys(models);
+    const avgAccuracies = modelNames.map(name =>
+        models[name].totalAccuracy / models[name].count
+    );
+
+    if (charts.modelsAccuracy) {
+        charts.modelsAccuracy.destroy();
+    }
+
+    charts.modelsAccuracy = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: modelNames,
+            datasets: [{
+                label: 'Average Accuracy (%)',
+                data: avgAccuracies,
+                backgroundColor: '#3b82f6'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
+}
+
+// Model usage chart
+function initializeModelUsageChart() {
+    const ctx = document.getElementById('modelUsageChart');
+    if (!ctx) return;
+
+    const models = {};
+    allPredictions.forEach(p => {
+        if (p.modelUsed) {
+            models[p.modelUsed] = (models[p.modelUsed] || 0) + 1;
+        }
+    });
+
+    if (charts.modelUsage) {
+        charts.modelUsage.destroy();
+    }
+
+    charts.modelUsage = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(models),
+            datasets: [{
+                data: Object.values(models),
+                backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+}
+
+// Show section
+function showSection(sectionName) {
+    document.querySelectorAll('.content-section').forEach(section => {
+        section.classList.remove('active');
+    });
+
+    const section = document.getElementById(sectionName + 'Section');
+    if (section) {
+        section.classList.add('active');
+    }
+
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    event.target.closest('.nav-item').classList.add('active');
+
+    switch(sectionName) {
+        case 'predictions':
+            loadAllPredictions();
+            break;
+        case 'validated':
+            loadValidatedPredictions();
+            break;
+        case 'pending':
+            loadPendingPredictions();
+            break;
+        case 'rejected':
+            loadRejectedPredictions();
+            break;
+        case 'analytics':
+            initializeAnalyticsCharts();
+            break;
+        case 'model-performance':
+            initializeModelPerformanceCharts();
+            break;
+        case 'dashboard':
+            loadDashboardStatistics();
+            loadAllPredictions();
+            break;
+    }
+}
+
+
+
+// Load crops for dropdown
+async function loadCropsForDropdown() {
+    try {
+        const response = await fetch('http://localhost:1010/api/v1/crops/all');
+        if (!response.ok) throw new Error('Failed to load crops');
+
+        const result = await response.json();
+        const crops = result.data || result;
+
+        const cropSelect = document.getElementById('cropId');
+
+        // Clear existing options except the first one
+        cropSelect.innerHTML = '<option value="">Select a crop</option>';
+
+        // Add crop options
+        crops.forEach(crop => {
+            const option = document.createElement('option');
+            option.value = crop.id;
+            option.textContent = `${crop.cropName} (${crop.id})`;
+            cropSelect.appendChild(option);
+        });
+    } catch (error) {
+        console.error('Error loading crops:', error);
+        showToast('Error loading crops list', 'error');
+    }
+}
+
+function showAddPredictionModal() {
+    currentEditingPredictionId = null;
+    document.getElementById('predictionModalTitle').textContent = 'Add Prediction';
+    document.getElementById('predictionForm').reset();
+    document.getElementById('predictionId').value = '';
+
+    // Load crops for dropdown
+    loadCropsForDropdown();
+
+    document.getElementById('predictionModal').classList.add('show');
+}
+
+// Close prediction modal
+function closePredictionModal() {
+    document.getElementById('predictionModal').classList.remove('show');
+    document.getElementById('predictionForm').reset();
+    currentEditingPredictionId = null;
+}
+
+// Submit prediction form
+async function submitPredictionForm(event) {
+    event.preventDefault();
+
+    const formData = {
+        cropId: document.getElementById('cropId').value,
+        region: document.getElementById('region').value,
+        district: document.getElementById('district').value,
+        year: parseInt(document.getElementById('year').value),
+        season: document.getElementById('season').value,
+        predictionType: document.getElementById('predictionType').value,
+        predictedValue: parseFloat(document.getElementById('predictedValue').value),
+        unit: document.getElementById('unit').value,
+        confidenceLevel: parseFloat(document.getElementById('confidenceLevel').value),
+        modelUsed: document.getElementById('modelUsed').value,
+        modelVersion: document.getElementById('modelVersion').value,
+        algorithm: document.getElementById('algorithm').value,
+        targetDate: document.getElementById('targetDate').value,
+        historicalAccuracy: document.getElementById('historicalAccuracy').value ?
+            parseFloat(document.getElementById('historicalAccuracy').value) : null,
+        assumptions: document.getElementById('assumptions').value
+    };
+
+    try {
+        showLoading(true);
+        let response;
+
+        if (currentEditingPredictionId) {
+            response = await fetch(`${API_BASE_URL}/${currentEditingPredictionId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+        } else {
+            response = await fetch(`${API_BASE_URL}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+        }
+
+        const result = await response.json();
+
+        if (result.success || response.ok) {
+            showToast(currentEditingPredictionId ? 'Prediction updated successfully' : 'Prediction created successfully', 'success');
+            closePredictionModal();
+            await loadDashboardStatistics();
+            await loadAllPredictions();
+        } else {
+            showToast(result.message || 'Error saving prediction', 'error');
+        }
+    } catch (error) {
+        console.error('Error saving prediction:', error);
+        showToast('Error saving prediction', 'error');
+    } finally {
+        showLoading(false);
+    }
+}
+
+async function editPrediction(predictionId) {
+    try {
+        showLoading(true);
+
+        // Load crops for dropdown first
+        await loadCropsForDropdown();
+
+        const response = await fetch(`${API_BASE_URL}/${predictionId}`);
+        const result = await response.json();
+
+        if (result.success && result.data) {
+            const prediction = result.data;
+            currentEditingPredictionId = predictionId;
+
+            document.getElementById('predictionModalTitle').textContent = 'Edit Prediction';
+            document.getElementById('predictionId').value = prediction.id;
+            document.getElementById('cropId').value = prediction.cropId || '';
+            document.getElementById('region').value = prediction.region || '';
+            document.getElementById('district').value = prediction.district || '';
+            document.getElementById('year').value = prediction.year || '';
+            document.getElementById('season').value = prediction.season || '';
+            document.getElementById('predictionType').value = prediction.predictionType || '';
+            document.getElementById('predictedValue').value = prediction.predictedValue || '';
+            document.getElementById('unit').value = prediction.unit || '';
+            document.getElementById('confidenceLevel').value = prediction.confidenceLevel || '';
+            document.getElementById('modelUsed').value = prediction.modelUsed || '';
+            document.getElementById('modelVersion').value = prediction.modelVersion || '';
+            document.getElementById('algorithm').value = prediction.algorithm || '';
+            document.getElementById('targetDate').value = prediction.targetDate || '';
+            document.getElementById('historicalAccuracy').value = prediction.historicalAccuracy || '';
+            document.getElementById('assumptions').value = prediction.assumptions || '';
+
+            document.getElementById('predictionModal').classList.add('show');
+        } else {
+            showToast('Error loading prediction data', 'error');
+        }
+    } catch (error) {
+        console.error('Error loading prediction:', error);
+        showToast('Error loading prediction data', 'error');
+    } finally {
+        showLoading(false);
+    }
+}
+
+// View prediction
+async function viewPrediction(predictionId) {
+    try {
+        showLoading(true);
+        const response = await fetch(`${API_BASE_URL}/${predictionId}`);
+        const result = await response.json();
+
+        if (result.success && result.data) {
+            const prediction = result.data;
+            const content = document.getElementById('predictionDetailsContent');
+
+            content.innerHTML = `
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div>
+                        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 10px; color: var(--text-primary);">Basic Information</h3>
+                        <p><strong>Code:</strong> ${prediction.predictionCode || 'N/A'}</p>
+                        <p><strong>Crop ID:</strong> ${prediction.cropId || 'N/A'}</p>
+                        <p><strong>Region:</strong> ${prediction.region || 'N/A'}</p>
+                        <p><strong>District:</strong> ${prediction.district || 'N/A'}</p>
+                        <p><strong>Year:</strong> ${prediction.year || 'N/A'}</p>
+                        <p><strong>Season:</strong> ${formatSeason(prediction.season)}</p>
+                    </div>
+                    <div>
+                        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 10px; color: var(--text-primary);">Prediction Details</h3>
+                        <p><strong>Type:</strong> ${formatPredictionType(prediction.predictionType)}</p>
+                        <p><strong>Predicted Value:</strong> ${prediction.predictedValue || 0} ${prediction.unit || ''}</p>
+                        <p><strong>Confidence Level:</strong> ${(prediction.confidenceLevel || 0).toFixed(1)}%</p>
+                        <p><strong>Model Used:</strong> ${prediction.modelUsed || 'N/A'}</p>
+                        <p><strong>Algorithm:</strong> ${prediction.algorithm || 'N/A'}</p>
+                        <p><strong>Target Date:</strong> ${prediction.targetDate || 'N/A'}</p>
+                    </div>
+                    ${prediction.actualValue ? `
+                    <div>
+                        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 10px; color: var(--text-primary);">Actual Results</h3>
+                        <p><strong>Actual Value:</strong> ${prediction.actualValue} ${prediction.unit || ''}</p>
+                        <p><strong>Accuracy Achieved:</strong> ${(prediction.accuracyAchieved || 0).toFixed(1)}%</p>
+                    </div>
+                    ` : ''}
+                    <div>
+                        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 10px; color: var(--text-primary);">Status</h3>
+                        <p><strong>Validation Status:</strong>
+                            <span class="status-badge status-${(prediction.validationStatus || 'pending').toLowerCase()}">
+                                ${prediction.validationStatus || 'PENDING'}
+                            </span>
+                        </p>
+                        <p><strong>Published:</strong> ${prediction.published ? 'Yes' : 'No'}</p>
+                        <p><strong>Created:</strong> ${new Date(prediction.createdAt).toLocaleString()}</p>
+                    </div>
+                </div>
+                ${prediction.assumptions ? `
+                <div style="margin-top: 20px;">
+                    <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 10px; color: var(--text-primary);">Assumptions</h3>
+                    <p style="background: var(--bg-secondary); padding: 12px; border-radius: 8px;">${prediction.assumptions}</p>
+                </div>
+                ` : ''}
+            `;
+
+            document.getElementById('viewPredictionModal').classList.add('show');
+        } else {
+            showToast('Error loading prediction data', 'error');
+        }
+    } catch (error) {
+        console.error('Error loading prediction:', error);
+        showToast('Error loading prediction data', 'error');
+    } finally {
+        showLoading(false);
+    }
+}
+
+// Close view prediction modal
+function closeViewPredictionModal() {
+    document.getElementById('viewPredictionModal').classList.remove('show');
+}
+
+// Delete prediction
+async function deletePrediction(predictionId) {
+    if (!confirm('Are you sure you want to delete this prediction? This action cannot be undone.')) {
+        return;
+    }
+
+    try {
+        showLoading(true);
+        const response = await fetch(`${API_BASE_URL}/${predictionId}`, {
+            method: 'DELETE'
+        });
+
+        const result = await response.json();
+
+        if (result.success || response.ok) {
+            showToast('Prediction deleted successfully', 'success');
+            await loadDashboardStatistics();
+            await loadAllPredictions();
+        } else {
+            showToast(result.message || 'Error deleting prediction', 'error');
+        }
+    } catch (error) {
+        console.error('Error deleting prediction:', error);
+        showToast('Error deleting prediction', 'error');
+    } finally {
+        showLoading(false);
+    }
+}
+
+// Validate prediction
+async function validatePrediction(predictionId) {
+    if (!currentLoggedInUser) {
+        showToast('User session not found', 'error');
+        return;
+    }
+
+    const validatorId = currentLoggedInUser.id || currentLoggedInUser.userId;
+
+    try {
+        showLoading(true);
+        const response = await fetch(`${API_BASE_URL}/${predictionId}/validate?validatorId=${validatorId}`, {
+            method: 'POST'
+        });
+
+        const result = await response.json();
+
+        if (result.success || response.ok) {
+            showToast('Prediction validated successfully', 'success');
+            await loadDashboardStatistics();
+            await loadAllPredictions();
+            if (document.getElementById('pendingSection').classList.contains('active')) {
+                await loadPendingPredictions();
+            }
+        } else {
+            showToast(result.message || 'Error validating prediction', 'error');
+        }
+    } catch (error) {
+        console.error('Error validating prediction:', error);
+        showToast('Error validating prediction', 'error');
+    } finally {
+        showLoading(false);
+    }
+}
+
+// Reject prediction
+async function rejectPrediction(predictionId) {
+    if (!currentLoggedInUser) {
+        showToast('User session not found', 'error');
+        return;
+    }
+
+    const validatorId = currentLoggedInUser.id || currentLoggedInUser.userId;
+
+    try {
+        showLoading(true);
+        const response = await fetch(`${API_BASE_URL}/${predictionId}/reject?validatorId=${validatorId}`, {
+            method: 'POST'
+        });
+
+        const result = await response.json();
+
+        if (result.success || response.ok) {
+            showToast('Prediction rejected successfully', 'success');
+            await loadDashboardStatistics();
+            await loadAllPredictions();
+            if (document.getElementById('pendingSection').classList.contains('active')) {
+                await loadPendingPredictions();
+            }
+        } else {
+            showToast(result.message || 'Error rejecting prediction', 'error');
+        }
+    } catch (error) {
+        console.error('Error rejecting prediction:', error);
+        showToast('Error rejecting prediction', 'error');
+    } finally {
+        showLoading(false);
+    }
+}
+
+// Export to Excel
+function exportPredictionsToExcel(type) {
+    let data = [];
+    let filename = 'predictions_export.xlsx';
+
+    switch(type) {
+        case 'all':
+            data = allPredictions;
+            filename = 'all_predictions.xlsx';
+            break;
+        case 'validated':
+            data = allPredictions.filter(p => p.validationStatus === 'VALIDATED');
+            filename = 'validated_predictions.xlsx';
+            break;
+        case 'pending':
+            data = allPredictions.filter(p => p.validationStatus === 'PENDING');
+            filename = 'pending_predictions.xlsx';
+            break;
+        case 'rejected':
+            data = allPredictions.filter(p => p.validationStatus === 'REJECTED');
+            filename = 'rejected_predictions.xlsx';
+            break;
+    }
+
+    if (data.length === 0) {
+        showToast('No data to export', 'warning');
+        return;
+    }
+
+    const exportData = data.map(prediction => ({
+        'Code': prediction.predictionCode || 'N/A',
+        'Crop ID': prediction.cropId || 'N/A',
+        'Region': prediction.region || 'N/A',
+        'District': prediction.district || 'N/A',
+        'Year': prediction.year || 'N/A',
+        'Season': formatSeason(prediction.season),
+        'Type': formatPredictionType(prediction.predictionType),
+        'Predicted Value': prediction.predictedValue || 0,
+        'Unit': prediction.unit || '',
+        'Confidence (%)': prediction.confidenceLevel || 0,
+        'Model': prediction.modelUsed || 'N/A',
+        'Status': prediction.validationStatus || 'PENDING',
+        'Actual Value': prediction.actualValue || 'N/A',
+        'Accuracy (%)': prediction.accuracyAchieved || 'N/A',
+        'Created Date': prediction.createdAt ? new Date(prediction.createdAt).toLocaleDateString() : 'N/A'
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Predictions');
+    XLSX.writeFile(wb, filename);
+
+    showToast('Excel file exported successfully', 'success');
+}
+
+// Generate PDF report
+async function generatePDFReport() {
+    const reportType = document.getElementById('reportType').value;
+    let data = [];
+    let title = 'Production Predictions Report';
+
+    switch(reportType) {
+        case 'all':
+            data = allPredictions;
+            title = 'All Predictions Report';
+            break;
+        case 'validated':
+            data = allPredictions.filter(p => p.validationStatus === 'VALIDATED');
+            title = 'Validated Predictions Report';
+            break;
+        case 'pending':
+            data = allPredictions.filter(p => p.validationStatus === 'PENDING');
+            title = 'Pending Predictions Report';
+            break;
+        case 'rejected':
+            data = allPredictions.filter(p => p.validationStatus === 'REJECTED');
+            title = 'Rejected Predictions Report';
+            break;
+        case 'high-confidence':
+            data = allPredictions.filter(p => p.confidenceLevel >= 80);
+            title = 'High Confidence Predictions Report';
+            break;
+        case 'accurate':
+            data = allPredictions.filter(p => p.accuracyAchieved >= 80);
+            title = 'Accurate Predictions Report';
+            break;
+    }
+
+    if (data.length === 0) {
+        showToast('No data to generate report', 'warning');
+        return;
+    }
+
+    showLoading(true);
+
+    try {
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF();
+
+        // Header
+        pdf.setFontSize(20);
+        pdf.setTextColor(34, 197, 94);
+        pdf.text(title, 105, 20, { align: 'center' });
+
+        // Logo
+        try {
+            const logoImg = new Image();
+            logoImg.src = 'images/logo.jpeg';
+            pdf.addImage(logoImg, 'PNG', 10, 10, 20, 20);
+        } catch (e) {
+            console.log('Logo not loaded');
+        }
+
+        // Date and summary
+        pdf.setFontSize(12);
+        pdf.setTextColor(0, 0, 0);
+        pdf.text(`Generated: ${new Date().toLocaleDateString()}`, 105, 30, { align: 'center' });
+        pdf.text(`Total Records: ${data.length}`, 105, 38, { align: 'center' });
+        pdf.text(`Report Type: ${reportType.toUpperCase()}`, 105, 46, { align: 'center' });
+
+        // Table
+        const tableData = data.map(p => [
+            p.predictionCode || 'N/A',
+            p.cropId || 'N/A',
+            p.region || 'N/A',
+            `${p.predictedValue || 0} ${p.unit || ''}`,
+            `${(p.confidenceLevel || 0).toFixed(1)}%`,
+            p.validationStatus || 'PENDING'
+        ]);
+
+        pdf.autoTable({
+            startY: 55,
+            head: [['Code', 'Crop', 'Region', 'Predicted Value', 'Confidence', 'Status']],
+            body: tableData,
+            theme: 'grid',
+            headStyles: {
+                fillColor: [34, 197, 94],
+                textColor: [255, 255, 255],
+                fontStyle: 'bold'
+            },
+            alternateRowStyles: {
+                fillColor: [245, 245, 245]
+            },
+            styles: {
+                fontSize: 9,
+                cellPadding: 4
+            }
+        });
+
+        // Footer
+        const pageCount = pdf.internal.getNumberOfPages();
+        for (let i = 1; i <= pageCount; i++) {
+            pdf.setPage(i);
+            pdf.setFontSize(10);
+            pdf.setTextColor(128, 128, 128);
+            pdf.text(`AgriGuard AI - Smart Agriculture Platform`, 105, pdf.internal.pageSize.height - 10, { align: 'center' });
+            pdf.text(`Page ${i} of ${pageCount}`, pdf.internal.pageSize.width - 20, pdf.internal.pageSize.height - 10, { align: 'right' });
+        }
+
+        pdf.save(`${reportType}_predictions_report_${Date.now()}.pdf`);
+        showToast('PDF report generated successfully', 'success');
+    } catch (error) {
+        console.error('Error generating PDF:', error);
+        showToast('Error generating PDF report', 'error');
+    } finally {
+        showLoading(false);
+    }
+}
+
+// Generate Excel report
+function generateExcelReport() {
+    const reportType = document.getElementById('reportType').value;
+    exportPredictionsToExcel(reportType);
+}
+
+// Search in table
+function searchInTable(tableBodyId, searchInputId) {
+    const searchValue = document.getElementById(searchInputId).value.toLowerCase();
+    const tbody = document.getElementById(tableBodyId);
+    const rows = tbody.getElementsByTagName('tr');
+
+    for (let row of rows) {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(searchValue) ? '' : 'none';
+    }
+}
+
+// Handle global search
+function handleGlobalSearch() {
+    const searchValue = document.getElementById('globalSearch').value.toLowerCase();
+    const visibleSection = document.querySelector('.content-section.active');
+
+    if (visibleSection) {
+        const tbody = visibleSection.querySelector('tbody');
+        if (tbody) {
+            const rows = tbody.getElementsByTagName('tr');
+            for (let row of rows) {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchValue) ? '' : 'none';
+            }
+        }
+    }
+}
+
+// Toggle sidebar
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('mainContent');
+
+    sidebar.classList.toggle('collapsed');
+    mainContent.classList.toggle('sidebar-collapsed');
+}
+
+// Toggle theme
+function toggleTheme() {
+    document.body.classList.toggle('dark-mode');
+    const isDark = document.body.classList.contains('dark-mode');
+
+    const themeToggle = document.getElementById('themeToggle');
+    themeToggle.innerHTML = isDark
+        ? '<i class="fas fa-sun"></i><span>Light Mode</span>'
+        : '<i class="fas fa-moon"></i><span>Dark Mode</span>';
+
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+}
+
+// Load saved theme
+function loadSavedTheme() {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+        document.body.classList.add('dark-mode');
+        document.getElementById('themeToggle').innerHTML = '<i class="fas fa-sun"></i><span>Light Mode</span>';
+    }
+}
+
+// Update date time
+function updateDateTime() {
+    const now = new Date();
+
+    const dateOptions = {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    };
+
+    const currentDateElement = document.getElementById('currentDate');
+    if (currentDateElement) {
+        currentDateElement.textContent = now.toLocaleDateString('en-US', dateOptions);
+    }
+
+    if (currentLoggedInUser) {
+        const greetingText = document.getElementById('greetingText');
+        if (greetingText) {
+            const hour = now.getHours();
+            let greeting = 'Good Morning';
+            if (hour >= 12 && hour < 18) greeting = 'Good Afternoon';
+            else if (hour >= 18) greeting = 'Good Evening';
+
+            greetingText.textContent = `${greeting}, ${currentLoggedInUser.fullName}!`;
+        }
+    }
+}
+
+// Show loading
+function showLoading(show) {
+    document.getElementById('loadingOverlay').classList.toggle('show', show);
+}
+
+// Show toast
+function showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `<p class="toast-message">${message}</p>`;
+
+    document.getElementById('toastContainer').appendChild(toast);
+
+    setTimeout(() => {
+        toast.remove();
+    }, 5000);
+}
+</script>
+</body>
+</html>
