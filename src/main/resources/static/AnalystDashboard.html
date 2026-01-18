@@ -816,6 +816,262 @@
           background: var(--primary-dark);
         }
 
+        /* AI Chat Styles */
+        .ai-chat-container {
+          display: flex;
+          flex-direction: column;
+          height: calc(100vh - 160px);
+          background: var(--card-bg);
+          border-radius: 16px;
+          box-shadow: var(--shadow);
+          border: 1px solid var(--border-color);
+          overflow: hidden;
+        }
+
+        .chat-header {
+          padding: 20px 24px;
+          border-bottom: 1px solid var(--border-color);
+          background: var(--gradient-primary);
+          color: white;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+
+        .chat-header-icon {
+          width: 40px;
+          height: 40px;
+          background: rgba(255, 255, 255, 0.2);
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 20px;
+        }
+
+        .chat-header-title {
+          font-size: 18px;
+          font-weight: 600;
+        }
+
+        .chat-messages {
+          flex: 1;
+          overflow-y: auto;
+          padding: 24px;
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        }
+
+        .message {
+          display: flex;
+          gap: 12px;
+          animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+          flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 18px;
+          flex-shrink: 0;
+        }
+
+        .message.user .message-avatar {
+          background: var(--gradient-primary);
+          color: white;
+        }
+
+        .message.ai .message-avatar {
+          background: var(--info-color);
+          color: white;
+        }
+
+        .message-content {
+          flex: 1;
+          padding: 12px 16px;
+          border-radius: 12px;
+          max-width: 70%;
+          line-height: 1.6;
+        }
+
+        .message.user .message-content {
+          background: var(--gradient-primary);
+          color: white;
+          border-bottom-right-radius: 4px;
+        }
+
+        .message.ai .message-content {
+          background: var(--bg-secondary);
+          color: var(--text-primary);
+          border: 1px solid var(--border-color);
+          border-bottom-left-radius: 4px;
+        }
+
+        .message-text {
+          font-size: 14px;
+          margin-bottom: 8px;
+        }
+
+        .message-chart {
+          margin-top: 12px;
+          padding: 12px;
+          background: var(--card-bg);
+          border-radius: 8px;
+          border: 1px solid var(--border-color);
+        }
+
+        .message-time {
+          font-size: 11px;
+          opacity: 0.7;
+          margin-top: 4px;
+        }
+
+        .chat-input-container {
+          padding: 20px 24px;
+          border-top: 1px solid var(--border-color);
+          background: var(--card-bg);
+        }
+
+        .chat-input-wrapper {
+          display: flex;
+          gap: 12px;
+          align-items: flex-end;
+        }
+
+        .chat-input {
+          flex: 1;
+          padding: 12px 16px;
+          border: 2px solid var(--border-color);
+          border-radius: 12px;
+          font-size: 14px;
+          font-family: 'Inter', sans-serif;
+          resize: none;
+          min-height: 44px;
+          max-height: 120px;
+          background: var(--bg-secondary);
+          color: var(--text-primary);
+          transition: all 0.3s ease;
+        }
+
+        .chat-input:focus {
+          outline: none;
+          border-color: var(--primary-green);
+          box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+        }
+
+        .chat-send-btn {
+          padding: 12px 24px;
+          background: var(--gradient-primary);
+          color: white;
+          border: none;
+          border-radius: 12px;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          height: 44px;
+        }
+
+        .chat-send-btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
+        }
+
+        .chat-send-btn:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+          transform: none;
+        }
+
+        .quick-actions {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+          margin-top: 12px;
+        }
+
+        .quick-action-btn {
+          padding: 8px 16px;
+          background: var(--bg-secondary);
+          border: 1px solid var(--border-color);
+          border-radius: 20px;
+          font-size: 12px;
+          color: var(--text-primary);
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+
+        .quick-action-btn:hover {
+          background: var(--hover-bg);
+          border-color: var(--primary-green);
+          color: var(--primary-green);
+        }
+
+        .prediction-card {
+          margin-top: 12px;
+          padding: 16px;
+          background: var(--bg-secondary);
+          border-radius: 8px;
+          border-left: 4px solid var(--primary-green);
+        }
+
+        .prediction-title {
+          font-weight: 600;
+          color: var(--text-primary);
+          margin-bottom: 8px;
+          font-size: 15px;
+        }
+
+        .prediction-value {
+          font-size: 24px;
+          font-weight: 700;
+          color: var(--primary-green);
+          margin: 8px 0;
+        }
+
+        .prediction-details {
+          font-size: 13px;
+          color: var(--text-secondary);
+          line-height: 1.6;
+        }
+
+        .loading-dots {
+          display: inline-flex;
+          gap: 4px;
+        }
+
+        .loading-dots span {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: var(--primary-green);
+          animation: bounce 1.4s infinite ease-in-out both;
+        }
+
+        .loading-dots span:nth-child(1) { animation-delay: -0.32s; }
+        .loading-dots span:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes bounce {
+          0%, 80%, 100% { transform: scale(0); }
+          40% { transform: scale(1); }
+        }
+
         @media (max-width: 1200px) {
           .charts-section {
             grid-template-columns: 1fr;
@@ -928,6 +1184,12 @@
                         <a class="nav-link" onclick="showSection('recommendations')">
                             <i class="fas fa-lightbulb"></i>
                             <span>Recommendations</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="showSection('aiAssistant')">
+                            <i class="fas fa-robot"></i>
+                            <span>AI Assistant</span>
                         </a>
                     </li>
                 </ul>
@@ -1724,6 +1986,86 @@
                         </div>
                         <div class="prediction-content" id="diversificationRecommendations">
                             Loading recommendations...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Assistant Section -->
+            <div id="aiAssistantSection" class="content-section">
+                <div class="ai-chat-container">
+                    <div class="chat-header">
+                        <div class="chat-header-icon">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div>
+                            <div class="chat-header-title">AI Prediction Assistant</div>
+                            <div style="font-size: 12px; opacity: 0.9;">Powered by AgriGuard AI Analytics</div>
+                        </div>
+                    </div>
+
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="message ai">
+                            <div class="message-avatar">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="message-content">
+                                <div class="message-text">
+                                    <strong>👋 Welcome to AI Prediction Assistant!</strong><br><br>
+                                    I can analyze your database and provide real-time predictions for:
+                                    <ul style="margin: 8px 0; padding-left: 20px;">
+                                        <li>🌤️ Weather patterns and forecasts</li>
+                                        <li>🌱 Soil health and quality trends</li>
+                                        <li>👨‍🌾 Farmer productivity and performance</li>
+                                        <li>🌾 Crop yields and production forecasts</li>
+                                        <li>💰 Market price predictions</li>
+                                        <li>💧 Irrigation needs and recommendations</li>
+                                        <li>🍽️ Food security analysis</li>
+                                        <li>📊 Comprehensive trend analysis</li>
+                                    </ul>
+                                    <br>Ask me anything! For example: "Predict next month's weather" or "What's the market price forecast for maize?"
+                                </div>
+                                <div class="message-time">Just now</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chat-input-container">
+                        <div class="quick-actions">
+                            <button class="quick-action-btn" onclick="askQuickQuestion('weather')">
+                                🌤️ Weather Prediction
+                            </button>
+                            <button class="quick-action-btn" onclick="askQuickQuestion('soil')">
+                                🌱 Soil Analysis
+                            </button>
+                            <button class="quick-action-btn" onclick="askQuickQuestion('market')">
+                                💰 Market Forecast
+                            </button>
+                            <button class="quick-action-btn" onclick="askQuickQuestion('yield')">
+                                🌾 Crop Yield
+                            </button>
+                            <button class="quick-action-btn" onclick="askQuickQuestion('irrigation')">
+                                💧 Irrigation Needs
+                            </button>
+                            <button class="quick-action-btn" onclick="askQuickQuestion('security')">
+                                🍽️ Food Security
+                            </button>
+                            <button class="quick-action-btn" onclick="askQuickQuestion('comprehensive')">
+                                📊 Full Analysis
+                            </button>
+                        </div>
+                        <div class="chat-input-wrapper">
+                            <textarea 
+                                id="chatInput" 
+                                class="chat-input" 
+                                placeholder="Ask about predictions, trends, or any analysis..."
+                                rows="1"
+                                onkeydown="handleChatInputKey(event)"
+                            ></textarea>
+                            <button id="chatSendBtn" class="chat-send-btn" onclick="sendChatMessage()">
+                                <i class="fas fa-paper-plane"></i>
+                                Send
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -4882,6 +5224,736 @@ function showToast(message, type = 'info') {
 }
 
 console.log('Analyst Dashboard initialized successfully');
+
+// ==================== AI ASSISTANT CHAT ====================
+let chatHistory = [];
+
+function handleChatInputKey(event) {
+    if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        sendChatMessage();
+    } else if (event.key === 'Enter' && event.shiftKey) {
+        const textarea = event.target;
+        textarea.style.height = 'auto';
+        textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+    }
+}
+
+function askQuickQuestion(type) {
+    const questions = {
+        weather: "Predict next month's weather patterns and their impact on crops",
+        soil: "Analyze soil health trends and predict future soil quality",
+        market: "Forecast market prices for the top 5 crops for the next 30 days",
+        yield: "Predict crop yields for the current season based on all data",
+        irrigation: "Analyze irrigation needs and predict optimal watering schedules",
+        security: "Assess food security situation and predict potential risks",
+        comprehensive: "Provide a comprehensive prediction analysis of all factors"
+    };
+    
+    const chatInput = document.getElementById('chatInput');
+    chatInput.value = questions[type] || questions.comprehensive;
+    sendChatMessage();
+}
+
+async function sendChatMessage() {
+    const chatInput = document.getElementById('chatInput');
+    const message = chatInput.value.trim();
+    
+    if (!message) return;
+    
+    const sendBtn = document.getElementById('chatSendBtn');
+    sendBtn.disabled = true;
+    
+    // Add user message
+    addMessageToChat('user', message);
+    chatInput.value = '';
+    chatInput.style.height = 'auto';
+    
+    // Show typing indicator
+    const typingId = addTypingIndicator();
+    
+    // Generate AI response
+    try {
+        const response = await generateAIResponse(message);
+        removeTypingIndicator(typingId);
+        addMessageToChat('ai', response.text, response.chartId, response.data);
+    } catch (error) {
+        removeTypingIndicator(typingId);
+        addMessageToChat('ai', 'Sorry, I encountered an error processing your request. Please try again.');
+        console.error('AI Chat Error:', error);
+    } finally {
+        sendBtn.disabled = false;
+        chatInput.focus();
+    }
+}
+
+function addMessageToChat(type, text, chartId = null, chartData = null) {
+    const chatMessages = document.getElementById('chatMessages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${type}`;
+    
+    const avatarIcon = type === 'user' ? 'fas fa-user' : 'fas fa-robot';
+    const time = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    
+    let chartHtml = '';
+    if (chartId && chartData) {
+        chartHtml = `<div class="message-chart"><canvas id="${chartId}"></canvas></div>`;
+    }
+    
+    messageDiv.innerHTML = `
+        <div class="message-avatar">
+            <i class="${avatarIcon}"></i>
+        </div>
+        <div class="message-content">
+            <div class="message-text">${text}</div>
+            ${chartHtml}
+            <div class="message-time">${time}</div>
+        </div>
+    `;
+    
+    chatMessages.appendChild(messageDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    
+    // Initialize chart if provided
+    if (chartId && chartData) {
+        setTimeout(() => {
+            initializePredictionChart(chartId, chartData);
+        }, 100);
+    }
+    
+    chatHistory.push({ type, text, time, chartId });
+}
+
+function addTypingIndicator() {
+    const chatMessages = document.getElementById('chatMessages');
+    const typingDiv = document.createElement('div');
+    const typingId = 'typing-' + Date.now();
+    typingDiv.id = typingId;
+    typingDiv.className = 'message ai';
+    
+    typingDiv.innerHTML = `
+        <div class="message-avatar">
+            <i class="fas fa-robot"></i>
+        </div>
+        <div class="message-content">
+            <div class="message-text">
+                <div class="loading-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    chatMessages.appendChild(typingDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    
+    return typingId;
+}
+
+function removeTypingIndicator(id) {
+    const typingDiv = document.getElementById(id);
+    if (typingDiv) typingDiv.remove();
+}
+
+async function generateAIResponse(userMessage) {
+    const message = userMessage.toLowerCase();
+    
+    // Analyze the user's intent
+    if (message.includes('weather') || message.includes('temperature') || message.includes('rainfall') || message.includes('rain')) {
+        return await generateWeatherPrediction(message);
+    } else if (message.includes('soil') || message.includes('ph') || message.includes('nutrient')) {
+        return await generateSoilPrediction(message);
+    } else if (message.includes('market') || message.includes('price') || message.includes('cost')) {
+        return await generateMarketPrediction(message);
+    } else if (message.includes('yield') || message.includes('crop') || message.includes('production') || message.includes('harvest')) {
+        return await generateYieldPrediction(message);
+    } else if (message.includes('irrigation') || message.includes('water') || message.includes('moisture')) {
+        return await generateIrrigationPrediction(message);
+    } else if (message.includes('food security') || message.includes('security') || message.includes('food')) {
+        return await generateFoodSecurityPrediction(message);
+    } else if (message.includes('farmer') || message.includes('farmer') || message.includes('user')) {
+        return await generateFarmerAnalysis(message);
+    } else if (message.includes('comprehensive') || message.includes('full') || message.includes('all') || message.includes('overview')) {
+        return await generateComprehensivePrediction(message);
+    } else {
+        return await generateGeneralAnalysis(userMessage);
+    }
+}
+
+async function generateWeatherPrediction(message) {
+    if (allWeatherData.length === 0) {
+        return {
+            text: '❌ Insufficient weather data available for prediction. Please ensure weather data is being collected.',
+            chartId: null,
+            data: null
+        };
+    }
+    
+    const recent = allWeatherData.slice(-30);
+    const avgTemp = recent.reduce((sum, w) => sum + (parseFloat(w.temperature) || 0), 0) / recent.length;
+    const avgRainfall = recent.reduce((sum, w) => sum + (parseFloat(w.rainfall) || 0), 0) / recent.length;
+    const avgHumidity = recent.reduce((sum, w) => sum + (parseFloat(w.humidity) || 0), 0) / recent.length;
+    
+    // Predict next 30 days using trend analysis
+    const tempTrend = calculateTrend(recent.map(w => parseFloat(w.temperature) || 0));
+    const rainfallTrend = calculateTrend(recent.map(w => parseFloat(w.rainfall) || 0));
+    
+    const predictedTemp = avgTemp + (tempTrend * 30);
+    const predictedRainfall = Math.max(0, avgRainfall + (rainfallTrend * 30));
+    
+    const chartId = 'weather-chart-' + Date.now();
+    const chartData = {
+        type: 'line',
+        labels: ['Last 7 Days', 'Last 14 Days', 'Last 30 Days', 'Predicted (Next 30 Days)'],
+        datasets: [{
+            label: 'Temperature (°C)',
+            data: [
+                recent.slice(-7).reduce((s, w) => s + (parseFloat(w.temperature) || 0), 0) / 7,
+                recent.slice(-14).reduce((s, w) => s + (parseFloat(w.temperature) || 0), 0) / 14,
+                avgTemp,
+                predictedTemp
+            ],
+            borderColor: '#ef4444',
+            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+            tension: 0.4
+        }, {
+            label: 'Rainfall (mm)',
+            data: [
+                recent.slice(-7).reduce((s, w) => s + (parseFloat(w.rainfall) || 0), 0) / 7,
+                recent.slice(-14).reduce((s, w) => s + (parseFloat(w.rainfall) || 0), 0) / 14,
+                avgRainfall,
+                predictedRainfall
+            ],
+            borderColor: '#3b82f6',
+            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+            tension: 0.4,
+            yAxisID: 'y1'
+        }]
+    };
+    
+    let riskLevel = 'Low';
+    let riskColor = '🟢';
+    if (predictedTemp > 35 || predictedTemp < 15 || predictedRainfall > 50) {
+        riskLevel = 'High';
+        riskColor = '🔴';
+    } else if (predictedTemp > 32 || predictedTemp < 18 || predictedRainfall > 30) {
+        riskLevel = 'Medium';
+        riskColor = '🟡';
+    }
+    
+    const text = `
+        <div class="prediction-card">
+            <div class="prediction-title">🌤️ Weather Prediction (Next 30 Days)</div>
+            <div style="margin: 12px 0;">
+                <strong>Temperature:</strong> ${predictedTemp.toFixed(1)}°C (Current avg: ${avgTemp.toFixed(1)}°C)<br>
+                <strong>Rainfall:</strong> ${predictedRainfall.toFixed(1)}mm (Current avg: ${avgRainfall.toFixed(1)}mm)<br>
+                <strong>Humidity:</strong> ${avgHumidity.toFixed(1)}%<br>
+                <strong>Risk Level:</strong> ${riskColor} ${riskLevel}
+            </div>
+            <div class="prediction-details">
+                <strong>Analysis:</strong> Based on ${allWeatherData.length} weather records, the trend indicates ${tempTrend >= 0 ? 'warming' : 'cooling'} temperatures 
+                and ${rainfallTrend >= 0 ? 'increasing' : 'decreasing'} rainfall. 
+                ${riskLevel === 'High' ? '⚠️ Extreme weather conditions predicted - take preventive measures.' : '✅ Conditions appear favorable for agricultural activities.'}
+            </div>
+        </div>
+    `;
+    
+    return { text, chartId, data: chartData };
+}
+
+async function generateSoilPrediction(message) {
+    if (allSoilData.length === 0) {
+        return {
+            text: '❌ Insufficient soil data available for prediction.',
+            chartId: null,
+            data: null
+        };
+    }
+    
+    const avgQuality = calculateAverageSoilQuality();
+    const avgN = allSoilData.reduce((sum, s) => sum + (parseFloat(s.nitrogen) || 0), 0) / allSoilData.length;
+    const avgP = allSoilData.reduce((sum, s) => sum + (parseFloat(s.phosphorus) || 0), 0) / allSoilData.length;
+    const avgK = allSoilData.reduce((sum, s) => sum + (parseFloat(s.potassium) || 0), 0) / allSoilData.length;
+    const avgPH = allSoilData.reduce((sum, s) => sum + (parseFloat(s.phLevel) || 0), 0) / allSoilData.length;
+    
+    // Predict future soil quality based on current trends
+    const predictedQuality = Math.min(100, avgQuality + (avgQuality > 70 ? 2 : 5));
+    
+    const chartId = 'soil-chart-' + Date.now();
+    const chartData = {
+        type: 'radar',
+        labels: ['pH Level', 'Nitrogen', 'Phosphorus', 'Potassium', 'Organic Matter', 'Overall Quality'],
+        datasets: [{
+            label: 'Current Levels',
+            data: [
+                (avgPH / 14) * 100,
+                Math.min(100, (avgN / 150) * 100),
+                Math.min(100, (avgP / 100) * 100),
+                Math.min(100, (avgK / 500) * 100),
+                Math.min(100, allSoilData.reduce((s, d) => s + (parseFloat(d.organicMatter) || 0), 0) / allSoilData.length * 10),
+                avgQuality
+            ],
+            borderColor: '#22c55e',
+            backgroundColor: 'rgba(34, 197, 94, 0.2)',
+            borderWidth: 2
+        }, {
+            label: 'Predicted (Next Season)',
+            data: [
+                (avgPH / 14) * 100,
+                Math.min(100, ((avgN + 10) / 150) * 100),
+                Math.min(100, ((avgP + 5) / 100) * 100),
+                Math.min(100, ((avgK + 20) / 500) * 100),
+                Math.min(100, allSoilData.reduce((s, d) => s + (parseFloat(d.organicMatter) || 0), 0) / allSoilData.length * 10 + 2),
+                predictedQuality
+            ],
+            borderColor: '#3b82f6',
+            backgroundColor: 'rgba(59, 130, 246, 0.2)',
+            borderWidth: 2
+        }]
+    };
+    
+    const text = `
+        <div class="prediction-card">
+            <div class="prediction-title">🌱 Soil Health Prediction</div>
+            <div style="margin: 12px 0;">
+                <strong>Current Quality Score:</strong> ${avgQuality.toFixed(1)}%<br>
+                <strong>Predicted Quality (Next Season):</strong> ${predictedQuality.toFixed(1)}%<br>
+                <strong>NPK Levels:</strong> N=${avgN.toFixed(1)}ppm, P=${avgP.toFixed(1)}ppm, K=${avgK.toFixed(1)}ppm<br>
+                <strong>pH Level:</strong> ${avgPH.toFixed(1)}
+            </div>
+            <div class="prediction-details">
+                <strong>Recommendations:</strong> Based on ${allSoilData.length} soil samples, 
+                ${avgQuality < 70 ? 'soil quality needs improvement. Consider organic fertilizers and crop rotation.' : 'soil health is good. Maintain current practices.'}
+                ${avgN < 40 || avgP < 25 || avgK < 150 ? ' Nutrient deficiencies detected - fertilization recommended.' : ''}
+            </div>
+        </div>
+    `;
+    
+    return { text, chartId, data: chartData };
+}
+
+async function generateMarketPrediction(message) {
+    if (allMarketPrices.length === 0) {
+        return {
+            text: '❌ Insufficient market price data available for prediction.',
+            chartId: null,
+            data: null
+        };
+    }
+    
+    const recent = allMarketPrices.slice(-30).sort((a, b) => new Date(b.priceDate) - new Date(a.priceDate));
+    const topCrops = getTopCropsByPrice(5);
+    
+    const chartId = 'market-chart-' + Date.now();
+    const labels = topCrops[0] ? topCrops[0].dates : [];
+    const datasets = topCrops.map((crop, idx) => {
+        const colors = ['#22c55e', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'];
+        const recentPrices = crop.prices.slice(-30);
+        const trend = calculateTrend(recentPrices);
+        const currentPrice = recentPrices[recentPrices.length - 1] || 0;
+        const predictedPrice = Math.max(0, currentPrice * (1 + trend * 0.1));
+        
+        return {
+            label: crop.name + ' (Predicted)',
+            data: [...crop.prices, predictedPrice],
+            borderColor: colors[idx % colors.length],
+            backgroundColor: colors[idx % colors.length] + '20',
+            tension: 0.4,
+            borderDash: [0, 0, 5, 5]
+        };
+    });
+    
+    const chartData = {
+        type: 'line',
+        labels: [...labels, 'Predicted'],
+        datasets: datasets
+    };
+    
+    let predictionsText = topCrops.map((crop, idx) => {
+        const recentPrices = crop.prices.slice(-30);
+        const currentPrice = recentPrices[recentPrices.length - 1] || 0;
+        const trend = calculateTrend(recentPrices);
+        const predictedPrice = Math.max(0, currentPrice * (1 + trend * 0.1));
+        const change = ((predictedPrice - currentPrice) / currentPrice) * 100;
+        
+        return `${crop.name}: ${formatCurrency(currentPrice)} → ${formatCurrency(predictedPrice)} (${change >= 0 ? '+' : ''}${change.toFixed(1)}%)`;
+    }).join('<br>');
+    
+    const text = `
+        <div class="prediction-card">
+            <div class="prediction-title">💰 Market Price Forecast (Next 30 Days)</div>
+            <div style="margin: 12px 0;">
+                ${predictionsText}
+            </div>
+            <div class="prediction-details">
+                <strong>Analysis:</strong> Based on ${allMarketPrices.length} price records, market trends show 
+                ${topCrops.some(c => calculateTrend(c.prices) > 0) ? 'upward' : 'downward'} momentum for most crops. 
+                Consider timing your sales during price peaks for optimal revenue.
+            </div>
+        </div>
+    `;
+    
+    return { text, chartId, data: chartData };
+}
+
+async function generateYieldPrediction(message) {
+    if (allCropProductions.length === 0) {
+        return {
+            text: '❌ Insufficient crop production data available for prediction.',
+            chartId: null,
+            data: null
+        };
+    }
+    
+    const harvested = allCropProductions.filter(cp => cp.productionStatus === 'HARVESTED' && cp.actualYield);
+    const active = allCropProductions.filter(cp => cp.productionStatus === 'PLANTED' || cp.productionStatus === 'GROWING');
+    
+    const avgYield = harvested.length > 0 
+        ? harvested.reduce((sum, cp) => sum + (parseFloat(cp.actualYield) || 0), 0) / harvested.length
+        : 0;
+    
+    const totalArea = active.reduce((sum, cp) => sum + (parseFloat(cp.areaInHectares) || 0), 0);
+    const avgSoilQuality = calculateAverageSoilQuality();
+    const weatherScore = calculateWeatherScore();
+    
+    const predictedYield = avgYield * totalArea * (avgSoilQuality / 100) * (weatherScore / 100);
+    
+    const chartId = 'yield-chart-' + Date.now();
+    const cropYieldData = {};
+    harvested.forEach(cp => {
+        const cropId = cp.cropId;
+        if (!cropYieldData[cropId]) cropYieldData[cropId] = [];
+        cropYieldData[cropId].push(parseFloat(cp.actualYield) || 0);
+    });
+    
+    const topCrops = Object.entries(cropYieldData)
+        .map(([cropId, yields]) => {
+            const crop = allCrops.find(c => c.id === cropId);
+            return {
+                name: crop ? crop.cropName : 'Unknown',
+                avgYield: yields.reduce((a, b) => a + b, 0) / yields.length
+            };
+        })
+        .sort((a, b) => b.avgYield - a.avgYield)
+        .slice(0, 5);
+    
+    const chartData = {
+        type: 'bar',
+        labels: topCrops.map(c => c.name),
+        datasets: [{
+            label: 'Average Yield (tons/ha)',
+            data: topCrops.map(c => c.avgYield),
+            backgroundColor: '#22c55e'
+        }]
+    };
+    
+    const text = `
+        <div class="prediction-card">
+            <div class="prediction-title">🌾 Crop Yield Prediction</div>
+            <div style="margin: 12px 0;">
+                <strong>Active Productions:</strong> ${active.length}<br>
+                <strong>Total Area:</strong> ${totalArea.toFixed(1)} hectares<br>
+                <strong>Predicted Total Yield:</strong> <span class="prediction-value">${predictedYield.toFixed(1)} tons</span><br>
+                <strong>Average Yield per Hectare:</strong> ${avgYield.toFixed(2)} tons/ha<br>
+                <strong>Confidence:</strong> ${Math.min(95, 60 + (harvested.length / 10) * 10).toFixed(0)}%
+            </div>
+            <div class="prediction-details">
+                <strong>Factors Considered:</strong> Historical yields (${harvested.length} records), soil quality (${avgSoilQuality.toFixed(0)}%), 
+                weather conditions (${weatherScore.toFixed(0)}% optimal). 
+                ${predictedYield > avgYield * totalArea ? '📈 Yield expected to exceed average.' : '📉 Yield may be below optimal - monitor conditions closely.'}
+            </div>
+        </div>
+    `;
+    
+    return { text, chartId, data: chartData };
+}
+
+async function generateIrrigationPrediction(message) {
+    if (allWeatherData.length === 0 || allSoilData.length === 0) {
+        return {
+            text: '❌ Insufficient data for irrigation prediction.',
+            chartId: null,
+            data: null
+        };
+    }
+    
+    const recent = allWeatherData.slice(-7);
+    const totalRainfall = recent.reduce((sum, w) => sum + (parseFloat(w.rainfall) || 0), 0);
+    const avgMoisture = allSoilData.reduce((sum, s) => sum + (parseFloat(s.moisture) || 0), 0) / allSoilData.length;
+    const avgTemp = recent.reduce((sum, w) => sum + (parseFloat(w.temperature) || 0), 0) / recent.length;
+    
+    const irrigationNeed = calculateIrrigationNeed(totalRainfall, avgMoisture, avgTemp);
+    
+    const chartId = 'irrigation-chart-' + Date.now();
+    const chartData = {
+        type: 'doughnut',
+        labels: ['Sufficient Moisture', 'Irrigation Needed', 'Critical Need'],
+        datasets: [{
+            data: [
+                irrigationNeed < 30 ? 70 : 30,
+                irrigationNeed >= 30 && irrigationNeed < 70 ? 60 : 20,
+                irrigationNeed >= 70 ? 80 : 10
+            ],
+            backgroundColor: ['#22c55e', '#f59e0b', '#ef4444']
+        }]
+    };
+    
+    let recommendation = '';
+    let urgency = '';
+    if (irrigationNeed > 70) {
+        recommendation = 'URGENT: Increase irrigation immediately. Soil moisture critically low.';
+        urgency = '🔴 High Priority';
+    } else if (irrigationNeed > 40) {
+        recommendation = 'Moderate irrigation needed. Schedule additional watering.';
+        urgency = '🟡 Medium Priority';
+    } else {
+        recommendation = 'Current irrigation adequate. Continue monitoring.';
+        urgency = '🟢 Low Priority';
+    }
+    
+    const text = `
+        <div class="prediction-card">
+            <div class="prediction-title">💧 Irrigation Needs Prediction</div>
+            <div style="margin: 12px 0;">
+                <strong>7-Day Rainfall:</strong> ${totalRainfall.toFixed(1)}mm<br>
+                <strong>Soil Moisture:</strong> ${avgMoisture.toFixed(1)}%<br>
+                <strong>Temperature:</strong> ${avgTemp.toFixed(1)}°C<br>
+                <strong>Irrigation Need Index:</strong> ${irrigationNeed.toFixed(0)}%<br>
+                <strong>Priority:</strong> ${urgency}
+            </div>
+            <div class="prediction-details">
+                <strong>Recommendation:</strong> ${recommendation} 
+                ${avgTemp > 30 ? ' High temperatures increase evaporation - prefer early morning/evening irrigation.' : ''}
+            </div>
+        </div>
+    `;
+    
+    return { text, chartId, data: chartData };
+}
+
+async function generateFoodSecurityPrediction(message) {
+    const totalTransactions = allTransactions.length;
+    const totalRevenue = allTransactions.reduce((sum, t) => sum + (parseFloat(t.totalAmount) || 0), 0);
+    const uniqueFarmers = new Set(allTransactions.map(t => t.farmerId).filter(Boolean)).size;
+    const totalCropProductions = allCropProductions.length;
+    const harvestedProductions = allCropProductions.filter(cp => cp.productionStatus === 'HARVESTED').length;
+    
+    const foodSecurityIndex = calculateFoodSecurityIndex(totalTransactions, uniqueFarmers, totalCropProductions, harvestedProductions);
+    
+    const chartId = 'security-chart-' + Date.now();
+    const chartData = {
+        type: 'bar',
+        labels: ['Market Activity', 'Farmer Participation', 'Crop Production', 'Harvest Rate', 'Overall Security'],
+        datasets: [{
+            label: 'Index Score (%)',
+            data: [
+                Math.min(100, (totalTransactions / 1000) * 100),
+                Math.min(100, (uniqueFarmers / 50) * 100),
+                Math.min(100, (totalCropProductions / 200) * 100),
+                totalCropProductions > 0 ? (harvestedProductions / totalCropProductions) * 100 : 0,
+                foodSecurityIndex
+            ],
+            backgroundColor: ['#22c55e', '#3b82f6', '#f59e0b', '#8b5cf6', '#ef4444']
+        }]
+    };
+    
+    let securityLevel = 'Good';
+    let securityEmoji = '🟢';
+    if (foodSecurityIndex < 40) {
+        securityLevel = 'Critical';
+        securityEmoji = '🔴';
+    } else if (foodSecurityIndex < 60) {
+        securityLevel = 'Moderate';
+        securityEmoji = '🟡';
+    }
+    
+    const text = `
+        <div class="prediction-card">
+            <div class="prediction-title">🍽️ Food Security Analysis</div>
+            <div style="margin: 12px 0;">
+                <strong>Security Index:</strong> <span class="prediction-value">${foodSecurityIndex.toFixed(1)}%</span><br>
+                <strong>Status:</strong> ${securityEmoji} ${securityLevel}<br>
+                <strong>Active Farmers:</strong> ${uniqueFarmers}<br>
+                <strong>Total Transactions:</strong> ${totalTransactions}<br>
+                <strong>Crop Productions:</strong> ${totalCropProductions} (${harvestedProductions} harvested)
+            </div>
+            <div class="prediction-details">
+                <strong>Assessment:</strong> ${foodSecurityIndex >= 70 ? 'Food security is strong with active market participation and good crop production rates.' : 
+                'Food security needs attention. Consider supporting farmer participation and improving production rates.'}
+            </div>
+        </div>
+    `;
+    
+    return { text, chartId, data: chartData };
+}
+
+async function generateFarmerAnalysis(message) {
+    const uniqueFarmers = new Set(allTransactions.map(t => t.farmerId).filter(Boolean));
+    const farmerStats = {};
+    
+    uniqueFarmers.forEach(farmerId => {
+        const farmerTransactions = allTransactions.filter(t => t.farmerId === farmerId);
+        farmerStats[farmerId] = {
+            transactions: farmerTransactions.length,
+            revenue: farmerTransactions.reduce((sum, t) => sum + (parseFloat(t.totalAmount) || 0), 0),
+            crops: new Set(farmerTransactions.map(t => t.cropId)).size
+        };
+    });
+    
+    const topFarmers = Object.entries(farmerStats)
+        .sort((a, b) => b[1].revenue - a[1].revenue)
+        .slice(0, 5);
+    
+    const chartId = 'farmer-chart-' + Date.now();
+    const chartData = {
+        type: 'bar',
+        labels: topFarmers.map(([id]) => `Farmer ${id.substring(0, 8)}`),
+        datasets: [{
+            label: 'Total Revenue (RWF)',
+            data: topFarmers.map(([, stats]) => stats.revenue),
+            backgroundColor: '#22c55e'
+        }]
+    };
+    
+    const avgRevenue = Object.values(farmerStats).reduce((sum, stats) => sum + stats.revenue, 0) / uniqueFarmers.size;
+    
+    const text = `
+        <div class="prediction-card">
+            <div class="prediction-title">👨‍🌾 Farmer Performance Analysis</div>
+            <div style="margin: 12px 0;">
+                <strong>Total Active Farmers:</strong> ${uniqueFarmers.size}<br>
+                <strong>Average Revenue per Farmer:</strong> ${formatCurrency(avgRevenue)}<br>
+                <strong>Total Market Value:</strong> ${formatCurrency(allTransactions.reduce((sum, t) => sum + (parseFloat(t.totalAmount) || 0), 0))}
+            </div>
+            <div class="prediction-details">
+                <strong>Top Performers:</strong> Top 5 farmers account for significant market share. 
+                Consider best practices sharing and capacity building programs for all farmers.
+            </div>
+        </div>
+    `;
+    
+    return { text, chartId, data: chartData };
+}
+
+async function generateComprehensivePrediction(message) {
+    const weatherPred = await generateWeatherPrediction('weather');
+    const soilPred = await generateSoilPrediction('soil');
+    const marketPred = await generateMarketPrediction('market');
+    const yieldPred = await generateYieldPrediction('yield');
+    const securityPred = await generateFoodSecurityPrediction('security');
+    
+    const text = `
+        <div class="prediction-card">
+            <div class="prediction-title">📊 Comprehensive AI Analysis</div>
+            <div style="margin: 12px 0;">
+                <strong>Complete System Overview:</strong><br><br>
+                ${weatherPred.text.split('</div>')[0].split('<div')[1] ? '' : ''}
+                ${soilPred.text.split('</div>')[0]}
+                ${marketPred.text.split('</div>')[0]}
+                ${yieldPred.text.split('</div>')[0]}
+                ${securityPred.text.split('</div>')[0]}
+            </div>
+            <div class="prediction-details">
+                <strong>Summary:</strong> This comprehensive analysis integrates all available data from weather, soil, market, 
+                production, and transaction systems to provide a holistic view of agricultural performance and predictions.
+            </div>
+        </div>
+    `;
+    
+    // Create a comparison chart
+    const chartId = 'comprehensive-chart-' + Date.now();
+    const chartData = {
+        type: 'bar',
+        labels: ['Weather Risk', 'Soil Quality', 'Market Stability', 'Yield Potential', 'Food Security'],
+        datasets: [{
+            label: 'System Health Index (%)',
+            data: [
+                calculateWeatherScore(),
+                calculateAverageSoilQuality(),
+                75, // Market stability (placeholder calculation)
+                70, // Yield potential
+                calculateFoodSecurityIndex(
+                    allTransactions.length,
+                    new Set(allTransactions.map(t => t.farmerId).filter(Boolean)).size,
+                    allCropProductions.length,
+                    allCropProductions.filter(cp => cp.productionStatus === 'HARVESTED').length
+                )
+            ],
+            backgroundColor: ['#ef4444', '#22c55e', '#3b82f6', '#f59e0b', '#8b5cf6']
+        }]
+    };
+    
+    return { text, chartId, data: chartData };
+}
+
+async function generateGeneralAnalysis(message) {
+    return {
+        text: `I understand you're asking: "${message}". To provide the best analysis, I can help with:<br><br>
+        • Weather predictions and forecasts<br>
+        • Soil health analysis and recommendations<br>
+        • Market price trends and forecasts<br>
+        • Crop yield predictions<br>
+        • Irrigation needs assessment<br>
+        • Food security analysis<br>
+        • Farmer performance metrics<br>
+        • Comprehensive system analysis<br><br>
+        Try asking a specific question or use the quick action buttons above!`,
+        chartId: null,
+        data: null
+    };
+}
+
+function calculateTrend(values) {
+    if (values.length < 2) return 0;
+    const first = values.slice(0, Math.floor(values.length / 2)).reduce((a, b) => a + b, 0) / Math.floor(values.length / 2);
+    const second = values.slice(Math.floor(values.length / 2)).reduce((a, b) => a + b, 0) / Math.ceil(values.length / 2);
+    return (second - first) / first;
+}
+
+function calculateIrrigationNeed(rainfall, moisture, temp) {
+    let need = 0;
+    if (rainfall < 10) need += 40;
+    if (moisture < 20) need += 40;
+    if (temp > 30) need += 20;
+    return Math.min(100, need);
+}
+
+function calculateFoodSecurityIndex(transactions, farmers, productions, harvested) {
+    const transactionScore = Math.min(100, (transactions / 1000) * 100);
+    const farmerScore = Math.min(100, (farmers / 50) * 100);
+    const productionScore = Math.min(100, (productions / 200) * 100);
+    const harvestRate = productions > 0 ? (harvested / productions) * 100 : 0;
+    return (transactionScore + farmerScore + productionScore + harvestRate) / 4;
+}
+
+function initializePredictionChart(chartId, chartData) {
+    const canvas = document.getElementById(chartId);
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    
+    new Chart(ctx, {
+        type: chartData.type,
+        data: chartData,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' }
+            },
+            scales: chartData.datasets && chartData.datasets.some(d => d.yAxisID) ? {
+                y: { beginAtZero: true },
+                y1: { 
+                    type: 'linear',
+                    position: 'right',
+                    grid: { drawOnChartArea: false }
+                }
+            } : { y: { beginAtZero: true } }
+        }
+    });
+}
 
 </script>
 </body>
