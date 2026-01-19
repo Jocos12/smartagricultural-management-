@@ -361,6 +361,10 @@ public class SupplyChainController {
     }
 
 
+
+
+
+
     // Quality management
     @GetMapping("/quality/{qualityStatus}")
     public ResponseEntity<Page<SupplyChain>> getSupplyChainByQuality(
@@ -463,17 +467,32 @@ public class SupplyChainController {
         }
     }
 
+
+
+
     @GetMapping("/transaction/{transactionId}")
-    public ResponseEntity<SupplyChain> getByTransactionId(@PathVariable @NotBlank String transactionId) {
+    public ResponseEntity<List<SupplyChain>> getSupplyChainByTransaction(
+            @PathVariable @NotBlank String transactionId) {
         try {
-            SupplyChain stage = supplyChainService.findByTransactionId(transactionId);
-            return new ResponseEntity<>(stage, HttpStatus.OK);
+            // Find the single supply chain stage for this transaction
+            SupplyChain supplyChain = supplyChainService.findByTransactionId(transactionId);
+
+            // Return as a list with one element
+            List<SupplyChain> supplyChainList = new ArrayList<>();
+            supplyChainList.add(supplyChain);
+
+            return new ResponseEntity<>(supplyChainList, HttpStatus.OK);
+
         } catch (ResourceNotFoundException e) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            // Return empty list if not found
+            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            e.printStackTrace();
+            // Return empty list on error to prevent frontend crashes
+            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
         }
     }
+
 
     // Status queries
     @GetMapping("/incomplete")
