@@ -79,6 +79,7 @@ public class SupplyChainService {
                 .orElseThrow(() -> new ResourceNotFoundException("Supply chain stage not found with id: " + id));
     }
 
+
     @Transactional(readOnly = true)
     public Optional<SupplyChain> findByIdOptional(String id) {
         return supplyChainRepository.findById(id);

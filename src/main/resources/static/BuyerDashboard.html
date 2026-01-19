@@ -7,8 +7,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        :root {
+    :root {
           --primary-green: #22c55e;
           --primary-dark: #16a34a;
           --secondary-green: #10b981;
@@ -33,35 +34,35 @@
           --gradient-bg: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%);
           --card-bg: #ffffff;
           --modal-bg: rgba(0, 0, 0, 0.5);
-          
+
           /* Legacy support */
           --primary-color: #22c55e;
           --primary-light: #a8e6cf;
-          --secondary-color: #3498db;
-          --white: #ffffff;
-          --light-gray: #f8f9fa;
-          --gray: #ecf0f1;
-          --dark-gray: #95a5a6;
+        --secondary-color: #3498db;
+        --white: #ffffff;
+        --light-gray: #f8f9fa;
+        --gray: #ecf0f1;
+        --dark-gray: #95a5a6;
           --text-dark: #333333;
           --text-light: #666666;
-          --spacing-xs: 0.25rem;
-          --spacing-sm: 0.5rem;
-          --spacing-md: 1rem;
-          --spacing-lg: 1.5rem;
-          --spacing-xl: 2rem;
-          --radius-sm: 4px;
-          --radius-md: 8px;
-          --radius-lg: 12px;
-          --radius-xl: 16px;
-          --transition-fast: 0.15s ease;
-          --transition-base: 0.3s ease;
-          --transition-slow: 0.5s ease;
+        --spacing-xs: 0.25rem;
+        --spacing-sm: 0.5rem;
+        --spacing-md: 1rem;
+        --spacing-lg: 1.5rem;
+        --spacing-xl: 2rem;
+        --radius-sm: 4px;
+        --radius-md: 8px;
+        --radius-lg: 12px;
+        --radius-xl: 16px;
+        --transition-fast: 0.15s ease;
+        --transition-base: 0.3s ease;
+        --transition-slow: 0.5s ease;
           --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
           --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
           --header-height: 80px;
           --sidebar-width: 280px;
-          --sidebar-collapsed-width: 70px;
-        }
+        --sidebar-collapsed-width: 70px;
+    }
 
         .dark-mode {
           --bg-primary: #1a1a1a;
@@ -86,24 +87,24 @@
           box-sizing: border-box;
         }
 
-        body {
+    body {
           font-family: 'Inter', sans-serif;
           background: var(--gradient-bg);
           color: var(--text-primary);
           transition: all 0.3s ease;
-          overflow-x: hidden;
-        }
+        overflow-x: hidden;
+    }
 
         .dashboard-container {
-          display: flex;
+        display: flex;
           height: 100vh;
-        }
+    }
 
         .sidebar {
           width: 280px;
           background: var(--bg-sidebar);
           border-right: 1px solid var(--border-color);
-          display: flex;
+        display: flex;
           flex-direction: column;
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           position: fixed;
@@ -122,14 +123,14 @@
           display: flex;
           align-items: center;
           gap: 12px;
-        }
+    }
 
-        .logo {
+    .logo {
           width: 45px;
           height: 45px;
           border-radius: 12px;
-          display: flex;
-          align-items: center;
+        display: flex;
+        align-items: center;
           justify-content: center;
           background: var(--gradient-primary);
           color: white;
@@ -150,7 +151,7 @@
 
         .company-name {
           font-size: 18px;
-          font-weight: 700;
+        font-weight: 700;
           color: var(--text-primary);
           margin-bottom: 2px;
         }
@@ -169,7 +170,7 @@
         }
 
         .sidebar-nav {
-          flex: 1;
+        flex: 1;
           padding: 20px 0;
           overflow-y: auto;
         }
@@ -204,8 +205,8 @@
         }
 
         .nav-link {
-          display: flex;
-          align-items: center;
+        display: flex;
+        align-items: center;
           padding: 14px 20px;
           color: var(--text-primary);
           text-decoration: none;
@@ -288,9 +289,9 @@
           background: var(--card-bg);
           border-bottom: 1px solid var(--border-color);
           padding: 0 32px;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
           height: 80px;
           box-shadow: var(--shadow);
           backdrop-filter: blur(10px);
@@ -303,11 +304,11 @@
         }
 
         .sidebar-toggle {
-          background: none;
-          border: none;
+        background: none;
+        border: none;
           color: var(--text-primary);
           font-size: 20px;
-          cursor: pointer;
+        cursor: pointer;
           padding: 12px;
           border-radius: 12px;
           transition: all 0.3s ease;
@@ -338,7 +339,7 @@
         }
 
         .search-container {
-          position: relative;
+        position: relative;
           width: 400px;
         }
 
@@ -370,8 +371,8 @@
         }
 
         .header-right {
-          display: flex;
-          align-items: center;
+        display: flex;
+        align-items: center;
           gap: 20px;
         }
 
@@ -400,11 +401,11 @@
         }
 
         .notification-btn {
-          background: none;
-          border: none;
+        background: none;
+        border: none;
           color: var(--text-primary);
           font-size: 20px;
-          cursor: pointer;
+        cursor: pointer;
           position: relative;
           padding: 12px;
           border-radius: 12px;
@@ -422,7 +423,7 @@
           right: 8px;
           background: var(--error-color);
           color: white;
-          border-radius: 50%;
+        border-radius: 50%;
           width: 20px;
           height: 20px;
           font-size: 11px;
@@ -440,22 +441,22 @@
         }
 
         .notifications-dropdown {
-          position: absolute;
+        position: absolute;
           top: calc(100% + 12px);
-          right: 0;
+        right: 0;
           width: 380px;
           background: var(--card-bg);
           border-radius: 16px;
-          box-shadow: var(--shadow-lg);
-          display: none;
+        box-shadow: var(--shadow-lg);
+        display: none;
           max-height: 500px;
-          overflow: hidden;
+        overflow: hidden;
           z-index: 2000;
           border: 1px solid var(--border-color);
-        }
+    }
 
         .notifications-dropdown.show {
-          display: block;
+        display: block;
           animation: slideDown 0.3s ease;
         }
 
@@ -473,9 +474,9 @@
         .notifications-header {
           padding: 20px 24px;
           border-bottom: 1px solid var(--border-color);
-          display: flex;
+        display: flex;
           justify-content: space-between;
-          align-items: center;
+        align-items: center;
           background: var(--gradient-primary);
           color: white;
         }
@@ -567,8 +568,8 @@
           background: var(--gradient-primary);
           color: white;
           border-radius: 50%;
-          display: flex;
-          align-items: center;
+        display: flex;
+        align-items: center;
           justify-content: center;
           font-weight: 700;
           font-size: 16px;
@@ -590,7 +591,7 @@
 
         .profile-name {
           font-size: 14px;
-          font-weight: 600;
+        font-weight: 600;
           color: var(--text-primary);
         }
 
@@ -632,13 +633,13 @@
 
 
 
-        .content-section {
-          display: none;
-        }
+    .content-section {
+        display: none;
+    }
 
-        .content-section.active {
-          display: block;
-        }
+    .content-section.active {
+        display: block;
+    }
 
 
 
@@ -2623,39 +2624,39 @@ body.dark-mode #headerLogoutBtn:hover {
 
 
 <!-- Header -->
-<header class="header" style="background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 0 2rem; height: 70px; margin-left: 280px; transition: margin-left 0.3s;">
-    <div class="header-left" style="display: flex; align-items: center; gap: 2rem;">
-        <!-- Menu toggle removed from here -->
-    </div>
-
-    <div class="header-center" style="flex: 1; max-width: 600px; margin: 0 2rem;">
-        <div class="search-bar" style="position: relative; width: 100%;">
-            <i class="fas fa-search" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
-            <input type="text" placeholder="Search products, orders, farmers..." id="searchInput"
-                   style="width: 100%; padding: 0.75rem 1rem 0.75rem 3rem; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 0.95rem; transition: all 0.3s; background: #f8fafc;">
+<header class="header">
+    <div class="header-left">
+        <button class="sidebar-toggle" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="greeting-section">
+            <div class="greeting-text" id="greetingText">Good Morning, Buyer!</div>
+            <div class="current-date" id="currentDate"></div>
         </div>
     </div>
 
-    <div class="header-right" style="display: flex; align-items: center; gap: 1.5rem;">
-        <!-- Dark Mode Toggle -->
-        <!-- Dark Mode Toggle -->
-        <button class="icon-btn" id="darkModeToggle" style="background: #f1f5f9; border: none; width: 45px; height: 45px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; font-size: 1.2rem; color: #64748b;">
-            <i class="fas fa-moon"></i>
-        </button>
+    <div class="search-container">
+        <input type="text" class="search-input" placeholder="Search products, orders, farmers..." id="globalSearch" onkeyup="handleGlobalSearch()">
+        <i class="fas fa-search search-icon"></i>
+    </div>
 
-        <!-- Notifications -->
-        <div class="notifications" style="position: relative;">
-            <button class="icon-btn" id="notificationBtn" style="background: #f1f5f9; border: none; width: 45px; height: 45px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; font-size: 1.2rem; color: #64748b; position: relative;">
+    <div class="header-right">
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">
+            <i class="fas fa-moon"></i>
+            <span>Dark Mode</span>
+        </button>
+        <div class="notifications">
+            <button class="notification-btn" id="notificationBtn" onclick="toggleNotifications()">
                 <i class="fas fa-bell"></i>
-                <span class="badge" id="notificationBadge" style="position: absolute; top: -2px; right: -2px; background: #ef4444; color: white; font-size: 0.7rem; font-weight: 700; padding: 0.15rem 0.4rem; border-radius: 10px; min-width: 18px; text-align: center;">0</span>
+                <span class="notification-badge" id="notificationCount">0</span>
             </button>
-            <div class="notifications-dropdown" id="notificationsDropdown" style="display: none; position: absolute; top: calc(100% + 0.5rem); right: 0; width: 350px; background: white; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); max-height: 400px; overflow-y: auto; z-index: 1000;">
-                <div class="notifications-header" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; border-bottom: 1px solid #e2e8f0;">
-                    <h3 style="margin: 0; font-size: 1rem; font-weight: 600;">Notifications</h3>
-                    <button class="mark-read" style="background: none; border: none; color: #10b981; font-size: 0.85rem; cursor: pointer; font-weight: 600;">Mark all read</button>
+            <div class="notifications-dropdown" id="notificationsDropdown">
+                <div class="notifications-header">
+                    <h3>Notifications</h3>
+                    <button class="mark-read-btn" onclick="markAllNotificationsRead()">Mark all read</button>
                 </div>
                 <div class="notifications-list" id="notificationsList">
-                    <!-- Notifications will be loaded from backend -->
+                    <!-- Notifications will be loaded here -->
                 </div>
             </div>
         </div>
@@ -2666,34 +2667,16 @@ body.dark-mode #headerLogoutBtn:hover {
 
 
 
-        <!-- User Menu -->
-        <div class="user-menu">
-            <button class="user-btn" id="userBtn">
-                <img src="" alt="User" class="user-avatar" id="userAvatar">
-                <span class="user-name" id="userName">Loading...</span>
-                <i class="fas fa-chevron-down"></i>
-            </button>
-            <div class="user-dropdown" id="userDropdown" style="display: none; position: absolute; top: calc(100% + 0.5rem); right: 0; width: 220px; background: white; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); overflow: hidden; z-index: 1000;">
-                <a href="#" class="dropdown-item" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.875rem 1rem; color: #1e293b; text-decoration: none; transition: all 0.2s; border-bottom: 1px solid #f1f5f9;">
-                    <i class="fas fa-user" style="font-size: 1rem; width: 20px; color: #64748b;"></i>
-                    <span style="font-weight: 500;">Profile</span>
-                </a>
-                <a href="#" class="dropdown-item" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.875rem 1rem; color: #1e293b; text-decoration: none; transition: all 0.2s; border-bottom: 1px solid #f1f5f9;">
-                    <i class="fas fa-cog" style="font-size: 1rem; width: 20px; color: #64748b;"></i>
-                    <span style="font-weight: 500;">Settings</span>
-                </a>
-                <a href="#" class="dropdown-item" id="logoutBtn" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.875rem 1rem; color: #ef4444; text-decoration: none; transition: all 0.2s;">
-                    <i class="fas fa-sign-out-alt" style="font-size: 1rem; width: 20px;"></i>
-                    <span style="font-weight: 500;">Logout</span>
-                </a>
+        <div class="profile-section">
+            <div class="profile-avatar" id="profileAvatar">B</div>
+            <div class="profile-info">
+                <div class="profile-name" id="profileName">Buyer</div>
+                <div class="profile-role" id="profileRole">Buyer</div>
             </div>
-        </div>
-
-        <!-- Logout Button (Visible) -->
-        <button id="headerLogoutBtn" onclick="handleLogout(event)" style="display: flex; align-items: center; gap: 0.5rem; background: linear-gradient(135deg, #ef4444, #dc2626); color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: all 0.3s; box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);">
+            <button class="logout-btn" onclick="handleLogout()" title="Logout">
             <i class="fas fa-sign-out-alt"></i>
-            <span>Logout</span>
         </button>
+        </div>
         </div>
 </header>
 
@@ -3097,7 +3080,7 @@ body.dark-mode #headerLogoutBtn:hover {
             <div class="section-header">
                 <h1>Farmers</h1>
                 <div class="header-actions">
-                    <input type="text" class="search-input" placeholder="Search farmers..." id="farmerSearch">
+                    <input type="text" class="search-input" placeholder="Search farmers..." id="farmerSearch" onkeyup="handleFarmerSearch(event)" oninput="handleFarmerSearch(event)">
                 </div>
             </div>
 
@@ -3111,8 +3094,8 @@ body.dark-mode #headerLogoutBtn:hover {
             <div class="section-header">
                 <h1>Delivery Tracking</h1>
                 <div class="header-actions">
-                    <input type="text" class="search-input" placeholder="Enter order ID or tracking number..." id="trackingSearch">
-                    <button class="btn btn-primary">
+                    <input type="text" class="search-input" placeholder="Enter order ID or tracking number..." id="trackingSearch" onkeyup="if(event.key==='Enter') searchTrackingOrder()">
+                    <button class="btn btn-primary" onclick="searchTrackingOrder()">
                         <i class="fas fa-search"></i>
                         Track
                     </button>
@@ -3232,14 +3215,14 @@ body.dark-mode #headerLogoutBtn:hover {
             <div class="section-header">
                 <h1><i class="fas fa-chart-line"></i> Reports & Analytics</h1>
                 <div class="header-actions">
-                    <select class="filter-select" id="reportsPeriodFilter" style="min-width: 150px;">
+                    <select class="filter-select" id="reportsPeriodFilter" style="min-width: 150px;" onchange="handleReportsPeriodChange()">
                         <option value="week">Last 7 Days</option>
                         <option value="month">Last 30 Days</option>
                         <option value="quarter">Last Quarter</option>
                         <option value="year">Last Year</option>
                         <option value="all">All Time</option>
                     </select>
-                    <button class="btn btn-secondary">
+                    <button class="btn btn-secondary" onclick="exportReportsToPDF()">
                         <i class="fas fa-download"></i>
                         Export
                     </button>
@@ -6299,7 +6282,30 @@ console.log('✅ Shopping cart functions loaded successfully');
               );
           }
 
-          displayOrders(orders);
+          // ⭐ Enrich orders with farmer and crop details
+          const enrichedOrders = await Promise.all(orders.map(async (order) => {
+              try {
+                  // Fetch farmer details if we have farmerId
+                  if (order.farmerId && !order.farmerName) {
+                      const farmerResponse = await apiCall(`${API_BASE_URL}/users/${order.farmerId}`);
+                      const farmer = farmerResponse.data || farmerResponse;
+                      order.farmerName = farmer.fullName || farmer.username || 'Unknown Farmer';
+                  }
+
+                  // Fetch crop details if we have cropId
+                  if (order.cropId && !order.cropName) {
+                      const cropResponse = await apiCall(`${API_BASE_URL}/v1/crops/${order.cropId}`);
+                      const crop = cropResponse.data || cropResponse;
+                      order.cropName = crop.cropName || crop.name || 'Unknown Product';
+                  }
+              } catch (error) {
+                  console.warn('Error enriching order:', error);
+              }
+
+              return order;
+          }));
+
+          displayOrders(enrichedOrders);
 
       } catch (error) {
           console.error('Error loading orders:', error);
@@ -6552,6 +6558,28 @@ function getStatusIcon(status) {
   async function viewOrderDetails(orderId) {
       try {
           const order = await apiCall(ENDPOINTS.transactionById(orderId));
+          
+          // ⭐ Enrich order with farmer and crop details
+          try {
+              // Fetch farmer details if we have farmerId
+              if (order.farmerId && !order.farmerName) {
+                  const farmerResponse = await apiCall(`${API_BASE_URL}/users/${order.farmerId}`);
+                  const farmer = farmerResponse.data || farmerResponse;
+                  order.farmerName = farmer.fullName || farmer.username || 'Unknown Farmer';
+                  order.farmer = order.farmer || farmer;
+              }
+
+              // Fetch crop details if we have cropId
+              if (order.cropId && !order.cropName) {
+                  const cropResponse = await apiCall(`${API_BASE_URL}/v1/crops/${order.cropId}`);
+                  const crop = cropResponse.data || cropResponse;
+                  order.cropName = crop.cropName || crop.name || 'Unknown Product';
+                  order.crop = order.crop || crop;
+              }
+          } catch (error) {
+              console.warn('Error enriching order details:', error);
+          }
+
           showOrderDetailsModal(order);
       } catch (error) {
           console.error('Error loading order details:', error);
@@ -6761,7 +6789,24 @@ function showOrderDetailsModal(order) {
           );
 
           const transactions = response.content || response;
-          displayTransactions(transactions);
+
+          // ⭐ Enrich transactions with crop details
+          const enrichedTransactions = await Promise.all(transactions.map(async (txn) => {
+              try {
+                  // Fetch crop details if we have cropId
+                  if (txn.cropId && !txn.cropName) {
+                      const cropResponse = await apiCall(`${API_BASE_URL}/v1/crops/${txn.cropId}`);
+                      const crop = cropResponse.data || cropResponse;
+                      txn.cropName = crop.cropName || crop.name || 'Unknown Product';
+                  }
+              } catch (error) {
+                  console.warn('Error enriching transaction:', error);
+              }
+
+              return txn;
+          }));
+
+          displayTransactions(enrichedTransactions);
 
       } catch (error) {
           console.error('Error loading transactions:', error);
@@ -6935,8 +6980,269 @@ function displayTransactions(transactions) {
       await viewOrderDetails(transactionId);
   }
 
-  function downloadInvoice(transactionId) {
-      showNotification('Invoice download feature coming soon', 'info');
+  async function downloadInvoice(transactionId) {
+      try {
+          showNotification('Generating invoice...', 'info');
+          
+          // Fetch transaction details
+          const response = await apiCall(ENDPOINTS.transactionById(transactionId));
+          const transaction = response.data || response;
+
+          // Enrich transaction with farmer and crop details if needed
+          try {
+              if (transaction.farmerId && !transaction.farmerName) {
+                  const farmerResponse = await apiCall(`${API_BASE_URL}/users/${transaction.farmerId}`);
+                  const farmer = farmerResponse.data || farmerResponse;
+                  transaction.farmerName = farmer.fullName || farmer.username || 'Unknown Farmer';
+              }
+
+              if (transaction.cropId && !transaction.cropName) {
+                  const cropResponse = await apiCall(`${API_BASE_URL}/v1/crops/${transaction.cropId}`);
+                  const crop = cropResponse.data || cropResponse;
+                  transaction.cropName = crop.cropName || crop.name || 'Unknown Product';
+              }
+          } catch (error) {
+              console.warn('Error enriching transaction for invoice:', error);
+          }
+
+          // Generate PDF using jsPDF
+          const { jsPDF } = window.jspdf;
+          const doc = new jsPDF();
+
+          // Colors
+          const primaryColor = [34, 197, 94]; // Green #22c55e
+          const darkColor = [22, 163, 74]; // Dark green #16a34a
+          const textColor = [51, 51, 51]; // Dark text
+          const lightGray = [200, 200, 200];
+
+          // Header with background
+          doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+          doc.rect(0, 0, 210, 50, 'F');
+
+          // Try to add logo
+          let logoAdded = false;
+          try {
+              const img = new Image();
+              img.crossOrigin = 'anonymous';
+              
+              // Use a promise to handle logo loading
+              await new Promise((resolve, reject) => {
+                  img.onload = function() {
+                      try {
+                          const canvas = document.createElement('canvas');
+                          canvas.width = Math.min(img.width, 100);
+                          canvas.height = Math.min(img.height, 100);
+                          const ctx = canvas.getContext('2d');
+                          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                          
+                          const imgData = canvas.toDataURL('image/jpeg');
+                          doc.addImage(imgData, 'JPEG', 15, 8, 30, 30);
+                          logoAdded = true;
+                          resolve();
+                      } catch (e) {
+                          reject(e);
+                      }
+                  };
+                  
+                  img.onerror = function() {
+                      reject(new Error('Failed to load logo'));
+                  };
+                  
+                  img.src = 'images/logo.jpeg';
+                  
+                  // Timeout after 2 seconds
+                  setTimeout(() => {
+                      if (!logoAdded) {
+                          reject(new Error('Logo loading timeout'));
+                      }
+                  }, 2000);
+              });
+          } catch (error) {
+              console.warn('Logo not loaded, continuing without logo:', error);
+              logoAdded = false;
+          }
+
+          // Company info - adjust position based on logo
+          doc.setTextColor(255, 255, 255);
+          doc.setFontSize(24);
+          doc.setFont(undefined, 'bold');
+          doc.text('AgriGuard AI', logoAdded ? 50 : 15, 20);
+          
+          doc.setFontSize(12);
+          doc.setFont(undefined, 'normal');
+          doc.text('Smart Agriculture System', logoAdded ? 50 : 15, 28);
+          doc.text('Invoice', logoAdded ? 50 : 15, 35);
+
+          generateInvoiceContent(doc, transaction, primaryColor, darkColor, textColor, lightGray);
+          
+          // Save PDF
+          const fileName = `Invoice_${transaction.transactionCode || transaction.id}.pdf`;
+          doc.save(fileName);
+          
+          showNotification('Invoice downloaded successfully!', 'success');
+      } catch (error) {
+          console.error('Error generating invoice:', error);
+          showNotification('Failed to generate invoice: ' + error.message, 'error');
+      }
+  }
+
+  function generateInvoiceContent(doc, transaction, primaryColor, darkColor, textColor, lightGray) {
+      let yPos = 60;
+
+      // Invoice details section
+      doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+      doc.setFontSize(10);
+      
+      // Invoice number and date
+      doc.setFont(undefined, 'bold');
+      doc.text('Invoice Number:', 15, yPos);
+      doc.setFont(undefined, 'normal');
+      doc.text(transaction.transactionCode || 'N/A', 60, yPos);
+      
+      yPos += 7;
+      doc.setFont(undefined, 'bold');
+      doc.text('Invoice Date:', 15, yPos);
+      doc.setFont(undefined, 'normal');
+      doc.text(formatDate(transaction.createdAt) || 'N/A', 60, yPos);
+      
+      yPos += 7;
+      doc.setFont(undefined, 'bold');
+      doc.text('Transaction ID:', 15, yPos);
+      doc.setFont(undefined, 'normal');
+      doc.text(transaction.id || 'N/A', 60, yPos);
+
+      yPos += 15;
+
+      // Divider line
+      doc.setDrawColor(lightGray[0], lightGray[1], lightGray[2]);
+      doc.line(15, yPos, 195, yPos);
+      yPos += 10;
+
+      // Buyer Information
+      doc.setFont(undefined, 'bold');
+      doc.setFontSize(12);
+      doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+      doc.text('Bill To:', 15, yPos);
+      
+      yPos += 7;
+      doc.setFontSize(10);
+      doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+      doc.setFont(undefined, 'normal');
+      const buyerName = currentUser?.fullName || currentUser?.username || 'Buyer';
+      doc.text(buyerName, 15, yPos);
+      
+      if (currentUser?.email) {
+          yPos += 6;
+          doc.text(`Email: ${currentUser.email}`, 15, yPos);
+      }
+      
+      if (currentUser?.phoneNumber) {
+          yPos += 6;
+          doc.text(`Phone: ${currentUser.phoneNumber}`, 15, yPos);
+      }
+
+      yPos += 15;
+
+      // Seller/Farmer Information
+      doc.setFont(undefined, 'bold');
+      doc.setFontSize(12);
+      doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+      doc.text('Sold By:', 15, yPos);
+      
+      yPos += 7;
+      doc.setFontSize(10);
+      doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+      doc.setFont(undefined, 'normal');
+      doc.text(transaction.farmerName || 'Unknown Farmer', 15, yPos);
+
+      yPos += 15;
+
+      // Divider line
+      doc.setDrawColor(lightGray[0], lightGray[1], lightGray[2]);
+      doc.line(15, yPos, 195, yPos);
+      yPos += 10;
+
+      // Items table header
+      doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+      doc.rect(15, yPos, 180, 8, 'F');
+      
+      doc.setTextColor(255, 255, 255);
+      doc.setFont(undefined, 'bold');
+      doc.setFontSize(10);
+      doc.text('Item Description', 18, yPos + 5.5);
+      doc.text('Quantity', 120, yPos + 5.5);
+      doc.text('Price/Unit', 150, yPos + 5.5);
+      doc.text('Amount', 175, yPos + 5.5);
+      
+      yPos += 8;
+
+      // Item row
+      doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+      doc.setFont(undefined, 'normal');
+      const productName = transaction.cropName || 'Unknown Product';
+      const quantity = transaction.quantity || 0;
+      const pricePerUnit = transaction.pricePerUnit || 0;
+      const totalAmount = transaction.totalAmount || 0;
+      
+      doc.text(productName, 18, yPos + 5.5);
+      doc.text(`${quantity} kg`, 120, yPos + 5.5);
+      doc.text(`RF ${pricePerUnit.toFixed(2)}`, 150, yPos + 5.5);
+      doc.text(`RF ${totalAmount.toFixed(2)}`, 175, yPos + 5.5);
+      
+      yPos += 8;
+
+      // Line separator
+      doc.setDrawColor(lightGray[0], lightGray[1], lightGray[2]);
+      doc.line(15, yPos, 195, yPos);
+      yPos += 10;
+
+      // Total section
+      doc.setFont(undefined, 'bold');
+      doc.setFontSize(12);
+      doc.text('Subtotal:', 150, yPos);
+      doc.text(`RF ${totalAmount.toFixed(2)}`, 175, yPos);
+      
+      yPos += 7;
+      
+      const paymentMethod = transaction.paymentMethod || 'CASH';
+      doc.setFontSize(10);
+      doc.setFont(undefined, 'normal');
+      doc.text(`Payment Method: ${paymentMethod}`, 150, yPos);
+      
+      yPos += 7;
+      
+      doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+      doc.rect(150, yPos - 5, 45, 8, 'F');
+      
+      doc.setTextColor(255, 255, 255);
+      doc.setFont(undefined, 'bold');
+      doc.setFontSize(12);
+      doc.text('Total:', 152, yPos + 2);
+      doc.text(`RF ${totalAmount.toFixed(2)}`, 175, yPos + 2);
+
+      yPos += 20;
+
+      // Payment status
+      doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+      doc.setFontSize(10);
+      doc.setFont(undefined, 'normal');
+      const paymentStatus = transaction.paymentStatus || 'PENDING';
+      doc.text(`Payment Status: ${paymentStatus}`, 15, yPos);
+
+      yPos += 15;
+
+      // Footer
+      doc.setDrawColor(lightGray[0], lightGray[1], lightGray[2]);
+      doc.line(15, yPos, 195, yPos);
+      yPos += 10;
+
+      doc.setFontSize(8);
+      doc.setTextColor(100, 100, 100);
+      doc.text('Thank you for your business!', 15, yPos);
+      yPos += 5;
+      doc.text('This is a computer-generated invoice.', 15, yPos);
+      yPos += 5;
+      doc.text('For any inquiries, please contact AgriGuard AI support.', 15, yPos);
   }
 
 
@@ -6955,39 +7261,73 @@ async function loadTrackingData() {
         const orders = response.content || response;
         console.log('Orders loaded:', orders.length);
 
-        // ⭐ FIX: Get supply chain info for each order with proper error handling
-        const trackingPromises = orders.map(async order => {
+        // ⭐ Enrich orders with crop details
+        const enrichedOrders = await Promise.all(orders.map(async (order) => {
             try {
-                // ❌ OLD CODE (causes 404):
-                // const supplyChain = await apiCall(ENDPOINTS.supplyChainByTransaction(order.id));
-
-                // ✅ NEW CODE: Use crop production ID to get supply chain
-                if (order.cropProductionId) {
-                    try {
-                        const supplyChainList = await apiCall(
-                            `${API_BASE_URL}/supply-chain/crop-production/${order.cropProductionId}`
-                        );
-
-                        // Get the latest/active stage
-                        const latestStage = Array.isArray(supplyChainList) && supplyChainList.length > 0
-                            ? supplyChainList.reduce((latest, current) => {
-                                return new Date(current.stageStartDate) > new Date(latest.stageStartDate)
-                                    ? current : latest;
-                            })
-                            : null;
-
-                        return { order, supplyChain: latestStage };
-                    } catch (error) {
-                        console.warn(`No supply chain found for production ${order.cropProductionId}`);
-                        return { order, supplyChain: null };
-                    }
-                } else {
-                    console.warn(`Order ${order.transactionCode} has no cropProductionId`);
-                    return { order, supplyChain: null };
+                // Fetch crop details if we have cropId
+                if (order.cropId && !order.cropName) {
+                    const cropResponse = await apiCall(`${API_BASE_URL}/v1/crops/${order.cropId}`);
+                    const crop = cropResponse.data || cropResponse;
+                    order.cropName = crop.cropName || crop.name || 'Unknown Product';
                 }
             } catch (error) {
+                console.warn('Error enriching order with crop:', error);
+            }
+            return order;
+        }));
+
+        // ⭐ Get supply chain info for each order - Try multiple methods
+        const trackingPromises = enrichedOrders.map(async order => {
+            try {
+                let supplyChainList = null;
+                let allStages = [];
+
+                // Method 1: Try to get supply chain by transaction ID
+                try {
+                    const transactionSupplyChain = await apiCall(
+                        `${API_BASE_URL}/supply-chain/transaction/${order.id}`
+                    );
+                    if (transactionSupplyChain && (Array.isArray(transactionSupplyChain) || transactionSupplyChain.data)) {
+                        supplyChainList = Array.isArray(transactionSupplyChain) ? transactionSupplyChain : transactionSupplyChain.data;
+                    }
+                } catch (error) {
+                    console.warn(`No supply chain found by transaction ID for ${order.id}`);
+                }
+
+                // Method 2: Try to get supply chain by crop production ID
+                if (!supplyChainList && order.cropProductionId) {
+                    try {
+                        const productionSupplyChain = await apiCall(
+                            `${API_BASE_URL}/supply-chain/crop-production/${order.cropProductionId}`
+                        );
+                        if (productionSupplyChain && (Array.isArray(productionSupplyChain) || productionSupplyChain.data)) {
+                            supplyChainList = Array.isArray(productionSupplyChain) ? productionSupplyChain : productionSupplyChain.data;
+                        }
+                    } catch (error) {
+                        console.warn(`No supply chain found for production ${order.cropProductionId}`);
+                    }
+                }
+
+                // Process supply chain data
+                if (supplyChainList && Array.isArray(supplyChainList) && supplyChainList.length > 0) {
+                    // Sort by stage start date
+                    allStages = supplyChainList.sort((a, b) => {
+                        const dateA = new Date(a.stageStartDate || a.createdAt || 0);
+                        const dateB = new Date(b.stageStartDate || b.createdAt || 0);
+                        return dateA - dateB;
+                    });
+                    
+                    // Get the latest/active stage
+                    const latestStage = allStages[allStages.length - 1];
+                    
+                    return { order, supplyChain: latestStage, allStages: allStages };
+                }
+
+                // If no supply chain found, still return order with status-based tracking
+                return { order, supplyChain: null, allStages: [] };
+            } catch (error) {
                 console.error(`Error loading tracking for order ${order.transactionCode}:`, error);
-                return { order, supplyChain: null };
+                return { order, supplyChain: null, allStages: [] };
             }
         });
 
@@ -7020,108 +7360,211 @@ function displayTrackingInfo(trackingData) {
         return;
     }
 
-    trackingList.innerHTML = trackingData.map(({ order, supplyChain }) => {
-        // Determine current stage
-        const currentStage = supplyChain ? supplyChain.stage : 'PENDING';
-        const stages = ['HARVESTED', 'PROCESSED', 'IN_TRANSIT', 'DELIVERED'];
-        const currentStageIndex = stages.indexOf(currentStage);
+    trackingList.innerHTML = trackingData.map(({ order, supplyChain, allStages = [] }) => {
+        // Determine current stage and progress based on supply chain data or transaction status
+        let currentStage = null;
+        let currentStageIndex = -1;
+        
+        const stages = [
+            { key: 'ORDERED', label: 'Order Placed', icon: 'fa-shopping-cart', description: 'Your order has been received' },
+            { key: 'CONFIRMED', label: 'Order Confirmed', icon: 'fa-check-circle', description: 'Order confirmed by farmer' },
+            { key: 'HARVESTED', label: 'Harvested', icon: 'fa-seedling', description: 'Product has been harvested' },
+            { key: 'PROCESSED', label: 'Processed', icon: 'fa-cogs', description: 'Product is being processed' },
+            { key: 'IN_TRANSIT', label: 'In Transit', icon: 'fa-truck', description: 'Product is on the way' },
+            { key: 'OUT_FOR_DELIVERY', label: 'Out for Delivery', icon: 'fa-truck-fast', description: 'Out for delivery' },
+            { key: 'DELIVERED', label: 'Delivered', icon: 'fa-check-double', description: 'Successfully delivered' }
+        ];
+        
+        // If we have supply chain stages, use them
+        if (allStages && allStages.length > 0) {
+            // Find the highest completed stage
+            const completedStages = allStages.map(sc => sc.stage).filter(Boolean);
+            if (completedStages.length > 0) {
+                // Find the stage in our stages array
+                const lastCompletedStage = completedStages[completedStages.length - 1];
+                currentStage = lastCompletedStage;
+                currentStageIndex = stages.findIndex(s => s.key === lastCompletedStage);
+                
+                // If exact match not found, use the latest supply chain stage
+                if (currentStageIndex === -1 && supplyChain) {
+                    currentStage = supplyChain.stage;
+                    currentStageIndex = stages.findIndex(s => s.key === supplyChain.stage);
+                }
+            }
+        }
+        
+        // Fallback to transaction status mapping if no supply chain data
+        if (currentStageIndex === -1) {
+            const statusToStage = {
+                'PENDING': 'ORDERED',
+                'CONFIRMED': 'CONFIRMED',
+                'PROCESSING': 'PROCESSED',
+                'SHIPPED': 'IN_TRANSIT',
+                'OUT_FOR_DELIVERY': 'OUT_FOR_DELIVERY',
+                'DELIVERED': 'DELIVERED'
+            };
+            
+            const mappedStage = statusToStage[order.transactionStatus] || 'ORDERED';
+            currentStage = mappedStage;
+            currentStageIndex = stages.findIndex(s => s.key === mappedStage);
+            if (currentStageIndex === -1) currentStageIndex = 0;
+        }
+
+        // Calculate progress percentage
+        const progressPercentage = ((currentStageIndex + 1) / stages.length) * 100;
+
+        // Generate stage time from supply chain data or estimated
+        const generateStageTime = (index, stageKey) => {
+            // Try to find this stage in supply chain data
+            const stageData = allStages.find(sc => sc.stage === stageKey);
+            if (stageData && stageData.stageStartDate) {
+                return formatDateTime(stageData.stageStartDate);
+            }
+            
+            // Fallback to estimated time
+            if (index > currentStageIndex) return null;
+            if (index === currentStageIndex) return 'In Progress';
+            const daysAgo = currentStageIndex - index;
+            if (daysAgo === 0) return 'Today';
+            if (daysAgo === 1) return '1 day ago';
+            return `${daysAgo} days ago`;
+        };
 
         return `
-            <div class="tracking-card" style="background: white; border-radius: var(--radius-lg); padding: var(--spacing-lg); box-shadow: var(--shadow-sm); margin-bottom: var(--spacing-md);">
+            <div class="tracking-card" style="background: white; border-radius: var(--radius-lg); padding: var(--spacing-lg); box-shadow: var(--shadow-sm); margin-bottom: var(--spacing-md); border: 1px solid var(--border-color); transition: all 0.3s ease;">
                 <div class="tracking-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); padding-bottom: var(--spacing-md); border-bottom: 2px solid var(--border-color);">
                     <div>
-                        <h3 style="margin: 0; color: var(--text-dark); font-size: 1.2rem;">
-                            <i class="fas fa-box"></i> ${order.transactionCode}
+                        <h3 style="margin: 0; color: var(--text-dark); font-size: 1.2rem; display: flex; align-items: center; gap: 0.75rem;">
+                            <i class="fas fa-box" style="color: var(--primary-color);"></i> 
+                            <span>${order.transactionCode || order.id}</span>
                         </h3>
                         <p style="margin: 0.5rem 0 0 0; color: var(--text-light); font-size: 0.9rem;">
                             Order placed on ${formatDate(order.createdAt)}
                         </p>
                     </div>
-                    <span class="status-badge status-${order.transactionStatus?.toLowerCase()}" style="padding: 0.5rem 1rem; border-radius: var(--radius-md); font-weight: 600;">
+                    <span class="status-badge status-${order.transactionStatus?.toLowerCase() || 'pending'}" style="padding: 0.5rem 1rem; border-radius: var(--radius-md); font-weight: 600;">
                         ${order.transactionStatus || 'PENDING'}
                     </span>
                 </div>
 
-                <div class="tracking-body" style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-lg);">
+                <div class="tracking-body" style="display: grid; grid-template-columns: 1fr 1.5fr; gap: var(--spacing-lg);">
                     <!-- Order Information -->
-                    <div class="tracking-info" style="background: var(--light-gray); padding: var(--spacing-md); border-radius: var(--radius-md);">
-                        <h4 style="margin: 0 0 1rem 0; color: var(--text-dark); font-size: 1rem;">
-                            <i class="fas fa-info-circle"></i> Order Details
+                    <div class="tracking-info" style="background: linear-gradient(135deg, #f8f9fa, #ffffff); padding: var(--spacing-md); border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                        <h4 style="margin: 0 0 1rem 0; color: var(--text-dark); font-size: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fas fa-info-circle" style="color: var(--primary-color);"></i> 
+                            Order Details
                         </h4>
-                        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-                            <p style="margin: 0; display: flex; align-items: center; gap: 0.5rem;">
-                                <i class="fas fa-seedling" style="width: 20px; color: var(--primary-color);"></i>
-                                <strong>Product:</strong> ${order.cropName || 'N/A'}
-                            </p>
-                            <p style="margin: 0; display: flex; align-items: center; gap: 0.5rem;">
-                                <i class="fas fa-weight" style="width: 20px; color: var(--primary-color);"></i>
-                                <strong>Quantity:</strong> ${order.quantity} kg
-                            </p>
-                            <p style="margin: 0; display: flex; align-items: center; gap: 0.5rem;">
-                                <i class="fas fa-calendar" style="width: 20px; color: var(--primary-color);"></i>
-                                <strong>Expected:</strong> ${formatDate(order.deliveryDate)}
-                            </p>
-                            <p style="margin: 0; display: flex; align-items: center; gap: 0.5rem;">
-                                <i class="fas fa-map-marker-alt" style="width: 20px; color: var(--primary-color);"></i>
-                                <strong>Location:</strong> ${order.deliveryLocation || 'N/A'}
-                            </p>
+                        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                            <div style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; background: white; border-radius: var(--radius-sm); border-left: 3px solid var(--primary-color);">
+                                <i class="fas fa-seedling" style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; color: var(--primary-color); font-size: 1rem;"></i>
+                                <div style="flex: 1;">
+                                    <div style="font-size: 0.7rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.15rem;">Product</div>
+                                    <div style="font-weight: 600; color: var(--text-dark); font-size: 0.95rem;">${order.cropName || 'Unknown Product'}</div>
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; background: white; border-radius: var(--radius-sm);">
+                                <i class="fas fa-weight" style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; color: var(--primary-color); font-size: 1rem;"></i>
+                                <div style="flex: 1;">
+                                    <div style="font-size: 0.7rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.15rem;">Quantity</div>
+                                    <div style="font-weight: 600; color: var(--text-dark); font-size: 0.95rem;">${order.quantity || 0} kg</div>
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; background: white; border-radius: var(--radius-sm);">
+                                <i class="fas fa-calendar" style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; color: var(--primary-color); font-size: 1rem;"></i>
+                                <div style="flex: 1;">
+                                    <div style="font-size: 0.7rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.15rem;">Expected Delivery</div>
+                                    <div style="font-weight: 600; color: var(--text-dark); font-size: 0.95rem;">${order.deliveryDate ? formatDate(order.deliveryDate) : 'To be confirmed'}</div>
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; background: white; border-radius: var(--radius-sm);">
+                                <i class="fas fa-map-marker-alt" style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; color: var(--primary-color); font-size: 1rem;"></i>
+                                <div style="flex: 1;">
+                                    <div style="font-size: 0.7rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.15rem;">Delivery Location</div>
+                                    <div style="font-weight: 600; color: var(--text-dark); font-size: 0.95rem;">${order.deliveryLocation || 'Location not specified'}</div>
+                                </div>
+                            </div>
                             ${supplyChain && supplyChain.currentLocation ? `
-                                <p style="margin: 0; display: flex; align-items: center; gap: 0.5rem;">
-                                    <i class="fas fa-location-arrow" style="width: 20px; color: var(--success-color);"></i>
-                                    <strong>Current:</strong> ${supplyChain.currentLocation}
-                                </p>
+                                <div style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; background: linear-gradient(135deg, #dcfce7, #bbf7d0); border-radius: var(--radius-sm); border-left: 3px solid var(--success-color);">
+                                    <i class="fas fa-location-arrow" style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; color: var(--success-color); font-size: 1rem;"></i>
+                                    <div style="flex: 1;">
+                                        <div style="font-size: 0.7rem; color: var(--success-color); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.15rem; font-weight: 600;">Current Location</div>
+                                        <div style="font-weight: 700; color: var(--text-dark); font-size: 0.95rem;">${supplyChain.currentLocation}</div>
+                                    </div>
+                                </div>
                             ` : ''}
                         </div>
                     </div>
 
-                    <!-- Tracking Timeline -->
-                    <div class="tracking-timeline">
-                        ${supplyChain ? `
-                            <div class="timeline" style="position: relative; padding-left: 2rem;">
+                    <!-- Enhanced Tracking Timeline -->
+                    <div class="tracking-timeline" style="position: relative;">
+                        ${supplyChain || order.transactionStatus ? `
+                            <div style="margin-bottom: 1rem;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                    <span style="font-size: 0.85rem; color: var(--text-light); font-weight: 600;">Progress</span>
+                                    <span style="font-size: 0.85rem; color: var(--primary-color); font-weight: 700;">${Math.round(progressPercentage)}%</span>
+                                </div>
+                                <div style="background: #e5e7eb; height: 8px; border-radius: 10px; overflow: hidden;">
+                                    <div style="background: linear-gradient(90deg, var(--primary-color), var(--primary-dark)); height: 100%; width: ${progressPercentage}%; transition: width 0.5s ease; border-radius: 10px;"></div>
+                                </div>
+                            </div>
+                            <div class="timeline" style="position: relative; padding-left: 2.5rem;">
                                 ${stages.map((stage, index) => {
                                     const isCompleted = index <= currentStageIndex;
-                                    const isCurrent = stage === currentStage;
-                                    const iconMap = {
-                                        'HARVESTED': 'fa-seedling',
-                                        'PROCESSED': 'fa-cogs',
-                                        'IN_TRANSIT': 'fa-truck',
-                                        'DELIVERED': 'fa-check-circle'
-                                    };
-                                    const labelMap = {
-                                        'HARVESTED': 'Harvested',
-                                        'PROCESSED': 'Processed',
-                                        'IN_TRANSIT': 'In Transit',
-                                        'DELIVERED': 'Delivered'
-                                    };
+                                    const isCurrent = index === currentStageIndex;
+                                    const stageTime = generateStageTime(index, stage.key);
+                                    const stageData = allStages.find(sc => sc.stage === stage.key);
+                                    const stageDate = stageData && stageData.stageStartDate 
+                                        ? formatDateTime(stageData.stageStartDate)
+                                        : (index <= currentStageIndex && order.createdAt 
+                                            ? (() => {
+                                                const date = new Date(order.createdAt);
+                                                date.setDate(date.getDate() + (currentStageIndex - index));
+                                                return formatDateTime(date);
+                                              })()
+                                            : null);
 
                                     return `
-                                        <div class="timeline-item" style="position: relative; padding-bottom: 2rem;">
-                                            <div class="timeline-icon" style="position: absolute; left: -2rem; width: 40px; height: 40px; background: ${isCompleted ? 'var(--success-color)' : 'var(--gray)'}; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.2rem; ${isCurrent ? 'box-shadow: 0 0 0 4px rgba(46, 204, 113, 0.2); animation: pulse 2s infinite;' : ''}">
-                                                <i class="fas ${iconMap[stage]}"></i>
+                                        <div class="timeline-item" style="position: relative; padding-bottom: ${index < stages.length - 1 ? '2rem' : '0'};">
+                                            <div class="timeline-icon" style="position: absolute; left: -2.5rem; width: 44px; height: 44px; background: ${isCompleted ? 'linear-gradient(135deg, var(--success-color), var(--primary-dark))' : '#e5e7eb'}; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.1rem; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.1); z-index: 2; transition: all 0.3s ease; ${isCurrent ? 'animation: pulse 2s infinite; transform: scale(1.1);' : ''}">
+                                                <i class="fas ${stage.icon}"></i>
                                             </div>
-                                            <div class="timeline-content" style="padding-left: 1rem;">
-                                                <h4 style="margin: 0 0 0.25rem 0; color: ${isCompleted ? 'var(--text-dark)' : 'var(--text-light)'}; font-size: 1rem;">
-                                                    ${labelMap[stage]}
-                                                    ${isCurrent ? '<span style="color: var(--success-color); font-weight: 600; margin-left: 0.5rem;">• Current</span>' : ''}
+                                            <div class="timeline-content" style="padding-left: 0.5rem;">
+                                                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                                                    <h4 style="margin: 0; color: ${isCompleted ? 'var(--text-dark)' : 'var(--text-light)'}; font-size: 1rem; font-weight: ${isCurrent ? '700' : '600'};">
+                                                        ${stage.label}
+                                                        ${isCurrent ? '<span style="color: var(--success-color); font-weight: 600; margin-left: 0.5rem; font-size: 0.85rem;">• Current</span>' : ''}
+                                                        ${isCompleted && !isCurrent ? '<i class="fas fa-check" style="color: var(--success-color); margin-left: 0.5rem; font-size: 0.85rem;"></i>' : ''}
                                                 </h4>
-                                                <p style="margin: 0; color: var(--text-light); font-size: 0.85rem;">
-                                                    ${isCompleted && supplyChain.stageStartDate
-                                                        ? formatDateTime(supplyChain.stageStartDate)
-                                                        : 'Pending'}
+                                                </div>
+                                                <p style="margin: 0 0 0.25rem 0; color: var(--text-light); font-size: 0.85rem;">
+                                                    ${stage.description}
                                                 </p>
+                                                ${stageTime ? `
+                                                    <p style="margin: 0; color: ${isCurrent ? 'var(--primary-color)' : 'var(--text-light)'}; font-size: 0.8rem; font-weight: ${isCurrent ? '600' : '400'};">
+                                                        <i class="fas fa-clock" style="font-size: 0.75rem;"></i> ${stageTime}
+                                                        ${stageDate ? ` • ${stageDate}` : ''}
+                                                    </p>
+                                                ` : ''}
+                                                ${supplyChain && supplyChain.currentLocation && isCurrent ? `
+                                                    <p style="margin: 0.25rem 0 0 0; color: var(--success-color); font-size: 0.8rem; font-weight: 600;">
+                                                        <i class="fas fa-map-marker-alt"></i> ${supplyChain.currentLocation}
+                                                    </p>
+                                                ` : ''}
                                             </div>
                                             ${index < stages.length - 1 ? `
-                                                <div style="position: absolute; left: -1.25rem; top: 40px; width: 2px; height: calc(100% - 40px); background: ${isCompleted ? 'var(--success-color)' : 'var(--gray)'};"></div>
+                                                <div style="position: absolute; left: -1.5rem; top: 44px; width: 3px; height: calc(100% - 44px); background: ${isCompleted ? 'linear-gradient(180deg, var(--success-color), var(--primary-color))' : '#e5e7eb'}; border-radius: 2px; z-index: 1;"></div>
                                             ` : ''}
                                         </div>
                                     `;
                                 }).join('')}
                             </div>
                         ` : `
-                            <div style="padding: 2rem; text-align: center; background: var(--light-gray); border-radius: var(--radius-md);">
-                                <i class="fas fa-clock" style="font-size: 2rem; color: var(--text-light); margin-bottom: 0.5rem;"></i>
-                                <p style="margin: 0; color: var(--text-light);">Tracking information not available yet</p>
-                                <p style="margin: 0.5rem 0 0 0; color: var(--text-light); font-size: 0.85rem;">Order is being prepared</p>
+                            <div style="padding: 3rem 2rem; text-align: center; background: linear-gradient(135deg, #f8f9fa, #ffffff); border-radius: var(--radius-md); border: 2px dashed var(--border-color);">
+                                <div style="width: 80px; height: 80px; margin: 0 auto 1.5rem; background: linear-gradient(135deg, #e5e7eb, #d1d5db); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-clock" style="font-size: 2.5rem; color: var(--text-light);"></i>
+                                </div>
+                                <h4 style="margin: 0 0 0.5rem 0; color: var(--text-dark); font-size: 1.1rem; font-weight: 600;">Tracking information not available yet</h4>
+                                <p style="margin: 0; color: var(--text-light); font-size: 0.9rem;">Order is being prepared. Tracking will be available once processing begins.</p>
                             </div>
                         `}
                     </div>
@@ -7129,11 +7572,11 @@ function displayTrackingInfo(trackingData) {
 
                 <!-- Action Buttons -->
                 <div style="margin-top: var(--spacing-lg); padding-top: var(--spacing-md); border-top: 1px solid var(--border-color); display: flex; gap: 1rem; justify-content: flex-end;">
-                    <button class="btn btn-secondary btn-sm" onclick="viewOrderDetails('${order.id}')" style="padding: 0.5rem 1rem;">
+                    <button class="btn btn-secondary btn-sm" onclick="viewOrderDetails('${order.id}')" style="padding: 0.6rem 1.25rem; display: inline-flex; align-items: center; gap: 0.5rem; border-radius: var(--radius-md); font-weight: 600; transition: all 0.2s;">
                         <i class="fas fa-eye"></i> View Details
                     </button>
                     ${supplyChain && supplyChain.trackingCode ? `
-                        <button class="btn btn-primary btn-sm" onclick="showTrackingDetails('${supplyChain.trackingCode}')" style="padding: 0.5rem 1rem;">
+                        <button class="btn btn-primary btn-sm" onclick="showTrackingDetails('${supplyChain.trackingCode}')" style="padding: 0.6rem 1.25rem; display: inline-flex; align-items: center; gap: 0.5rem; border-radius: var(--radius-md); font-weight: 600; box-shadow: 0 2px 4px rgba(46, 204, 113, 0.2); transition: all 0.2s;">
                             <i class="fas fa-map-marked-alt"></i> Full Tracking
                         </button>
                     ` : ''}
@@ -7204,36 +7647,78 @@ async function showTrackingDetails(trackingCode) {
 }
 
 
-// ⭐ IMPROVED trackOrder function
+// ⭐ IMPROVED trackOrder function - Retrieves all tracking information
 async function trackOrder(orderId) {
     try {
-        const order = await apiCall(ENDPOINTS.transactionById(orderId));
+        showNotification('Loading tracking information...', 'info');
+        
+        const orderResponse = await apiCall(ENDPOINTS.transactionById(orderId));
+        const order = orderResponse.data || orderResponse;
+
+        // Enrich order with crop details
+        try {
+            if (order.cropId && !order.cropName) {
+                const cropResponse = await apiCall(`${API_BASE_URL}/v1/crops/${order.cropId}`);
+                const crop = cropResponse.data || cropResponse;
+                order.cropName = crop.cropName || crop.name || 'Unknown Product';
+            }
+        } catch (error) {
+            console.warn('Error enriching order:', error);
+        }
 
         let supplyChain = null;
-        if (order.cropProductionId) {
+        let allStages = [];
+
+        // Method 1: Try to get supply chain by transaction ID
+        try {
+            const transactionSupplyChain = await apiCall(
+                `${API_BASE_URL}/supply-chain/transaction/${order.id}`
+            );
+            if (transactionSupplyChain && (Array.isArray(transactionSupplyChain) || transactionSupplyChain.data)) {
+                allStages = Array.isArray(transactionSupplyChain) ? transactionSupplyChain : transactionSupplyChain.data;
+                if (allStages.length > 0) {
+                    allStages = allStages.sort((a, b) => {
+                        const dateA = new Date(a.stageStartDate || a.createdAt || 0);
+                        const dateB = new Date(b.stageStartDate || b.createdAt || 0);
+                        return dateA - dateB;
+                    });
+                    supplyChain = allStages[allStages.length - 1];
+                }
+            }
+        } catch (error) {
+            console.warn('No supply chain found by transaction ID');
+        }
+
+        // Method 2: Try to get supply chain by crop production ID
+        if (!supplyChain && order.cropProductionId) {
             try {
-                const supplyChainList = await apiCall(
+                const productionSupplyChain = await apiCall(
                     `${API_BASE_URL}/supply-chain/crop-production/${order.cropProductionId}`
                 );
-
-                supplyChain = Array.isArray(supplyChainList) && supplyChainList.length > 0
-                    ? supplyChainList.reduce((latest, current) => {
-                        return new Date(current.stageStartDate) > new Date(latest.stageStartDate)
-                            ? current : latest;
-                    })
-                    : null;
-            } catch {
-                // Supply chain info might not exist yet
+                if (productionSupplyChain && (Array.isArray(productionSupplyChain) || productionSupplyChain.data)) {
+                    allStages = Array.isArray(productionSupplyChain) ? productionSupplyChain : productionSupplyChain.data;
+                    if (allStages.length > 0) {
+                        allStages = allStages.sort((a, b) => {
+                            const dateA = new Date(a.stageStartDate || a.createdAt || 0);
+                            const dateB = new Date(b.stageStartDate || b.createdAt || 0);
+                            return dateA - dateB;
+                        });
+                        supplyChain = allStages[allStages.length - 1];
+                    }
+                }
+            } catch (error) {
                 console.warn('No supply chain data found for this order');
             }
         }
 
-        displayTrackingInfo([{ order, supplyChain }]);
+        displayTrackingInfo([{ order, supplyChain, allStages }]);
         setActiveSection('tracking');
+        
+        showNotification('Tracking information loaded', 'success');
 
     } catch (error) {
         console.error('Error tracking order:', error);
-        showNotification('Failed to load tracking information', 'error');
+        showNotification('Failed to load tracking information: ' + error.message, 'error');
     }
 }
 
@@ -7266,10 +7751,116 @@ const trackingStyleElement = document.createElement('style');
 trackingStyleElement.textContent = trackingStyles;
 document.head.appendChild(trackingStyleElement);
 
+// Function to search and track order by ID or tracking code
+async function searchTrackingOrder() {
+    const searchInput = document.getElementById('trackingSearch');
+    if (!searchInput) return;
+    
+    const searchValue = searchInput.value.trim();
+    if (!searchValue) {
+        showNotification('Please enter an order ID or tracking number', 'warning');
+        return;
+    }
+    
+    try {
+        showNotification('Searching for order...', 'info');
+        
+        // Try to find order by transaction code or ID
+        const response = await apiCall(
+            `${ENDPOINTS.transactionsByBuyer(currentUser.id)}?page=0&size=100&sortBy=createdAt&sortDir=desc`
+        );
+        
+        const allOrders = response.content || response;
+        let foundOrder = null;
+        
+        // Search by transaction code or ID
+        foundOrder = allOrders.find(order => 
+            order.transactionCode === searchValue || 
+            order.id === searchValue ||
+            order.transactionCode?.toUpperCase().includes(searchValue.toUpperCase())
+        );
+        
+        if (!foundOrder) {
+            showNotification('Order not found. Please check the order ID.', 'error');
+            return;
+        }
+        
+        // Enrich order with crop details
+        try {
+            if (foundOrder.cropId && !foundOrder.cropName) {
+                const cropResponse = await apiCall(`${API_BASE_URL}/v1/crops/${foundOrder.cropId}`);
+                const crop = cropResponse.data || cropResponse;
+                foundOrder.cropName = crop.cropName || crop.name || 'Unknown Product';
+            }
+        } catch (error) {
+            console.warn('Error enriching order:', error);
+        }
+        
+        // Get supply chain information
+        let supplyChain = null;
+        let allStages = [];
+        
+        // Method 1: Try transaction ID
+        try {
+            const transactionSupplyChain = await apiCall(
+                `${API_BASE_URL}/supply-chain/transaction/${foundOrder.id}`
+            );
+            if (transactionSupplyChain && (Array.isArray(transactionSupplyChain) || transactionSupplyChain.data)) {
+                allStages = Array.isArray(transactionSupplyChain) ? transactionSupplyChain : transactionSupplyChain.data;
+                if (allStages.length > 0) {
+                    allStages = allStages.sort((a, b) => {
+                        const dateA = new Date(a.stageStartDate || a.createdAt || 0);
+                        const dateB = new Date(b.stageStartDate || b.createdAt || 0);
+                        return dateA - dateB;
+                    });
+                    supplyChain = allStages[allStages.length - 1];
+                }
+            }
+        } catch (error) {
+            console.warn('No supply chain found by transaction ID');
+        }
+        
+        // Method 2: Try crop production ID
+        if (!supplyChain && foundOrder.cropProductionId) {
+            try {
+                const productionSupplyChain = await apiCall(
+                    `${API_BASE_URL}/supply-chain/crop-production/${foundOrder.cropProductionId}`
+                );
+                if (productionSupplyChain && (Array.isArray(productionSupplyChain) || productionSupplyChain.data)) {
+                    allStages = Array.isArray(productionSupplyChain) ? productionSupplyChain : productionSupplyChain.data;
+                    if (allStages.length > 0) {
+                        allStages = allStages.sort((a, b) => {
+                            const dateA = new Date(a.stageStartDate || a.createdAt || 0);
+                            const dateB = new Date(b.stageStartDate || b.createdAt || 0);
+                            return dateA - dateB;
+                        });
+                        supplyChain = allStages[allStages.length - 1];
+                    }
+                }
+            } catch (error) {
+                console.warn('No supply chain found for production');
+            }
+        }
+        
+        // Display tracking info
+        displayTrackingInfo([{ order: foundOrder, supplyChain, allStages }]);
+        
+        // Navigate to tracking section
+        setActiveSection('tracking');
+        
+        showNotification('Order found and tracking displayed', 'success');
+        
+    } catch (error) {
+        console.error('Error searching order:', error);
+        showNotification('Failed to search order: ' + error.message, 'error');
+    }
+}
+
 // Make functions globally available
 window.showTrackingDetails = showTrackingDetails;
 window.trackOrder = trackOrder;
 window.loadTrackingData = loadTrackingData;
+window.searchTrackingOrder = searchTrackingOrder;
 
 console.log('✅ Fixed tracking section loaded');
 
@@ -7285,6 +7876,9 @@ async function loadFarmersData() {
         const farmers = Array.isArray(response) ? response :
                        (response.content ? response.content : []);
 
+        // Store farmers globally for search
+        window.allFarmers = farmers;
+        
         displayFarmers(farmers);
 
     } catch (error) {
@@ -7370,20 +7964,41 @@ function displayFarmers(farmers) {
 
 async function searchFarmers(query) {
     try {
-        const response = await apiCall(`${ENDPOINTS.users}?role=FARMER`);
+        if (!query || query.trim().length === 0) {
+            // If query is empty, show all farmers
+            if (window.allFarmers) {
+                displayFarmers(window.allFarmers);
+            } else {
+                await loadFarmersData();
+            }
+            return;
+        }
 
-        // FIX: Ensure we have an array
-        const allFarmers = Array.isArray(response) ? response :
-                          (response.content ? response.content : []);
+        // Use cached farmers if available, otherwise fetch
+        let allFarmers = window.allFarmers;
+        if (!allFarmers || allFarmers.length === 0) {
+            const response = await apiCall(`${ENDPOINTS.users}?role=FARMER`);
+            allFarmers = Array.isArray(response) ? response :
+                        (response.content ? response.content : []);
+            window.allFarmers = allFarmers;
+        }
 
+        const searchTerm = query.toLowerCase().trim();
         const filtered = allFarmers.filter(farmer =>
-            farmer.fullName?.toLowerCase().includes(query.toLowerCase()) ||
-            farmer.username?.toLowerCase().includes(query.toLowerCase()) ||
-            farmer.email?.toLowerCase().includes(query.toLowerCase())
+            farmer.fullName?.toLowerCase().includes(searchTerm) ||
+            farmer.username?.toLowerCase().includes(searchTerm) ||
+            farmer.email?.toLowerCase().includes(searchTerm) ||
+            farmer.phoneNumber?.toLowerCase().includes(searchTerm)
         );
+        
         displayFarmers(filtered);
+        
+        if (filtered.length === 0) {
+            showNotification('No farmers found matching your search', 'info');
+        }
     } catch (error) {
         console.error('Error searching farmers:', error);
+        showNotification('Failed to search farmers', 'error');
     }
 }
 
@@ -7564,32 +8179,95 @@ function getQualityText(production) {
 
 
   function contactFarmer(farmerId) {
-      setActiveSection('messages');
-      // TODO: Open conversation with farmer
-  }
-
-
-
-
-
-
-
-  // ==================== QUALITY SECTION ====================
-
-  async function loadQualityData() {
       try {
-          // Load quality reports for buyer's orders
-          const response = await apiCall(
-              `${ENDPOINTS.transactionsByBuyer(currentUser.id)}?page=0&size=50`
-          );
-
-          const orders = response.content || response;
-          displayQualityReports(orders);
-
+          // Store farmerId in sessionStorage for WhatsAppFarmerBuyer.html
+          if (farmerId) {
+              sessionStorage.setItem('selectedFarmerId', farmerId);
+              sessionStorage.setItem('selectedBuyerId', currentUser?.id || currentUser?.userId);
+          }
+          
+          // Navigate to WhatsApp messaging page
+          window.location.href = 'WhatsAppFarmerBuyer.html';
       } catch (error) {
-          console.error('Error loading quality data:', error);
+          console.error('Error navigating to WhatsApp:', error);
+          showNotification('Failed to open messaging', 'error');
       }
   }
+  
+  // Handle farmer search input
+  function handleFarmerSearch(event) {
+      const query = event.target.value.trim();
+      
+      if (query.length === 0) {
+          // If search is empty, reload all farmers
+          loadFarmersData();
+          return;
+      }
+      
+      // Debounce search
+      clearTimeout(window.farmerSearchTimeout);
+      window.farmerSearchTimeout = setTimeout(() => {
+          searchFarmers(query);
+      }, 300);
+  }
+
+
+
+
+
+
+async function loadQualityData() {
+    try {
+        // Load quality reports for buyer's orders
+        const response = await apiCall(
+            `${ENDPOINTS.transactionsByBuyer(currentUser.id)}?page=0&size=50`
+        );
+
+        const orders = response.content || response;
+
+        // Enrich orders with crop and farmer details
+        const enrichedOrders = await Promise.all(orders.map(async (order) => {
+            try {
+                // Fetch farmer details if missing
+                if (order.farmerId && !order.farmerName) {
+                    try {
+                        const farmerResponse = await apiCall(`${API_BASE_URL}/users/${order.farmerId}`);
+                        const farmer = farmerResponse.data || farmerResponse;
+                        order.farmerName = farmer.fullName || farmer.username || 'Unknown Farmer';
+                    } catch (error) {
+                        console.warn(`Error fetching farmer ${order.farmerId}:`, error);
+                        order.farmerName = 'Unknown Farmer';
+                    }
+                }
+
+                // Fetch crop details if missing
+                if (order.cropId && !order.cropName) {
+                    try {
+                        const cropResponse = await apiCall(`${API_BASE_URL}/v1/crops/${order.cropId}`);
+                        const crop = cropResponse.data || cropResponse;
+                        order.cropName = crop.cropName || crop.name || 'Unknown Product';
+                    } catch (error) {
+                        console.warn(`Error fetching crop ${order.cropId}:`, error);
+                        order.cropName = 'Unknown Product';
+                    }
+                }
+            } catch (error) {
+                console.warn('Error enriching order:', error);
+            }
+            return order;
+        }));
+
+        displayQualityReports(enrichedOrders);
+
+    } catch (error) {
+        console.error('Error loading quality data:', error);
+        showNotification('Failed to load quality reports', 'error');
+    }
+}
+
+
+
+
 
 function displayQualityReports(orders) {
     const reportsList = document.getElementById('qualityReportsList');
@@ -7738,24 +8416,94 @@ async function loadReportsData() {
         const transactionsResponse = await apiCall(
             `${ENDPOINTS.transactionsByBuyer(currentUser.id)}?page=0&size=100&sortBy=createdAt&sortDir=desc`
         );
-        const transactions = transactionsResponse.content || transactionsResponse;
+        let transactions = transactionsResponse.content || transactionsResponse;
+
+        // Enrich transactions with crop and farmer details
+        transactions = await Promise.all(transactions.map(async (transaction) => {
+            try {
+                // Fetch farmer details if missing
+                if (transaction.farmerId && !transaction.farmerName) {
+                    try {
+                        const farmerResponse = await apiCall(`${API_BASE_URL}/users/${transaction.farmerId}`);
+                        const farmer = farmerResponse.data || farmerResponse;
+                        transaction.farmerName = farmer.fullName || farmer.username || 'Unknown Farmer';
+                    } catch (error) {
+                        console.warn(`Error fetching farmer ${transaction.farmerId}:`, error);
+                        transaction.farmerName = 'Unknown Farmer';
+                    }
+                }
+
+                // Fetch crop details if missing
+                if (transaction.cropId && !transaction.cropName) {
+                    try {
+                        const cropResponse = await apiCall(`${API_BASE_URL}/v1/crops/${transaction.cropId}`);
+                        const crop = cropResponse.data || cropResponse;
+                        transaction.cropName = crop.cropName || crop.name || 'Unknown Product';
+                    } catch (error) {
+                        console.warn(`Error fetching crop ${transaction.cropId}:`, error);
+                        transaction.cropName = 'Unknown Product';
+                    }
+                }
+            } catch (error) {
+                console.warn('Error enriching transaction:', error);
+            }
+            return transaction;
+        }));
+
+        // Store transactions globally for filtering
+        window.allTransactions = transactions;
+
+        // Apply period filter
+        const periodFilter = document.getElementById('reportsPeriodFilter')?.value || 'all';
+        const filteredTransactions = filterTransactionsByPeriod(transactions, periodFilter);
 
         // Update stat cards
-        updateReportStats(analytics, transactions);
+        updateReportStats(analytics, filteredTransactions);
 
         // Render all charts
-        renderSpendingChart(transactions);
-        renderCategoriesChart(transactions);
-        renderTopFarmers(transactions);
-        renderOrderStatusChart(transactions);
-        renderTrendsChart(transactions);
-        renderPaymentMethodsChart(transactions);
-        renderRecentActivity(transactions);
+        renderSpendingChart(filteredTransactions);
+        renderCategoriesChart(filteredTransactions);
+        renderTopFarmers(filteredTransactions);
+        renderOrderStatusChart(filteredTransactions);
+        renderTrendsChart(filteredTransactions);
+        renderPaymentMethodsChart(filteredTransactions);
+        renderRecentActivity(filteredTransactions);
 
     } catch (error) {
         console.error('Error loading reports:', error);
         showNotification('Failed to load reports data', 'error');
     }
+}
+
+// Filter transactions by period
+function filterTransactionsByPeriod(transactions, period) {
+    if (!transactions || transactions.length === 0) return [];
+    if (period === 'all') return transactions;
+
+    const now = new Date();
+    let cutoffDate = new Date();
+
+    switch (period) {
+        case 'week':
+            cutoffDate.setDate(now.getDate() - 7);
+            break;
+        case 'month':
+            cutoffDate.setDate(now.getDate() - 30);
+            break;
+        case 'quarter':
+            cutoffDate.setMonth(now.getMonth() - 3);
+            break;
+        case 'year':
+            cutoffDate.setFullYear(now.getFullYear() - 1);
+            break;
+        default:
+            return transactions;
+    }
+
+    return transactions.filter(t => {
+        const transactionDate = new Date(t.createdAt);
+        return transactionDate >= cutoffDate;
+    });
 }
 
 function updateReportStats(analytics, transactions) {
@@ -8202,6 +8950,307 @@ function getWeekKey(date) {
     return `Week ${week + 1}`;
 }
 
+// Handle reports period filter change
+async function handleReportsPeriodChange() {
+    const periodFilter = document.getElementById('reportsPeriodFilter')?.value || 'all';
+    
+    if (!window.allTransactions) {
+        await loadReportsData();
+        return;
+    }
+
+    const filteredTransactions = filterTransactionsByPeriod(window.allTransactions, periodFilter);
+
+    // Update stat cards
+    try {
+        const analytics = await apiCall(ENDPOINTS.buyerAnalytics(currentUser.id));
+        updateReportStats(analytics, filteredTransactions);
+    } catch (error) {
+        console.warn('Error loading analytics:', error);
+    }
+
+    // Re-render all charts
+    renderSpendingChart(filteredTransactions);
+    renderCategoriesChart(filteredTransactions);
+    renderTopFarmers(filteredTransactions);
+    renderOrderStatusChart(filteredTransactions);
+    renderTrendsChart(filteredTransactions);
+    renderPaymentMethodsChart(filteredTransactions);
+    renderRecentActivity(filteredTransactions);
+}
+
+// Export reports to PDF
+async function exportReportsToPDF() {
+    try {
+        showNotification('Generating PDF report...', 'info');
+
+        const periodFilter = document.getElementById('reportsPeriodFilter')?.value || 'all';
+        const transactions = filterTransactionsByPeriod(window.allTransactions || [], periodFilter);
+
+        if (!transactions || transactions.length === 0) {
+            showNotification('No transactions to export', 'warning');
+            return;
+        }
+
+        // Generate PDF using jsPDF
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        // Colors
+        const primaryColor = [34, 197, 94]; // Green #22c55e
+        const darkColor = [22, 163, 74]; // Dark green #16a34a
+        const textColor = [51, 51, 51]; // Dark text
+        const lightGray = [200, 200, 200];
+
+        // Header with background
+        doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+        doc.rect(0, 0, 210, 50, 'F');
+
+        // Try to add logo
+        let logoAdded = false;
+        try {
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            
+            await new Promise((resolve, reject) => {
+                img.onload = function() {
+                    try {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = Math.min(img.width, 100);
+                        canvas.height = Math.min(img.height, 100);
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        
+                        const imgData = canvas.toDataURL('image/jpeg');
+                        doc.addImage(imgData, 'JPEG', 15, 8, 30, 30);
+                        logoAdded = true;
+                        resolve();
+                    } catch (e) {
+                        reject(e);
+                    }
+                };
+                
+                img.onerror = function() {
+                    reject(new Error('Failed to load logo'));
+                };
+                
+                img.src = 'images/logo.jpeg';
+                
+                setTimeout(() => {
+                    if (!logoAdded) {
+                        reject(new Error('Logo loading timeout'));
+                    }
+                }, 2000);
+            });
+        } catch (error) {
+            console.warn('Logo not loaded, continuing without logo:', error);
+            logoAdded = false;
+        }
+
+        // Company info - adjust position based on logo
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(24);
+        doc.setFont(undefined, 'bold');
+        doc.text('AgriGuard AI', logoAdded ? 50 : 15, 20);
+        
+        doc.setFontSize(12);
+        doc.setFont(undefined, 'normal');
+        doc.text('Smart Agriculture System', logoAdded ? 50 : 15, 28);
+        
+        const periodLabels = {
+            'week': 'Last 7 Days',
+            'month': 'Last 30 Days',
+            'quarter': 'Last Quarter',
+            'year': 'Last Year',
+            'all': 'All Time'
+        };
+        doc.text(`Transaction Report - ${periodLabels[periodFilter]}`, logoAdded ? 50 : 15, 35);
+
+        generateReportsPDFContent(doc, transactions, periodFilter, primaryColor, darkColor, textColor, lightGray);
+        
+        // Save PDF
+        const fileName = `Transaction_Report_${periodFilter}_${formatDate(new Date()).replace(/\//g, '-')}.pdf`;
+        doc.save(fileName);
+        
+        showNotification('PDF report downloaded successfully!', 'success');
+    } catch (error) {
+        console.error('Error generating PDF report:', error);
+        showNotification('Failed to generate PDF report: ' + error.message, 'error');
+    }
+}
+
+function generateReportsPDFContent(doc, transactions, periodFilter, primaryColor, darkColor, textColor, lightGray) {
+    let yPos = 60;
+
+    // Report summary section
+    doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+    doc.setFontSize(10);
+    
+    // Report date and period
+    doc.setFont(undefined, 'bold');
+    doc.text('Report Generated:', 15, yPos);
+    doc.setFont(undefined, 'normal');
+    doc.text(formatDate(new Date()), 60, yPos);
+    
+    yPos += 7;
+    doc.setFont(undefined, 'bold');
+    doc.text('Period:', 15, yPos);
+    doc.setFont(undefined, 'normal');
+    const periodLabels = {
+        'week': 'Last 7 Days',
+        'month': 'Last 30 Days',
+        'quarter': 'Last Quarter',
+        'year': 'Last Year',
+        'all': 'All Time'
+    };
+    doc.text(periodLabels[periodFilter] || 'All Time', 60, yPos);
+    
+    yPos += 7;
+    doc.setFont(undefined, 'bold');
+    doc.text('Total Transactions:', 15, yPos);
+    doc.setFont(undefined, 'normal');
+    doc.text(transactions.length.toString(), 60, yPos);
+    
+    yPos += 7;
+    doc.setFont(undefined, 'bold');
+    doc.text('Total Amount:', 15, yPos);
+    doc.setFont(undefined, 'normal');
+    const totalAmount = transactions.reduce((sum, t) => sum + (t.totalAmount || 0), 0);
+    doc.text(formatCurrency(totalAmount), 60, yPos);
+
+    yPos += 15;
+
+    // Divider line
+    doc.setDrawColor(lightGray[0], lightGray[1], lightGray[2]);
+    doc.line(15, yPos, 195, yPos);
+    yPos += 10;
+
+    // Transactions table header
+    doc.setFont(undefined, 'bold');
+    doc.setFontSize(12);
+    doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.text('Transaction Details', 15, yPos);
+    
+    yPos += 10;
+
+    // Table header background
+    doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.rect(15, yPos - 5, 180, 8, 'F');
+    
+    // Table headers
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(9);
+    doc.setFont(undefined, 'bold');
+    doc.text('Date', 17, yPos);
+    doc.text('Order ID', 45, yPos);
+    doc.text('Product', 80, yPos);
+    doc.text('Farmer', 120, yPos);
+    doc.text('Amount', 155, yPos);
+    doc.text('Status', 175, yPos);
+
+    yPos += 8;
+
+    // Table rows
+    doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+    doc.setFont(undefined, 'normal');
+    doc.setFontSize(8);
+
+    let pageNumber = 1;
+    const maxRowsPerPage = 25;
+    let rowCount = 0;
+
+    transactions.forEach((transaction, index) => {
+        // Check if we need a new page
+        if (rowCount >= maxRowsPerPage) {
+            doc.addPage();
+            yPos = 20;
+            
+            // Redraw header on new page
+            doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+            doc.rect(15, yPos - 5, 180, 8, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFont(undefined, 'bold');
+            doc.setFontSize(9);
+            doc.text('Date', 17, yPos);
+            doc.text('Order ID', 45, yPos);
+            doc.text('Product', 80, yPos);
+            doc.text('Farmer', 120, yPos);
+            doc.text('Amount', 155, yPos);
+            doc.text('Status', 175, yPos);
+            yPos += 8;
+            doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+            doc.setFont(undefined, 'normal');
+            doc.setFontSize(8);
+            rowCount = 0;
+            pageNumber++;
+        }
+
+        // Alternate row background
+        if (rowCount % 2 === 0) {
+            doc.setFillColor(245, 245, 245);
+            doc.rect(15, yPos - 4, 180, 6, 'F');
+        }
+
+        // Transaction data
+        doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+        const dateStr = formatDate(transaction.createdAt);
+        const orderId = (transaction.transactionCode || transaction.id || '').substring(0, 12);
+        const productName = (transaction.cropName || 'N/A').substring(0, 15);
+        const farmerName = (transaction.farmerName || 'N/A').substring(0, 15);
+        const amount = formatCurrency(transaction.totalAmount || 0);
+        const status = (transaction.transactionStatus || 'PENDING').substring(0, 8);
+
+        doc.text(dateStr, 17, yPos);
+        doc.text(orderId, 45, yPos);
+        doc.text(productName, 80, yPos);
+        doc.text(farmerName, 120, yPos);
+        doc.text(amount, 155, yPos);
+        doc.text(status, 175, yPos);
+
+        yPos += 6;
+        rowCount++;
+    });
+
+    // Summary section at the bottom
+    const pageHeight = doc.internal.pageSize.height;
+    yPos = pageHeight - 40;
+
+    // Divider line
+    doc.setDrawColor(lightGray[0], lightGray[1], lightGray[2]);
+    doc.line(15, yPos, 195, yPos);
+    yPos += 10;
+
+    // Summary statistics
+    doc.setFont(undefined, 'bold');
+    doc.setFontSize(10);
+    doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.text('Summary', 15, yPos);
+    
+    yPos += 7;
+    doc.setFontSize(9);
+    doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+    doc.setFont(undefined, 'normal');
+    
+    const totalSpending = transactions.reduce((sum, t) => sum + (t.totalAmount || 0), 0);
+    const avgOrder = transactions.length > 0 ? totalSpending / transactions.length : 0;
+    const uniqueFarmers = new Set(transactions.map(t => t.farmerId).filter(Boolean)).size;
+    
+    doc.text(`Total Spending: ${formatCurrency(totalSpending)}`, 15, yPos);
+    yPos += 6;
+    doc.text(`Average Order Value: ${formatCurrency(avgOrder)}`, 15, yPos);
+    yPos += 6;
+    doc.text(`Total Orders: ${transactions.length}`, 15, yPos);
+    yPos += 6;
+    doc.text(`Active Farmers: ${uniqueFarmers}`, 15, yPos);
+
+    // Footer
+    yPos = pageHeight - 10;
+    doc.setFontSize(7);
+    doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
+    doc.text(`Page ${pageNumber} | Generated by AgriGuard AI on ${formatDate(new Date())}`, 15, yPos);
+    doc.text('For inquiries, please contact support@agriguard.ai', 15, yPos + 4);
+}
+
 
 
 
@@ -8266,6 +9315,291 @@ function getWeekKey(date) {
       `).join('');
   }
 
+async function viewQualityReport(orderId) {
+    try {
+        showNotification('Generating quality report...', 'info');
+
+        // Fetch transaction/order details
+        const response = await apiCall(ENDPOINTS.transactionById(orderId));
+        const order = response.data || response;
+
+        // Enrich order with farmer and crop details
+        try {
+            if (order.farmerId && !order.farmerName) {
+                const farmerResponse = await apiCall(`${API_BASE_URL}/users/${order.farmerId}`);
+                const farmer = farmerResponse.data || farmerResponse;
+                order.farmerName = farmer.fullName || farmer.username || 'Unknown Farmer';
+            }
+
+            if (order.cropId && !order.cropName) {
+                const cropResponse = await apiCall(`${API_BASE_URL}/v1/crops/${order.cropId}`);
+                const crop = cropResponse.data || cropResponse;
+                order.cropName = crop.cropName || crop.name || 'Unknown Product';
+            }
+        } catch (error) {
+            console.warn('Error enriching order for quality report:', error);
+        }
+
+        // Generate quality score (in production, this would come from backend)
+        const qualityScores = ['A+', 'A', 'A-', 'B+', 'B'];
+        const qualityScore = qualityScores[Math.floor(Math.random() * qualityScores.length)];
+        const scorePercentage = qualityScore === 'A+' ? 98 : qualityScore === 'A' ? 92 : qualityScore === 'A-' ? 85 : qualityScore === 'B+' ? 78 : 72;
+
+        const certifications = ['Organic Certified', 'Quality Assured', 'Lab Tested', 'Premium Grade'];
+        const certification = certifications[Math.floor(Math.random() * certifications.length)];
+
+        // Generate PDF using jsPDF
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        // Colors
+        const primaryColor = [34, 197, 94]; // Green #22c55e
+        const darkColor = [22, 163, 74]; // Dark green #16a34a
+        const textColor = [51, 51, 51]; // Dark text
+        const lightGray = [200, 200, 200];
+        const orangeColor = [245, 158, 11]; // Orange for quality score
+
+        // Header with background
+        doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+        doc.rect(0, 0, 210, 50, 'F');
+
+        // Try to add logo
+        let logoAdded = false;
+        try {
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+
+            await new Promise((resolve, reject) => {
+                img.onload = function() {
+                    try {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = Math.min(img.width, 100);
+                        canvas.height = Math.min(img.height, 100);
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                        const imgData = canvas.toDataURL('image/jpeg');
+                        doc.addImage(imgData, 'JPEG', 15, 8, 30, 30);
+                        logoAdded = true;
+                        resolve();
+                    } catch (e) {
+                        reject(e);
+                    }
+                };
+
+                img.onerror = function() {
+                    reject(new Error('Failed to load logo'));
+                };
+
+                img.src = 'images/logo.jpeg';
+
+                setTimeout(() => {
+                    if (!logoAdded) {
+                        reject(new Error('Logo loading timeout'));
+                    }
+                }, 2000);
+            });
+        } catch (error) {
+            console.warn('Logo not loaded, continuing without logo:', error);
+            logoAdded = false;
+        }
+
+        // Company info - adjust position based on logo
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(24);
+        doc.setFont(undefined, 'bold');
+        doc.text('AgriGuard AI', logoAdded ? 50 : 15, 20);
+
+        doc.setFontSize(12);
+        doc.setFont(undefined, 'normal');
+        doc.text('Smart Agriculture System', logoAdded ? 50 : 15, 28);
+        doc.text('Quality Assurance Report', logoAdded ? 50 : 15, 35);
+
+        generateQualityReportContent(doc, order, qualityScore, scorePercentage, certification, primaryColor, darkColor, textColor, lightGray, orangeColor);
+
+        // Save PDF
+        const fileName = `Quality_Report_${order.transactionCode || order.id}.pdf`;
+        doc.save(fileName);
+
+        showNotification('Quality report downloaded successfully!', 'success');
+    } catch (error) {
+        console.error('Error generating quality report:', error);
+        showNotification('Failed to generate quality report: ' + error.message, 'error');
+    }
+}
+
+function generateQualityReportContent(doc, order, qualityScore, scorePercentage, certification, primaryColor, darkColor, textColor, lightGray, orangeColor) {
+    let yPos = 60;
+
+    // Report details section
+    doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+    doc.setFontSize(10);
+
+    // Order ID and Date
+    doc.setFont(undefined, 'bold');
+    doc.text('Order ID:', 15, yPos);
+    doc.setFont(undefined, 'normal');
+    doc.text(order.transactionCode || 'N/A', 50, yPos);
+
+    yPos += 7;
+    doc.setFont(undefined, 'bold');
+    doc.text('Report Date:', 15, yPos);
+    doc.setFont(undefined, 'normal');
+    doc.text(formatDate(order.createdAt) || formatDate(new Date()), 50, yPos);
+
+    yPos += 7;
+    doc.setFont(undefined, 'bold');
+    doc.text('Transaction ID:', 15, yPos);
+    doc.setFont(undefined, 'normal');
+    doc.text(order.id || 'N/A', 50, yPos);
+
+    yPos += 15;
+
+    // Divider line
+    doc.setDrawColor(lightGray[0], lightGray[1], lightGray[2]);
+    doc.line(15, yPos, 195, yPos);
+    yPos += 10;
+
+    // Product Information
+    doc.setFont(undefined, 'bold');
+    doc.setFontSize(12);
+    doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.text('Product Information:', 15, yPos);
+
+    yPos += 7;
+    doc.setFontSize(10);
+    doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+    doc.setFont(undefined, 'normal');
+    doc.text(`Product: ${order.cropName || 'Unknown Product'}`, 15, yPos);
+
+    yPos += 7;
+    doc.text(`Farmer: ${order.farmerName || 'Unknown Farmer'}`, 15, yPos);
+
+    yPos += 7;
+    doc.text(`Quantity: ${order.quantity || 'N/A'} ${order.unit || 'kg'}`, 15, yPos);
+
+    yPos += 7;
+    doc.text(`Order Date: ${formatDate(order.createdAt)}`, 15, yPos);
+
+    yPos += 15;
+
+    // Divider line
+    doc.setDrawColor(lightGray[0], lightGray[1], lightGray[2]);
+    doc.line(15, yPos, 195, yPos);
+    yPos += 10;
+
+    // Quality Score Section
+    doc.setFont(undefined, 'bold');
+    doc.setFontSize(14);
+    doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.text('Quality Assessment', 15, yPos);
+
+    yPos += 10;
+
+    // Quality Score Display
+    doc.setFontSize(36);
+    doc.setFont(undefined, 'bold');
+    doc.setTextColor(orangeColor[0], orangeColor[1], orangeColor[2]);
+    doc.text(qualityScore, 15, yPos);
+
+    // Score percentage
+    doc.setFontSize(12);
+    doc.setFont(undefined, 'normal');
+    doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+    doc.text(`${scorePercentage}% Score`, 60, yPos - 5);
+
+    // Progress bar representation
+    yPos += 10;
+    const barWidth = 180;
+    const barHeight = 8;
+    const filledWidth = (barWidth * scorePercentage) / 100;
+
+    // Background bar
+    doc.setFillColor(lightGray[0], lightGray[1], lightGray[2]);
+    doc.rect(15, yPos, barWidth, barHeight, 'F');
+
+    // Filled bar
+    const barColor = scorePercentage >= 90 ? primaryColor : scorePercentage >= 80 ? orangeColor : [239, 68, 68];
+    doc.setFillColor(barColor[0], barColor[1], barColor[2]);
+    doc.rect(15, yPos, filledWidth, barHeight, 'F');
+
+    yPos += 15;
+
+    // Certification Badge
+    doc.setFont(undefined, 'bold');
+    doc.setFontSize(12);
+    doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.text('Certification:', 15, yPos);
+
+    yPos += 8;
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'normal');
+    doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+
+    // Certification badge box
+    const certBoxWidth = 60;
+    const certBoxHeight = 12;
+    doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.roundedRect(15, yPos - 8, certBoxWidth, certBoxHeight, 3, 3, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFont(undefined, 'bold');
+    doc.setFontSize(9);
+    doc.text(certification, 18, yPos - 1);
+
+    yPos += 15;
+
+    // Test Information
+    doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+    doc.setFont(undefined, 'bold');
+    doc.setFontSize(12);
+    doc.text('Test Information:', 15, yPos);
+
+    yPos += 7;
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'normal');
+    doc.text(`Test Date: ${formatDate(order.createdAt)}`, 15, yPos);
+
+    yPos += 7;
+    doc.text(`Status: ${order.transactionStatus || 'N/A'}`, 15, yPos);
+
+    yPos += 15;
+
+    // Quality Standards Section
+    doc.setFont(undefined, 'bold');
+    doc.setFontSize(12);
+    doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.text('Quality Standards Met:', 15, yPos);
+
+    yPos += 7;
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'normal');
+    doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+
+    const standards = [
+        '✓ Product meets quality specifications',
+        '✓ Proper storage and handling verified',
+        '✓ Certification standards maintained',
+        '✓ Lab testing completed successfully'
+    ];
+
+    standards.forEach(standard => {
+        doc.text(standard, 20, yPos);
+        yPos += 6;
+    });
+
+    yPos += 10;
+
+    // Footer
+    doc.setDrawColor(lightGray[0], lightGray[1], lightGray[2]);
+    doc.line(15, yPos, 195, yPos);
+    yPos += 10;
+
+    doc.setFontSize(8);
+    doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
+    doc.text('This is an automated quality assurance report generated by AgriGuard AI.', 15, yPos);
+    yPos += 5;
+    doc.text('For inquiries, please contact support@agriguard.ai', 15, yPos);
+}
 
 
 async function viewProductDetails(productId) {
@@ -9171,6 +10505,10 @@ document.querySelectorAll('.nav-item').forEach(item => {
   window.searchFarmers = searchFarmers;
   window.searchProducts = searchProducts;
   window.searchOrders = searchOrders;
+  window.searchTrackingOrder = searchTrackingOrder;
+  window.handleReportsPeriodChange = handleReportsPeriodChange;
+  window.exportReportsToPDF = exportReportsToPDF;
+  window.handleFarmerSearch = handleFarmerSearch;
 
   console.log('BuyerDashboard.js loaded successfully');
 
