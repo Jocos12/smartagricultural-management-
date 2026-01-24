@@ -26,6 +26,10 @@ public interface IrrigationDataRepository extends JpaRepository<IrrigationData, 
     List<IrrigationData> findByCropProductionId(String cropProductionId);
     Page<IrrigationData> findByCropProductionId(String cropProductionId, Pageable pageable);
 
+    // Add this to IrrigationDataRepository interface
+
+    List<IrrigationData> findByFarmIdIn(List<String> farmIds);
+
     // Find by date range
     List<IrrigationData> findByIrrigationDateBetween(LocalDateTime startDate, LocalDateTime endDate);
     Page<IrrigationData> findByIrrigationDateBetween(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);

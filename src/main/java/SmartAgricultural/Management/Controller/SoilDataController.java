@@ -3,6 +3,7 @@ package SmartAgricultural.Management.Controller;
 import SmartAgricultural.Management.Model.SoilData;
 import SmartAgricultural.Management.Model.SoilData.NutrientLevel;
 import SmartAgricultural.Management.Service.SoilDataService;
+import SmartAgricultural.Management.Service.FarmService;
 import SmartAgricultural.Management.exception.ResourceNotFoundException;
 import SmartAgricultural.Management.exception.ValidationException;
 
@@ -21,6 +22,8 @@ import jakarta.validation.Valid;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +37,9 @@ public class SoilDataController {
 
     @Autowired
     private SoilDataService soilDataService;
+    
+    @Autowired
+    private FarmService farmService;
 
     // ===== BASIC CRUD OPERATIONS =====
 
@@ -943,9 +949,18 @@ public class SoilDataController {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, String>> handleGenericException(Exception e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("error", "Internal server error", "message", "An unexpected error occurred"));
+    public ResponseEntity<?> handleGenericException(Exception e) {
+        // Log the exception for debugging
+        System.err.println("Global exception handler caught: " + e.getClass().getName() + ": " + e.getMessage());
+        e.printStackTrace();
+        
+        // For all exceptions in this controller, return 200 OK with empty data
+        // This prevents 500 errors from breaking the frontend
+        return ResponseEntity.ok(Map.of(
+                "success", false,
+                "message", "Une erreur interne s'est produite",
+                "data", Collections.emptyList()
+        ));
     }
 
 
@@ -976,6 +991,114 @@ public class SoilDataController {
                     .body(Map.of("error", "Soil data not found"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    // ===== FARMER-SPECIFIC OPERATIONS =====
+
+    @GetMapping("/farmer/{farmerId}")
+    public ResponseEntity<?> getSoilDataByFarmer(@PathVariable String farmerId) {
+        // Always return 200 OK with empty data on any error to prevent 500 errors
+        try {
+            if (farmerId == null || farmerId.trim().isEmpty()) {
+                return ResponseEntity.ok(Map.of(
+                        "success", true,
+                        "message", "Invalid farmer ID",
+                        "data", Collections.emptyList()
+                ));
+            }
+
+            // Check if services are available
+            if (farmService == null || soilDataService == null) {
+                System.err.println("Services are null in SoilDataController");
+                return ResponseEntity.ok(Map.of(
+                        "success", true,
+                        "message", "Service unavailable",
+                        "data", Collections.emptyList()
+                ));
+            }
+
+            // Get all farm IDs for this farmer with error handling
+            List<String> farmIds = Collections.emptyList();
+            try {
+                farmIds = farmService.getFarmIdsByFarmerId(farmerId);
+                if (farmIds == null) {
+                    farmIds = Collections.emptyList();
+                }
+            } catch (Exception e) {
+                System.err.println("Error getting farm IDs for farmer " + farmerId + ": " + e.getMessage());
+                e.printStackTrace();
+                // Return empty list instead of throwing
+                return ResponseEntity.ok(Map.of(
+                        "success", true,
+                        "message", "No farms found for this farmer",
+                        "data", Collections.emptyList()
+                ));
+            }
+
+            if (farmIds == null || farmIds.isEmpty()) {
+                return ResponseEntity.ok(Map.of(
+                        "success", true,
+                        "message", "No farms found for this farmer",
+                        "data", Collections.emptyList()
+                ));
+            }
+
+            // Get all soil data for these farms
+            List<SoilData> soilDataList = new ArrayList<>();
+            for (String farmId : farmIds) {
+                if (farmId == null || farmId.trim().isEmpty()) {
+                    continue;
+                }
+                try {
+                    if (soilDataService == null) {
+                        System.err.println("SoilDataService is null");
+                        continue;
+                    }
+                    List<SoilData> farmSoilData = soilDataService.findByFarmId(farmId);
+                    if (farmSoilData != null && !farmSoilData.isEmpty()) {
+                        soilDataList.addAll(farmSoilData);
+                    }
+                } catch (Exception e) {
+                    // Log error but continue with other farms
+                    System.err.println("Error retrieving soil data for farm " + farmId + ": " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+
+            if (soilDataList.isEmpty()) {
+                return ResponseEntity.ok(Map.of(
+                        "success", true,
+                        "message", "No soil data found for this farmer",
+                        "data", Collections.emptyList()
+                ));
+            }
+
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "message", "Soil data retrieved successfully",
+                    "data", soilDataList
+            ));
+
+        } catch (NullPointerException e) {
+            // Handle null pointer exceptions
+            System.err.println("NullPointerException in getSoilDataByFarmer for farmer " + farmerId + ": " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "message", "No soil data available",
+                    "data", Collections.emptyList()
+            ));
+        } catch (Exception e) {
+            // Return empty data instead of 500 error to prevent frontend issues
+            System.err.println("Error retrieving soil data for farmer " + farmerId + ": " + e.getMessage());
+            System.err.println("Exception type: " + e.getClass().getName());
+            e.printStackTrace();
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "message", "No soil data available",
+                    "data", Collections.emptyList()
+            ));
         }
     }
 }

@@ -13,13 +13,54 @@
             --primary-green: #22c55e;
             --primary-dark: #16a34a;
             --secondary-green: #10b981;
+            --accent-green: #34d399;
+            --light-green: #dcfce7;
+            --dark-green: #166534;
+            --success-color: #22c55e;
+            --warning-color: #f59e0b;
+            --error-color: #ef4444;
+            --info-color: #3b82f6;
             --bg-primary: #ffffff;
             --bg-secondary: #f8f9fa;
+            --bg-sidebar: #e8f5e8;
             --text-primary: #333333;
             --text-secondary: #666666;
             --border-color: #e0e0e0;
+            --hover-bg: rgba(34, 197, 94, 0.1);
             --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 8px 25px rgba(34, 197, 94, 0.15);
+            --gradient-primary: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+            --gradient-bg: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%);
             --card-bg: #ffffff;
+            --modal-bg: rgba(0, 0, 0, 0.5);
+        }
+
+        .dark-mode {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --bg-sidebar: #1f2937;
+            --text-primary: #ffffff;
+            --text-secondary: #cccccc;
+            --border-color: #404040;
+            --hover-bg: rgba(34, 197, 94, 0.2);
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            --card-bg: #374151;
+            --gradient-bg: linear-gradient(135deg, #1f2937 0%, #374151 50%, #4b5563 100%);
+        }
+
+        .dark-mode .filter-select {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border-color: var(--border-color);
+        }
+
+        .dark-mode .toast {
+            background: var(--card-bg);
+            color: var(--text-primary);
+        }
+
+        .dark-mode .loading-overlay {
+            background: rgba(0, 0, 0, 0.8);
         }
 
         * {
@@ -30,14 +71,333 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%);
+            background: var(--gradient-bg);
             color: var(--text-primary);
-            padding: 20px;
+            transition: all 0.3s ease;
         }
 
-        .main-container {
-            max-width: 1400px;
-            margin: 0 auto;
+        .dashboard-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: var(--bg-sidebar);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: fixed;
+            height: 100vh;
+            z-index: 1000;
+            box-shadow: var(--shadow);
+        }
+
+        .sidebar.collapsed {
+            width: 70px;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--gradient-primary);
+            color: white;
+            font-size: 24px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .company-info {
+            flex: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .company-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .company-tagline {
+            font-size: 11px;
+            color: var(--primary-green);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .sidebar.collapsed .company-info {
+            opacity: 0;
+            width: 0;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 20px 0;
+            overflow-y: auto;
+        }
+
+        .nav-section {
+            margin-bottom: 30px;
+        }
+
+        .nav-section-title {
+            padding: 0 20px 10px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--primary-green);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 4px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 14px 20px;
+            color: var(--text-primary);
+            text-decoration: none;
+            border-radius: 0 25px 25px 0;
+            margin-right: 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .nav-link i {
+            width: 22px;
+            margin-right: 14px;
+            font-size: 18px;
+        }
+
+        .nav-link:hover {
+            background: var(--hover-bg);
+            color: var(--primary-green);
+            transform: translateX(5px);
+        }
+
+        .nav-item.active .nav-link {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: var(--shadow);
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            margin-left: 280px;
+            transition: margin-left 0.3s ease;
+        }
+
+        .main-content.sidebar-collapsed {
+            margin-left: 70px;
+        }
+
+        .header {
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 80px;
+            box-shadow: var(--shadow);
+            position: relative;
+            z-index: 100;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .sidebar-toggle {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 12px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-toggle:hover {
+            background: var(--hover-bg);
+            color: var(--primary-green);
+        }
+
+        .greeting-text {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .current-date {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .search-container {
+            position: relative;
+            width: 400px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 50px 12px 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 25px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-green);
+            box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 18px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .theme-toggle {
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 12px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .theme-toggle:hover {
+            background: var(--hover-bg);
+            border-color: var(--primary-green);
+        }
+
+        .notification-btn {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 20px;
+            cursor: pointer;
+            position: relative;
+            padding: 12px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .notification-btn:hover {
+            background: var(--hover-bg);
+            color: var(--primary-green);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: var(--error-color);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .profile-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .profile-section:hover {
+            background: var(--hover-bg);
+        }
+
+        .profile-avatar {
+            width: 45px;
+            height: 45px;
+            background: var(--gradient-primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 16px;
+            box-shadow: var(--shadow);
+        }
+
+        .profile-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .profile-role {
+            font-size: 12px;
+            color: var(--primary-green);
+            font-weight: 500;
+        }
+
+        .content {
+            flex: 1;
+            padding: 32px;
+            background: var(--bg-secondary);
+            overflow-y: auto;
         }
 
         .page-header {
@@ -237,6 +597,24 @@
                 transform: translateX(0);
             }
         }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .search-container {
+                width: 200px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -246,531 +624,683 @@
 
 <div class="toast-container" id="toastContainer"></div>
 
-<div class="main-container">
-    <div class="page-header">
-        <h1>Complete System Reports</h1>
-        <p>Generate comprehensive reports for all modules in the AgriGuard AI system</p>
+<div class="dashboard-container">
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <img src="images/logo.jpeg" alt="AgriGuard AI Logo">
+            </div>
+            <div class="company-info">
+                <div class="company-name">AgriGuard AI</div>
+                <div class="company-tagline">Smart Agriculture</div>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-section">
+                <h3 class="nav-section-title">Main</h3>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a class="nav-link" href="AdminDashboard.html">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="AdminDashboard.html">
+                            <i class="fas fa-users"></i>
+                            <span>All Users</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="AdminDashboard.html">
+                            <i class="fas fa-tractor"></i>
+                            <span>Farmers</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="AdminDashboard.html">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span>Buyers</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="AdminDashboard.html">
+                            <i class="fas fa-user-shield"></i>
+                            <span>Administrators</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="AdminDashboard.html">
+                            <i class="fas fa-chart-pie"></i>
+                            <span>Analysts</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="AdminDashboard.html">
+                            <i class="fas fa-landmark"></i>
+                            <span>Policies</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="nav-section">
+                <h3 class="nav-section-title">Analytics</h3>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a class="nav-link" href="AdminDashboard.html">
+                            <i class="fas fa-file-alt"></i>
+                            <span>User Reports</span>
+                        </a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="AllSystemReports.html">
+                            <i class="fas fa-file-chart-line"></i>
+                            <span>All System Reports</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="nav-section">
+                <h3 class="nav-section-title">Dashboards</h3>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a class="nav-link" href="CropDashboard.html">
+                            <i class="fas fa-seedling"></i>
+                            <span>Crop Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="FarmDashboard.html">
+                            <i class="fas fa-home"></i>
+                            <span>Farm Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="InventoryDashboard.html">
+                            <i class="fas fa-boxes"></i>
+                            <span>Inventory Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="WhatsApp.html">
+                            <i class="fab fa-whatsapp"></i>
+                            <span>Chat</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
     </div>
 
-    <div class="reports-grid">
-        <!-- Users Reports -->
-        <div class="report-category">
-            <div class="category-header">
-                <h2><i class="fas fa-users"></i> Users Reports</h2>
-                <p>All users, farmers, buyers, admins, analysts, government</p>
-            </div>
-            <div class="category-body">
-                <div class="filter-section">
-                    <label class="filter-label">Report Type</label>
-                    <select class="filter-select" id="usersReportType">
-                        <option value="all">All Users</option>
-                        <option value="farmers">Farmers Only</option>
-                        <option value="buyers">Buyers Only</option>
-                        <option value="admins">Administrators</option>
-                        <option value="analysts">Analysts</option>
-                        <option value="government">Government Users</option>
-                    </select>
-                </div>
-                <div class="filter-section">
-                    <label class="filter-label">Date Range</label>
-                    <select class="filter-select" id="usersDateRange">
-                        <option value="today">Today</option>
-                        <option value="yesterday">Yesterday</option>
-                        <option value="thisWeek">This Week</option>
-                        <option value="lastWeek">Last Week</option>
-                        <option value="thisMonth" selected>This Month</option>
-                        <option value="lastMonth">Last Month</option>
-                        <option value="last3Months">Last 3 Months</option>
-                        <option value="last6Months">Last 6 Months</option>
-                        <option value="thisYear">This Year</option>
-                        <option value="lastYear">Last Year</option>
-                        <option value="allTime">All Time</option>
-                    </select>
-                </div>
-                <div class="action-buttons">
-                    <button class="btn-action btn-pdf" onclick="generateReport('users', 'pdf')">
-                        <i class="fas fa-file-pdf"></i> PDF
-                    </button>
-                    <button class="btn-action btn-excel" onclick="generateReport('users', 'excel')">
-                        <i class="fas fa-file-excel"></i> Excel
-                    </button>
+    <div class="main-content" id="mainContent">
+        <header class="header">
+            <div class="header-left">
+                <button class="sidebar-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="greeting-section">
+                    <div class="greeting-text" id="greetingText">Good Morning, Admin!</div>
+                    <div class="current-date" id="currentDate"></div>
                 </div>
             </div>
-        </div>
 
-        <!-- Crops Reports -->
-        <div class="report-category">
-            <div class="category-header">
-                <h2><i class="fas fa-seedling"></i> Crops Reports</h2>
-                <p>Crop data and management information</p>
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search reports..." id="globalSearch">
+                <i class="fas fa-search search-icon"></i>
             </div>
-            <div class="category-body">
-                <div class="filter-section">
-                    <label class="filter-label">Date Range</label>
-                    <select class="filter-select" id="cropsDateRange">
-                        <option value="today">Today</option>
-                        <option value="thisWeek">This Week</option>
-                        <option value="thisMonth" selected>This Month</option>
-                        <option value="last3Months">Last 3 Months</option>
-                        <option value="thisYear">This Year</option>
-                        <option value="allTime">All Time</option>
-                    </select>
-                </div>
-                <div class="action-buttons">
-                    <button class="btn-action btn-pdf" onclick="generateReport('crops', 'pdf')">
-                        <i class="fas fa-file-pdf"></i> PDF
-                    </button>
-                    <button class="btn-action btn-excel" onclick="generateReport('crops', 'excel')">
-                        <i class="fas fa-file-excel"></i> Excel
-                    </button>
-                </div>
-            </div>
-        </div>
 
-        <!-- Farms Reports -->
-        <div class="report-category">
-            <div class="category-header">
-                <h2><i class="fas fa-home"></i> Farms Reports</h2>
-                <p>Farm locations and management data</p>
-            </div>
-            <div class="category-body">
-                <div class="filter-section">
-                    <label class="filter-label">Date Range</label>
-                    <select class="filter-select" id="farmsDateRange">
-                        <option value="today">Today</option>
-                        <option value="thisWeek">This Week</option>
-                        <option value="thisMonth" selected>This Month</option>
-                        <option value="thisYear">This Year</option>
-                        <option value="allTime">All Time</option>
-                    </select>
-                </div>
-                <div class="action-buttons">
-                    <button class="btn-action btn-pdf" onclick="generateReport('farms', 'pdf')">
-                        <i class="fas fa-file-pdf"></i> PDF
-                    </button>
-                    <button class="btn-action btn-excel" onclick="generateReport('farms', 'excel')">
-                        <i class="fas fa-file-excel"></i> Excel
-                    </button>
+            <div class="header-right">
+                <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                    <span>Dark Mode</span>
+                </button>
+                <button class="notification-btn">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge">0</span>
+                </button>
+                <div class="profile-section">
+                    <div class="profile-avatar">A</div>
+                    <div class="profile-info">
+                        <div class="profile-name">Administrator</div>
+                        <div class="profile-role">System Admin</div>
+                    </div>
                 </div>
             </div>
-        </div>
+        </header>
 
-        <!-- Inventory Reports -->
-        <div class="report-category">
-            <div class="category-header">
-                <h2><i class="fas fa-boxes"></i> Inventory Reports</h2>
-                <p>Stock levels and inventory management</p>
+        <main class="content">
+            <div class="page-header">
+                <h1>Complete System Reports</h1>
+                <p>Generate comprehensive reports for all modules in the AgriGuard AI system</p>
             </div>
-            <div class="category-body">
-                <div class="filter-section">
-                    <label class="filter-label">Date Range</label>
-                    <select class="filter-select" id="inventoryDateRange">
-                        <option value="today">Today</option>
-                        <option value="thisWeek">This Week</option>
-                        <option value="thisMonth" selected>This Month</option>
-                        <option value="thisYear">This Year</option>
-                        <option value="allTime">All Time</option>
-                    </select>
-                </div>
-                <div class="action-buttons">
-                    <button class="btn-action btn-pdf" onclick="generateReport('inventory', 'pdf')">
-                        <i class="fas fa-file-pdf"></i> PDF
-                    </button>
-                    <button class="btn-action btn-excel" onclick="generateReport('inventory', 'excel')">
-                        <i class="fas fa-file-excel"></i> Excel
-                    </button>
-                </div>
-            </div>
-        </div>
 
-        <!-- Transactions Reports -->
-        <div class="report-category">
-            <div class="category-header">
-                <h2><i class="fas fa-exchange-alt"></i> Transactions Reports</h2>
-                <p>Financial transactions and payments</p>
-            </div>
-            <div class="category-body">
-                <div class="filter-section">
-                    <label class="filter-label">Date Range</label>
-                    <select class="filter-select" id="transactionsDateRange">
-                        <option value="today">Today</option>
-                        <option value="yesterday">Yesterday</option>
-                        <option value="thisWeek">This Week</option>
-                        <option value="lastWeek">Last Week</option>
-                        <option value="thisMonth" selected>This Month</option>
-                        <option value="lastMonth">Last Month</option>
-                        <option value="thisYear">This Year</option>
-                        <option value="allTime">All Time</option>
-                    </select>
+            <div class="reports-grid">
+                <!-- Users Reports -->
+                <div class="report-category">
+                    <div class="category-header">
+                        <h2><i class="fas fa-users"></i> Users Reports</h2>
+                        <p>All users, farmers, buyers, admins, analysts, government</p>
+                    </div>
+                    <div class="category-body">
+                        <div class="filter-section">
+                            <label class="filter-label">Report Type</label>
+                            <select class="filter-select" id="usersReportType">
+                                <option value="all">All Users</option>
+                                <option value="farmers">Farmers Only</option>
+                                <option value="buyers">Buyers Only</option>
+                                <option value="admins">Administrators</option>
+                                <option value="analysts">Analysts</option>
+                                <option value="government">Government Users</option>
+                            </select>
+                        </div>
+                        <div class="filter-section">
+                            <label class="filter-label">Date Range</label>
+                            <select class="filter-select" id="usersDateRange">
+                                <option value="today">Today</option>
+                                <option value="yesterday">Yesterday</option>
+                                <option value="thisWeek">This Week</option>
+                                <option value="lastWeek">Last Week</option>
+                                <option value="thisMonth" selected>This Month</option>
+                                <option value="lastMonth">Last Month</option>
+                                <option value="last3Months">Last 3 Months</option>
+                                <option value="last6Months">Last 6 Months</option>
+                                <option value="thisYear">This Year</option>
+                                <option value="lastYear">Last Year</option>
+                                <option value="allTime">All Time</option>
+                            </select>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn-action btn-pdf" onclick="generateReport('users', 'pdf')">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </button>
+                            <button class="btn-action btn-excel" onclick="generateReport('users', 'excel')">
+                                <i class="fas fa-file-excel"></i> Excel
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <div class="action-buttons">
-                    <button class="btn-action btn-pdf" onclick="generateReport('transactions', 'pdf')">
-                        <i class="fas fa-file-pdf"></i> PDF
-                    </button>
-                    <button class="btn-action btn-excel" onclick="generateReport('transactions', 'excel')">
-                        <i class="fas fa-file-excel"></i> Excel
-                    </button>
-                </div>
-            </div>
-        </div>
 
-        <!-- Crop Production Reports -->
-        <div class="report-category">
-            <div class="category-header">
-                <h2><i class="fas fa-chart-line"></i> Crop Production Reports</h2>
-                <p>Production yields and harvests</p>
-            </div>
-            <div class="category-body">
-                <div class="filter-section">
-                    <label class="filter-label">Date Range</label>
-                    <select class="filter-select" id="productionDateRange">
-                        <option value="thisWeek">This Week</option>
-                        <option value="thisMonth" selected>This Month</option>
-                        <option value="last3Months">Last 3 Months</option>
-                        <option value="thisYear">This Year</option>
-                        <option value="allTime">All Time</option>
-                    </select>
+                <!-- Crops Reports -->
+                <div class="report-category">
+                    <div class="category-header">
+                        <h2><i class="fas fa-seedling"></i> Crops Reports</h2>
+                        <p>Crop data and management information</p>
+                    </div>
+                    <div class="category-body">
+                        <div class="filter-section">
+                            <label class="filter-label">Date Range</label>
+                            <select class="filter-select" id="cropsDateRange">
+                                <option value="today">Today</option>
+                                <option value="thisWeek">This Week</option>
+                                <option value="thisMonth" selected>This Month</option>
+                                <option value="last3Months">Last 3 Months</option>
+                                <option value="thisYear">This Year</option>
+                                <option value="allTime">All Time</option>
+                            </select>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn-action btn-pdf" onclick="generateReport('crops', 'pdf')">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </button>
+                            <button class="btn-action btn-excel" onclick="generateReport('crops', 'excel')">
+                                <i class="fas fa-file-excel"></i> Excel
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <div class="action-buttons">
-                    <button class="btn-action btn-pdf" onclick="generateReport('production', 'pdf')">
-                        <i class="fas fa-file-pdf"></i> PDF
-                    </button>
-                    <button class="btn-action btn-excel" onclick="generateReport('production', 'excel')">
-                        <i class="fas fa-file-excel"></i> Excel
-                    </button>
-                </div>
-            </div>
-        </div>
 
-        <!-- Fertilizer Usage Reports -->
-        <div class="report-category">
-            <div class="category-header">
-                <h2><i class="fas fa-flask"></i> Fertilizer Usage Reports</h2>
-                <p>Fertilizer application and recommendations</p>
-            </div>
-            <div class="category-body">
-                <div class="filter-section">
-                    <label class="filter-label">Date Range</label>
-                    <select class="filter-select" id="fertilizerDateRange">
-                        <option value="thisMonth" selected>This Month</option>
-                        <option value="last3Months">Last 3 Months</option>
-                        <option value="thisYear">This Year</option>
-                        <option value="allTime">All Time</option>
-                    </select>
+                <!-- Farms Reports -->
+                <div class="report-category">
+                    <div class="category-header">
+                        <h2><i class="fas fa-home"></i> Farms Reports</h2>
+                        <p>Farm locations and management data</p>
+                    </div>
+                    <div class="category-body">
+                        <div class="filter-section">
+                            <label class="filter-label">Date Range</label>
+                            <select class="filter-select" id="farmsDateRange">
+                                <option value="today">Today</option>
+                                <option value="thisWeek">This Week</option>
+                                <option value="thisMonth" selected>This Month</option>
+                                <option value="thisYear">This Year</option>
+                                <option value="allTime">All Time</option>
+                            </select>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn-action btn-pdf" onclick="generateReport('farms', 'pdf')">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </button>
+                            <button class="btn-action btn-excel" onclick="generateReport('farms', 'excel')">
+                                <i class="fas fa-file-excel"></i> Excel
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <div class="action-buttons">
-                    <button class="btn-action btn-pdf" onclick="generateReport('fertilizer', 'pdf')">
-                        <i class="fas fa-file-pdf"></i> PDF
-                    </button>
-                    <button class="btn-action btn-excel" onclick="generateReport('fertilizer', 'excel')">
-                        <i class="fas fa-file-excel"></i> Excel
-                    </button>
-                </div>
-            </div>
-        </div>
 
-        <!-- Supply Chain Reports -->
-        <div class="report-category">
-            <div class="category-header">
-                <h2><i class="fas fa-truck"></i> Supply Chain Reports</h2>
-                <p>Logistics and distribution data</p>
-            </div>
-            <div class="category-body">
-                <div class="filter-section">
-                    <label class="filter-label">Date Range</label>
-                    <select class="filter-select" id="supplyChainDateRange">
-                        <option value="thisWeek">This Week</option>
-                        <option value="thisMonth" selected>This Month</option>
-                        <option value="thisYear">This Year</option>
-                        <option value="allTime">All Time</option>
-                    </select>
+                <!-- Inventory Reports -->
+                <div class="report-category">
+                    <div class="category-header">
+                        <h2><i class="fas fa-boxes"></i> Inventory Reports</h2>
+                        <p>Stock levels and inventory management</p>
+                    </div>
+                    <div class="category-body">
+                        <div class="filter-section">
+                            <label class="filter-label">Date Range</label>
+                            <select class="filter-select" id="inventoryDateRange">
+                                <option value="today">Today</option>
+                                <option value="thisWeek">This Week</option>
+                                <option value="thisMonth" selected>This Month</option>
+                                <option value="thisYear">This Year</option>
+                                <option value="allTime">All Time</option>
+                            </select>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn-action btn-pdf" onclick="generateReport('inventory', 'pdf')">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </button>
+                            <button class="btn-action btn-excel" onclick="generateReport('inventory', 'excel')">
+                                <i class="fas fa-file-excel"></i> Excel
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <div class="action-buttons">
-                    <button class="btn-action btn-pdf" onclick="generateReport('supplyChain', 'pdf')">
-                        <i class="fas fa-file-pdf"></i> PDF
-                    </button>
-                    <button class="btn-action btn-excel" onclick="generateReport('supplyChain', 'excel')">
-                        <i class="fas fa-file-excel"></i> Excel
-                    </button>
-                </div>
-            </div>
-        </div>
 
-        <!-- Market Price Reports -->
-        <div class="report-category">
-            <div class="category-header">
-                <h2><i class="fas fa-chart-bar"></i> Market Price Reports</h2>
-                <p>Price trends and market analysis</p>
-            </div>
-            <div class="category-body">
-                <div class="filter-section">
-                    <label class="filter-label">Date Range</label>
-                    <select class="filter-select" id="marketPriceDateRange">
-                        <option value="today">Today</option>
-                        <option value="thisWeek">This Week</option>
-                        <option value="thisMonth" selected>This Month</option>
-                        <option value="last3Months">Last 3 Months</option>
-                        <option value="thisYear">This Year</option>
-                        <option value="allTime">All Time</option>
-                    </select>
+                <!-- Transactions Reports -->
+                <div class="report-category">
+                    <div class="category-header">
+                        <h2><i class="fas fa-exchange-alt"></i> Transactions Reports</h2>
+                        <p>Financial transactions and payments</p>
+                    </div>
+                    <div class="category-body">
+                        <div class="filter-section">
+                            <label class="filter-label">Date Range</label>
+                            <select class="filter-select" id="transactionsDateRange">
+                                <option value="today">Today</option>
+                                <option value="yesterday">Yesterday</option>
+                                <option value="thisWeek">This Week</option>
+                                <option value="lastWeek">Last Week</option>
+                                <option value="thisMonth" selected>This Month</option>
+                                <option value="lastMonth">Last Month</option>
+                                <option value="thisYear">This Year</option>
+                                <option value="allTime">All Time</option>
+                            </select>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn-action btn-pdf" onclick="generateReport('transactions', 'pdf')">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </button>
+                            <button class="btn-action btn-excel" onclick="generateReport('transactions', 'excel')">
+                                <i class="fas fa-file-excel"></i> Excel
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <div class="action-buttons">
-                    <button class="btn-action btn-pdf" onclick="generateReport('marketPrice', 'pdf')">
-                        <i class="fas fa-file-pdf"></i> PDF
-                    </button>
-                    <button class="btn-action btn-excel" onclick="generateReport('marketPrice', 'excel')">
-                        <i class="fas fa-file-excel"></i> Excel
-                    </button>
-                </div>
-            </div>
-        </div>
 
-        <!-- Weather Data Reports -->
-        <div class="report-category">
-            <div class="category-header">
-                <h2><i class="fas fa-cloud-sun"></i> Weather Data Reports</h2>
-                <p>Weather conditions and forecasts</p>
-            </div>
-            <div class="category-body">
-                <div class="filter-section">
-                    <label class="filter-label">Date Range</label>
-                    <select class="filter-select" id="weatherDateRange">
-                        <option value="today">Today</option>
-                        <option value="yesterday">Yesterday</option>
-                        <option value="thisWeek">This Week</option>
-                        <option value="lastWeek">Last Week</option>
-                        <option value="thisMonth" selected>This Month</option>
-                        <option value="lastMonth">Last Month</option>
-                        <option value="allTime">All Time</option>
-                    </select>
+                <!-- Crop Production Reports -->
+                <div class="report-category">
+                    <div class="category-header">
+                        <h2><i class="fas fa-chart-line"></i> Crop Production Reports</h2>
+                        <p>Production yields and harvests</p>
+                    </div>
+                    <div class="category-body">
+                        <div class="filter-section">
+                            <label class="filter-label">Date Range</label>
+                            <select class="filter-select" id="productionDateRange">
+                                <option value="thisWeek">This Week</option>
+                                <option value="thisMonth" selected>This Month</option>
+                                <option value="last3Months">Last 3 Months</option>
+                                <option value="thisYear">This Year</option>
+                                <option value="allTime">All Time</option>
+                            </select>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn-action btn-pdf" onclick="generateReport('production', 'pdf')">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </button>
+                            <button class="btn-action btn-excel" onclick="generateReport('production', 'excel')">
+                                <i class="fas fa-file-excel"></i> Excel
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <div class="action-buttons">
-                    <button class="btn-action btn-pdf" onclick="generateReport('weather', 'pdf')">
-                        <i class="fas fa-file-pdf"></i> PDF
-                    </button>
-                    <button class="btn-action btn-excel" onclick="generateReport('weather', 'excel')">
-                        <i class="fas fa-file-excel"></i> Excel
-                    </button>
-                </div>
-            </div>
-        </div>
 
-        <!-- Soil Data Reports -->
-        <div class="report-category">
-            <div class="category-header">
-                <h2><i class="fas fa-mountain"></i> Soil Data Reports</h2>
-                <p>Soil analysis and health metrics</p>
-            </div>
-            <div class="category-body">
-                <div class="filter-section">
-                    <label class="filter-label">Date Range</label>
-                    <select class="filter-select" id="soilDateRange">
-                        <option value="thisMonth" selected>This Month</option>
-                        <option value="last3Months">Last 3 Months</option>
-                        <option value="thisYear">This Year</option>
-                        <option value="allTime">All Time</option>
-                    </select>
+                <!-- Fertilizer Usage Reports -->
+                <div class="report-category">
+                    <div class="category-header">
+                        <h2><i class="fas fa-flask"></i> Fertilizer Usage Reports</h2>
+                        <p>Fertilizer application and recommendations</p>
+                    </div>
+                    <div class="category-body">
+                        <div class="filter-section">
+                            <label class="filter-label">Date Range</label>
+                            <select class="filter-select" id="fertilizerDateRange">
+                                <option value="thisMonth" selected>This Month</option>
+                                <option value="last3Months">Last 3 Months</option>
+                                <option value="thisYear">This Year</option>
+                                <option value="allTime">All Time</option>
+                            </select>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn-action btn-pdf" onclick="generateReport('fertilizer', 'pdf')">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </button>
+                            <button class="btn-action btn-excel" onclick="generateReport('fertilizer', 'excel')">
+                                <i class="fas fa-file-excel"></i> Excel
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <div class="action-buttons">
-                    <button class="btn-action btn-pdf" onclick="generateReport('soil', 'pdf')">
-                        <i class="fas fa-file-pdf"></i> PDF
-                    </button>
-                    <button class="btn-action btn-excel" onclick="generateReport('soil', 'excel')">
-                        <i class="fas fa-file-excel"></i> Excel
-                    </button>
-                </div>
-            </div>
-        </div>
 
-        <!-- Irrigation Data Reports -->
-        <div class="report-category">
-            <div class="category-header">
-                <h2><i class="fas fa-tint"></i> Irrigation Reports</h2>
-                <p>Water usage and irrigation schedules</p>
-            </div>
-            <div class="category-body">
-                <div class="filter-section">
-                    <label class="filter-label">Date Range</label>
-                    <select class="filter-select" id="irrigationDateRange">
-                        <option value="today">Today</option>
-                        <option value="thisWeek">This Week</option>
-                        <option value="thisMonth" selected>This Month</option>
-                        <option value="thisYear">This Year</option>
-                        <option value="allTime">All Time</option>
-                    </select>
+                <!-- Supply Chain Reports -->
+                <div class="report-category">
+                    <div class="category-header">
+                        <h2><i class="fas fa-truck"></i> Supply Chain Reports</h2>
+                        <p>Logistics and distribution data</p>
+                    </div>
+                    <div class="category-body">
+                        <div class="filter-section">
+                            <label class="filter-label">Date Range</label>
+                            <select class="filter-select" id="supplyChainDateRange">
+                                <option value="thisWeek">This Week</option>
+                                <option value="thisMonth" selected>This Month</option>
+                                <option value="thisYear">This Year</option>
+                                <option value="allTime">All Time</option>
+                            </select>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn-action btn-pdf" onclick="generateReport('supplyChain', 'pdf')">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </button>
+                            <button class="btn-action btn-excel" onclick="generateReport('supplyChain', 'excel')">
+                                <i class="fas fa-file-excel"></i> Excel
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <div class="action-buttons">
-                    <button class="btn-action btn-pdf" onclick="generateReport('irrigation', 'pdf')">
-                        <i class="fas fa-file-pdf"></i> PDF
-                    </button>
-                    <button class="btn-action btn-excel" onclick="generateReport('irrigation', 'excel')">
-                        <i class="fas fa-file-excel"></i> Excel
-                    </button>
-                </div>
-            </div>
-        </div>
 
-        <!-- Environmental Data Reports -->
-        <div class="report-category">
-            <div class="category-header">
-                <h2><i class="fas fa-leaf"></i> Environmental Reports</h2>
-                <p>Environmental impact and sustainability</p>
-            </div>
-            <div class="category-body">
-                <div class="filter-section">
-                    <label class="filter-label">Date Range</label>
-                    <select class="filter-select" id="environmentalDateRange">
-                        <option value="thisMonth" selected>This Month</option>
-                        <option value="last3Months">Last 3 Months</option>
-                        <option value="thisYear">This Year</option>
-                        <option value="allTime">All Time</option>
-                    </select>
+                <!-- Market Price Reports -->
+                <div class="report-category">
+                    <div class="category-header">
+                        <h2><i class="fas fa-chart-bar"></i> Market Price Reports</h2>
+                        <p>Price trends and market analysis</p>
+                    </div>
+                    <div class="category-body">
+                        <div class="filter-section">
+                            <label class="filter-label">Date Range</label>
+                            <select class="filter-select" id="marketPriceDateRange">
+                                <option value="today">Today</option>
+                                <option value="thisWeek">This Week</option>
+                                <option value="thisMonth" selected>This Month</option>
+                                <option value="last3Months">Last 3 Months</option>
+                                <option value="thisYear">This Year</option>
+                                <option value="allTime">All Time</option>
+                            </select>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn-action btn-pdf" onclick="generateReport('marketPrice', 'pdf')">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </button>
+                            <button class="btn-action btn-excel" onclick="generateReport('marketPrice', 'excel')">
+                                <i class="fas fa-file-excel"></i> Excel
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <div class="action-buttons">
-                    <button class="btn-action btn-pdf" onclick="generateReport('environmental', 'pdf')">
-                        <i class="fas fa-file-pdf"></i> PDF
-                    </button>
-                    <button class="btn-action btn-excel" onclick="generateReport('environmental', 'excel')">
-                        <i class="fas fa-file-excel"></i> Excel
-                    </button>
-                </div>
-            </div>
-        </div>
 
-        <!-- Climate Impact Reports -->
-        <div class="report-category">
-            <div class="category-header">
-                <h2><i class="fas fa-temperature-high"></i> Climate Impact Reports</h2>
-                <p>Climate change effects and adaptation</p>
-            </div>
-            <div class="category-body">
-                <div class="filter-section">
-                    <label class="filter-label">Date Range</label>
-                    <select class="filter-select" id="climateImpactDateRange">
-                        <option value="thisMonth" selected>This Month</option>
-                        <option value="last6Months">Last 6 Months</option>
-                        <option value="thisYear">This Year</option>
-                        <option value="allTime">All Time</option>
-                    </select>
+                <!-- Weather Data Reports -->
+                <div class="report-category">
+                    <div class="category-header">
+                        <h2><i class="fas fa-cloud-sun"></i> Weather Data Reports</h2>
+                        <p>Weather conditions and forecasts</p>
+                    </div>
+                    <div class="category-body">
+                        <div class="filter-section">
+                            <label class="filter-label">Date Range</label>
+                            <select class="filter-select" id="weatherDateRange">
+                                <option value="today">Today</option>
+                                <option value="yesterday">Yesterday</option>
+                                <option value="thisWeek">This Week</option>
+                                <option value="lastWeek">Last Week</option>
+                                <option value="thisMonth" selected>This Month</option>
+                                <option value="lastMonth">Last Month</option>
+                                <option value="allTime">All Time</option>
+                            </select>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn-action btn-pdf" onclick="generateReport('weather', 'pdf')">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </button>
+                            <button class="btn-action btn-excel" onclick="generateReport('weather', 'excel')">
+                                <i class="fas fa-file-excel"></i> Excel
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <div class="action-buttons">
-                    <button class="btn-action btn-pdf" onclick="generateReport('climateImpact', 'pdf')">
-                        <i class="fas fa-file-pdf"></i> PDF
-                    </button>
-                    <button class="btn-action btn-excel" onclick="generateReport('climateImpact', 'excel')">
-                        <i class="fas fa-file-excel"></i> Excel
-                    </button>
-                </div>
-            </div>
-        </div>
 
-        <!-- Policy Data Reports -->
-        <div class="report-category">
-            <div class="category-header">
-                <h2><i class="fas fa-landmark"></i> Policy Data Reports</h2>
-                <p>Government policies and regulations</p>
-            </div>
-            <div class="category-body">
-                <div class="filter-section">
-                    <label class="filter-label">Date Range</label>
-                    <select class="filter-select" id="policyDateRange">
-                        <option value="thisMonth" selected>This Month</option>
-                        <option value="last3Months">Last 3 Months</option>
-                        <option value="thisYear">This Year</option>
-                        <option value="allTime">All Time</option>
-                    </select>
+                <!-- Soil Data Reports -->
+                <div class="report-category">
+                    <div class="category-header">
+                        <h2><i class="fas fa-mountain"></i> Soil Data Reports</h2>
+                        <p>Soil analysis and health metrics</p>
+                    </div>
+                    <div class="category-body">
+                        <div class="filter-section">
+                            <label class="filter-label">Date Range</label>
+                            <select class="filter-select" id="soilDateRange">
+                                <option value="thisMonth" selected>This Month</option>
+                                <option value="last3Months">Last 3 Months</option>
+                                <option value="thisYear">This Year</option>
+                                <option value="allTime">All Time</option>
+                            </select>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn-action btn-pdf" onclick="generateReport('soil', 'pdf')">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </button>
+                            <button class="btn-action btn-excel" onclick="generateReport('soil', 'excel')">
+                                <i class="fas fa-file-excel"></i> Excel
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <div class="action-buttons">
-                    <button class="btn-action btn-pdf" onclick="generateReport('policy', 'pdf')">
-                        <i class="fas fa-file-pdf"></i> PDF
-                    </button>
-                    <button class="btn-action btn-excel" onclick="generateReport('policy', 'excel')">
-                        <i class="fas fa-file-excel"></i> Excel
-                    </button>
-                </div>
-            </div>
-        </div>
 
-        <!-- AI Recommendations Reports -->
-        <div class="report-category">
-            <div class="category-header">
-                <h2><i class="fas fa-brain"></i> AI Recommendations Reports</h2>
-                <p>AI-generated insights and suggestions</p>
-            </div>
-            <div class="category-body">
-                <div class="filter-section">
-                    <label class="filter-label">Date Range</label>
-                    <select class="filter-select" id="aiRecommendationDateRange">
-                        <option value="thisWeek">This Week</option>
-                        <option value="thisMonth" selected>This Month</option>
-                        <option value="thisYear">This Year</option>
-                        <option value="allTime">All Time</option>
-                    </select>
+                <!-- Irrigation Data Reports -->
+                <div class="report-category">
+                    <div class="category-header">
+                        <h2><i class="fas fa-tint"></i> Irrigation Reports</h2>
+                        <p>Water usage and irrigation schedules</p>
+                    </div>
+                    <div class="category-body">
+                        <div class="filter-section">
+                            <label class="filter-label">Date Range</label>
+                            <select class="filter-select" id="irrigationDateRange">
+                                <option value="today">Today</option>
+                                <option value="thisWeek">This Week</option>
+                                <option value="thisMonth" selected>This Month</option>
+                                <option value="thisYear">This Year</option>
+                                <option value="allTime">All Time</option>
+                            </select>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn-action btn-pdf" onclick="generateReport('irrigation', 'pdf')">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </button>
+                            <button class="btn-action btn-excel" onclick="generateReport('irrigation', 'excel')">
+                                <i class="fas fa-file-excel"></i> Excel
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <div class="action-buttons">
-                    <button class="btn-action btn-pdf" onclick="generateReport('aiRecommendation', 'pdf')">
-                        <i class="fas fa-file-pdf"></i> PDF
-                    </button>
-                    <button class="btn-action btn-excel" onclick="generateReport('aiRecommendation', 'excel')">
-                        <i class="fas fa-file-excel"></i> Excel
-                    </button>
-                </div>
-            </div>
-        </div>
 
-        <!-- Food Security Alerts Reports -->
-        <div class="report-category">
-            <div class="category-header">
-                <h2><i class="fas fa-exclamation-triangle"></i> Food Security Alerts</h2>
-                <p>Alert notifications and warnings</p>
-            </div>
-            <div class="category-body">
-                <div class="filter-section">
-                    <label class="filter-label">Date Range</label>
-                    <select class="filter-select" id="foodSecurityDateRange">
-                        <option value="today">Today</option>
-                        <option value="thisWeek">This Week</option>
-                        <option value="thisMonth" selected>This Month</option>
-                        <option value="thisYear">This Year</option>
-                        <option value="allTime">All Time</option>
-                    </select>
+                <!-- Environmental Data Reports -->
+                <div class="report-category">
+                    <div class="category-header">
+                        <h2><i class="fas fa-leaf"></i> Environmental Reports</h2>
+                        <p>Environmental impact and sustainability</p>
+                    </div>
+                    <div class="category-body">
+                        <div class="filter-section">
+                            <label class="filter-label">Date Range</label>
+                            <select class="filter-select" id="environmentalDateRange">
+                                <option value="thisMonth" selected>This Month</option>
+                                <option value="last3Months">Last 3 Months</option>
+                                <option value="thisYear">This Year</option>
+                                <option value="allTime">All Time</option>
+                            </select>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn-action btn-pdf" onclick="generateReport('environmental', 'pdf')">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </button>
+                            <button class="btn-action btn-excel" onclick="generateReport('environmental', 'excel')">
+                                <i class="fas fa-file-excel"></i> Excel
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <div class="action-buttons">
-                    <button class="btn-action btn-pdf" onclick="generateReport('foodSecurity', 'pdf')">
-                        <i class="fas fa-file-pdf"></i> PDF
-                    </button>
-                    <button class="btn-action btn-excel" onclick="generateReport('foodSecurity', 'excel')">
-                        <i class="fas fa-file-excel"></i> Excel
-                    </button>
+
+                <!-- Climate Impact Reports -->
+                <div class="report-category">
+                    <div class="category-header">
+                        <h2><i class="fas fa-temperature-high"></i> Climate Impact Reports</h2>
+                        <p>Climate change effects and adaptation</p>
+                    </div>
+                    <div class="category-body">
+                        <div class="filter-section">
+                            <label class="filter-label">Date Range</label>
+                            <select class="filter-select" id="climateImpactDateRange">
+                                <option value="thisMonth" selected>This Month</option>
+                                <option value="last6Months">Last 6 Months</option>
+                                <option value="thisYear">This Year</option>
+                                <option value="allTime">All Time</option>
+                            </select>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn-action btn-pdf" onclick="generateReport('climateImpact', 'pdf')">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </button>
+                            <button class="btn-action btn-excel" onclick="generateReport('climateImpact', 'excel')">
+                                <i class="fas fa-file-excel"></i> Excel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Policy Data Reports -->
+                <div class="report-category">
+                    <div class="category-header">
+                        <h2><i class="fas fa-landmark"></i> Policy Data Reports</h2>
+                        <p>Government policies and regulations</p>
+                    </div>
+                    <div class="category-body">
+                        <div class="filter-section">
+                            <label class="filter-label">Date Range</label>
+                            <select class="filter-select" id="policyDateRange">
+                                <option value="thisMonth" selected>This Month</option>
+                                <option value="last3Months">Last 3 Months</option>
+                                <option value="thisYear">This Year</option>
+                                <option value="allTime">All Time</option>
+                            </select>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn-action btn-pdf" onclick="generateReport('policy', 'pdf')">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </button>
+                            <button class="btn-action btn-excel" onclick="generateReport('policy', 'excel')">
+                                <i class="fas fa-file-excel"></i> Excel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Recommendations Reports -->
+                <!-- Temporarily disabled: AI Recommendations require farmer-specific access -->
+                <!--
+                <div class="report-category">
+                    <div class="category-header">
+                        <h2><i class="fas fa-brain"></i> AI Recommendations Reports</h2>
+                        <p>AI-generated insights and suggestions</p>
+                    </div>
+                    <div class="category-body">
+                        <div class="filter-section">
+                            <label class="filter-label">Date Range</label>
+                            <select class="filter-select" id="aiRecommendationDateRange">
+                                <option value="thisWeek">This Week</option>
+                                <option value="thisMonth" selected>This Month</option>
+                                <option value="thisYear">This Year</option>
+                                <option value="allTime">All Time</option>
+                            </select>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn-action btn-pdf" onclick="generateReport('aiRecommendation', 'pdf')">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </button>
+                            <button class="btn-action btn-excel" onclick="generateReport('aiRecommendation', 'excel')">
+                                <i class="fas fa-file-excel"></i> Excel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                -->
+
+                <!-- Food Security Alerts Reports -->
+                <div class="report-category">
+                    <div class="category-header">
+                        <h2><i class="fas fa-exclamation-triangle"></i> Food Security Alerts</h2>
+                        <p>Alert notifications and warnings</p>
+                    </div>
+                    <div class="category-body">
+                        <div class="filter-section">
+                            <label class="filter-label">Date Range</label>
+                            <select class="filter-select" id="foodSecurityDateRange">
+                                <option value="today">Today</option>
+                                <option value="thisWeek">This Week</option>
+                                <option value="thisMonth" selected>This Month</option>
+                                <option value="thisYear">This Year</option>
+                                <option value="allTime">All Time</option>
+                            </select>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn-action btn-pdf" onclick="generateReport('foodSecurity', 'pdf')">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </button>
+                            <button class="btn-action btn-excel" onclick="generateReport('foodSecurity', 'excel')">
+                                <i class="fas fa-file-excel"></i> Excel
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
+        </main>
     </div>
 </div>
 
 <script>
-    const BASE_URL = 'http://localhost:8080/api';
+    const BASE_URL = 'http://localhost:1010/api';
     
-    // API endpoints for each module
-    const API_ENDPOINTS = {
-        users: '/users',
-        crops: '/crops',
-        farms: '/farms',
-        inventory: '/inventory',
-        transactions: '/transactions',
-        production: '/crop-production',
-        fertilizer: '/fertilizer-usage',
-        supplyChain: '/supply-chain',
-        marketPrice: '/market-prices',
-        weather: '/weather',
-        soil: '/soil-data',
-        irrigation: '/irrigation-data',
-        environmental: '/environmental-data',
-        climateImpact: '/climate-impact',
-        policy: '/policy-data',
-        aiRecommendation: '/ai-recommendations',
-        foodSecurity: '/food-security-alerts'
-    };
+    // API endpoints for each module with correct paths
+        const API_ENDPOINTS = {
+            users: '/users',
+            crops: '/v1/crops',
+            farms: '/farms/all',
+            inventory: '/v1/inventories',
+            transactions: '/transactions/all',
+            production: '/v1/crop-productions',
+            fertilizer: '/fertilizer-usages',
+            supplyChain: '/supply-chain',
+            marketPrice: '/market-prices',
+            weather: '/weather-data',
+            soil: '/v1/soil-data',
+            irrigation: '/irrigation',
+            environmental: '/environmental-data',
+            climateImpact: '/climate-impacts',
+            policy: '/policies',
+            aiRecommendation: null, // No general endpoint - requires farmer ID
+            foodSecurity: '/food-security-alerts'
+        };
 
     // Report titles mapping
     const REPORT_TITLES = {
@@ -793,6 +1323,114 @@
         foodSecurity: 'Food Security Alerts Report'
     };
 
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+        updateDateTime();
+        setInterval(updateDateTime, 60000);
+        loadUserProfile();
+        
+        // Check for saved theme preference
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.body.classList.add('dark-mode');
+            const themeToggle = document.getElementById('themeToggle');
+            if (themeToggle) {
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i><span>Light Mode</span>';
+            }
+        }
+    });
+
+    function loadUserProfile() {
+        try {
+            // Try to get user info from localStorage or sessionStorage
+            const userStr = localStorage.getItem('user') || sessionStorage.getItem('user');
+            
+            if (userStr) {
+                const user = JSON.parse(userStr);
+                
+                // Update profile display
+                const profileName = document.querySelector('.profile-name');
+                const profileRole = document.querySelector('.profile-role');
+                const profileAvatar = document.querySelector('.profile-avatar');
+                const greetingText = document.getElementById('greetingText');
+                
+                if (user.fullName && profileName) {
+                    profileName.textContent = user.fullName;
+                }
+                
+                if (user.role && profileRole) {
+                    // Format role for display
+                    const roleDisplay = {
+                        'ADMIN': 'System Admin',
+                        'FARMER': 'Farmer',
+                        'BUYER': 'Buyer',
+                        'ANALYST': 'Analyst',
+                        'GOVERNMENT': 'Government Official'
+                    };
+                    profileRole.textContent = roleDisplay[user.role] || user.role;
+                }
+                
+                // Update avatar with first letter of name
+                if (user.fullName && profileAvatar) {
+                    profileAvatar.textContent = user.fullName.charAt(0).toUpperCase();
+                }
+                
+                // Update greeting
+                if (user.fullName && greetingText) {
+                    const hour = new Date().getHours();
+                    let greeting = hour < 12 ? 'Good Morning' : hour < 18 ? 'Good Afternoon' : 'Good Evening';
+                    greetingText.textContent = `${greeting}, ${user.fullName.split(' ')[0]}!`;
+                }
+            }
+        } catch (error) {
+            console.error('Error loading user profile:', error);
+            // Keep default values if error occurs
+        }
+    }
+
+    function updateDateTime() {
+        const now = new Date();
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', options);
+
+        // Update greeting with user name if available
+        const userStr = localStorage.getItem('user') || sessionStorage.getItem('user');
+        let userName = 'Admin';
+        
+        if (userStr) {
+            try {
+                const user = JSON.parse(userStr);
+                userName = user.fullName ? user.fullName.split(' ')[0] : 'Admin';
+            } catch (e) {
+                userName = 'Admin';
+            }
+        }
+        
+        const hour = now.getHours();
+        let greeting = hour < 12 ? 'Good Morning' : hour < 18 ? 'Good Afternoon' : 'Good Evening';
+        document.getElementById('greetingText').textContent = `${greeting}, ${userName}!`;
+    }
+
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('mainContent');
+        sidebar.classList.toggle('collapsed');
+        mainContent.classList.toggle('sidebar-collapsed');
+    }
+
+    function toggleTheme() {
+        document.body.classList.toggle('dark-mode');
+        const isDark = document.body.classList.contains('dark-mode');
+        
+        // Save preference
+        localStorage.setItem('darkMode', isDark);
+        
+        // Update button
+        const themeToggle = document.getElementById('themeToggle');
+        themeToggle.innerHTML = isDark
+            ? '<i class="fas fa-sun"></i><span>Light Mode</span>'
+            : '<i class="fas fa-moon"></i><span>Dark Mode</span>';
+    }
+
     async function generateReport(reportType, format) {
         showLoading(true);
 
@@ -808,15 +1446,83 @@
                 subType = document.getElementById('usersReportType').value;
             }
 
+            // Check if endpoint is available
+            if (API_ENDPOINTS[reportType] === null) {
+                showToast(`${REPORT_TITLES[reportType]} reports are not available through this interface. This data requires specific farmer or user access.`, 'info');
+                return;
+            }
+
             // Fetch data from API
             const endpoint = BASE_URL + API_ENDPOINTS[reportType];
+            console.log(`Fetching data from: ${endpoint}`);
+            
             const response = await fetch(endpoint);
             
             if (!response.ok) {
+                // If endpoint doesn't exist or has server errors, show friendly message
+                if (response.status === 500) {
+                    console.error(`Server error (500) for ${reportType}:`, await response.text().catch(() => 'Unable to read error'));
+                    showToast(`The ${REPORT_TITLES[reportType]} module encountered a server error. The backend service may need configuration.`, 'warning');
+                    return;
+                } else if (response.status === 404) {
+                    console.error(`Endpoint not found (404) for ${reportType}`);
+                    showToast(`The ${REPORT_TITLES[reportType]} endpoint is not available. Contact your system administrator.`, 'warning');
+                    return;
+                }
                 throw new Error(`Failed to fetch data: ${response.statusText}`);
             }
 
             let data = await response.json();
+
+            // Ensure data is an array - handle different API response structures
+            if (!Array.isArray(data)) {
+                // Handle ApiResponse wrapper structure from Spring Boot
+                if (data && typeof data === 'object') {
+                    // Structure 1: { success: true, message: "...", data: {...} }
+                    if (data.data) {
+                        // Check if data.data is a Page object with content array
+                        if (data.data.content && Array.isArray(data.data.content)) {
+                            data = data.data.content;
+                        } 
+                        // Check if data.data is directly an array
+                        else if (Array.isArray(data.data)) {
+                            data = data.data;
+                        } 
+                        // Single object
+                        else {
+                            data = [data.data];
+                        }
+                    }
+                    // Structure 2: Direct Page object { content: [...], pageable: {...}, totalElements: ... }
+                    else if (data.content && Array.isArray(data.content)) {
+                        data = data.content;
+                        // Only log if we're extracting from a Page object for debugging
+                        if (data.length === 0) {
+                            console.info(`No ${reportType} data available yet.`);
+                        }
+                    }
+                    // Structure 3: { results: [...] }
+                    else if (data.results && Array.isArray(data.results)) {
+                        data = data.results;
+                    }
+                    // Structure 4: Spring Data REST { _embedded: { items: [...] } }
+                    else if (data._embedded) {
+                        const firstKey = Object.keys(data._embedded)[0];
+                        if (firstKey && Array.isArray(data._embedded[firstKey])) {
+                            data = data._embedded[firstKey];
+                        } else {
+                            data = [];
+                        }
+                    }
+                    // Single object - convert to array
+                    else {
+                        console.warn('API returned unexpected structure:', data);
+                        data = [data];
+                    }
+                } else {
+                    data = [];
+                }
+            }
 
             // Filter by date range
             data = filterByDateRange(data, dateRange);
@@ -849,6 +1555,12 @@
     }
 
     function filterByDateRange(data, dateRange) {
+        // Ensure data is an array
+        if (!Array.isArray(data)) {
+            console.error('filterByDateRange received non-array data:', data);
+            return [];
+        }
+
         const now = new Date();
         let startDate;
 
@@ -923,11 +1635,84 @@
 
     async function generatePDFReport(reportType, data, dateRange, subType) {
         const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF('p', 'mm', 'a4');
+        const pdf = new jsPDF('l', 'mm', 'a4'); // Landscape for better table display
         const pageWidth = pdf.internal.pageSize.getWidth();
         const pageHeight = pdf.internal.pageSize.getHeight();
-
         const title = REPORT_TITLES[reportType];
+
+        // Define important columns for each report type (Maximum 5 columns)
+        const IMPORTANT_COLUMNS = {
+            users: ['id', 'fullName', 'email', 'role', 'active'],
+            crops: ['id', 'name', 'cropType', 'plantingDate', 'status'],
+            farms: ['id', 'farmName', 'location', 'size', 'farmerId'],
+            inventory: ['id', 'itemName', 'quantity', 'price', 'status'],
+            transactions: ['id', 'amount', 'transactionDate', 'buyerId', 'status'],
+            production: ['id', 'cropName', 'yieldAmount', 'harvestDate', 'farmerId'],
+            fertilizer: ['id', 'fertilizerType', 'quantity', 'applicationDate', 'farmId'],
+            supplyChain: ['id', 'productName', 'source', 'destination', 'status'],
+            marketPrice: ['id', 'cropName', 'price', 'priceDate', 'marketName'],
+            weather: ['id', 'location', 'temperature', 'date', 'condition'],
+            soil: ['id', 'location', 'phLevel', 'date', 'quality'],
+            irrigation: ['id', 'farmId', 'waterUsed', 'irrigationDate', 'status'],
+            environmental: ['id', 'location', 'parameterName', 'value', 'date'],
+            climateImpact: ['id', 'region', 'impactType', 'date', 'severity'],
+            policy: ['id', 'policyName', 'policyType', 'effectiveDate', 'status'],
+            aiRecommendation: ['id', 'recommendation', 'confidence', 'date', 'status'],
+            foodSecurity: ['id', 'alertMessage', 'severity', 'alertDate', 'region']
+        };
+
+        // Column display names mapping
+        const COLUMN_DISPLAY_NAMES = {
+            id: 'ID',
+            fullName: 'Full Name',
+            email: 'Email',
+            role: 'Role',
+            active: 'Status',
+            name: 'Name',
+            cropType: 'Type',
+            plantingDate: 'Planting Date',
+            status: 'Status',
+            farmName: 'Farm Name',
+            location: 'Location',
+            size: 'Size',
+            farmerId: 'Farmer ID',
+            itemName: 'Item',
+            quantity: 'Quantity',
+            price: 'Price',
+            amount: 'Amount',
+            transactionDate: 'Transaction Date',
+            buyerId: 'Buyer ID',
+            cropName: 'Crop',
+            yieldAmount: 'Yield',
+            harvestDate: 'Harvest Date',
+            fertilizerType: 'Fertilizer',
+            applicationDate: 'Application Date',
+            farmId: 'Farm ID',
+            productName: 'Product',
+            source: 'Source',
+            destination: 'Destination',
+            marketName: 'Market',
+            priceDate: 'Price Date',
+            temperature: 'Temperature',
+            date: 'Date',
+            condition: 'Condition',
+            phLevel: 'pH Level',
+            quality: 'Quality',
+            waterUsed: 'Water Used',
+            irrigationDate: 'Irrigation Date',
+            parameterName: 'Parameter',
+            value: 'Value',
+            region: 'Region',
+            impactType: 'Impact Type',
+            severity: 'Severity',
+            policyName: 'Policy Name',
+            policyType: 'Policy Type',
+            effectiveDate: 'Effective Date',
+            recommendation: 'Recommendation',
+            confidence: 'Confidence',
+            alertMessage: 'Alert',
+            alertDate: 'Alert Date'
+        };
 
         // Helper function to add logo
         function addLogoToPDF(pdf, x, y, size) {
@@ -957,118 +1742,354 @@
         // Header function
         function addHeaderBar(withLogo = false) {
             pdf.setFillColor(34, 197, 94);
-            pdf.rect(0, 0, pageWidth, 40, 'F');
+            pdf.rect(0, 0, pageWidth, 35, 'F');
             
             pdf.setFillColor(16, 185, 129);
             pdf.setGState(new pdf.GState({opacity: 0.3}));
-            pdf.rect(pageWidth * 0.6, 0, pageWidth * 0.4, 40, 'F');
+            pdf.rect(pageWidth * 0.6, 0, pageWidth * 0.4, 35, 'F');
             pdf.setGState(new pdf.GState({opacity: 1}));
 
             if (withLogo) {
-                addLogoToPDF(pdf, 12, 8, 24);
+                addLogoToPDF(pdf, 12, 7, 20);
                 
-                pdf.setTextColor(255, 255, 255);
-                pdf.setFontSize(20);
-                pdf.setFont(undefined, 'bold');
-                pdf.text('AgriGuard AI', 42, 18);
-                
-                pdf.setFontSize(9);
-                pdf.setFont(undefined, 'normal');
-                pdf.text('Smart Agriculture Management System', 42, 24);
-                
-                pdf.setFontSize(11);
-                pdf.setFont(undefined, 'bold');
-                pdf.text(title, 42, 32);
-            } else {
                 pdf.setTextColor(255, 255, 255);
                 pdf.setFontSize(18);
                 pdf.setFont(undefined, 'bold');
-                pdf.text('AgriGuard AI', 15, 16);
+                pdf.text('AgriGuard AI', 37, 15);
                 
-                pdf.setFontSize(9);
+                pdf.setFontSize(8);
                 pdf.setFont(undefined, 'normal');
-                pdf.text('Smart Agriculture Management System', 15, 22);
+                pdf.text('Smart Agriculture Management System', 37, 21);
                 
                 pdf.setFontSize(10);
                 pdf.setFont(undefined, 'bold');
-                pdf.text(title, 15, 30);
+                pdf.text(title, 37, 28);
+            } else {
+                pdf.setTextColor(255, 255, 255);
+                pdf.setFontSize(16);
+                pdf.setFont(undefined, 'bold');
+                pdf.text('AgriGuard AI', 15, 14);
+                
+                pdf.setFontSize(8);
+                pdf.setFont(undefined, 'normal');
+                pdf.text('Smart Agriculture Management System', 15, 20);
+                
+                pdf.setFontSize(9);
+                pdf.setFont(undefined, 'bold');
+                pdf.text(title, 15, 27);
             }
         }
 
-        // Add header
+        // Status badge drawing
+        function drawStatusBadge(pdf, x, y, isActive) {
+            const badgeWidth = 24;
+            const badgeHeight = 6.5;
+            
+            if (isActive) {
+                pdf.setFillColor(220, 252, 231);
+                pdf.rect(x, y - 4, badgeWidth, badgeHeight, 'F');
+                pdf.setDrawColor(34, 197, 94);
+                pdf.setLineWidth(0.3);
+                pdf.rect(x, y - 4, badgeWidth, badgeHeight, 'S');
+                pdf.setFillColor(34, 197, 94);
+                pdf.circle(x + 2.5, y - 0.7, 1, 'F');
+                pdf.setTextColor(22, 163, 42);
+                pdf.setFontSize(7.5);
+                pdf.setFont(undefined, 'bold');
+                pdf.text('Active', x + 5, y + 0.3);
+            } else {
+                pdf.setFillColor(254, 242, 242);
+                pdf.rect(x, y - 4, badgeWidth, badgeHeight, 'F');
+                pdf.setDrawColor(239, 68, 68);
+                pdf.setLineWidth(0.3);
+                pdf.rect(x, y - 4, badgeWidth, badgeHeight, 'S');
+                pdf.setFillColor(239, 68, 68);
+                pdf.circle(x + 2.5, y - 0.7, 1, 'F');
+                pdf.setTextColor(220, 38, 38);
+                pdf.setFontSize(7.5);
+                pdf.setFont(undefined, 'bold');
+                pdf.text('Inactive', x + 5, y + 0.3);
+            }
+        }
+
+        // New page helper
+        function addNewPage() {
+            pdf.addPage();
+            addHeaderBar(false);
+            return 45; // Starting Y position after header
+        }
+
+        // Add first page header
         addHeaderBar(true);
 
         // Report Metadata
-        let yPosition = 50;
+        let yPosition = 42;
         
         pdf.setFillColor(248, 250, 252);
-        pdf.rect(15, yPosition, pageWidth - 30, 25, 'F');
+        pdf.rect(15, yPosition, pageWidth - 30, 20, 'F');
         pdf.setDrawColor(226, 232, 240);
         pdf.setLineWidth(0.5);
-        pdf.rect(15, yPosition, pageWidth - 30, 25, 'S');
+        pdf.rect(15, yPosition, pageWidth - 30, 20, 'S');
 
-        yPosition += 8;
+        yPosition += 7;
         pdf.setTextColor(60, 60, 60);
-        pdf.setFontSize(9);
+        pdf.setFontSize(8);
 
         const today = new Date();
         pdf.setFont(undefined, 'bold');
         pdf.text('Report Generated:', 20, yPosition);
         pdf.setFont(undefined, 'normal');
-        pdf.text(today.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }), 65, yPosition);
+        pdf.text(today.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }), 60, yPosition);
 
-        yPosition += 7;
         pdf.setFont(undefined, 'bold');
-        pdf.text('Total Records:', 20, yPosition);
+        pdf.text('Total Records:', pageWidth / 2 - 10, yPosition);
         pdf.setFont(undefined, 'normal');
         pdf.setTextColor(34, 197, 94);
-        pdf.text(`${data.length}`, 65, yPosition);
+        pdf.text(`${data.length}`, pageWidth / 2 + 20, yPosition);
         pdf.setTextColor(60, 60, 60);
 
-        yPosition += 7;
+        yPosition += 6;
         pdf.setFont(undefined, 'bold');
         pdf.text('Generated By:', 20, yPosition);
         pdf.setFont(undefined, 'normal');
-        pdf.text('AgriGuard AI System', 65, yPosition);
+        pdf.text('AgriGuard AI System', 60, yPosition);
 
-        yPosition += 15;
+        pdf.setFont(undefined, 'bold');
+        pdf.text('Date Range:', pageWidth / 2 - 10, yPosition);
+        pdf.setFont(undefined, 'normal');
+        pdf.text(dateRange, pageWidth / 2 + 20, yPosition);
 
-        // Data section
+        yPosition += 12;
+
+        // Data section header
         pdf.setDrawColor(34, 197, 94);
         pdf.setLineWidth(1);
         pdf.line(15, yPosition, pageWidth - 15, yPosition);
         yPosition += 2;
 
-        pdf.setFontSize(14);
+        pdf.setFontSize(12);
         pdf.setFont(undefined, 'bold');
         pdf.setTextColor(34, 197, 94);
-        pdf.text('Report Data', 15, yPosition + 6);
+        pdf.text('Detailed Report Data', 15, yPosition + 5);
         yPosition += 10;
 
         pdf.setLineWidth(1);
         pdf.line(15, yPosition, pageWidth - 15, yPosition);
         yPosition += 10;
 
-        // Add simplified data view
-        pdf.setFontSize(10);
-        pdf.setTextColor(60, 60, 60);
-        pdf.setFont(undefined, 'normal');
-        pdf.text(`This report contains ${data.length} records for ${title.replace(' Report', '')}`, 15, yPosition);
-        yPosition += 8;
-        pdf.text(`Date Range: ${dateRange}`, 15, yPosition);
-        yPosition += 8;
-        pdf.text(`Generated: ${today.toLocaleString()}`, 15, yPosition);
+        // Get table columns dynamically
+        if (data.length === 0) {
+            pdf.setFontSize(10);
+            pdf.setTextColor(60, 60, 60);
+            pdf.setFont(undefined, 'normal');
+            pdf.text('No data available for the selected criteria', 15, yPosition);
+        } else {
+            // Get important columns for this report type
+            let columns = IMPORTANT_COLUMNS[reportType] || [];
+            
+            // If no predefined columns, extract from data (limit to 5)
+            if (columns.length === 0) {
+                const allColumns = Object.keys(data[0]).filter(key => 
+                    !key.includes('password') && 
+                    !key.includes('Password') &&
+                    key !== 'createdAt' &&
+                    key !== 'updatedAt'
+                );
+                columns = allColumns.slice(0, 5);
+            }
+
+            // Filter columns to only include those that exist in data
+            columns = columns.filter(col => {
+                // Check if column exists in data
+                const exists = data[0].hasOwnProperty(col);
+                // Also check camelCase variations
+                if (!exists) {
+                    const camelCase = col.charAt(0).toLowerCase() + col.slice(1);
+                    return data[0].hasOwnProperty(camelCase);
+                }
+                return exists;
+            });
+
+            // Ensure we have at least some columns
+            if (columns.length === 0) {
+                const availableColumns = Object.keys(data[0]).filter(key => 
+                    !key.includes('password') && 
+                    !key.includes('Password')
+                ).slice(0, 5);
+                columns = availableColumns;
+            }
+
+            // Calculate column widths with better spacing
+            const tableWidth = pageWidth - 30;
+            const margins = 20; // Space for left/right padding
+            const usableWidth = tableWidth - margins;
+            
+            // Calculate dynamic column widths based on content type
+            const columnWidths = [];
+            let totalWeight = 0;
+            
+            // Assign weights to columns based on expected content length
+            columns.forEach(col => {
+                let weight = 1; // Default weight
+                
+                // ID columns are usually shorter
+                if (col === 'id') {
+                    weight = 0.8;
+                }
+                // Email and long text fields need more space
+                else if (col === 'email' || col === 'recommendation' || col === 'alertMessage' || col === 'description') {
+                    weight = 1.5;
+                }
+                // Names need moderate space
+                else if (col.includes('Name') || col.includes('name')) {
+                    weight = 1.2;
+                }
+                // Status badges need less space
+                else if (col === 'active' || col === 'status') {
+                    weight = 0.7;
+                }
+                
+                columnWidths.push(weight);
+                totalWeight += weight;
+            });
+            
+            // Convert weights to actual widths
+            const actualWidths = columnWidths.map(w => (w / totalWeight) * usableWidth);
+
+            // Table header with improved spacing and better vertical alignment
+            const headerHeight = 8; // Reduced from 10 for better proportion
+            pdf.setFillColor(34, 197, 94);
+            pdf.rect(15, yPosition - 6, tableWidth, headerHeight, 'F');
+            
+            pdf.setTextColor(255, 255, 255);
+            pdf.setFontSize(9.5); // Slightly larger for better readability
+            pdf.setFont(undefined, 'bold');
+
+            let xPos = 20; // Start with more left padding
+            columns.forEach((col, index) => {
+                const displayName = COLUMN_DISPLAY_NAMES[col] || 
+                    col.charAt(0).toUpperCase() + col.slice(1).replace(/([A-Z])/g, ' $1');
+                // Center text vertically in header: yPosition - 2 for better centering
+                pdf.text(displayName, xPos, yPosition - 1.5);
+                xPos += actualWidths[index];
+            });
+
+            yPosition += 5;
+
+            // Table rows
+            pdf.setFont(undefined, 'normal');
+            let rowIndex = 0;
+
+            for (let item of data) {
+                // Check if we need a new page
+                if (yPosition > pageHeight - 30) {
+                    yPosition = addNewPage();
+                    
+                    // Redraw table header on new page with same spacing and alignment
+                    const headerHeight = 8;
+                    pdf.setFillColor(34, 197, 94);
+                    pdf.rect(15, yPosition - 6, tableWidth, headerHeight, 'F');
+                    
+                    pdf.setTextColor(255, 255, 255);
+                    pdf.setFontSize(9.5);
+                    pdf.setFont(undefined, 'bold');
+
+                    let xPosHeader = 20;
+                    columns.forEach((col, index) => {
+                        const displayName = COLUMN_DISPLAY_NAMES[col] || 
+                            col.charAt(0).toUpperCase() + col.slice(1).replace(/([A-Z])/g, ' $1');
+                        pdf.text(displayName, xPosHeader, yPosition - 1.5);
+                        xPosHeader += actualWidths[index];
+                    });
+
+                    yPosition += 5;
+                    pdf.setFont(undefined, 'normal');
+                }
+
+                // Alternating row colors with adjusted positioning
+                if (rowIndex % 2 === 0) {
+                    pdf.setFillColor(249, 250, 251);
+                    pdf.rect(15, yPosition - 5, tableWidth, 8, 'F'); // Adjusted height
+                }
+
+                pdf.setTextColor(60, 60, 60);
+                pdf.setFontSize(8.5); // Slightly larger for better readability
+
+                let xPosRow = 20;
+                columns.forEach((col, colIndex) => {
+                    let value = item[col];
+                    
+                    // Format value
+                    if (value === null || value === undefined) {
+                        value = 'N/A';
+                    } else if (typeof value === 'boolean') {
+                        // Special handling for status/active columns
+                        if (col === 'active' || col === 'isActive') {
+                            drawStatusBadge(pdf, xPosRow, yPosition + 0.5, value);
+                            xPosRow += actualWidths[colIndex];
+                            return; // Skip text rendering for this column
+                        } else {
+                            value = value ? 'Yes' : 'No';
+                        }
+                    } else if (typeof value === 'object' && value.toString() !== '[object Object]') {
+                        value = JSON.stringify(value);
+                    } else if (typeof value === 'object') {
+                        value = 'Object';
+                    } else if (typeof value === 'number') {
+                        // Format numbers nicely
+                        if (col.includes('price') || col.includes('amount')) {
+                            value = '$' + value.toFixed(2);
+                        } else {
+                            value = String(value);
+                        }
+                    } else {
+                        value = String(value);
+                    }
+
+                    // Truncate long values based on column width
+                    const maxChars = Math.floor(actualWidths[colIndex] / 2.2);
+                    if (value.length > maxChars) {
+                        value = value.substring(0, maxChars - 3) + '...';
+                    }
+
+                    pdf.text(value, xPosRow, yPosition);
+                    xPosRow += actualWidths[colIndex];
+                });
+
+                yPosition += 8; // Consistent row height
+                rowIndex++;
+            }
+
+            // Add summary at the end
+            yPosition += 10;
+            if (yPosition > pageHeight - 40) {
+                yPosition = addNewPage();
+            }
+
+            pdf.setFillColor(220, 252, 231);
+            pdf.rect(15, yPosition - 5, tableWidth, 15, 'F');
+            pdf.setDrawColor(34, 197, 94);
+            pdf.setLineWidth(0.5);
+            pdf.rect(15, yPosition - 5, tableWidth, 15, 'S');
+
+            pdf.setTextColor(22, 163, 42);
+            pdf.setFontSize(10);
+            pdf.setFont(undefined, 'bold');
+            pdf.text(`Total Records: ${data.length}`, 20, yPosition + 2);
+            pdf.text(`Columns Displayed: ${columns.length}`, pageWidth / 2 - 20, yPosition + 2);
+            pdf.text(`Report Type: ${title}`, pageWidth - 80, yPosition + 2);
+        }
 
         // Footer
         const totalPages = pdf.internal.getNumberOfPages();
         for (let i = 1; i <= totalPages; i++) {
             pdf.setPage(i);
-            pdf.setFontSize(9);
+            pdf.setFontSize(8);
             pdf.setFont(undefined, 'normal');
             pdf.setTextColor(100, 100, 100);
-            pdf.text('© 2026 AgriGuard AI - Confidential Document', 15, 287);
-            pdf.text(`Page ${i} of ${totalPages}`, pageWidth - 15, 287, { align: 'right' });
-            pdf.text('www.agriguard.ai', pageWidth - 15, 293, { align: 'right' });
+            pdf.text('© 2026 AgriGuard AI - Confidential Document', 15, pageHeight - 5);
+            pdf.text(`Page ${i} of ${totalPages}`, pageWidth / 2, pageHeight - 5, { align: 'center' });
+            pdf.text('www.agriguard.ai', pageWidth - 15, pageHeight - 5, { align: 'right' });
         }
 
         pdf.save(`AgriGuard_${reportType}_Report_${Date.now()}.pdf`);
@@ -1076,6 +2097,80 @@
 
     function generateExcelReport(reportType, data, dateRange, subType) {
         const title = REPORT_TITLES[reportType];
+        
+        // Get important columns for this report type (same as PDF)
+        const IMPORTANT_COLUMNS = {
+            users: ['id', 'fullName', 'email', 'role', 'active'],
+            crops: ['id', 'name', 'cropType', 'plantingDate', 'status'],
+            farms: ['id', 'farmName', 'location', 'size', 'farmerId'],
+            inventory: ['id', 'itemName', 'quantity', 'price', 'status'],
+            transactions: ['id', 'amount', 'transactionDate', 'buyerId', 'status'],
+            production: ['id', 'cropName', 'yieldAmount', 'harvestDate', 'farmerId'],
+            fertilizer: ['id', 'fertilizerType', 'quantity', 'applicationDate', 'farmId'],
+            supplyChain: ['id', 'productName', 'source', 'destination', 'status'],
+            marketPrice: ['id', 'cropName', 'price', 'priceDate', 'marketName'],
+            weather: ['id', 'location', 'temperature', 'date', 'condition'],
+            soil: ['id', 'location', 'phLevel', 'date', 'quality'],
+            irrigation: ['id', 'farmId', 'waterUsed', 'irrigationDate', 'status'],
+            environmental: ['id', 'location', 'parameterName', 'value', 'date'],
+            climateImpact: ['id', 'region', 'impactType', 'date', 'severity'],
+            policy: ['id', 'policyName', 'policyType', 'effectiveDate', 'status'],
+            aiRecommendation: ['id', 'recommendation', 'confidence', 'date', 'status'],
+            foodSecurity: ['id', 'alertMessage', 'severity', 'alertDate', 'region']
+        };
+
+        const COLUMN_DISPLAY_NAMES = {
+            id: 'ID',
+            fullName: 'Full Name',
+            email: 'Email',
+            role: 'Role',
+            active: 'Status',
+            name: 'Name',
+            cropType: 'Type',
+            plantingDate: 'Planting Date',
+            status: 'Status',
+            farmName: 'Farm Name',
+            location: 'Location',
+            size: 'Size',
+            farmerId: 'Farmer ID',
+            itemName: 'Item',
+            quantity: 'Quantity',
+            price: 'Price',
+            amount: 'Amount',
+            transactionDate: 'Transaction Date',
+            buyerId: 'Buyer ID',
+            cropName: 'Crop',
+            yieldAmount: 'Yield',
+            harvestDate: 'Harvest Date',
+            fertilizerType: 'Fertilizer',
+            applicationDate: 'Application Date',
+            farmId: 'Farm ID',
+            productName: 'Product',
+            source: 'Source',
+            destination: 'Destination',
+            marketName: 'Market',
+            priceDate: 'Price Date',
+            temperature: 'Temperature',
+            date: 'Date',
+            condition: 'Condition',
+            phLevel: 'pH Level',
+            quality: 'Quality',
+            waterUsed: 'Water Used',
+            irrigationDate: 'Irrigation Date',
+            parameterName: 'Parameter',
+            value: 'Value',
+            region: 'Region',
+            impactType: 'Impact Type',
+            severity: 'Severity',
+            policyName: 'Policy Name',
+            policyType: 'Policy Type',
+            effectiveDate: 'Effective Date',
+            recommendation: 'Recommendation',
+            confidence: 'Confidence',
+            alertMessage: 'Alert',
+            alertDate: 'Alert Date'
+        };
+
         const wsData = [
             [`AgriGuard AI - ${title}`],
             [`Generated: ${new Date().toLocaleString()}`],
@@ -1084,13 +2179,50 @@
             []
         ];
 
-        // Add headers based on data structure
+        // Get important columns
+        let columns = IMPORTANT_COLUMNS[reportType] || [];
+        
+        if (columns.length === 0 && data.length > 0) {
+            const allColumns = Object.keys(data[0]).filter(key => 
+                !key.includes('password') && 
+                !key.includes('Password')
+            );
+            columns = allColumns.slice(0, 5);
+        }
+
+        // Filter columns that exist in data
         if (data.length > 0) {
-            const headers = Object.keys(data[0]);
+            columns = columns.filter(col => data[0].hasOwnProperty(col));
+            
+            if (columns.length === 0) {
+                columns = Object.keys(data[0]).filter(key => 
+                    !key.includes('password')
+                ).slice(0, 5);
+            }
+
+            // Add headers with display names
+            const headers = columns.map(col => 
+                COLUMN_DISPLAY_NAMES[col] || 
+                col.charAt(0).toUpperCase() + col.slice(1).replace(/([A-Z])/g, ' $1')
+            );
             wsData.push(headers);
 
+            // Add data rows (only selected columns)
             data.forEach(item => {
-                const row = headers.map(header => item[header] || 'N/A');
+                const row = columns.map(col => {
+                    let value = item[col];
+                    if (value === null || value === undefined) {
+                        return 'N/A';
+                    } else if (typeof value === 'boolean') {
+                        if (col === 'active' || col === 'isActive') {
+                            return value ? 'Active' : 'Inactive';
+                        }
+                        return value ? 'Yes' : 'No';
+                    } else if (typeof value === 'object') {
+                        return JSON.stringify(value);
+                    }
+                    return value;
+                });
                 wsData.push(row);
             });
         }

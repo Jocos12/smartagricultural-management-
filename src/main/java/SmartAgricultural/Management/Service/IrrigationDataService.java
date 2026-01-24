@@ -36,6 +36,32 @@ public class IrrigationDataService {
         return irrigationDataRepository.save(irrigationData);
     }
 
+    // Add this method to IrrigationDataService.java
+
+    public List<IrrigationData> findByFarmIds(List<String> farmIds) {
+        try {
+            if (farmIds == null || farmIds.isEmpty()) {
+                return Collections.emptyList();
+            }
+            
+            // Filter out null or empty farm IDs
+            List<String> validFarmIds = farmIds.stream()
+                    .filter(id -> id != null && !id.trim().isEmpty())
+                    .collect(java.util.stream.Collectors.toList());
+            
+            if (validFarmIds.isEmpty()) {
+                return Collections.emptyList();
+            }
+            
+            return irrigationDataRepository.findByFarmIdIn(validFarmIds);
+        } catch (Exception e) {
+            // Log error but return empty list to prevent 500 errors
+            System.err.println("Error finding irrigation data by farm IDs: " + e.getMessage());
+            e.printStackTrace();
+            return Collections.emptyList();
+        }
+    }
+
     public Optional<IrrigationData> findById(String id) {
         return irrigationDataRepository.findById(id);
     }

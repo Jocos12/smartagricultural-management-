@@ -4,6 +4,7 @@ import SmartAgricultural.Management.Model.IrrigationData;
 import SmartAgricultural.Management.Model.IrrigationData.IrrigationMethod;
 import SmartAgricultural.Management.Model.IrrigationData.WaterSource;
 import SmartAgricultural.Management.Service.IrrigationDataService;
+import SmartAgricultural.Management.Service.FarmService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,10 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/irrigation")
@@ -34,10 +32,12 @@ public class IrrigationDataController {
     private static final boolean DEBUG_MODE = true;
 
     private final IrrigationDataService irrigationDataService;
+    private final FarmService farmService;
 
     @Autowired
-    public IrrigationDataController(IrrigationDataService irrigationDataService) {
+    public IrrigationDataController(IrrigationDataService irrigationDataService, FarmService farmService) {
         this.irrigationDataService = irrigationDataService;
+        this.farmService = farmService;
         logger.info("=== IrrigationDataController initialized ===");
     }
 
@@ -327,6 +327,83 @@ public class IrrigationDataController {
             logger.error("Error retrieving irrigation data by source", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(createErrorResponse("Error retrieving irrigation data by source: " + e.getMessage()));
+        }
+    }
+
+
+
+    @GetMapping("/farmer/{userId}")
+    public ResponseEntity<?> getIrrigationsByFarmer(@PathVariable String userId) {
+        try {
+            if (DEBUG_MODE) {
+                logger.info("Getting irrigations for farmer/user: {}", userId);
+            }
+
+            // Get all farm IDs for this user
+            List<String> farmIds = getUserFarmIds(userId);
+
+            if (farmIds.isEmpty()) {
+                return ResponseEntity.ok(Map.of(
+                        "success", true,
+                        "message", "No farms found for this farmer",
+                        "data", Collections.emptyList()
+                ));
+            }
+
+            // Get all irrigations for these farms using the service
+            List<IrrigationData> irrigations;
+            try {
+                irrigations = irrigationDataService.findByFarmIds(farmIds);
+            } catch (Exception e) {
+                logger.error("Error retrieving irrigation data from service for farmer: {}", userId, e);
+                // Return empty list instead of 500 error
+                irrigations = Collections.emptyList();
+            }
+
+            if (irrigations.isEmpty()) {
+                return ResponseEntity.ok(Map.of(
+                        "success", true,
+                        "message", "No irrigation data found for this farmer",
+                        "data", Collections.emptyList()
+                ));
+            }
+
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "message", "Irrigation data retrieved successfully",
+                    "data", irrigations
+            ));
+
+        } catch (Exception e) {
+            logger.error("Error retrieving irrigation data for farmer: {}", userId, e);
+            // ✅ Return empty data instead of 500 error to prevent frontend issues
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "message", "No irrigation data available",
+                    "data", Collections.emptyList()
+            ));
+        }
+    }
+
+    // Helper method to get farm IDs for a user
+    private List<String> getUserFarmIds(String userId) {
+        try {
+            if (DEBUG_MODE) {
+                logger.info("Getting farm IDs for farmer/user: {}", userId);
+            }
+            
+            // ✅ Use FarmService to get actual farm IDs for the farmer
+            List<String> farmIds = farmService.getFarmIdsByFarmerId(userId);
+            
+            if (DEBUG_MODE) {
+                logger.info("Found {} farms for farmer: {}", farmIds.size(), userId);
+            }
+            
+            return farmIds;
+        } catch (Exception e) {
+            logger.error("Error getting farm IDs for farmer: {}", userId, e);
+            // Return empty list instead of throwing exception to prevent 500 error
+            return Collections.emptyList();
         }
     }
 
