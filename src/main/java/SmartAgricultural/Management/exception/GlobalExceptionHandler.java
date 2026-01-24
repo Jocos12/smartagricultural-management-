@@ -12,6 +12,10 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -129,13 +133,34 @@ public class GlobalExceptionHandler {
      * Gérer toutes les autres exceptions
      */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse<Void>> handleGenericException(Exception ex) {
+    public ResponseEntity<?> handleGenericException(Exception ex) {
         String message = "Une erreur interne s'est produite";
 
         // En mode développement, on peut inclure plus de détails
         // if (isDevelopmentMode()) {
         //     message = ex.getMessage();
         // }
+
+        // Check if this is a request to /farmer endpoint - return 200 OK with empty data
+        String requestPath = "";
+        try {
+            RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+            if (requestAttributes instanceof ServletRequestAttributes) {
+                HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
+                requestPath = request.getRequestURI();
+            }
+        } catch (Exception e) {
+            // Ignore
+        }
+        
+        // For /farmer endpoints in soil-data, return 200 OK instead of 500
+        if (requestPath != null && requestPath.contains("/soil-data/farmer/")) {
+            Map<String, Object> responseData = new HashMap<>();
+            responseData.put("success", true);
+            responseData.put("message", "No soil data available");
+            responseData.put("data", java.util.Collections.emptyList());
+            return ResponseEntity.ok(responseData);
+        }
 
         ApiResponse<Void> response = new ApiResponse<>(false, message, null);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);

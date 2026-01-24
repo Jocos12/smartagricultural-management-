@@ -450,7 +450,7 @@
 
         .dashboard-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 24px;
             margin-bottom: 32px;
         }
@@ -537,6 +537,289 @@
             border-radius: 16px;
             box-shadow: var(--shadow);
             border: 1px solid var(--border-color);
+        }
+
+        /* Report Configuration Styles */
+        .report-configuration-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .report-header-section {
+            background: var(--gradient-primary);
+            padding: 32px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .report-header-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+
+        .report-header-content {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .report-header-icon {
+            font-size: 48px;
+            color: white;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+        }
+
+        .report-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: white;
+            margin: 0 0 8px 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .report-subtitle {
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.95);
+            margin: 0;
+            font-weight: 400;
+        }
+
+        .report-config-body {
+            padding: 32px;
+        }
+
+        .config-section {
+            margin-bottom: 32px;
+        }
+
+        .config-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .config-section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--primary-green);
+        }
+
+        .config-section-title i {
+            color: var(--primary-green);
+            font-size: 20px;
+        }
+
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        .config-item {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .config-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .config-label i {
+            color: var(--primary-green);
+            font-size: 16px;
+        }
+
+        .config-select {
+            padding: 12px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 14px;
+            color: var(--text-primary);
+            background: var(--bg-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .config-select:hover {
+            border-color: var(--primary-green);
+        }
+
+        .config-select:focus {
+            outline: none;
+            border-color: var(--primary-green);
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--text-primary);
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .checkbox-label:hover {
+            background: var(--hover-bg);
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: var(--primary-green);
+        }
+
+        .export-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .btn-export {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 20px 24px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-export::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: left 0.5s ease;
+        }
+
+        .btn-export:hover::before {
+            left: 100%;
+        }
+
+        .btn-export i {
+            font-size: 32px;
+            z-index: 1;
+        }
+
+        .btn-export-content {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 4px;
+            z-index: 1;
+        }
+
+        .btn-export-title {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .btn-export-desc {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .btn-export-pdf {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+        }
+
+        .btn-export-pdf:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+        }
+
+        .btn-export-excel {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+
+        .btn-export-excel:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        .report-preview-info {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            padding: 16px 20px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 24px;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .dark-mode .report-preview-info {
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            border-left-color: #60a5fa;
+        }
+
+        .report-preview-info i {
+            font-size: 24px;
+            color: #3b82f6;
+        }
+
+        .dark-mode .report-preview-info i {
+            color: #60a5fa;
+        }
+
+        .report-preview-info div {
+            font-size: 14px;
+            color: #1e40af;
+        }
+
+        .dark-mode .report-preview-info div {
+            color: #bfdbfe;
+        }
+
+        .report-preview-info strong {
+            font-weight: 700;
+            margin-right: 8px;
         }
 
         .chart-header {
@@ -1059,6 +1342,55 @@
                 padding: 0 16px;
             }
 
+            /* Report Configuration responsive styles */
+            .report-header-section {
+                padding: 24px 16px;
+            }
+
+            .report-header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .report-header-icon {
+                font-size: 36px;
+                padding: 16px;
+            }
+
+            .report-title {
+                font-size: 22px;
+            }
+
+            .report-subtitle {
+                font-size: 13px;
+            }
+
+            .report-config-body {
+                padding: 20px 16px;
+            }
+
+            .config-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .export-actions {
+                grid-template-columns: 1fr;
+            }
+
+            .btn-export {
+                justify-content: center;
+            }
+
+            .config-section-title {
+                font-size: 16px;
+            }
+
+            .report-preview-info {
+                flex-direction: column;
+                text-align: center;
+            }
+
             .search-container {
                 width: 200px;
             }
@@ -1127,6 +1459,296 @@
             box-shadow: var(--shadow);
             animation: pulse 2s infinite;
         }
+
+        /* Notification Dropdown Styles */
+        .notification-btn {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .header-right {
+            position: relative;
+        }
+
+        .notification-dropdown {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            width: 400px;
+            max-height: 600px;
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            z-index: 10000;
+            display: none;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .notification-dropdown.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .notification-dropdown-header {
+            padding: 18px 20px;
+            border-bottom: 2px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+            color: white;
+        }
+
+        .notification-dropdown-header h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 700;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .notification-dropdown-header h3 i {
+            font-size: 16px;
+        }
+
+        .mark-all-read-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 6px 12px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .mark-all-read-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .notification-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .notification-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .notification-list::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        .notification-list::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 3px;
+        }
+
+        .notification-list::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+
+        .notification-empty {
+            padding: 40px 20px;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        .notification-empty i {
+            font-size: 48px;
+            margin-bottom: 12px;
+            opacity: 0.3;
+        }
+
+        .notification-empty p {
+            margin: 0;
+            font-size: 14px;
+        }
+
+        .notification-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            background: var(--card-bg);
+        }
+
+        .notification-item:hover {
+            background: var(--hover-bg);
+            transform: translateX(4px);
+        }
+
+        .notification-item:active {
+            transform: translateX(2px);
+        }
+
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+
+        .notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .notification-success .notification-icon {
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--success-color);
+        }
+
+        .notification-info .notification-icon {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--info-color);
+        }
+
+        .notification-danger .notification-icon {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error-color);
+        }
+
+        .notification-warning .notification-icon {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning-color);
+        }
+
+        .notification-default .notification-icon {
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+        }
+
+        .notification-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .notification-message {
+            margin: 0 0 4px 0;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+
+        .notification-time {
+            font-size: 12px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 4px;
+        }
+
+        .notification-time i {
+            font-size: 10px;
+        }
+
+        .notification-mark-read {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            opacity: 0;
+            margin-left: 8px;
+        }
+
+        .notification-item:hover .notification-mark-read {
+            opacity: 1;
+        }
+
+        .notification-mark-read:hover {
+            background: var(--hover-bg);
+            color: var(--primary-green);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ef4444;
+            color: white;
+            border-radius: 12px;
+            padding: 3px 7px;
+            font-size: 11px;
+            font-weight: 700;
+            min-width: 22px;
+            height: 22px;
+            text-align: center;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--card-bg);
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+        }
+
+        .dark-mode .notification-dropdown {
+            background: var(--card-bg);
+            border-color: var(--border-color);
+        }
+
+        .dark-mode .notification-dropdown-header {
+            background: var(--bg-secondary);
+        }
+
+        .dark-mode .notification-item:hover {
+            background: var(--hover-bg);
+        }
+
+        @media (max-width: 768px) {
+            .notification-dropdown {
+                width: calc(100vw - 40px);
+                right: 20px;
+                left: 20px;
+                max-width: 400px;
+            }
+        }
+
+        /* Animation for new notifications */
+        @keyframes notificationSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .notification-item {
+            animation: notificationSlideIn 0.3s ease;
+        }
     </style>
 
 
@@ -1186,6 +1808,18 @@
                             <span>Administrators</span>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="showSection('analysts')">
+                            <i class="fas fa-chart-pie"></i>
+                            <span>Analysts</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="showSection('policies')">
+                            <i class="fas fa-landmark"></i>
+                            <span>Policies</span>
+                        </a>
+                    </li>
                 </ul>
             </div>
 
@@ -1195,7 +1829,13 @@
                     <li class="nav-item">
                         <a class="nav-link" onclick="showSection('reports')">
                             <i class="fas fa-file-alt"></i>
-                            <span>Reports</span>
+                            <span>User Reports</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="AllSystemReports.html">
+                            <i class="fas fa-file-chart-line"></i>
+                            <span>All System Reports</span>
                         </a>
                     </li>
                 </ul>
@@ -1253,11 +1893,46 @@
                             <span>Product Prediction</span>
                         </a>
                     </li>
-
+                    <li class="nav-item">
+                        <a class="nav-link" href="TransactionDashboard.html">
+                            <i class="fas fa-exchange-alt"></i>
+                            <span>Transactions</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="MarketPriceDashboard.html">
+                            <i class="fas fa-dollar-sign"></i>
+                            <span>Market Prices</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="SupplyChain.html">
+                            <i class="fas fa-truck"></i>
+                            <span>Supply Chain</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="Soil.html">
+                            <i class="fas fa-mountain"></i>
+                            <span>Soil Data</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="FoodAlertDashboard.html">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span>Food Security Alerts</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="ResourceRecommendation.html">
+                            <i class="fas fa-lightbulb"></i>
+                            <span>Resource Recommendations</span>
+                        </a>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link" href="WhatsApp.html">
                             <i class="fab fa-whatsapp"></i>
-                            <span>WhatsApp</span>
+                            <span>Chat</span>
                         </a>
                     </li>
                 </ul>
@@ -1289,7 +1964,7 @@
                 </button>
                 <button class="notification-btn">
                     <i class="fas fa-bell"></i>
-                    <span class="notification-badge" id="notificationCount">0</span>
+                    <span class="notification-badge" id="notificationBadge">0</span>
                 </button>
                 <div class="profile-section">
                     <div class="profile-avatar">A</div>
@@ -1332,6 +2007,20 @@
                         </div>
                         <div class="stat-value" id="buyersCount">0</div>
                         <div class="stat-label">Buyers</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon analysts" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        <div class="stat-value" id="analystsCount">0</div>
+                        <div class="stat-label">Analysts</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon government" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                            <i class="fas fa-landmark"></i>
+                        </div>
+                        <div class="stat-value" id="governmentCount">0</div>
+                        <div class="stat-label">Government</div>
                     </div>
                 </div>
 
@@ -1548,32 +2237,201 @@
                 </div>
             </div>
 
-            <!-- Reports Section -->
-            <div id="reportsSection" class="content-section">
-                <div class="chart-card" style="margin-bottom: 24px;">
-                    <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 20px; color: var(--text-primary);">Report Configuration</h3>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 20px;">
-                        <div>
-                            <label style="display: block; font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px;">Report Type</label>
-                            <select class="form-select" id="reportType">
-                                <option value="all">All Users</option>
-                                <option value="farmers">Farmers Only</option>
-                                <option value="buyers">Buyers Only</option>
-                                <option value="admins">Administrators</option>
-                                <option value="active">Active Users</option>
-                                <option value="inactive">Inactive Users</option>
-                            </select>
+            <!-- Analysts Section -->
+            <div id="analystsSection" class="content-section">
+                <div class="table-section">
+                    <div class="table-header">
+                        <h2 class="table-title">Data Analysts Management</h2>
+                        <div class="table-actions">
+                            <button class="btn btn-primary" onclick="showAddUserModal('ANALYST')">
+                                <i class="fas fa-user-plus"></i>
+                                Add Analyst
+                            </button>
+                            <button class="btn btn-secondary" onclick="loadAnalysts()">
+                                <i class="fas fa-sync-alt"></i>
+                                Refresh
+                            </button>
+                            <button class="btn btn-info" onclick="exportUsersToExcel('analysts')">
+                                <i class="fas fa-file-excel"></i>
+                                Export Excel
+                            </button>
                         </div>
                     </div>
-                    <div style="display: flex; gap: 12px; margin-top: 20px;">
-                        <button class="btn btn-primary" onclick="generatePDFReport()">
-                            <i class="fas fa-file-pdf"></i>
-                            Generate PDF Report
-                        </button>
-                        <button class="btn btn-info" onclick="generateExcelReport()">
-                            <i class="fas fa-file-excel"></i>
-                            Generate Excel Report
-                        </button>
+                    <div style="padding: 0 24px 24px;">
+                        <input type="text" class="search-input" placeholder="Search analysts..." id="analystsSearch" onkeyup="searchInTable('analystsTableBody', 'analystsSearch')">
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table class="data-table">
+                            <thead>
+                            <tr>
+                                <th>Analyst</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Status</th>
+                                <th>Registered</th>
+                                <th>Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody id="analystsTableBody">
+                            <tr>
+                                <td colspan="6" class="empty-state">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                    <p>Loading analysts...</p>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Policies (Government) Section -->
+            <div id="policiesSection" class="content-section">
+                <div class="table-section">
+                    <div class="table-header">
+                        <h2 class="table-title">Government Policies Management</h2>
+                        <div class="table-actions">
+                            <button class="btn btn-primary" onclick="showAddUserModal('GOVERNMENT')">
+                                <i class="fas fa-user-plus"></i>
+                                Add Government User
+                            </button>
+                            <button class="btn btn-secondary" onclick="loadGovernmentUsers()">
+                                <i class="fas fa-sync-alt"></i>
+                                Refresh
+                            </button>
+                            <button class="btn btn-info" onclick="exportUsersToExcel('government')">
+                                <i class="fas fa-file-excel"></i>
+                                Export Excel
+                            </button>
+                        </div>
+                    </div>
+                    <div style="padding: 0 24px 24px;">
+                        <input type="text" class="search-input" placeholder="Search government users..." id="policiesSearch" onkeyup="searchInTable('policiesTableBody', 'policiesSearch')">
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table class="data-table">
+                            <thead>
+                            <tr>
+                                <th>Government Official</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Status</th>
+                                <th>Registered</th>
+                                <th>Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody id="policiesTableBody">
+                            <tr>
+                                <td colspan="6" class="empty-state">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                    <p>Loading government users...</p>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports Section -->
+            <div id="reportsSection" class="content-section">
+                <div class="report-configuration-card">
+                    <div class="report-header-section">
+                        <div class="report-header-content">
+                            <i class="fas fa-file-chart-column report-header-icon"></i>
+                            <div>
+                                <h2 class="report-title">Report Configuration</h2>
+                                <p class="report-subtitle">Generate professional reports for user management</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="report-config-body">
+                        <div class="config-section">
+                            <h3 class="config-section-title">
+                                <i class="fas fa-cog"></i> Report Settings
+                            </h3>
+                            <div class="config-grid">
+                                <div class="config-item">
+                                    <label class="config-label">
+                                        <i class="fas fa-filter"></i> Report Type
+                                    </label>
+                                    <select class="form-select config-select" id="reportType">
+                                        <option value="all">📊 All Users</option>
+                                        <option value="farmers">🚜 Farmers Only</option>
+                                        <option value="buyers">🛒 Buyers Only</option>
+                                        <option value="admins">🛡️ Administrators</option>
+                                        <option value="analysts">📈 Analysts</option>
+                                        <option value="government">🏛️ Government Users</option>
+                                        <option value="active">✅ Active Users</option>
+                                        <option value="inactive">❌ Inactive Users</option>
+                                    </select>
+                                </div>
+
+                                <div class="config-item">
+                                    <label class="config-label">
+                                        <i class="fas fa-calendar-alt"></i> Date Range
+                                    </label>
+                                    <select class="form-select config-select" id="reportDateRange">
+                                        <option value="today">Today</option>
+                                        <option value="last7days" selected>Last 7 Days</option>
+                                        <option value="last30days">Last 30 Days</option>
+                                        <option value="lastMonth">Last Month</option>
+                                        <option value="allTime">All Time</option>
+                                    </select>
+                                </div>
+
+                                <div class="config-item">
+                                    <label class="config-label">
+                                        <i class="fas fa-list"></i> Include Details
+                                    </label>
+                                    <div class="checkbox-group">
+                                        <label class="checkbox-label">
+                                            <input type="checkbox" id="includeEmail" checked>
+                                            <span>Email Addresses</span>
+                                        </label>
+                                        <label class="checkbox-label">
+                                            <input type="checkbox" id="includePhone" checked>
+                                            <span>Phone Numbers</span>
+                                        </label>
+                                        <label class="checkbox-label">
+                                            <input type="checkbox" id="includeStats" checked>
+                                            <span>Statistics Summary</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="config-section">
+                            <h3 class="config-section-title">
+                                <i class="fas fa-download"></i> Export Options
+                            </h3>
+                            <div class="export-actions">
+                                <button class="btn-export btn-export-pdf" onclick="generatePDFReport()">
+                                    <i class="fas fa-file-pdf"></i>
+                                    <div class="btn-export-content">
+                                        <span class="btn-export-title">Generate PDF</span>
+                                        <span class="btn-export-desc">Professional PDF Report</span>
+                                    </div>
+                                </button>
+                                <button class="btn-export btn-export-excel" onclick="generateExcelReport()">
+                                    <i class="fas fa-file-excel"></i>
+                                    <div class="btn-export-content">
+                                        <span class="btn-export-title">Generate Excel</span>
+                                        <span class="btn-export-desc">Spreadsheet Format</span>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="report-preview-info">
+                            <i class="fas fa-info-circle"></i>
+                            <div>
+                                <strong>Report Preview:</strong>
+                                <span id="reportPreviewText">Select options above to generate your report</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1681,6 +2539,7 @@
 <!-- Ajoutez ces scripts AVANT vos scripts existants -->
 <script src="js/SessionTracker.js"></script>
 <script src="js/user_session_handler.js"></script>
+<script src="js/Notification.js"></script>
 <script>
     const API_BASE_URL = 'http://localhost:1010/api/users';
     let allUsers = [];
@@ -1917,7 +2776,11 @@ function updateUIWithCurrentUser() {
                     document.getElementById('activeUsers').textContent = data.activeUsers || 0;
                     document.getElementById('farmersCount').textContent = data.roleStatistics?.FARMER || 0;
                     document.getElementById('buyersCount').textContent = data.roleStatistics?.BUYER || 0;
-                    document.getElementById('notificationCount').textContent = data.roleStatistics?.FARMER || 0;
+                    document.getElementById('analystsCount').textContent = data.roleStatistics?.ANALYST || 0;
+                    document.getElementById('governmentCount').textContent = data.roleStatistics?.GOVERNMENT || 0;
+                    
+                    // Note: notificationCount is now used for notifications, not farmer count
+                    // Removed incorrect usage of notificationCount for farmer statistics
                 } catch (error) {
                     console.error('Error loading statistics:', error);
                     throw error;
@@ -2005,6 +2868,48 @@ function updateUIWithCurrentUser() {
                         </tr>
                     `;
                     showToast('Error loading administrators', 'error');
+                }
+            }
+
+            async function loadAnalysts() {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/analysts`);
+                    if (!response.ok) throw new Error('Failed to load analysts');
+
+                    const analysts = await response.json();
+                    renderUsersTable(analysts, 'analystsTableBody', false);
+                } catch (error) {
+                    console.error('Error loading analysts:', error);
+                    document.getElementById('analystsTableBody').innerHTML = `
+                        <tr>
+                            <td colspan="6" class="empty-state">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <p>Error loading analysts. Please try again.</p>
+                            </td>
+                        </tr>
+                    `;
+                    showToast('Error loading analysts', 'error');
+                }
+            }
+
+            async function loadGovernmentUsers() {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/government`);
+                    if (!response.ok) throw new Error('Failed to load government users');
+
+                    const governmentUsers = await response.json();
+                    renderUsersTable(governmentUsers, 'policiesTableBody', false);
+                } catch (error) {
+                    console.error('Error loading government users:', error);
+                    document.getElementById('policiesTableBody').innerHTML = `
+                        <tr>
+                            <td colspan="6" class="empty-state">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <p>Error loading government users. Please try again.</p>
+                            </td>
+                        </tr>
+                    `;
+                    showToast('Error loading government users', 'error');
                 }
             }
 
@@ -2188,6 +3093,12 @@ function renderUsersTable(users, tableBodyId, includeRole) {
                     case 'admins':
                         loadAdmins();
                         break;
+                    case 'analysts':
+                        loadAnalysts();
+                        break;
+                    case 'policies':
+                        loadGovernmentUsers();
+                        break;
                     case 'dashboard':
                         loadStatistics();
                         break;
@@ -2314,7 +3225,7 @@ async function submitUserForm(event) {
         email: document.getElementById('email').value,
         phoneNumber: document.getElementById('phoneNumber').value,
         role: document.getElementById('role').value,
-        isActive: document.getElementById('isActive').value === 'true'
+        active: document.getElementById('isActive').value === 'true'
     };
 
     if (!currentEditingUserId) {
@@ -2537,6 +3448,14 @@ async function editUser(userId) {
                         data = allUsers.filter(u => u.role === 'ADMIN');
                         filename = 'administrators.xlsx';
                         break;
+                    case 'analysts':
+                        data = allUsers.filter(u => u.role === 'ANALYST');
+                        filename = 'analysts.xlsx';
+                        break;
+                    case 'government':
+                        data = allUsers.filter(u => u.role === 'GOVERNMENT');
+                        filename = 'government_users.xlsx';
+                        break;
                 }
 
                 if (data.length === 0) {
@@ -2564,6 +3483,11 @@ async function editUser(userId) {
 
             async function generatePDFReport() {
                 const reportType = document.getElementById('reportType').value;
+                const dateRange = document.getElementById('reportDateRange').value;
+                const includeEmail = document.getElementById('includeEmail').checked;
+                const includePhone = document.getElementById('includePhone').checked;
+                const includeStats = document.getElementById('includeStats').checked;
+
                 let data = [];
                 let title = 'Users Report';
 
@@ -2584,6 +3508,14 @@ async function editUser(userId) {
                         data = allUsers.filter(u => u.role === 'ADMIN');
                         title = 'Administrators Report';
                         break;
+                    case 'analysts':
+                        data = allUsers.filter(u => u.role === 'ANALYST');
+                        title = 'Analysts Report';
+                        break;
+                    case 'government':
+                        data = allUsers.filter(u => u.role === 'GOVERNMENT');
+                        title = 'Government Users Report';
+                        break;
                     case 'active':
                         data = allUsers.filter(u => u.isActive);
                         title = 'Active Users Report';
@@ -2603,37 +3535,414 @@ async function editUser(userId) {
 
                 try {
                     const { jsPDF } = window.jspdf;
-                    const pdf = new jsPDF();
+                    const pdf = new jsPDF('p', 'mm', 'a4');
+                    const pageWidth = pdf.internal.pageSize.getWidth();
+                    const pageHeight = pdf.internal.pageSize.getHeight();
 
-                    pdf.setFontSize(20);
-                    pdf.text(title, 105, 20, { align: 'center' });
+                    // Helper function to add logo
+                    function addLogoToPDF(pdf, x, y, size) {
+                        try {
+                            const logoImg = new Image();
+                            logoImg.src = 'images/logo.jpeg';
+                            try {
+                                pdf.addImage(logoImg, 'JPEG', x, y, size, size, undefined, 'FAST');
+                            } catch (e) {
+                                // Fallback: styled circle with initials
+                                pdf.setFillColor(22, 163, 74);
+                                pdf.circle(x + size/2, y + size/2, size/2, 'F');
+                                pdf.setTextColor(255, 255, 255);
+                                pdf.setFontSize(size * 0.4);
+                                pdf.setFont(undefined, 'bold');
+                                pdf.text('AG', x + size/2, y + size/2 + size * 0.15, { align: 'center' });
+                            }
+                        } catch (e) {
+                            pdf.setFillColor(22, 163, 74);
+                            pdf.circle(x + size/2, y + size/2, size/2, 'F');
+                            pdf.setTextColor(255, 255, 255);
+                            pdf.setFontSize(size * 0.4);
+                            pdf.setFont(undefined, 'bold');
+                            pdf.text('AG', x + size/2, y + size/2 + size * 0.15, { align: 'center' });
+                        }
+                    }
 
-                    pdf.setFontSize(12);
-                    pdf.text(`Generated: ${new Date().toLocaleDateString()}`, 105, 30, { align: 'center' });
-                    pdf.text(`Total Records: ${data.length}`, 105, 38, { align: 'center' });
+                    // Helper function to draw status badge
+                    function drawStatusBadge(pdf, x, y, isActive) {
+                        const badgeWidth = 24;
+                        const badgeHeight = 6.5;
 
+                        if (isActive) {
+                            // Active badge - Green
+                            pdf.setFillColor(220, 252, 231);
+                            pdf.rect(x, y - 4, badgeWidth, badgeHeight, 'F');
+                            pdf.setDrawColor(34, 197, 94);
+                            pdf.setLineWidth(0.3);
+                            pdf.rect(x, y - 4, badgeWidth, badgeHeight, 'S');
+                            pdf.setFillColor(34, 197, 94);
+                            pdf.circle(x + 2.5, y - 0.7, 1, 'F');
+                            pdf.setTextColor(22, 101, 52);
+                            pdf.setFontSize(7.5);
+                            pdf.setFont(undefined, 'bold');
+                            pdf.text('Active', x + 5, y + 0.3);
+                        } else {
+                            // Inactive badge - Red
+                            pdf.setFillColor(254, 226, 226);
+                            pdf.rect(x, y - 4, badgeWidth, badgeHeight, 'F');
+                            pdf.setDrawColor(239, 68, 68);
+                            pdf.setLineWidth(0.3);
+                            pdf.rect(x, y - 4, badgeWidth, badgeHeight, 'S');
+                            pdf.setFillColor(239, 68, 68);
+                            pdf.circle(x + 2.5, y - 0.7, 1, 'F');
+                            pdf.setTextColor(153, 27, 27);
+                            pdf.setFontSize(7.5);
+                            pdf.setFont(undefined, 'bold');
+                            pdf.text('Inactive', x + 5, y + 0.3);
+                        }
+                    }
+
+                    // Helper function to add header
+                    function addHeaderBar(withLogo = false) {
+                        // Green background
+                        pdf.setFillColor(34, 197, 94);
+                        pdf.rect(0, 0, pageWidth, 40, 'F');
+                        
+                        // Lighter green overlay
+                        pdf.setFillColor(16, 185, 129);
+                        pdf.setGState(new pdf.GState({opacity: 0.3}));
+                        pdf.rect(pageWidth * 0.6, 0, pageWidth * 0.4, 40, 'F');
+                        pdf.setGState(new pdf.GState({opacity: 1}));
+
+                        // Decorative circle
+                        pdf.setFillColor(255, 255, 255);
+                        pdf.setGState(new pdf.GState({opacity: 0.1}));
+                        pdf.circle(pageWidth - 20, 20, 25, 'F');
+                        pdf.setGState(new pdf.GState({opacity: 1}));
+
+                        if (withLogo) {
+                            // Add logo
+                            addLogoToPDF(pdf, 12, 8, 24);
+                            
+                            // Company info
+                            pdf.setTextColor(255, 255, 255);
+                            pdf.setFontSize(20);
+                            pdf.setFont(undefined, 'bold');
+                            pdf.text('AgriGuard AI', 42, 18);
+                            
+                            pdf.setFontSize(9);
+                            pdf.setFont(undefined, 'normal');
+                            pdf.text('Smart Agriculture Management System', 42, 24);
+                            
+                            pdf.setFontSize(11);
+                            pdf.setFont(undefined, 'bold');
+                            pdf.text(title, 42, 32);
+                        } else {
+                            // Simplified header
+                            pdf.setTextColor(255, 255, 255);
+                            pdf.setFontSize(18);
+                            pdf.setFont(undefined, 'bold');
+                            pdf.text('AgriGuard AI', 15, 16);
+                            
+                            pdf.setFontSize(9);
+                            pdf.setFont(undefined, 'normal');
+                            pdf.text('Smart Agriculture Management System', 15, 22);
+                            
+                            pdf.setFontSize(10);
+                            pdf.setFont(undefined, 'bold');
+                            pdf.text(title, 15, 30);
+                        }
+                    }
+
+                    // Helper function to add new page
+                    function addNewPage() {
+                        pdf.addPage();
+                        addHeaderBar(false);
+                        return 50;
+                    }
+
+                    // Page 1: Header with Logo
+                    addHeaderBar(true);
+
+                    // Report Metadata Section
                     let yPosition = 50;
-                    pdf.setFontSize(10);
+                    
+                    // Metadata box
+                    pdf.setFillColor(248, 250, 252);
+                    pdf.rect(15, yPosition, pageWidth - 30, 32, 'F');
+                    pdf.setDrawColor(226, 232, 240);
+                    pdf.setLineWidth(0.5);
+                    pdf.rect(15, yPosition, pageWidth - 30, 32, 'S');
+
+                    yPosition += 8;
+                    pdf.setTextColor(60, 60, 60);
+                    pdf.setFontSize(9);
+                    pdf.setFont(undefined, 'bold');
+
+                    const today = new Date();
+                    const dateRangeText = {
+                        'today': 'Today',
+                        'last7days': 'Last 7 Days',
+                        'last30days': 'Last 30 Days',
+                        'lastMonth': 'Last Month',
+                        'allTime': 'All Time'
+                    }[dateRange] || 'All Time';
+
+                    // Calculate statistics
+                    const activeCount = data.filter(u => u.isActive).length;
+                    const inactiveCount = data.length - activeCount;
+
+                    // Row 1
+                    pdf.setFont(undefined, 'bold');
+                    pdf.text('Report Generated:', 20, yPosition);
+                    pdf.setFont(undefined, 'normal');
+                    pdf.text(today.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }), 65, yPosition);
+
+                    pdf.setFont(undefined, 'bold');
+                    pdf.text('Period:', 125, yPosition);
+                    pdf.setFont(undefined, 'normal');
+                    pdf.text(dateRangeText, 145, yPosition);
+                    yPosition += 7;
+
+                    // Row 2
+                    pdf.setFont(undefined, 'bold');
+                    pdf.text('Total Records:', 20, yPosition);
+                    pdf.setFont(undefined, 'normal');
+                    pdf.setTextColor(34, 197, 94);
+                    pdf.text(`${data.length}`, 65, yPosition);
+                    pdf.setTextColor(60, 60, 60);
+
+                    pdf.setFont(undefined, 'bold');
+                    pdf.text('Report Type:', 125, yPosition);
+                    pdf.setFont(undefined, 'normal');
+                    pdf.text(title.replace(' Report', ''), 160, yPosition);
+                    yPosition += 7;
+
+                    // Row 3
+                    pdf.setFont(undefined, 'bold');
+                    pdf.text('Generated By:', 20, yPosition);
+                    pdf.setFont(undefined, 'normal');
+                    pdf.text('AgriGuard AI System', 65, yPosition);
+
+                    yPosition += 18;
+
+                    // User Details Section Header
+                    pdf.setDrawColor(34, 197, 94);
+                    pdf.setLineWidth(1);
+                    pdf.line(15, yPosition, pageWidth - 15, yPosition);
+                    yPosition += 2;
+
+                    pdf.setFontSize(14);
+                    pdf.setFont(undefined, 'bold');
+                    pdf.setTextColor(34, 197, 94);
+                    pdf.text('User Details', 15, yPosition + 6);
+                    yPosition += 10;
+
+                    pdf.setLineWidth(1);
+                    pdf.line(15, yPosition, pageWidth - 15, yPosition);
+                    yPosition += 10;
+
+                    // Table Header
+                    pdf.setFillColor(0, 0, 0);
+                    pdf.setGState(new pdf.GState({opacity: 0.1}));
+                    pdf.rect(15.5, yPosition + 0.5, pageWidth - 30, 10, 'F');
+                    pdf.setGState(new pdf.GState({opacity: 1}));
+                    
+                    pdf.setFillColor(34, 197, 94);
+                    pdf.rect(15, yPosition, pageWidth - 30, 10, 'F');
+
+                    pdf.setTextColor(255, 255, 255);
+                    pdf.setFontSize(9);
+                    pdf.setFont(undefined, 'bold');
+
+                    let xPos = 20;
+                    pdf.text('#', xPos, yPosition + 6.5);
+                    xPos += 10;
+                    pdf.text('Full Name', xPos, yPosition + 6.5);
+                    xPos += 50;
+                    if (includeEmail) {
+                        pdf.text('Email', xPos, yPosition + 6.5);
+                        xPos += 60;
+                    }
+                    if (includePhone) {
+                        pdf.text('Phone', xPos, yPosition + 6.5);
+                        xPos += 35;
+                    }
+                    pdf.text('Role', xPos, yPosition + 6.5);
+                    xPos += 30;
+                    pdf.text('Status', xPos, yPosition + 6.5);
+
+                    yPosition += 13;
+
+                    // Table Content
+                    pdf.setTextColor(60, 60, 60);
+                    pdf.setFont(undefined, 'normal');
+                    pdf.setFontSize(8);
 
                     data.forEach((user, index) => {
-                        if (yPosition > 270) {
-                            pdf.addPage();
-                            yPosition = 20;
+                        // Check if new page needed
+                        if (yPosition > pageHeight - 30) {
+                            yPosition = addNewPage();
+
+                            // Redraw table header
+                            pdf.setFillColor(0, 0, 0);
+                            pdf.setGState(new pdf.GState({opacity: 0.1}));
+                            pdf.rect(15.5, yPosition + 0.5, pageWidth - 30, 10, 'F');
+                            pdf.setGState(new pdf.GState({opacity: 1}));
+                            
+                            pdf.setFillColor(34, 197, 94);
+                            pdf.rect(15, yPosition, pageWidth - 30, 10, 'F');
+
+                            pdf.setTextColor(255, 255, 255);
+                            pdf.setFontSize(9);
+                            pdf.setFont(undefined, 'bold');
+
+                            let xPosHeader = 20;
+                            pdf.text('#', xPosHeader, yPosition + 6.5);
+                            xPosHeader += 10;
+                            pdf.text('Full Name', xPosHeader, yPosition + 6.5);
+                            xPosHeader += 50;
+                            if (includeEmail) {
+                                pdf.text('Email', xPosHeader, yPosition + 6.5);
+                                xPosHeader += 60;
+                            }
+                            if (includePhone) {
+                                pdf.text('Phone', xPosHeader, yPosition + 6.5);
+                                xPosHeader += 35;
+                            }
+                            pdf.text('Role', xPosHeader, yPosition + 6.5);
+                            xPosHeader += 30;
+                            pdf.text('Status', xPosHeader, yPosition + 6.5);
+
+                            yPosition += 13;
+                            pdf.setTextColor(60, 60, 60);
+                            pdf.setFont(undefined, 'normal');
+                            pdf.setFontSize(8);
                         }
 
-                        pdf.text(`${index + 1}. ${user.fullName || 'N/A'}`, 20, yPosition);
-                        pdf.text(`Email: ${user.email || 'N/A'}`, 30, yPosition + 6);
-                        pdf.text(`Role: ${user.role || 'N/A'}`, 30, yPosition + 12);
-                        pdf.text(`Status: ${user.isActive ? 'Active' : 'Inactive'}`, 30, yPosition + 18);
+                        // Alternate row background
+                        if (index % 2 === 0) {
+                            pdf.setFillColor(248, 250, 252);
+                            pdf.rect(15, yPosition - 3, pageWidth - 30, 8, 'F');
+                        }
 
-                        yPosition += 28;
+                        let xPosRow = 20;
+                        pdf.text(`${index + 1}`, xPosRow, yPosition + 3);
+                        xPosRow += 10;
+
+                        // Full Name
+                        const fullName = (user.fullName || 'N/A').substring(0, 25);
+                        pdf.text(fullName, xPosRow, yPosition + 3);
+                        xPosRow += 50;
+
+                        if (includeEmail) {
+                            const email = (user.email || 'N/A').substring(0, 30);
+                            pdf.text(email, xPosRow, yPosition + 3);
+                            xPosRow += 60;
+                        }
+
+                        if (includePhone) {
+                            const phone = (user.phoneNumber || 'N/A').substring(0, 18);
+                            pdf.text(phone, xPosRow, yPosition + 3);
+                            xPosRow += 35;
+                        }
+
+                        pdf.text(user.role || 'N/A', xPosRow, yPosition + 3);
+                        xPosRow += 30;
+
+                        // Status badge
+                        drawStatusBadge(pdf, xPosRow, yPosition + 3, user.isActive);
+                        pdf.setTextColor(60, 60, 60);
+
+                        // Separator line
+                        pdf.setDrawColor(226, 232, 240);
+                        pdf.setLineWidth(0.1);
+                        pdf.line(15, yPosition + 5, pageWidth - 15, yPosition + 5);
+
+                        yPosition += 8;
                     });
 
-                    pdf.save(`${reportType}_report_${Date.now()}.pdf`);
-                    showToast('PDF report generated successfully', 'success');
+                    // Summary Section (if enabled)
+                    if (includeStats) {
+                        yPosition += 10;
+
+                        if (yPosition > pageHeight - 50) {
+                            yPosition = addNewPage();
+                        }
+
+                        // Summary Header
+                        pdf.setDrawColor(34, 197, 94);
+                        pdf.setLineWidth(1);
+                        pdf.line(15, yPosition, pageWidth - 15, yPosition);
+                        yPosition += 2;
+
+                        pdf.setFontSize(14);
+                        pdf.setFont(undefined, 'bold');
+                        pdf.setTextColor(34, 197, 94);
+                        pdf.text('Summary', 15, yPosition + 6);
+                        yPosition += 10;
+
+                        pdf.setLineWidth(1);
+                        pdf.line(15, yPosition, pageWidth - 15, yPosition);
+                        yPosition += 12;
+
+                        // Summary box
+                        const summaryBoxHeight = 25;
+                        pdf.setFillColor(240, 253, 244);
+                        pdf.rect(15, yPosition, pageWidth - 30, summaryBoxHeight, 'F');
+                        pdf.setDrawColor(187, 247, 208);
+                        pdf.setLineWidth(0.5);
+                        pdf.rect(15, yPosition, pageWidth - 30, summaryBoxHeight, 'S');
+
+                        yPosition += 8;
+                        pdf.setFontSize(10);
+                        pdf.setFont(undefined, 'bold');
+                        pdf.setTextColor(22, 101, 52);
+
+                        pdf.text('Total Users:', 20, yPosition);
+                        pdf.setFont(undefined, 'normal');
+                        pdf.text(`${data.length}`, 60, yPosition);
+                        yPosition += 8;
+
+                        pdf.setFont(undefined, 'bold');
+                        pdf.text('Report Period:', 20, yPosition);
+                        pdf.setFont(undefined, 'normal');
+                        pdf.text(dateRangeText, 60, yPosition);
+                        yPosition += 12;
+
+                        // Contact info
+                        pdf.setFontSize(8);
+                        pdf.setTextColor(100, 116, 139);
+                        pdf.setFont(undefined, 'italic');
+                        pdf.text(`Report generated by AgriGuard AI on ${today.toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })}`, 20, yPosition);
+                        yPosition += 5;
+                        pdf.text('For support, contact: support@agriguard.ai | www.agriguard.ai', 20, yPosition);
+                    }
+
+                    // Footer on all pages
+                    const totalPages = pdf.internal.getNumberOfPages();
+                    for (let i = 1; i <= totalPages; i++) {
+                        pdf.setPage(i);
+                        
+                        // Footer line
+                        pdf.setDrawColor(226, 232, 240);
+                        pdf.setLineWidth(0.5);
+                        pdf.line(15, pageHeight - 15, pageWidth - 15, pageHeight - 15);
+                        
+                        // Footer text
+                        pdf.setFontSize(7);
+                        pdf.setTextColor(100, 116, 139);
+                        pdf.setFont(undefined, 'normal');
+                        pdf.text('© 2026 AgriGuard AI - Confidential Document', 15, pageHeight - 10);
+                        pdf.text('www.agriguard.ai', pageWidth / 2, pageHeight - 10, { align: 'center' });
+                        pdf.setFont(undefined, 'bold');
+                        pdf.text(`Page ${i} of ${totalPages}`, pageWidth - 15, pageHeight - 10, { align: 'right' });
+                    }
+
+                    // Save PDF
+                    const filename = `AgriGuard_${reportType}_report_${Date.now()}.pdf`;
+                    pdf.save(filename);
+                    showToast('Professional PDF report generated successfully!', 'success');
                 } catch (error) {
                     console.error('Error generating PDF:', error);
-                    showToast('Error generating PDF report', 'error');
+                    showToast('Error generating PDF report: ' + error.message, 'error');
                 } finally {
                     showLoading(false);
                 }
@@ -2643,6 +3952,50 @@ async function editUser(userId) {
                 const reportType = document.getElementById('reportType').value;
                 exportUsersToExcel(reportType);
             }
+
+            // Update report preview when options change
+            function updateReportPreview() {
+                const reportType = document.getElementById('reportType').value;
+                const dateRange = document.getElementById('reportDateRange').value;
+
+                const reportNames = {
+                    'all': 'All Users',
+                    'farmers': 'Farmers',
+                    'buyers': 'Buyers',
+                    'admins': 'Administrators',
+                    'analysts': 'Analysts',
+                    'government': 'Government Users',
+                    'active': 'Active Users',
+                    'inactive': 'Inactive Users'
+                };
+
+                const dateRangeNames = {
+                    'today': 'Today',
+                    'last7days': 'Last 7 Days',
+                    'last30days': 'Last 30 Days',
+                    'lastMonth': 'Last Month',
+                    'allTime': 'All Time'
+                };
+
+                const previewText = `${reportNames[reportType]} report for ${dateRangeNames[dateRange]}`;
+                document.getElementById('reportPreviewText').textContent = previewText;
+            }
+
+            // Add event listeners when page loads
+            document.addEventListener('DOMContentLoaded', function() {
+                const reportTypeSelect = document.getElementById('reportType');
+                const dateRangeSelect = document.getElementById('reportDateRange');
+
+                if (reportTypeSelect) {
+                    reportTypeSelect.addEventListener('change', updateReportPreview);
+                }
+                if (dateRangeSelect) {
+                    dateRangeSelect.addEventListener('change', updateReportPreview);
+                }
+
+                // Initialize preview
+                updateReportPreview();
+            });
 
             function toggleSidebar() {
                 const sidebar = document.getElementById('sidebar');

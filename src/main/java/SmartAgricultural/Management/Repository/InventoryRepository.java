@@ -34,6 +34,9 @@ public interface InventoryRepository extends JpaRepository<Inventory, String> {
     /**
      * ✅ CORRECTION CRITIQUE - Query native SQL directe
      */
+    /**
+     * ✅ QUERY NATIVE CORRIGÉE - Utiliser le bon nom de colonne
+     */
     @Query(value = "SELECT * FROM inventories WHERE farmer_user_id = :farmerUserId",
             nativeQuery = true)
     List<Inventory> findByFarmerUserId(@Param("farmerUserId") String farmerUserId);

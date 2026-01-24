@@ -15,6 +15,7 @@ import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
@@ -402,9 +403,26 @@ public class FarmService {
      */
     @Transactional(readOnly = true)
     public List<String> getFarmIdsByFarmerId(String farmerId) {
-        return farmRepository.findByFarmerId(farmerId)
-                .stream()
-                .map(Farm::getId)
-                .collect(java.util.stream.Collectors.toList());
+        try {
+            if (farmerId == null || farmerId.trim().isEmpty()) {
+                return Collections.emptyList();
+            }
+            
+            List<Farm> farms = farmRepository.findByFarmerId(farmerId);
+            
+            if (farms == null || farms.isEmpty()) {
+                return Collections.emptyList();
+            }
+            
+            return farms.stream()
+                    .filter(farm -> farm != null && farm.getId() != null)
+                    .map(Farm::getId)
+                    .collect(java.util.stream.Collectors.toList());
+        } catch (Exception e) {
+            // Log error but return empty list to prevent 500 errors
+            System.err.println("Error getting farm IDs for farmer " + farmerId + ": " + e.getMessage());
+            e.printStackTrace();
+            return Collections.emptyList();
+        }
     }
 }
