@@ -572,6 +572,15 @@
             display: flex;
             gap: 12px;
             align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .section-actions .form-select {
+            min-width: 140px;
+        }
+
+        .section-actions .btn {
+            white-space: nowrap;
         }
 
         /* ==================== Statistics Grid ==================== */
@@ -706,6 +715,18 @@
             height: 300px;
         }
 
+        .chart-empty {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            font-size: 14px;
+            text-align: center;
+            padding: 16px;
+        }
+
         /* ==================== Buttons ==================== */
         .btn {
             padding: 12px 24px;
@@ -790,6 +811,23 @@
 
         .form-group {
             margin-bottom: 20px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .form-group.full-width,
+        .button-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .date-input,
+        .form-select,
+        .form-input {
+            width: 100%;
         }
 
         .form-label {
@@ -907,6 +945,57 @@
 
         .weather-detail i {
             color: var(--primary-green);
+        }
+
+        .current-weather-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 24px;
+        }
+
+        .current-subgrid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+        }
+
+        .current-main-card .weather-temp {
+            font-size: 48px;
+        }
+
+        .weather-condition {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary-green);
+            margin-top: 6px;
+        }
+
+        .weather-timestamp {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .weather-card.rainy::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: repeating-linear-gradient(
+                -15deg,
+                rgba(255, 255, 255, 0.25),
+                rgba(255, 255, 255, 0.25) 2px,
+                transparent 2px,
+                transparent 14px
+            );
+            background-size: 140% 140%;
+            opacity: 0.35;
+            animation: rainFall 1.2s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes rainFall {
+            0% { background-position: 0 -60px; }
+            100% { background-position: 0 80px; }
         }
 
         /* ==================== Badges ==================== */
@@ -1043,6 +1132,40 @@
             color: var(--primary-green);
         }
 
+        .prediction-meta {
+            margin-top: 6px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .prediction-details {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 6px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-color);
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .prediction-details i {
+            color: var(--primary-green);
+            margin-right: 6px;
+        }
+
+        .prediction-empty {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            border: 1px dashed var(--border-color);
+        }
+
+        .prediction-empty h3 {
+            margin: 8px 0 6px;
+        }
+
         /* ==================== Statistics Summary ==================== */
         .stats-summary {
             display: grid;
@@ -1160,7 +1283,7 @@
             border-radius: 16px;
             padding: 32px;
             width: 90%;
-            max-width: 600px;
+            max-width: 900px;
             max-height: 90vh;
             overflow-y: auto;
             box-shadow: var(--shadow-xl);
@@ -1238,6 +1361,12 @@
             gap: 8px;
             margin-top: 32px;
             padding: 20px;
+        }
+
+        .pagination-info {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 600;
         }
 
         .pagination-btn {
@@ -1420,6 +1549,10 @@
                 grid-template-columns: 1fr;
             }
 
+            .current-weather-grid {
+                grid-template-columns: 1fr;
+            }
+
             .data-table {
                 font-size: 12px;
             }
@@ -1437,6 +1570,10 @@
             .btn {
                 width: 100%;
                 justify-content: center;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
             }
 
             .modal-content {
@@ -1834,6 +1971,48 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 12px;
+}
+
+        .alert-type i {
+            margin-right: 6px;
+            color: var(--primary-green);
+        }
+
+.food-alerts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    padding: 16px;
+}
+
+.food-alert-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 16px;
+    box-shadow: var(--shadow);
+    border-left: 4px solid var(--primary-green);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.food-alert-card.alert-critical { border-left-color: #dc2626; }
+.food-alert-card.alert-high { border-left-color: #f59e0b; }
+.food-alert-card.alert-medium { border-left-color: #3b82f6; }
+.food-alert-card.alert-low { border-left-color: #10b981; }
+
+.food-alert-card .food-alert-title {
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.food-alert-card .food-alert-meta {
+    font-size: 12px;
+    color: var(--text-secondary);
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
 }
 
 .alert-type {
@@ -2963,6 +3142,17 @@
                     </div>
                 </div>
 
+                <!-- Active Food Security Alerts -->
+                <div class="chart-card" style="margin-bottom: 32px;">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Active Food Security Alerts</h3>
+                        <button class="chart-btn" onclick="loadFoodSecurityAlerts()">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                    <div id="foodSecurityAlertsGrid" class="food-alerts-grid"></div>
+                </div>
+
                 <!-- Recommendations -->
                 <div class="chart-card">
                     <div class="chart-header">
@@ -3167,16 +3357,16 @@
             </div>
 
             <!-- Modal for Add/Edit Weather Data -->
-            <div id="weatherModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10001; align-items: center; justify-content: center;">
-                <div style="background: var(--card-bg); border-radius: 12px; padding: 32px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-                        <h2 id="modalTitle" style="font-size: 24px; font-weight: 700;">Add Weather Data</h2>
-                        <button onclick="closeWeatherModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-secondary);">
+            <div id="weatherModal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 id="modalTitle" class="modal-title">Add Weather Data</h2>
+                        <button onclick="closeWeatherModal()" class="modal-close" title="Close">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
 
-                    <form id="weatherForm" onsubmit="saveWeatherData(event)" style="display: grid; gap: 16px;">
+                    <form id="weatherForm" onsubmit="saveWeatherData(event)" class="form-grid">
                         <input type="hidden" id="weatherId">
 
                         <div class="form-group">
@@ -3265,7 +3455,7 @@
                             </select>
                         </div>
 
-                        <div class="button-group" style="margin-top: 16px;">
+                        <div class="button-group full-width" style="margin-top: 16px;">
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-save"></i>
                                 Save
@@ -3299,6 +3489,37 @@
         return date.toISOString().split('.')[0];
     }
 
+    function normalizeApiArray(raw) {
+        if (Array.isArray(raw)) return raw;
+        if (raw && Array.isArray(raw.data)) return raw.data;
+        if (raw && Array.isArray(raw.content)) return raw.content;
+        return [];
+    }
+
+    function getRecordDate(item) {
+        return item?.recordDate || item?.timestamp || item?.createdAt || item?.date || null;
+    }
+
+    function loadImageAsDataUrl(src) {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => {
+                try {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+                    resolve(canvas.toDataURL('image/jpeg'));
+                } catch (err) {
+                    reject(err);
+                }
+            };
+            img.onerror = reject;
+            img.src = src;
+        });
+    }
+
 
             // Weather Dashboard JavaScript
         // API Configuration
@@ -3315,6 +3536,10 @@
         let charts = {};
         let predictionModel = null;
         let trainingData = [];
+        let historicalDataCache = [];
+        let historicalPage = 1;
+        const historicalPageSize = 10;
+        const PREDICTION_MIN_RECORDS = 5;
 
         // ==================== INITIALIZATION ====================
 
@@ -3467,8 +3692,9 @@ document.querySelectorAll('.nav-link').forEach(link => {
                 document.getElementById('totalRecords').textContent = countData.count || 0;
 
                 // Get recent data for overview charts
-                const recentResponse = await fetch(`${API_BASE_URL}/recent?days=30`);
-                weatherData = await recentResponse.json();
+        const recentResponse = await fetch(`${API_BASE_URL}/recent?days=30`);
+        const recentRaw = await recentResponse.json();
+        weatherData = normalizeApiArray(recentRaw);
 
                 // Calculate averages
                 if (weatherData.length > 0) {
@@ -3476,9 +3702,13 @@ document.querySelectorAll('.nav-link').forEach(link => {
                     const avgHumidity = calculateAverage(weatherData, 'humidity');
                     const totalRain = calculateSum(weatherData, 'rainfall');
 
-                    document.getElementById('avgTemperature').textContent = `${avgTemp.toFixed(1)}°C`;
-                    document.getElementById('avgHumidity').textContent = `${avgHumidity.toFixed(1)}%`;
-                    document.getElementById('totalRainfall').textContent = `${totalRain.toFixed(1)} mm`;
+                    document.getElementById('avgTemperature').textContent = formatMetric(avgTemp, '°C', 1, '0°C');
+                    document.getElementById('avgHumidity').textContent = formatMetric(avgHumidity, '%', 1, '0%');
+                    document.getElementById('totalRainfall').textContent = formatMetric(totalRain, ' mm', 1, '0 mm');
+                } else {
+                    document.getElementById('avgTemperature').textContent = '0°C';
+                    document.getElementById('avgHumidity').textContent = '0%';
+                    document.getElementById('totalRainfall').textContent = '0 mm';
                 }
 
                 // Initialize overview charts
@@ -3492,8 +3722,9 @@ document.querySelectorAll('.nav-link').forEach(link => {
 
         async function loadLocations() {
             try {
-                const response = await fetch(`${API_BASE_URL}/location-averages`);
-                const locations = await response.json();
+        const response = await fetch(`${API_BASE_URL}/location-averages`);
+        const locationsRaw = await response.json();
+        const locations = normalizeApiArray(locationsRaw);
 
                 const locationFilter = document.getElementById('locationFilter');
                 if (locationFilter) {
@@ -3526,7 +3757,8 @@ document.querySelectorAll('.nav-link').forEach(link => {
                 const response = await fetch(
                     `${API_BASE_URL}/analytics/statistics?startDate=${startISO}&endDate=${endISO}`
                 );
-                const stats = await response.json();
+                const statsRaw = await response.json();
+                const stats = statsRaw?.data || statsRaw;
 
                 // Store statistics for later use
                 window.weatherStats = stats;
@@ -3788,52 +4020,44 @@ document.querySelectorAll('.nav-link').forEach(link => {
             try {
                 showLoading(true);
 
-                const response = await fetch(`${API_BASE_URL}/recent?days=1`);
-                const currentData = await response.json();
+            const response = await fetch(`${API_BASE_URL}/recent?days=1`);
+            const currentRaw = await response.json();
 
                 const weatherGrid = document.getElementById('currentWeatherGrid');
                 if (!weatherGrid) return;
 
-                if (currentData.length === 0) {
+            let cleanData = normalizeApiArray(currentRaw)
+                .filter(d => d && getRecordDate(d));
+
+            if (cleanData.length === 0) {
+                const fallbackResponse = await fetch(`${API_BASE_URL}/recent?days=7`);
+                const fallbackRaw = await fallbackResponse.json();
+                cleanData = normalizeApiArray(fallbackRaw)
+                    .filter(d => d && getRecordDate(d));
+            }
+
+                if (cleanData.length === 0) {
                     weatherGrid.innerHTML = '<div class="empty-state"><i class="fas fa-cloud"></i><p>No current weather data available</p></div>';
                     return;
                 }
 
-                weatherGrid.innerHTML = currentData.slice(0, 6).map(weather => `
-                    <div class="weather-card">
-                        <div class="weather-card-header">
-                            <div>
-                                <div class="weather-icon">${getWeatherIcon(weather.weatherCondition)}</div>
-                                <div style="font-size: 14px; color: var(--text-secondary); margin-top: 8px;">
-                                    ${formatDateTime(weather.recordDate)}
-                                </div>
-                            </div>
-                            <div class="weather-temp">${weather.temperature || 'N/A'}°C</div>
-                        </div>
-                        <div class="weather-details">
-                            <div class="weather-detail">
-                                <i class="fas fa-tint"></i>
-                                <span>${weather.humidity || 'N/A'}% Humidity</span>
-                            </div>
-                            <div class="weather-detail">
-                                <i class="fas fa-wind"></i>
-                                <span>${weather.windSpeed || 'N/A'} m/s</span>
-                            </div>
-                            <div class="weather-detail">
-                                <i class="fas fa-cloud-rain"></i>
-                                <span>${weather.rainfall || 0} mm</span>
-                            </div>
-                            <div class="weather-detail">
-                                <i class="fas fa-compress-arrows-alt"></i>
-                                <span>${weather.atmosphericPressure || 'N/A'} hPa</span>
-                            </div>
-                        </div>
-                        <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-color); font-size: 13px; color: var(--text-secondary);">
-                            <i class="fas fa-map-marker-alt"></i>
-                            ${weather.latitude?.toFixed(4) || 'N/A'}, ${weather.longitude?.toFixed(4) || 'N/A'}
+            const sorted = cleanData.sort((a, b) => new Date(getRecordDate(b)) - new Date(getRecordDate(a)));
+                const latest = sorted[0];
+                const secondary = sorted.slice(1, 6);
+
+                const mainCard = renderCurrentWeatherCard(latest, true);
+                const secondaryCards = secondary.length
+                    ? secondary.map(item => renderCurrentWeatherCard(item, false)).join('')
+                    : '<div class="empty-state"><i class="fas fa-cloud-sun"></i><p>No additional recent records</p></div>';
+
+                weatherGrid.innerHTML = `
+                    <div class="current-weather-grid">
+                        ${mainCard}
+                        <div class="current-subgrid">
+                            ${secondaryCards}
                         </div>
                     </div>
-                `).join('');
+                `;
 
             } catch (error) {
                 console.error('Error loading current weather:', error);
@@ -3843,11 +4067,47 @@ document.querySelectorAll('.nav-link').forEach(link => {
             }
         }
 
+        function renderCurrentWeatherCard(weather, isMain) {
+            const condition = formatCondition(weather.weatherCondition);
+            const isRainy = isRainCondition(weather.weatherCondition, weather.rainfall);
+            const cardClass = `weather-card ${isMain ? 'current-main-card' : ''} ${isRainy ? 'rainy' : ''}`;
+            const temp = formatMetric(weather.temperature, '°C');
+            const humidity = formatMetric(weather.humidity, '%');
+            const wind = formatMetric(weather.windSpeed, ' m/s');
+            const rainfall = formatMetric(weather.rainfall, ' mm', 1, '0 mm');
+            const pressure = formatMetric(weather.atmosphericPressure, ' hPa');
+            const uvIndex = formatMetric(weather.uvIndex, '');
+            const lat = weather.latitude != null ? weather.latitude.toFixed(4) : 'N/A';
+            const lon = weather.longitude != null ? weather.longitude.toFixed(4) : 'N/A';
+
+            const recordDate = getRecordDate(weather);
+            return `
+                <div class="${cardClass}">
+                    <div class="weather-card-header">
+                        <div>
+                            <div class="weather-icon">${getWeatherIcon(weather.weatherCondition)}</div>
+                            <div class="weather-condition">${condition}</div>
+                            <div class="weather-timestamp">${formatDateTime(recordDate)}</div>
+                        </div>
+                        <div class="weather-temp">${temp}</div>
+                    </div>
+                    <div class="weather-details">
+                        <div class="weather-detail"><i class="fas fa-tint"></i><span>${humidity} Humidity</span></div>
+                        <div class="weather-detail"><i class="fas fa-wind"></i><span>${wind}</span></div>
+                        <div class="weather-detail"><i class="fas fa-cloud-rain"></i><span>${rainfall}</span></div>
+                        <div class="weather-detail"><i class="fas fa-compress-arrows-alt"></i><span>${pressure}</span></div>
+                        <div class="weather-detail"><i class="fas fa-sun"></i><span>UV ${uvIndex}</span></div>
+                        <div class="weather-detail"><i class="fas fa-map-marker-alt"></i><span>${lat}, ${lon}</span></div>
+                    </div>
+                </div>
+            `;
+        }
+
         // ==================== HISTORICAL DATA ====================
 
 
 
-async function loadHistoricalData() {
+        async function loadHistoricalData() {
     try {
         showLoading(true);
 
@@ -3866,9 +4126,10 @@ async function loadHistoricalData() {
         const response = await fetch(
             `${API_BASE_URL}/date-range?startDate=${startDateTime}&endDate=${endDateTime}`
         );
-        const historicalData = await response.json();
-
-        renderHistoricalTable(historicalData);
+        const historicalRaw = await response.json();
+        historicalDataCache = normalizeApiArray(historicalRaw);
+        historicalPage = 1;
+        renderHistoricalPage();
 
     } catch (error) {
         console.error('Error loading historical data:', error);
@@ -3894,16 +4155,60 @@ async function loadHistoricalData() {
 
             tbody.innerHTML = data.map(weather => `
                 <tr>
-                    <td>${formatDateTime(weather.recordDate)}</td>
+                    <td>${formatDateTime(getRecordDate(weather))}</td>
                     <td>${weather.latitude?.toFixed(4)}, ${weather.longitude?.toFixed(4)}</td>
-                    <td>${weather.temperature || 'N/A'}°C</td>
-                    <td>${weather.humidity || 'N/A'}%</td>
-                    <td>${weather.rainfall || 0} mm</td>
-                    <td>${weather.windSpeed || 'N/A'} m/s</td>
+                    <td>${formatMetric(weather.temperature, '°C')}</td>
+                    <td>${formatMetric(weather.humidity, '%')}</td>
+                    <td>${formatMetric(weather.rainfall, ' mm', 1, '0 mm')}</td>
+                    <td>${formatMetric(weather.windSpeed, ' m/s')}</td>
                     <td>${weather.weatherCondition || 'N/A'}</td>
                     <td><span class="badge badge-${weather.dataQuality?.toLowerCase()}">${weather.dataQuality || 'N/A'}</span></td>
                 </tr>
             `).join('');
+        }
+
+        function renderHistoricalPage() {
+            const total = historicalDataCache.length;
+            if (total === 0) {
+                renderHistoricalTable([]);
+                renderHistoricalPagination(0);
+                return;
+            }
+
+            const start = (historicalPage - 1) * historicalPageSize;
+            const pageData = historicalDataCache.slice(start, start + historicalPageSize);
+            renderHistoricalTable(pageData);
+            renderHistoricalPagination(Math.ceil(total / historicalPageSize));
+        }
+
+        function renderHistoricalPagination(totalPages) {
+            const pagination = document.getElementById('historicalPagination');
+            if (!pagination) return;
+
+            if (totalPages <= 1) {
+                pagination.innerHTML = '';
+                return;
+            }
+
+            const prevDisabled = historicalPage === 1 ? 'disabled' : '';
+            const nextDisabled = historicalPage === totalPages ? 'disabled' : '';
+
+            pagination.innerHTML = `
+                <button class="pagination-btn" ${prevDisabled} onclick="changeHistoricalPage(${historicalPage - 1})">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <span class="pagination-info">Page ${historicalPage} of ${totalPages}</span>
+                <button class="pagination-btn" ${nextDisabled} onclick="changeHistoricalPage(${historicalPage + 1})">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            `;
+        }
+
+        function changeHistoricalPage(page) {
+            const totalPages = Math.ceil(historicalDataCache.length / historicalPageSize);
+            if (page < 1 || page > totalPages) return;
+            historicalPage = page;
+            renderHistoricalPage();
         }
 
         // ==================== HELPER FUNCTIONS ====================
@@ -3918,13 +4223,56 @@ async function loadHistoricalData() {
             return data.filter(d => d[field] != null).map(d => parseFloat(d[field])).reduce((a, b) => a + b, 0);
         }
 
+        function hasValidStats(stats) {
+            if (!stats) return false;
+        const normalized = normalizeStats(stats);
+        const values = [
+            normalized.avgTemperature,
+            normalized.maxTemperature,
+            normalized.minTemperature,
+            normalized.avgHumidity,
+            normalized.totalRainfall,
+            normalized.avgWindSpeed
+        ];
+            return values.some(v => v != null && !isNaN(parseFloat(v)));
+        }
+
+    function normalizeStats(stats) {
+        if (!stats) return {};
+        return {
+            avgTemperature: stats.avgTemperature ?? stats.avgTemp ?? stats.averageTemperature,
+            maxTemperature: stats.maxTemperature ?? stats.maxTemp ?? stats.maximumTemperature,
+            minTemperature: stats.minTemperature ?? stats.minTemp ?? stats.minimumTemperature,
+            avgHumidity: stats.avgHumidity ?? stats.averageHumidity,
+            totalRainfall: stats.totalRainfall ?? stats.rainfallTotal,
+            avgWindSpeed: stats.avgWindSpeed ?? stats.averageWindSpeed
+        };
+    }
+
+        function computeStatsFromRecords(records) {
+            if (!records || records.length === 0) {
+                return null;
+            }
+            const temps = records.map(r => parseFloat(r.temperature)).filter(v => !isNaN(v));
+            return {
+                avgTemperature: calculateAverage(records, 'temperature'),
+                maxTemperature: temps.length ? Math.max(...temps) : null,
+                minTemperature: temps.length ? Math.min(...temps) : null,
+                avgHumidity: calculateAverage(records, 'humidity'),
+                totalRainfall: calculateSum(records, 'rainfall'),
+                avgWindSpeed: calculateAverage(records, 'windSpeed')
+            };
+        }
+
         function formatDate(dateString) {
             const date = new Date(dateString);
             return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
         }
 
         function formatDateTime(dateString) {
+            if (!dateString) return 'N/A';
             const date = new Date(dateString);
+            if (isNaN(date.getTime())) return 'N/A';
             return date.toLocaleString('en-US', {
                 month: 'short',
                 day: 'numeric',
@@ -3950,6 +4298,44 @@ async function loadHistoricalData() {
                 'DRIZZLE': '🌦️'
             };
             return icons[condition] || '🌤️';
+        }
+
+        function formatCondition(condition) {
+            if (!condition) return 'Unknown';
+            return condition
+                .toString()
+                .toLowerCase()
+                .replace(/_/g, ' ')
+                .replace(/\b\w/g, c => c.toUpperCase());
+        }
+
+        function isRainCondition(condition, rainfall) {
+            const cond = (condition || '').toString().toUpperCase();
+            return cond.includes('RAIN') || cond.includes('THUNDER') || parseFloat(rainfall || 0) > 0;
+        }
+
+        function deriveWeatherCondition(temp, humidity, rainfall) {
+            const t = parseFloat(temp);
+            const h = parseFloat(humidity);
+            const r = parseFloat(rainfall);
+
+            if (!isNaN(r) && r >= 10) return 'HEAVY_RAIN';
+            if (!isNaN(r) && r >= 2) return 'RAIN';
+            if (!isNaN(r) && r > 0) return 'LIGHT_RAIN';
+            if (!isNaN(h) && h >= 85) return 'OVERCAST';
+            if (!isNaN(h) && h >= 70) return 'CLOUDY';
+            if (!isNaN(t) && t >= 35) return 'SUNNY';
+            if (!isNaN(t) && t <= 10) return 'FOG';
+            return 'PARTLY_CLOUDY';
+        }
+
+        function formatMetric(value, suffix = '', decimals = 1, fallback = 'N/A') {
+            if (value == null || value === '' || isNaN(parseFloat(value))) {
+                return fallback;
+            }
+            const num = Number(value);
+            const formatted = Number.isFinite(num) ? num.toFixed(decimals) : value;
+            return `${formatted}${suffix}`;
         }
 
         function showSection(sectionName) {
@@ -4117,6 +4503,31 @@ async function loadHistoricalData() {
             }, 5000);
         }
 
+        function setChartEmptyState(canvasId, message) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const container = canvas.parentElement;
+            if (!container) return;
+            let empty = container.querySelector('.chart-empty');
+            if (!empty) {
+                empty = document.createElement('div');
+                empty.className = 'chart-empty';
+                container.appendChild(empty);
+            }
+            empty.textContent = message;
+            canvas.style.display = 'none';
+        }
+
+        function clearChartEmptyState(canvasId) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const container = canvas.parentElement;
+            if (!container) return;
+            const empty = container.querySelector('.chart-empty');
+            if (empty) empty.remove();
+            canvas.style.display = '';
+        }
+
 
 
 
@@ -4132,24 +4543,24 @@ async function initializePredictions() {
         const dataCount = trainingData.length;
         document.getElementById('trainingDataCount').textContent = `${dataCount} records`;
 
-        if (dataCount < 30) {
+        if (dataCount < PREDICTION_MIN_RECORDS) {
             document.getElementById('modelStatus').textContent = 'Insufficient Data';
             document.getElementById('modelAccuracy').textContent = 'N/A';
 
             const resultsContainer = document.getElementById('predictionResults');
             if (resultsContainer) {
                 resultsContainer.innerHTML = `
-                    <div style="text-align: center; padding: 40px; color: var(--text-secondary);">
-                        <i class="fas fa-info-circle" style="font-size: 48px; margin-bottom: 16px; color: #f59e0b;"></i>
-                        <h3 style="margin-bottom: 12px;">Insufficient Training Data</h3>
-                        <p>At least 30 weather records are needed for accurate predictions.</p>
+                    <div class="empty-state prediction-empty">
+                        <i class="fas fa-info-circle"></i>
+                        <h3>Insufficient Training Data</h3>
+                        <p>At least ${PREDICTION_MIN_RECORDS} weather records are needed for predictions.</p>
                         <p>Current records: <strong>${dataCount}</strong></p>
-                        <p style="margin-top: 16px;">Please add more weather data to enable AI predictions.</p>
+                        <p>Please add more weather data to enable AI predictions.</p>
                     </div>
                 `;
             }
 
-            showToast(`Need at least 30 records for predictions. Currently: ${dataCount}`, 'info');
+            showToast(`Need at least ${PREDICTION_MIN_RECORDS} records for predictions. Currently: ${dataCount}`, 'info');
             return;
         }
 
@@ -4180,7 +4591,8 @@ async function loadTrainingData() {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        trainingData = await response.json();
+        const trainingRaw = await response.json();
+        trainingData = normalizeApiArray(trainingRaw);
         console.log('Training data loaded:', trainingData.length, 'records');
 
         // Filter and clean data
@@ -4202,7 +4614,7 @@ async function loadTrainingData() {
 
 async function trainPredictionModel() {
     try {
-        const minRequiredRecords = 30;
+        const minRequiredRecords = PREDICTION_MIN_RECORDS;
 
         if (trainingData.length < minRequiredRecords) {
             throw new Error(`Insufficient training data. Found ${trainingData.length} records, need at least ${minRequiredRecords}.`);
@@ -4337,8 +4749,8 @@ async function generatePredictions() {
             return;
         }
 
-        if (trainingData.length < 30) {
-            showToast('Insufficient training data for predictions.', 'error');
+        if (trainingData.length < PREDICTION_MIN_RECORDS) {
+            showToast(`Insufficient training data for predictions. Need at least ${PREDICTION_MIN_RECORDS} records.`, 'error');
             return;
         }
 
@@ -4407,8 +4819,9 @@ async function generatePredictions() {
             currentHum.shift();
             currentHum.push(newHum);
 
-            // Rainfall probability based on humidity
-            const rainProb = newHum > 70 ? Math.random() * 10 : 0;
+            // Rainfall estimate based on humidity and recent average (no random)
+            const avgRecentRain = recentRainfall.reduce((a, b) => a + b, 0) / Math.max(1, recentRainfall.length);
+            const rainProb = newHum > 70 ? avgRecentRain * 0.7 : avgRecentRain * 0.2;
             currentRain.shift();
             currentRain.push(rainProb);
 
@@ -4443,19 +4856,24 @@ function displayPredictions(predictions) {
         const date = new Date(today);
         date.setDate(date.getDate() + index + 1);
 
-        const tempClass = pred > 35 ? 'error' : pred > 30 ? 'warning' : pred > 20 ? 'success' : 'info';
+        const temp = typeof pred === 'number' ? pred : pred.temperature;
+        const humidity = typeof pred === 'number' ? null : pred.humidity;
+        const rainfall = typeof pred === 'number' ? null : pred.rainfall;
+        const windSpeed = typeof pred === 'number' ? null : pred.windSpeed;
+        const condition = typeof pred === 'number' ? null : pred.condition;
+        const tempClass = temp > 35 ? 'error' : temp > 30 ? 'warning' : temp > 20 ? 'success' : 'info';
 
         return `
             <div class="prediction-card">
                 <div class="prediction-date">${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', weekday: 'short' })}</div>
-                <div class="prediction-value" style="color: var(--${tempClass}-color);">${pred.toFixed(1)}°C</div>
-                <div style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">
-                    ${getTemperatureDescription(pred)}
+                <div class="prediction-value" style="color: var(--${tempClass}-color);">${temp.toFixed(1)}°C</div>
+                <div class="prediction-meta">
+                    <span>${condition ? formatCondition(condition) : getTemperatureDescription(temp)}</span>
                 </div>
-                <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-color);">
-                    <div style="font-size: 11px; color: var(--text-muted);">
-                        Day +${index + 1}
-                    </div>
+                <div class="prediction-details">
+                    <div><i class="fas fa-tint"></i> ${humidity != null ? humidity.toFixed(0) + '%' : 'N/A'}</div>
+                    <div><i class="fas fa-cloud-rain"></i> ${rainfall != null ? rainfall.toFixed(1) + ' mm' : 'N/A'}</div>
+                    <div><i class="fas fa-wind"></i> ${windSpeed != null ? windSpeed.toFixed(1) + ' m/s' : 'N/A'}</div>
                 </div>
             </div>
         `;
@@ -4486,6 +4904,8 @@ function displayPredictionChart(predictions, historicalTemps) {
         return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     });
 
+    const predTemps = predictions.map(p => typeof p === 'number' ? p : p.temperature);
+
     // Calculate confidence intervals
     const upperBound = predictions.map(p => p + 2);
     const lowerBound = predictions.map(p => p - 2);
@@ -4506,7 +4926,7 @@ function displayPredictionChart(predictions, historicalTemps) {
                 },
                 {
                     label: 'Predicted Temperature',
-                    data: [...Array(historicalTemps.length).fill(null), ...predictions],
+                data: [...Array(historicalTemps.length).fill(null), ...predTemps],
                     borderColor: '#10b981',
                     backgroundColor: 'rgba(16, 185, 129, 0.1)',
                     fill: true,
@@ -4592,14 +5012,18 @@ label: function(context) {
 
             const days = parseInt(document.getElementById('securityDays')?.value || 30);
 
-            const response = await fetch(`${API_BASE_URL}/analytics/food-security-risk?days=${days}`);
-            const data = await response.json();
+    const response = await fetch(`${API_BASE_URL}/analytics/food-security-risk?days=${days}`);
+    const data = await response.json();
+    console.log('[FoodSecurity] /analytics/food-security-risk response:', data);
+    const payload = data?.data || data;
 
-            if (data.success) {
-                displayFoodSecurityAnalysis(data.data);
-            } else {
-                showToast('Error analyzing food security', 'error');
-            }
+    if (data?.success === false) {
+        showToast(data.message || 'Error analyzing food security', 'error');
+        return;
+    }
+
+    displayFoodSecurityAnalysis(payload);
+    await loadFoodSecurityAlerts();
 
         } catch (error) {
             console.error('Error analyzing food security:', error);
@@ -4609,7 +5033,90 @@ label: function(context) {
         }
     }
 
+async function loadFoodSecurityAlerts() {
+    const grid = document.getElementById('foodSecurityAlertsGrid');
+    if (!grid) return;
+
+    try {
+        const url = 'http://localhost:1010/api/food-security-alerts/active?size=6';
+        const response = await fetch(url);
+        const data = await response.json();
+        console.log('[FoodSecurity] GET', url, 'response:', data);
+        const alerts = normalizeFoodSecurityAlerts(data);
+        console.log('[FoodSecurity] normalized alerts:', alerts);
+
+        if (alerts.length === 0) {
+            grid.innerHTML = '<div class="empty-state"><i class="fas fa-check-circle"></i><p>No active food security alerts</p></div>';
+            return;
+        }
+
+        grid.innerHTML = alerts.map(alert => {
+            const level = (alert.alertLevel || 'INFO').toUpperCase();
+            const levelClass = getAlertLevelClass(level);
+            const region = alert.affectedRegion || 'Unknown region';
+            const dateLabel = formatAlertDate(alert.alertDate || alert.createdAt);
+            const population = alert.affectedPopulation ? `Population: ${alert.affectedPopulation}` : 'Population: N/A';
+
+            return `
+                <div class="food-alert-card alert-${levelClass}">
+                    <div class="food-alert-title">${alert.alertTitle || 'Food Security Alert'}</div>
+                    <div class="food-alert-meta">
+                        <span><i class="fas fa-bolt"></i> ${level}</span>
+                        <span><i class="fas fa-map-marker-alt"></i> ${region}</span>
+                        <span><i class="fas fa-calendar"></i> ${dateLabel}</span>
+                    </div>
+                    <div class="food-alert-message">${alert.description || 'No description available.'}</div>
+                    <div class="food-alert-meta">
+                        <span><i class="fas fa-users"></i> ${population}</span>
+                        <span><i class="fas fa-bullseye"></i> ${alert.alertCategory || 'N/A'}</span>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+    } catch (error) {
+        console.error('Error loading food security alerts:', error);
+        grid.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Unable to load alerts</p></div>';
+    }
+}
+
+function normalizeFoodSecurityAlerts(raw) {
+    const payload = raw?.data || raw;
+    if (Array.isArray(payload)) return payload;
+    if (payload?.content && Array.isArray(payload.content)) return payload.content;
+    if (payload?.data && Array.isArray(payload.data)) return payload.data;
+    if (raw?.data?.content && Array.isArray(raw.data.content)) return raw.data.content;
+    if (raw?.data?.data && Array.isArray(raw.data.data)) return raw.data.data;
+    return [];
+}
+
+function getAlertLevelClass(level) {
+    if (level === 'CRITICAL') return 'critical';
+    if (level === 'HIGH') return 'high';
+    if (level === 'MEDIUM') return 'medium';
+    if (level === 'LOW') return 'low';
+    return 'info';
+}
+
+function formatAlertDate(dateValue) {
+    if (!dateValue) return 'N/A';
+    const date = new Date(dateValue);
+    if (isNaN(date.getTime())) return 'N/A';
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
     function displayFoodSecurityAnalysis(data) {
+        if (!data) {
+            const riskBadge = document.getElementById('riskLevelBadge');
+            if (riskBadge) {
+                riskBadge.textContent = 'N/A';
+                riskBadge.style.cssText = 'display: inline-block; padding: 10px 24px; border-radius: 20px; font-weight: 600; font-size: 16px; background: var(--bg-secondary); color: var(--text-secondary);';
+            }
+            document.getElementById('overallRiskScore').textContent = '0';
+            showToast('No food security data available', 'info');
+            return;
+        }
+
         // Display overall risk score
         const riskScore = data.overallRiskScore || 0;
         const riskLevel = data.riskLevel || 'Unknown';
@@ -4848,21 +5355,35 @@ label: function(context) {
         return icons[type] || 'fa-info-circle';
     }
 
+    function getAlertIcon(type) {
+        const t = (type || '').toString().toLowerCase();
+        if (t.includes('temperature') || t.includes('heat')) return 'fa-thermometer-half';
+        if (t.includes('rain')) return 'fa-cloud-showers-heavy';
+        if (t.includes('wind')) return 'fa-wind';
+        if (t.includes('humidity')) return 'fa-tint';
+        return 'fa-exclamation-triangle';
+    }
+
     // ==================== WEATHER ALERTS ====================
 
     async function checkWeatherAlerts() {
         try {
             showLoading(true);
 
-            const response = await fetch(`${API_BASE_URL}/analytics/check-alert-triggers`, {
-                method: 'POST'
-            });
-            const data = await response.json();
+        const response = await fetch(`${API_BASE_URL}/analytics/check-alert-triggers`, {
+            method: 'POST'
+        });
+        const data = await response.json();
+        const payload = data?.data || data;
+        const alerts = payload?.triggeredAlerts || payload?.alerts || (Array.isArray(payload) ? payload : []);
 
-            if (data.success) {
-                displayWeatherAlerts(data.triggeredAlerts || []);
-                displayAlertTimeline(data.triggeredAlerts || []);
-            }
+        if (data?.success === false) {
+            showToast(data.message || 'Error checking weather alerts', 'error');
+            return;
+        }
+
+        displayWeatherAlerts(alerts);
+        displayAlertTimeline(alerts);
 
         } catch (error) {
             console.error('Error checking alerts:', error);
@@ -4884,7 +5405,7 @@ label: function(context) {
         grid.innerHTML = alerts.map(alert => `
             <div class="alert-card ${alert.severity?.toLowerCase()}">
                 <div class="alert-header">
-                    <span class="alert-type">${alert.type || 'Weather Alert'}</span>
+                    <span class="alert-type"><i class="fas ${getAlertIcon(alert.type)}"></i> ${alert.type || 'Weather Alert'}</span>
                     <span class="alert-severity ${alert.severity?.toLowerCase()}">${alert.severity || 'Medium'}</span>
                 </div>
                 <div class="alert-message">${alert.message || 'Weather conditions require attention'}</div>
@@ -4950,7 +5471,7 @@ label: function(context) {
     const originalLoadSectionData = loadSectionData;
     loadSectionData = async function(sectionName) {
         if (sectionName === 'foodSecurity') {
-            // Initialize but don't auto-analyze
+            await loadFoodSecurityAlerts();
             return;
         } else if (sectionName === 'alerts') {
             await checkWeatherAlerts();
@@ -4976,7 +5497,8 @@ label: function(context) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
-            trainingData = await response.json();
+            const trainingRaw = await response.json();
+            trainingData = normalizeApiArray(trainingRaw);
             console.log('Initial data loaded:', trainingData.length, 'records');
 
             // If we don't have enough data, try to get all available data
@@ -5007,7 +5529,7 @@ label: function(context) {
 
     async function trainPredictionModel() {
         try {
-            const minRequiredRecords = 10;
+            const minRequiredRecords = PREDICTION_MIN_RECORDS;
 
             if (trainingData.length < minRequiredRecords) {
                 throw new Error(`Insufficient training data. Found ${trainingData.length} records, need at least ${minRequiredRecords}.`);
@@ -5044,10 +5566,10 @@ label: function(context) {
 
             // Create sequences - adapt sequence length to available data
             const maxSequenceLength = 7;
-            const sequenceLength = Math.min(maxSequenceLength, Math.floor(temperatures.length / 3));
+            const sequenceLength = Math.min(maxSequenceLength, Math.max(3, Math.floor(temperatures.length / 2)));
 
             if (sequenceLength < 3) {
-                throw new Error(`Not enough data for meaningful sequences. Need at least ${maxSequenceLength * 3} temperature records.`);
+                throw new Error(`Not enough data for meaningful sequences. Need at least ${PREDICTION_MIN_RECORDS} temperature records.`);
             }
 
             console.log('Using sequence length:', sequenceLength);
@@ -5062,8 +5584,8 @@ label: function(context) {
 
             console.log('Created sequences:', sequences.length);
 
-            if (sequences.length < 5) {
-                throw new Error(`Not enough sequences for training. Need at least 5, found ${sequences.length}.`);
+            if (sequences.length < 2) {
+                throw new Error(`Not enough sequences for training. Need at least 2, found ${sequences.length}.`);
             }
 
             // Normalize data
@@ -5140,8 +5662,8 @@ label: function(context) {
                 return;
             }
 
-            if (trainingData.length < 10) {
-                showToast('Insufficient training data for predictions. Please add more weather data.', 'error');
+            if (trainingData.length < PREDICTION_MIN_RECORDS) {
+                showToast(`Insufficient training data for predictions. Need at least ${PREDICTION_MIN_RECORDS} records.`, 'error');
                 return;
             }
 
@@ -5169,6 +5691,12 @@ label: function(context) {
             // Normalize input
             const normalizedInput = recentTemps.map(t => (t - tempMean) / tempStd);
 
+            // Recent averages for realistic derived metrics (from real data)
+            const recentRecords = trainingData.slice(-Math.max(sequenceLength, 10));
+            const avgHumidity = calculateAverage(recentRecords, 'humidity') || 50;
+            const avgRainfall = calculateAverage(recentRecords, 'rainfall') || 0;
+            const avgWind = calculateAverage(recentRecords, 'windSpeed') || 2;
+
             // Generate predictions
             const predictions = [];
             let currentSequence = [...normalizedInput];
@@ -5180,7 +5708,18 @@ label: function(context) {
 
                 // Denormalize prediction
                 const prediction = normalizedPred[0] * tempStd + tempMean;
-                predictions.push(prediction);
+                const humidity = Math.max(20, Math.min(100, avgHumidity - (prediction - tempMean) * 0.4));
+                const rainfall = humidity > 70 ? Math.max(0, avgRainfall * (humidity / 100)) : avgRainfall * 0.3;
+                const windSpeed = Math.max(0, avgWind + (prediction - tempMean) * 0.05);
+                const condition = deriveWeatherCondition(prediction, humidity, rainfall);
+
+                predictions.push({
+                    temperature: prediction,
+                    humidity,
+                    rainfall,
+                    windSpeed,
+                    condition
+                });
 
                 // Update sequence for next prediction
                 currentSequence.shift();
@@ -5217,12 +5756,23 @@ label: function(context) {
             const date = new Date(today);
             date.setDate(date.getDate() + index + 1);
 
+            const temp = typeof pred === 'number' ? pred : pred.temperature;
+            const humidity = typeof pred === 'number' ? null : pred.humidity;
+            const rainfall = typeof pred === 'number' ? null : pred.rainfall;
+            const windSpeed = typeof pred === 'number' ? null : pred.windSpeed;
+            const condition = typeof pred === 'number' ? null : pred.condition;
+
             return `
                 <div class="prediction-card">
-                    <div class="prediction-date">${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>
-                    <div class="prediction-value">${pred.toFixed(1)}°C</div>
-                    <div style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">
-                        ${getTemperatureDescription(pred)}
+                    <div class="prediction-date">${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', weekday: 'short' })}</div>
+                    <div class="prediction-value">${temp.toFixed(1)}°C</div>
+                    <div class="prediction-meta">
+                        <span>${condition ? formatCondition(condition) : getTemperatureDescription(temp)}</span>
+                    </div>
+                    <div class="prediction-details">
+                        <div><i class="fas fa-tint"></i> ${humidity != null ? humidity.toFixed(0) + '%' : 'N/A'}</div>
+                        <div><i class="fas fa-cloud-rain"></i> ${rainfall != null ? rainfall.toFixed(1) + ' mm' : 'N/A'}</div>
+                        <div><i class="fas fa-wind"></i> ${windSpeed != null ? windSpeed.toFixed(1) + ' m/s' : 'N/A'}</div>
                     </div>
                 </div>
             `;
@@ -5247,7 +5797,9 @@ label: function(context) {
         // Get recent actual temperatures
         const sequenceLength = window.predictionSequenceLength || 7;
         const recentTemps = trainingData.slice(-sequenceLength).map(d => parseFloat(d.temperature));
-        const recentLabels = trainingData.slice(-sequenceLength).map(d => formatDate(d.recordDate));
+        const recentLabels = trainingData.slice(-sequenceLength).map(d => formatDate(getRecordDate(d)));
+
+        const predTemps = predictions.map(p => typeof p === 'number' ? p : p.temperature);
 
         charts.prediction = new Chart(ctx, {
             type: 'line',
@@ -5264,7 +5816,7 @@ label: function(context) {
                     },
                     {
                         label: 'Predicted',
-                        data: [...Array(recentTemps.length).fill(null), ...predictions],
+                        data: [...Array(recentTemps.length).fill(null), ...predTemps],
                         borderColor: '#10b981',
                         backgroundColor: 'rgba(16, 185, 129, 0.1)',
                         fill: true,
@@ -5335,10 +5887,19 @@ label: function(context) {
                 const startISO = new Date(startDate).toISOString().split('.')[0];
                 const endISO = new Date(endDate).toISOString().split('.')[0];
 
-                const response = await fetch(
-                    `${API_BASE_URL}/analytics/statistics?startDate=${startISO}&endDate=${endISO}`
-                );
-                const stats = await response.json();
+    const response = await fetch(
+        `${API_BASE_URL}/analytics/statistics?startDate=${startISO}&endDate=${endISO}`
+    );
+    const statsResponse = await response.json();
+    let stats = statsResponse?.data || statsResponse;
+
+                if (!hasValidStats(stats)) {
+                    const rangeResponse = await fetch(
+                        `${API_BASE_URL}/date-range?startDate=${startISO}&endDate=${endISO}`
+                    );
+                    const rangeData = await rangeResponse.json();
+                    stats = computeStatsFromRecords(Array.isArray(rangeData) ? rangeData : []);
+                }
 
                 displayStatisticsSummary(stats);
                 displayStatisticsCharts(stats);
@@ -5359,30 +5920,37 @@ label: function(context) {
             const container = document.getElementById('statsSummary');
             if (!container) return;
 
+            if (!stats || !hasValidStats(stats)) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-info-circle"></i><p>No statistics available for the selected period</p></div>';
+                return;
+            }
+
+            const normalized = normalizeStats(stats);
+
             container.innerHTML = `
                 <div class="summary-card">
                     <div class="summary-label">Average Temperature</div>
-                    <div class="summary-value">${stats.avgTemperature?.toFixed(1) || 'N/A'}°C</div>
+                    <div class="summary-value">${formatMetric(normalized.avgTemperature, '°C')}</div>
                 </div>
                 <div class="summary-card">
                     <div class="summary-label">Max Temperature</div>
-                    <div class="summary-value">${stats.maxTemperature?.toFixed(1) || 'N/A'}°C</div>
+                    <div class="summary-value">${formatMetric(normalized.maxTemperature, '°C')}</div>
                 </div>
                 <div class="summary-card">
                     <div class="summary-label">Min Temperature</div>
-                    <div class="summary-value">${stats.minTemperature?.toFixed(1) || 'N/A'}°C</div>
+                    <div class="summary-value">${formatMetric(normalized.minTemperature, '°C')}</div>
                 </div>
                 <div class="summary-card">
                     <div class="summary-label">Average Humidity</div>
-                    <div class="summary-value">${stats.avgHumidity?.toFixed(1) || 'N/A'}%</div>
+                    <div class="summary-value">${formatMetric(normalized.avgHumidity, '%')}</div>
                 </div>
                 <div class="summary-card">
                     <div class="summary-label">Total Rainfall</div>
-                    <div class="summary-value">${stats.totalRainfall?.toFixed(1) || 'N/A'} mm</div>
+                    <div class="summary-value">${formatMetric(normalized.totalRainfall, ' mm', 1, '0 mm')}</div>
                 </div>
                 <div class="summary-card">
                     <div class="summary-label">Average Wind Speed</div>
-                    <div class="summary-value">${stats.avgWindSpeed?.toFixed(1) || 'N/A'} m/s</div>
+                    <div class="summary-value">${formatMetric(normalized.avgWindSpeed, ' m/s')}</div>
                 </div>
             `;
         }
@@ -5722,8 +6290,15 @@ async function displayScatterPlot() {
             }
 
             try {
-                const response = await fetch(`${API_BASE_URL}/analytics/monthly-stats`);
-                const monthlyStats = await response.json();
+            const response = await fetch(`${API_BASE_URL}/analytics/monthly-stats`);
+            const monthlyRaw = await response.json();
+            const monthlyStats = normalizeApiArray(monthlyRaw);
+
+                if (!Array.isArray(monthlyStats) || monthlyStats.length === 0) {
+                    setChartEmptyState('monthlyTrendsChart', 'No monthly trend data available');
+                    return;
+                }
+                clearChartEmptyState('monthlyTrendsChart');
 
                 const labels = monthlyStats.map(m => `${m.year}-${String(m.month).padStart(2, '0')}`);
                 const avgTemps = monthlyStats.map(m => m.avgTemperature);
@@ -5821,9 +6396,19 @@ async function displayScatterPlot() {
         const response = await fetch(
             `${API_BASE_URL}/analytics/daily-stats?startDate=${startISO}&endDate=${endISO}`
         );
-        const dailyStats = await response.json();
+        const dailyRaw = await response.json();
+        const dailyStats = normalizeApiArray(dailyRaw);
 
-        const labels = dailyStats.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+        if (!Array.isArray(dailyStats) || dailyStats.length === 0) {
+            setChartEmptyState('dailyAvgChart', 'No daily average data available');
+            return;
+        }
+        clearChartEmptyState('dailyAvgChart');
+
+        const labels = dailyStats.map(d => {
+            const dateValue = getRecordDate(d) || d.date;
+            return new Date(dateValue).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        });
         const avgTemps = dailyStats.map(d => d.avgTemperature);
 
         charts.dailyAvg = new Chart(ctx, {
@@ -5860,6 +6445,7 @@ async function displayScatterPlot() {
         });
     } catch (error) {
         console.error('Error loading daily averages:', error);
+        setChartEmptyState('dailyAvgChart', 'Unable to load daily averages');
     }
 }
 
@@ -5875,10 +6461,17 @@ async function displayScatterPlot() {
 
             try {
                 const response = await fetch(`${API_BASE_URL}/recent?days=30`);
-                const data = await response.json();
+                const dataRaw = await response.json();
+                const data = normalizeApiArray(dataRaw);
 
-                const sortedData = data.sort((a, b) => new Date(a.recordDate) - new Date(b.recordDate));
-                const labels = sortedData.map(d => formatDate(d.recordDate));
+                if (!Array.isArray(data) || data.length === 0) {
+                    setChartEmptyState('windTrendsChart', 'No wind trend data available');
+                    return;
+                }
+                clearChartEmptyState('windTrendsChart');
+
+                const sortedData = data.sort((a, b) => new Date(getRecordDate(a)) - new Date(getRecordDate(b)));
+                const labels = sortedData.map(d => formatDate(getRecordDate(d)));
                 const windSpeed = sortedData.map(d => d.windSpeed || 0);
 
                 charts.windTrends = new Chart(ctx, {
@@ -5916,6 +6509,7 @@ async function displayScatterPlot() {
                 });
             } catch (error) {
                 console.error('Error loading wind trends:', error);
+                setChartEmptyState('windTrendsChart', 'Unable to load wind trends');
             }
         }
 
@@ -6114,74 +6708,94 @@ async function generatePDFReport() {
             return;
         }
 
-        // CORRECTION ICI
         const startDateTime = formatISODateTime(new Date(startDate + 'T00:00:00'));
         const endDateTime = formatISODateTime(new Date(endDate + 'T23:59:59'));
 
-        // Fetch data for report
         const response = await fetch(
             `${API_BASE_URL}/date-range?startDate=${startDateTime}&endDate=${endDateTime}`
         );
         const reportData = await response.json();
 
-        if (reportData.length === 0) {
+        if (!Array.isArray(reportData) || reportData.length === 0) {
             showToast('No data available for selected date range', 'warning');
             return;
         }
 
-        // Generate PDF using jsPDF
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
 
-        // Add title
-        doc.setFontSize(20);
-        doc.text('Weather Data Report', 105, 20, { align: 'center' });
+        const logoDataUrl = await loadImageAsDataUrl('images/logo.jpeg').catch(() => null);
 
-        doc.setFontSize(12);
-        doc.text(`Report Type: ${reportType.toUpperCase()}`, 20, 35);
-        doc.text(`Period: ${new Date(startDate).toLocaleDateString()} - ${new Date(endDate).toLocaleDateString()}`, 20, 42);
-        doc.text(`Generated: ${new Date().toLocaleString()}`, 20, 49);
-        doc.text(`Total Records: ${reportData.length}`, 20, 56);
-
-        // Calculate statistics
-        const stats = calculateReportStatistics(reportData);
-
-        doc.setFontSize(14);
-        doc.text('Summary Statistics', 20, 70);
-
+        // Header
+        doc.setFillColor(34, 197, 94);
+        doc.rect(0, 0, 210, 28, 'F');
+        if (logoDataUrl) {
+            doc.addImage(logoDataUrl, 'JPEG', 12, 6, 16, 16);
+        }
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(16);
+        doc.text('AgriGuard AI', 34, 14);
+        doc.setFontSize(9);
+        doc.text('Smart Agriculture Management System', 34, 20);
         doc.setFontSize(11);
-        let yPos = 80;
-        doc.text(`Average Temperature: ${stats.avgTemp.toFixed(2)}°C`, 25, yPos);
-        yPos += 7;
-        doc.text(`Max Temperature: ${stats.maxTemp.toFixed(2)}°C`, 25, yPos);
-        yPos += 7;
-        doc.text(`Min Temperature: ${stats.minTemp.toFixed(2)}°C`, 25, yPos);
-        yPos += 7;
-        doc.text(`Average Humidity: ${stats.avgHumidity.toFixed(2)}%`, 25, yPos);
-        yPos += 7;
-        doc.text(`Total Rainfall: ${stats.totalRainfall.toFixed(2)} mm`, 25, yPos);
-        yPos += 7;
-        doc.text(`Average Wind Speed: ${stats.avgWindSpeed.toFixed(2)} m/s`, 25, yPos);
+        doc.text('Weather Analytics Report', 34, 25);
 
-        // Add table of data
+        // Report summary box
+        doc.setFillColor(220, 252, 231);
+        doc.roundedRect(15, 34, 180, 20, 3, 3, 'F');
+        doc.setTextColor(22, 163, 74);
+        doc.setFontSize(9);
+        doc.text('Report Generated:', 22, 42);
+        doc.text('Analysis Period:', 22, 49);
+        doc.text('Report Type:', 110, 42);
+        doc.text('Total Records:', 110, 49);
+        doc.setTextColor(0, 0, 0);
+        doc.text(new Date().toLocaleDateString(), 60, 42);
+        doc.text(`${new Date(startDate).toLocaleDateString()} - ${new Date(endDate).toLocaleDateString()}`, 60, 49);
+        doc.text(reportType.toUpperCase(), 148, 42);
+        doc.text(String(reportData.length), 148, 49);
+
+        // Summary statistics
+        const stats = calculateReportStatistics(reportData);
+        doc.setFillColor(34, 197, 94);
+        doc.rect(15, 60, 180, 8, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(11);
+        doc.text('Weather Summary & Insights', 20, 66);
+
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(10);
+        let yPos = 75;
+        doc.text(`Average Temperature: ${stats.avgTemp.toFixed(2)}°C`, 20, yPos);
+        yPos += 6;
+        doc.text(`Max Temperature: ${stats.maxTemp.toFixed(2)}°C`, 20, yPos);
+        yPos += 6;
+        doc.text(`Min Temperature: ${stats.minTemp.toFixed(2)}°C`, 20, yPos);
+        yPos += 6;
+        doc.text(`Average Humidity: ${stats.avgHumidity.toFixed(2)}%`, 20, yPos);
+        yPos += 6;
+        doc.text(`Total Rainfall: ${stats.totalRainfall.toFixed(2)} mm`, 20, yPos);
+        yPos += 6;
+        doc.text(`Average Wind Speed: ${stats.avgWindSpeed.toFixed(2)} m/s`, 20, yPos);
+
+        // Table
         const tableData = reportData.slice(0, 50).map(d => [
             formatDateTime(d.recordDate),
-            `${d.temperature || 'N/A'}°C`,
-            `${d.humidity || 'N/A'}%`,
-            `${d.rainfall || 0} mm`,
-            `${d.windSpeed || 'N/A'} m/s`,
+            `${d.temperature ?? 'N/A'}°C`,
+            `${d.humidity ?? 'N/A'}%`,
+            `${d.rainfall ?? 0} mm`,
+            `${d.windSpeed ?? 'N/A'} m/s`,
             d.weatherCondition || 'N/A'
         ]);
 
         doc.autoTable({
             head: [['Date/Time', 'Temp', 'Humidity', 'Rainfall', 'Wind', 'Condition']],
             body: tableData,
-            startY: yPos + 15,
+            startY: yPos + 8,
             styles: { fontSize: 8 },
-            headStyles: { fillColor: [59, 130, 246] }
+            headStyles: { fillColor: [34, 197, 94] }
         });
 
-        // Save PDF
         doc.save(`weather_report_${Date.now()}.pdf`);
         showToast('PDF report generated successfully', 'success');
 
@@ -6324,8 +6938,14 @@ async function generateExcelReport() {
                 const response = await fetch(`${API_BASE_URL}/analytics/data-quality-stats`);
                 const qualityStats = await response.json();
 
-                const labels = Object.keys(qualityStats);
-                const data = Object.values(qualityStats);
+                const labels = Object.keys(qualityStats || {});
+                const data = Object.values(qualityStats || {});
+
+                if (labels.length === 0) {
+                    setChartEmptyState('qualityDistributionChart', 'No data quality stats available');
+                    return;
+                }
+                clearChartEmptyState('qualityDistributionChart');
 
                 charts.qualityDistribution = new Chart(ctx, {
                     type: 'doughnut',
@@ -6353,6 +6973,7 @@ async function generateExcelReport() {
                 });
             } catch (error) {
                 console.error('Error displaying quality distribution:', error);
+                setChartEmptyState('qualityDistributionChart', 'Unable to load quality distribution');
             }
         }
 
@@ -6367,6 +6988,12 @@ async function generateExcelReport() {
             try {
                 const response = await fetch(`${API_BASE_URL}/data-quality-by-source`);
                 const qualityData = await response.json();
+
+                if (!Array.isArray(qualityData) || qualityData.length === 0) {
+                    setChartEmptyState('qualityBySourceChart', 'No data quality by source available');
+                    return;
+                }
+                clearChartEmptyState('qualityBySourceChart');
 
                 const sources = [...new Set(qualityData.map(d => d.dataSource))];
                 const qualities = ['EXCELLENT', 'GOOD', 'FAIR', 'POOR'];
@@ -6410,6 +7037,7 @@ async function generateExcelReport() {
                 });
             } catch (error) {
                 console.error('Error displaying quality by source:', error);
+                setChartEmptyState('qualityBySourceChart', 'Unable to load quality by source');
             }
         }
 
@@ -6421,7 +7049,11 @@ async function generateExcelReport() {
                 const response = await fetch(`${API_BASE_URL}/analytics/data-quality-stats`);
                 const qualityStats = await response.json();
 
-                const total = Object.values(qualityStats).reduce((a, b) => a + b, 0);
+                const total = Object.values(qualityStats || {}).reduce((a, b) => a + b, 0);
+                if (!total) {
+                    container.innerHTML = '<div class="empty-state"><i class="fas fa-info-circle"></i><p>No data quality metrics available</p></div>';
+                    return;
+                }
 
                 const metrics = Object.entries(qualityStats).map(([quality, count]) => {
                     const percentage = ((count / total) * 100).toFixed(1);

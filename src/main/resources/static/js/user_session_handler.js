@@ -1,4 +1,7 @@
 // user_session_handler.js - AgriGuard AI Version
+if (typeof window !== 'undefined' && window.UserSessionHandler) {
+    console.log('UserSessionHandler already exists, skipping redefinition');
+} else {
 class UserSessionHandler {
     static instance = null;
 
@@ -648,4 +651,5 @@ if (typeof module !== 'undefined' && module.exports) {
         showError,
         showSuccess
     };
+}
 }
