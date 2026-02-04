@@ -2339,7 +2339,7 @@
                     <div class="report-header-section">
                         <div class="report-header-content">
                             <i class="fas fa-file-chart-column report-header-icon"></i>
-                            <div>
+                        <div>
                                 <h2 class="report-title">Report Configuration</h2>
                                 <p class="report-subtitle">Generate professional reports for user management</p>
                             </div>
@@ -2365,8 +2365,8 @@
                                         <option value="government">🏛️ Government Users</option>
                                         <option value="active">✅ Active Users</option>
                                         <option value="inactive">❌ Inactive Users</option>
-                                    </select>
-                                </div>
+                            </select>
+                        </div>
 
                                 <div class="config-item">
                                     <label class="config-label">
@@ -2379,7 +2379,7 @@
                                         <option value="lastMonth">Last Month</option>
                                         <option value="allTime">All Time</option>
                                     </select>
-                                </div>
+                    </div>
 
                                 <div class="config-item">
                                     <label class="config-label">
@@ -2409,19 +2409,19 @@
                             </h3>
                             <div class="export-actions">
                                 <button class="btn-export btn-export-pdf" onclick="generatePDFReport()">
-                                    <i class="fas fa-file-pdf"></i>
+                            <i class="fas fa-file-pdf"></i>
                                     <div class="btn-export-content">
                                         <span class="btn-export-title">Generate PDF</span>
                                         <span class="btn-export-desc">Professional PDF Report</span>
                                     </div>
-                                </button>
+                        </button>
                                 <button class="btn-export btn-export-excel" onclick="generateExcelReport()">
-                                    <i class="fas fa-file-excel"></i>
+                            <i class="fas fa-file-excel"></i>
                                     <div class="btn-export-content">
                                         <span class="btn-export-title">Generate Excel</span>
                                         <span class="btn-export-desc">Spreadsheet Format</span>
                                     </div>
-                                </button>
+                        </button>
                             </div>
                         </div>
 
@@ -3623,7 +3623,7 @@ async function editUser(userId) {
                             
                             // Company info
                             pdf.setTextColor(255, 255, 255);
-                            pdf.setFontSize(20);
+                    pdf.setFontSize(20);
                             pdf.setFont(undefined, 'bold');
                             pdf.text('AgriGuard AI', 42, 18);
                             
@@ -3645,7 +3645,7 @@ async function editUser(userId) {
                             pdf.setFont(undefined, 'normal');
                             pdf.text('Smart Agriculture Management System', 15, 22);
                             
-                            pdf.setFontSize(10);
+                    pdf.setFontSize(10);
                             pdf.setFont(undefined, 'bold');
                             pdf.text(title, 15, 30);
                         }
@@ -3653,7 +3653,7 @@ async function editUser(userId) {
 
                     // Helper function to add new page
                     function addNewPage() {
-                        pdf.addPage();
+                            pdf.addPage();
                         addHeaderBar(false);
                         return 50;
                     }

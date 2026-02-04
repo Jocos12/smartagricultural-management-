@@ -165,8 +165,8 @@ public class CropService {
         if (updatedCrop.getNutritionalValue() != null) {
             existingCrop.setNutritionalValue(updatedCrop.getNutritionalValue());
         }
-        if (updatedCrop.getStorageLifeDays() != null) {
-            existingCrop.setStorageLifeDays(updatedCrop.getStorageLifeDays());
+        if (updatedCrop.getImageUrl() != null) {
+            existingCrop.setImageUrl(updatedCrop.getImageUrl());
         }
 
         return cropRepository.save(existingCrop);

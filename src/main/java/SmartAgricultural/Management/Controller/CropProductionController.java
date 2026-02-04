@@ -244,24 +244,57 @@ public class CropProductionController {
     }
 
 
-    /**
-     * Obtenir les productions par agriculteur (farmer)
-     * GET /api/v1/crop-productions/farmer/{farmerId}
-     */
+
     @GetMapping("/farmer/{farmerId}")
     public ResponseEntity<ApiResponse<List<CropProductionDTO>>> getProductionsByFarmer(
             @PathVariable String farmerId) {
         try {
-            // Utiliser la même logique que /farm/{farmId} car farmerId = farmId dans votre système
-            List<CropProduction> productions = cropProductionService.getProductionsByFarm(farmerId);
-            List<CropProductionDTO> productionDTOs = convertToCropProductionDTOList(productions);
+            logger.info("=== GET PRODUCTIONS BY FARMER ===");
+            logger.info("Farmer ID received: {}", farmerId);
+
+            // Récupérer toutes les productions
+            List<CropProduction> allProductions = cropProductionService.getAllCropProductions();
+            logger.info("Total productions in database: {}", allProductions.size());
+
+            // Filtrer par farmId
+            List<CropProduction> productions = allProductions.stream()
+                    .filter(p -> {
+                        boolean matches = p.getFarmId() != null && p.getFarmId().equals(farmerId);
+                        if (!matches) {
+                            logger.debug("Production {} does not match - farmId: {}", p.getId(), p.getFarmId());
+                        }
+                        return matches;
+                    })
+                    .collect(Collectors.toList());
+
+            logger.info("Productions found for farmer {}: {}", farmerId, productions.size());
+
+            if (productions.isEmpty()) {
+                logger.warn("⚠️ NO PRODUCTIONS FOUND FOR FARMER: {}", farmerId);
+                logger.warn("Please verify:");
+                logger.warn("1. Farmer ID is correct");
+                logger.warn("2. Productions exist with this farmId");
+                logger.warn("3. Check database: SELECT * FROM crop_production WHERE farm_id = '{}'", farmerId);
+            }
+
+            // Enrichir les DTOs
+            List<CropProductionDTO> enrichedDTOs = enrichProductionDTOs(productions);
+
+            logger.info("Returning {} enriched productions", enrichedDTOs.size());
+
             return ResponseEntity.ok(
-                    new ApiResponse<>(true, "Productions de l'agriculteur " + farmerId, productionDTOs));
+                    new ApiResponse<>(true, "Productions de l'agriculteur " + farmerId, enrichedDTOs));
         } catch (Exception e) {
+            logger.error("❌ Error getting productions for farmer {}: {}", farmerId, e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ApiResponse<>(false, "Erreur lors de la récupération des productions: " + e.getMessage(), null));
+                    .body(new ApiResponse<>(false, "Erreur: " + e.getMessage(), null));
         }
     }
+
+
+
+
+
 
 
     /**
@@ -1113,6 +1146,11 @@ public class CropProductionController {
         return recommendations;
     }
 
+
+
+    /**
+     * Enrichir les productions avec les informations du Crop et du Farmer
+     */
     private List<CropProductionDTO> enrichProductionDTOs(List<CropProduction> productions) {
         return productions.stream()
                 .map(production -> {
@@ -1130,10 +1168,14 @@ public class CropProductionController {
                             dto.setCropGrowingPeriodDays(crop.getGrowingPeriodDays());
                             dto.setCropPlantingSeason(crop.getPlantingSeason());
                             dto.setCropHarvestSeason(crop.getHarvestSeason());
+                            logger.debug("✅ Crop info loaded: {}", crop.getCropName());
+                        } else {
+                            logger.warn("⚠️ Crop not found for cropId: {}", production.getCropId());
+                            dto.setCropName("Unknown Crop");
                         }
                     } catch (Exception e) {
-                        logger.warn("Could not load crop info for production {} with cropId {}",
-                                dto.getId(), dto.getCropId());
+                        logger.warn("Could not load crop info for production {} with cropId {}: {}",
+                                dto.getId(), dto.getCropId(), e.getMessage());
                         dto.setCropName("Unknown Crop");
                     }
 
@@ -1146,36 +1188,33 @@ public class CropProductionController {
                             dto.setFarmerEmail(farmer.getEmail());
                             dto.setFarmerPhone(farmer.getPhoneNumber());
                             dto.setFarmerProfileImageUrl(farmer.getProfileImageUrl());
+                            logger.debug("✅ Farmer info loaded: {}", farmer.getFullName());
+                        } else {
+                            logger.warn("⚠️ Farmer not found for farmId: {}", production.getFarmId());
+                            dto.setFarmerName("Farmer Info Unavailable");
                         }
                     } catch (Exception e) {
-                        logger.warn("Could not load farmer info for production {} with farmerId {}",
-                                dto.getId(), dto.getFarmId());
+                        logger.warn("Could not load farmer info for production {} with farmerId {}: {}",
+                                dto.getId(), dto.getFarmId(), e.getMessage());
                         dto.setFarmerName("Farmer Info Unavailable");
                     }
 
                     // ⭐ ENRICH avec le prix par kg
                     try {
-                        if (dto.getPricePerKg() == null) {
-                            // Option 1: Si estimatedPrice existe
-                            if (dto.getEstimatedPrice() != null &&
-                                    dto.getEstimatedPrice().compareTo(BigDecimal.ZERO) > 0) {
-
+                        if (dto.getPricePerKg() == null || dto.getPricePerKg().compareTo(BigDecimal.ZERO) == 0) {
+                            if (dto.getEstimatedPrice() != null && dto.getEstimatedPrice().compareTo(BigDecimal.ZERO) > 0) {
                                 BigDecimal quantity = dto.getExpectedYield() != null ?
-                                        dto.getExpectedYield() :
-                                        dto.getActualYield();
+                                        dto.getExpectedYield() : dto.getActualYield();
 
                                 if (quantity != null && quantity.compareTo(BigDecimal.ZERO) > 0) {
-                                    // Calculer prix par kg à partir du prix total
                                     BigDecimal pricePerKg = dto.getEstimatedPrice()
                                             .divide(quantity, 2, java.math.RoundingMode.HALF_UP);
                                     dto.setPricePerKg(pricePerKg);
                                 } else {
-                                    // Utiliser estimatedPrice comme pricePerKg
                                     dto.setPricePerKg(dto.getEstimatedPrice());
                                 }
                             } else {
-                                // Option 2: Prix par défaut
-                                dto.setPricePerKg(new BigDecimal("1000"));
+                                dto.setPricePerKg(new BigDecimal("1000")); // Prix par défaut
                             }
                         }
                     } catch (Exception e) {

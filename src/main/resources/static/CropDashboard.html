@@ -1470,6 +1470,154 @@
     font-size: 14px;
     font-weight: 500;
 }
+
+
+
+
+
+        /* Image Upload Styles */
+.image-upload-container {
+    width: 100%;
+}
+
+.image-preview-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 300px;
+    height: 200px;
+    border: 2px dashed var(--border-color);
+    border-radius: 12px;
+    background: var(--bg-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    margin-bottom: 16px;
+    transition: all 0.3s ease;
+}
+
+.image-preview-wrapper:hover {
+    border-color: var(--primary-green);
+    background: rgba(34, 197, 94, 0.05);
+}
+
+.image-preview-placeholder {
+    text-align: center;
+    color: var(--text-secondary);
+    padding: 20px;
+}
+
+.image-preview-placeholder i {
+    font-size: 48px;
+    color: var(--text-tertiary);
+    margin-bottom: 12px;
+    display: block;
+}
+
+.image-preview-placeholder p {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.image-preview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.image-remove-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(239, 68, 68, 0.9);
+    color: white;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.image-remove-btn:hover {
+    background: #dc2626;
+    transform: scale(1.1);
+}
+
+.image-upload-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.btn-upload {
+    background: var(--gradient-primary);
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+.btn-upload:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
+}
+
+.image-upload-hint {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.image-upload-hint i {
+    color: var(--primary-green);
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.image-upload-section {
+    grid-column: 1 / -1;
+    padding: 20px;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+}
+
+.section-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.section-title i {
+    color: var(--primary-green);
+}
     </style>
 </head>
 <body>
@@ -1977,10 +2125,50 @@
                 <i class="fas fa-times"></i>
             </button>
         </div>
+
+
+
+
+
+
+
         <form id="cropForm" onsubmit="submitCropForm(event)">
             <input type="hidden" id="cropId" name="cropId">
+            <input type="hidden" id="imageUrl" name="imageUrl">
 
-            <div class="form-grid">
+            <!-- Image Upload Section -->
+            <div class="image-upload-section">
+                <div class="section-title">
+                    <i class="fas fa-image"></i>
+                    Crop Image
+                </div>
+                <div class="image-upload-container">
+                    <div class="image-preview-wrapper" id="imagePreviewWrapper">
+                        <div class="image-preview-placeholder" id="imagePlaceholder">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>Click "Choose Image" to upload</p>
+                        </div>
+                        <img id="imagePreview" class="image-preview" style="display: none;" alt="Crop preview">
+                        <button type="button" class="image-remove-btn" id="removeImageBtn" style="display: none;" onclick="removeImage()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="image-upload-actions">
+                        <input type="file" id="cropImage" accept="image/*" onchange="handleImageUpload(event)" style="display: none;">
+                        <button type="button" class="btn-upload" onclick="document.getElementById('cropImage').click()">
+                            <i class="fas fa-upload"></i>
+                            Choose Image
+                        </button>
+                    </div>
+                    <p class="image-upload-hint">
+                        <i class="fas fa-info-circle"></i>
+                        Max size: 5MB. Supported formats: JPG, PNG, GIF, WEBP
+                    </p>
+                </div>
+            </div>
+
+            <!-- Rest of the form -->
+            <div class="form-row" style="margin-top: 24px;">
                 <div class="form-group">
                     <label class="form-label">Crop Name *</label>
                     <input type="text" class="form-input" id="cropName" name="cropName" required>
@@ -1996,28 +2184,6 @@
                         <option value="TUBERS">Tubers</option>
                         <option value="CASH_CROPS">Cash Crops</option>
                     </select>
-                </div>
-
-
-
-                <!-- Ajoutez ce bloc dans votre formulaire modal -->
-                <div class="form-group">
-                    <label for="cropImage">Crop Image</label>
-                    <div class="image-upload-container">
-                        <input type="file" id="cropImage" accept="image/*"
-                               onchange="handleImageUpload(event)" style="display: none;">
-                        <button type="button" class="btn-upload" onclick="document.getElementById('cropImage').click()">
-                            <i class="fas fa-upload"></i> Choose Image
-                        </button>
-                        <div id="imagePreview" style="display: none; margin-top: 10px;">
-                            <img id="previewImg" src="" alt="Preview"
-                                 style="max-width: 200px; max-height: 200px; border-radius: 8px;">
-                            <button type="button" class="btn-remove" onclick="removeImage()">
-                                <i class="fas fa-times"></i> Remove
-                            </button>
-                        </div>
-                        <input type="hidden" id="imageUrl" name="imageUrl">
-                    </div>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Scientific Name</label>
@@ -2075,11 +2241,14 @@
                     <label class="form-label">Storage Life (days)</label>
                     <input type="number" class="form-input" id="storageLifeDays" name="storageLifeDays" min="1">
                 </div>
-                <div class="form-group full-width">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group" style="grid-column: 1 / -1;">
                     <label class="form-label">Climatic Requirement</label>
                     <textarea class="form-textarea" id="climaticRequirement" name="climaticRequirement"></textarea>
                 </div>
-                <div class="form-group full-width">
+                <div class="form-group" style="grid-column: 1 / -1;">
                     <label class="form-label">Nutritional Value</label>
                     <textarea class="form-textarea" id="nutritionalValue" name="nutritionalValue"></textarea>
                 </div>
@@ -2095,6 +2264,19 @@
         </form>
     </div>
 </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 <script src="js/Notification.js"></script>
 <script>
@@ -2208,15 +2390,17 @@ function renderCropsTable(crops) {
 
         return `
             <tr>
-                <td>
-                    ${crop.imageUrl ?
-                        `<img src="http://localhost:1010${crop.imageUrl}"
-                              alt="${crop.cropName}"
-                              style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; margin-right: 10px;">`
-                        : '<i class="fas fa-seedling" style="font-size: 24px; margin-right: 10px; color: #22c55e;"></i>'}
-                    <div style="font-weight: 600; display: inline-block;">${crop.cropName || 'N/A'}</div>
-                    ${crop.variety ? `<div style="font-size: 12px; color: var(--text-secondary);">${crop.variety}</div>` : ''}
-                </td>
+   <td>
+    ${crop.imageUrl ?
+        `<img src="${crop.imageUrl.startsWith('http') ? crop.imageUrl : 'http://localhost:1010' + crop.imageUrl}"
+              alt="${crop.cropName || 'Crop'}"
+              style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; margin-right: 10px;"
+              onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+         <i class="fas fa-seedling" style="display:none; font-size: 24px; margin-right: 10px; color: #22c55e;"></i>`
+        : '<i class="fas fa-seedling" style="font-size: 24px; margin-right: 10px; color: #22c55e;"></i>'}
+    <div style="font-weight: 600; display: inline-block;">${crop.cropName || 'N/A'}</div>
+    ${crop.variety ? `<div style="font-size: 12px; color: var(--text-secondary);">${crop.variety}</div>` : ''}
+</td>
                 <td><span class="type-badge type-${(crop.cropType || 'other').toLowerCase()}">${crop.cropType || 'N/A'}</span></td>
                 <td>${crop.scientificName || 'N/A'}</td>
                 <td>${crop.growingPeriodDays ? crop.growingPeriodDays + ' days' : 'N/A'}</td>
@@ -3011,135 +3195,536 @@ async function refreshAllPredictions() {
         }
     }
 
-    function showAddCropModal() {
-        currentEditingCropId = null;
-        document.getElementById('cropModalTitle').textContent = 'Add Crop';
-        document.getElementById('cropForm').reset();
-        document.getElementById('cropId').value = '';
-        document.getElementById('cropModal').classList.add('show');
+
+
+
+function showAddCropModal() {
+    currentEditingCropId = null;
+    document.getElementById('cropModalTitle').textContent = 'Add Crop';
+    document.getElementById('cropForm').reset();
+    document.getElementById('cropId').value = '';
+
+    // Réinitialiser l'image
+    const imagePreview = document.getElementById('imagePreview');
+    const imagePlaceholder = document.getElementById('imagePlaceholder');
+    const removeBtn = document.getElementById('removeImageBtn');
+    const fileInput = document.getElementById('cropImage');
+
+    if (imagePreview) {
+        imagePreview.src = '';
+        imagePreview.style.display = 'none';
     }
 
-    function closeCropModal() {
-        document.getElementById('cropModal').classList.remove('show');
-        document.getElementById('cropForm').reset();
-        currentEditingCropId = null;
+    if (imagePlaceholder) {
+        imagePlaceholder.style.display = 'block';
     }
 
-    async function submitCropForm(event) {
-        event.preventDefault();
+    if (removeBtn) {
+        removeBtn.style.display = 'none';
+    }
 
-        const formData = {
-            cropName: document.getElementById('cropName').value,
-            cropType: document.getElementById('cropType').value,
-            scientificName: document.getElementById('scientificName').value || null,
-            variety: document.getElementById('variety').value || null,
-            growingPeriodDays: parseInt(document.getElementById('growingPeriodDays').value),
-            plantingSeason: document.getElementById('plantingSeason').value,
-            harvestSeason: document.getElementById('harvestSeason').value,
-            waterRequirement: parseFloat(document.getElementById('waterRequirement').value) || null,
-            climaticRequirement: document.getElementById('climaticRequirement').value || null,
-            soilPhMin: parseFloat(document.getElementById('soilPhMin').value) || null,
-            soilPhMax: parseFloat(document.getElementById('soilPhMax').value) || null,
-            temperatureMin: parseFloat(document.getElementById('temperatureMin').value) || null,
-            temperatureMax: parseFloat(document.getElementById('temperatureMax').value) || null,
-            rainfallRequirement: parseFloat(document.getElementById('rainfallRequirement').value) || null,
-            marketDemandLevel: document.getElementById('marketDemandLevel').value,
-            nutritionalValue: document.getElementById('nutritionalValue').value || null,
-            storageLifeDays: parseInt(document.getElementById('storageLifeDays').value) || null,
-            imageUrl: document.getElementById('imageUrl').value || null
-        };
+    if (fileInput) {
+        fileInput.disabled = false;
+        fileInput.value = '';
+    }
 
-        try {
-            showLoading(true);
-            let response;
+    uploadedImageUrl = null;
 
-            if (currentEditingCropId) {
-                response = await fetch(`${API_BASE_URL}/${currentEditingCropId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(formData)
-                });
-            } else {
-                response = await fetch(API_BASE_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(formData)
-                });
+    // Afficher le modal
+    document.getElementById('cropModal').classList.add('show');
+
+    // IMPORTANT: Réafficher tous les contrôles après affichage du modal
+    setTimeout(() => {
+        // Réafficher le bouton "Choose Image"
+        const chooseButtons = document.querySelectorAll('label[for="cropImage"], .choose-image-btn, button');
+        chooseButtons.forEach(btn => {
+            const text = (btn.textContent || btn.innerText || '').toLowerCase();
+            if (text.includes('choose')) {
+                btn.style.display = '';
+                btn.style.visibility = 'visible';
             }
-
-            const result = await response.json();
-
-            if (result.success || response.ok) {
-                showToast(currentEditingCropId ? 'Crop updated successfully' : 'Crop created successfully', 'success');
-                closeCropModal();
-                await loadStatistics();
-                await loadAllCrops();
-                initializeCharts();
-            } else {
-                showToast(result.message || 'Error saving crop', 'error');
-            }
-        } catch (error) {
-            console.error('Error saving crop:', error);
-            showToast('Error saving crop: ' + error.message, 'error');
-        } finally {
-            showLoading(false);
-        }
-    }
-
-    async function editCrop(cropId) {
-        try {
-            showLoading(true);
-            const response = await fetch(`${API_BASE_URL}/${cropId}`);
-            const result = await response.json();
-
-            if (result.success && result.data) {
-                const crop = result.data;
-                currentEditingCropId = cropId;
-
-                document.getElementById('cropModalTitle').textContent = 'Edit Crop';
-                document.getElementById('cropId').value = crop.id;
-                document.getElementById('cropName').value = crop.cropName || '';
-                document.getElementById('cropType').value = crop.cropType || '';
-                document.getElementById('scientificName').value = crop.scientificName || '';
-                document.getElementById('variety').value = crop.variety || '';
-                document.getElementById('growingPeriodDays').value = crop.growingPeriodDays || '';
-                document.getElementById('plantingSeason').value = crop.plantingSeason || '';
-                document.getElementById('harvestSeason').value = crop.harvestSeason || '';
-                document.getElementById('waterRequirement').value = crop.waterRequirement || '';
-                document.getElementById('climaticRequirement').value = crop.climaticRequirement || '';
-                document.getElementById('soilPhMin').value = crop.soilPhMin || '';
-                document.getElementById('soilPhMax').value = crop.soilPhMax || '';
-                document.getElementById('temperatureMin').value = crop.temperatureMin || '';
-                document.getElementById('temperatureMax').value = crop.temperatureMax || '';
-                document.getElementById('rainfallRequirement').value = crop.rainfallRequirement || '';
-                document.getElementById('marketDemandLevel').value = crop.marketDemandLevel || 'MEDIUM';
-                document.getElementById('nutritionalValue').value = crop.nutritionalValue || '';
-                document.getElementById('storageLifeDays').value = crop.storageLifeDays || '';
-
-                document.getElementById('cropModal').classList.add('show');
-            } else {
-                showToast('Error loading crop data', 'error');
-            }
-        } catch (error) {
-            console.error('Error loading crop:', error);
-            showToast('Error loading crop data', 'error');
-        } finally {
-            showLoading(false);
-        }
-    }
-
-    async function viewCrop(cropId) {
-        await editCrop(cropId);
-        document.querySelectorAll('#cropForm input, #cropForm select, #cropForm textarea').forEach(input => {
-            input.disabled = true;
         });
-        document.getElementById('cropSubmitBtn').style.display = 'none';
-        document.getElementById('cropModalTitle').textContent = 'View Crop Details';
+
+        // Réafficher le message info
+        const allTexts = document.querySelectorAll('p, small, span');
+        allTexts.forEach(el => {
+            const text = (el.textContent || el.innerText || '').toLowerCase();
+            if (text.includes('max size') || text.includes('supported formats')) {
+                el.style.display = '';
+            }
+        });
+
+        // Réactiver tous les champs
+        document.querySelectorAll('#cropForm input, #cropForm select, #cropForm textarea').forEach(input => {
+            input.disabled = false;
+        });
+
+        // Réafficher le bouton submit
+        const submitBtn = document.getElementById('cropSubmitBtn');
+        if (submitBtn) {
+            submitBtn.style.display = 'block';
+        }
+    }, 50);
+}
+
+
+
+
+
+
+
+function closeCropModal() {
+    const modal = document.getElementById('cropModal');
+    if (modal) {
+        modal.classList.remove('show');
     }
+
+    const form = document.getElementById('cropForm');
+    if (form) {
+        form.reset();
+    }
+
+    // Réinitialiser l'aperçu de l'image
+    const imagePreview = document.getElementById('imagePreview');
+    const imagePlaceholder = document.getElementById('imagePlaceholder');
+    const removeBtn = document.getElementById('removeImageBtn');
+    const fileInput = document.getElementById('cropImage');
+    const chooseImageBtn = document.querySelector('label[for="cropImage"]') ||
+                           document.querySelector('.choose-image-btn');
+
+    if (imagePreview) {
+        imagePreview.src = '';
+        imagePreview.style.display = 'none';
+        imagePreview.onload = null;
+        imagePreview.onerror = null;
+    }
+
+    if (imagePlaceholder) {
+        imagePlaceholder.style.display = 'block';
+    }
+
+    if (removeBtn) {
+        removeBtn.style.display = 'none';
+    }
+
+    // Réactiver les contrôles d'image
+    if (chooseImageBtn) {
+        chooseImageBtn.style.display = 'flex';
+    }
+
+    if (fileInput) {
+        fileInput.value = '';
+        fileInput.disabled = false;
+        fileInput.style.display = 'none';
+    }
+
+    // Réafficher le message info
+    const imageInfo = document.querySelector('.image-upload-info') ||
+                     document.querySelector('p[style*="font-size: 12px"]');
+    if (imageInfo) {
+        imageInfo.style.display = 'block';
+    }
+
+    const imageUrlInput = document.getElementById('imageUrl');
+    if (imageUrlInput) {
+        imageUrlInput.value = '';
+    }
+
+    // Réactiver tous les champs
+    document.querySelectorAll('#cropForm input, #cropForm select, #cropForm textarea').forEach(input => {
+        input.disabled = false;
+    });
+
+    // Réafficher le bouton submit
+    const submitBtn = document.getElementById('cropSubmitBtn');
+    if (submitBtn) {
+        submitBtn.style.display = 'block';
+    }
+
+    uploadedImageUrl = null;
+    currentEditingCropId = null;
+}
+
+
+
+async function submitCropForm(event) {
+    event.preventDefault();
+
+    // Récupérer l'URL de l'image (soit celle uploadée, soit celle du champ caché)
+    const imageUrlValue = uploadedImageUrl || document.getElementById('imageUrl').value || null;
+
+    const formData = {
+        cropName: document.getElementById('cropName').value.trim(),
+        cropType: document.getElementById('cropType').value,
+        scientificName: document.getElementById('scientificName').value.trim() || null,
+        variety: document.getElementById('variety').value.trim() || null,
+        growingPeriodDays: parseInt(document.getElementById('growingPeriodDays').value) || null,
+        plantingSeason: document.getElementById('plantingSeason').value.trim() || null,
+        harvestSeason: document.getElementById('harvestSeason').value.trim() || null,
+        waterRequirement: parseFloat(document.getElementById('waterRequirement').value) || null,
+        climaticRequirement: document.getElementById('climaticRequirement').value.trim() || null,
+        soilPhMin: parseFloat(document.getElementById('soilPhMin').value) || null,
+        soilPhMax: parseFloat(document.getElementById('soilPhMax').value) || null,
+        temperatureMin: parseFloat(document.getElementById('temperatureMin').value) || null,
+        temperatureMax: parseFloat(document.getElementById('temperatureMax').value) || null,
+        rainfallRequirement: parseFloat(document.getElementById('rainfallRequirement').value) || null,
+        marketDemandLevel: document.getElementById('marketDemandLevel').value || 'MEDIUM',
+        nutritionalValue: document.getElementById('nutritionalValue').value.trim() || null,
+        storageLifeDays: parseInt(document.getElementById('storageLifeDays').value) || null,
+        imageUrl: imageUrlValue
+    };
+
+    // Validation basique
+    if (!formData.cropName) {
+        showToast('Le nom de la culture est requis', 'error');
+        return;
+    }
+
+    if (!formData.cropType) {
+        showToast('Le type de culture est requis', 'error');
+        return;
+    }
+
+    console.log('Sending crop data:', formData);
+
+    try {
+        showLoading(true);
+        let response;
+        let url;
+
+        if (currentEditingCropId) {
+            // Mode édition
+            url = `${API_BASE_URL}/${currentEditingCropId}`;
+            response = await fetch(url, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+        } else {
+            // Mode création
+            url = API_BASE_URL;
+            response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+        }
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log('Save response:', result);
+
+        if (result.success || response.ok) {
+            showToast(
+                currentEditingCropId ? 'Culture mise à jour avec succès' : 'Culture créée avec succès',
+                'success'
+            );
+            closeCropModal();
+            await loadStatistics();
+            await loadAllCrops();
+            initializeCharts();
+        } else {
+            showToast(result.message || 'Erreur lors de la sauvegarde', 'error');
+        }
+    } catch (error) {
+        console.error('Erreur lors de la sauvegarde:', error);
+        showToast('Erreur lors de la sauvegarde: ' + error.message, 'error');
+    } finally {
+        showLoading(false);
+    }
+}
+
+
+async function editCrop(cropId) {
+    try {
+        showLoading(true);
+        const response = await fetch(`${API_BASE_URL}/${cropId}`);
+        const result = await response.json();
+
+        if (result.success && result.data) {
+            const crop = result.data;
+            currentEditingCropId = cropId;
+
+            document.getElementById('cropModalTitle').textContent = 'Edit Crop';
+            document.getElementById('cropId').value = crop.id;
+            document.getElementById('cropName').value = crop.cropName || '';
+            document.getElementById('cropType').value = crop.cropType || '';
+            document.getElementById('scientificName').value = crop.scientificName || '';
+            document.getElementById('variety').value = crop.variety || '';
+            document.getElementById('growingPeriodDays').value = crop.growingPeriodDays || '';
+            document.getElementById('plantingSeason').value = crop.plantingSeason || '';
+            document.getElementById('harvestSeason').value = crop.harvestSeason || '';
+            document.getElementById('waterRequirement').value = crop.waterRequirement || '';
+            document.getElementById('climaticRequirement').value = crop.climaticRequirement || '';
+            document.getElementById('soilPhMin').value = crop.soilPhMin || '';
+            document.getElementById('soilPhMax').value = crop.soilPhMax || '';
+            document.getElementById('temperatureMin').value = crop.temperatureMin || '';
+            document.getElementById('temperatureMax').value = crop.temperatureMax || '';
+            document.getElementById('rainfallRequirement').value = crop.rainfallRequirement || '';
+            document.getElementById('marketDemandLevel').value = crop.marketDemandLevel || 'MEDIUM';
+            document.getElementById('nutritionalValue').value = crop.nutritionalValue || '';
+            document.getElementById('storageLifeDays').value = crop.storageLifeDays || '';
+
+            // Afficher le modal
+            document.getElementById('cropModal').classList.add('show');
+
+            // Attendre que le modal soit affiché
+            setTimeout(() => {
+                const imagePreview = document.getElementById('imagePreview');
+                const imagePlaceholder = document.getElementById('imagePlaceholder');
+                const removeBtn = document.getElementById('removeImageBtn');
+                const fileInput = document.getElementById('cropImage');
+
+                // Gérer l'image
+                if (crop.imageUrl) {
+                    document.getElementById('imageUrl').value = crop.imageUrl;
+                    uploadedImageUrl = crop.imageUrl;
+
+                    let fullImageUrl;
+                    if (crop.imageUrl.startsWith('http://') || crop.imageUrl.startsWith('https://')) {
+                        fullImageUrl = crop.imageUrl;
+                    } else if (crop.imageUrl.startsWith('/uploads/')) {
+                        fullImageUrl = 'http://localhost:1010' + crop.imageUrl;
+                    } else if (crop.imageUrl.startsWith('uploads/')) {
+                        fullImageUrl = 'http://localhost:1010/' + crop.imageUrl;
+                    } else {
+                        fullImageUrl = 'http://localhost:1010/uploads/crops/' + crop.imageUrl;
+                    }
+
+                    imagePreview.src = fullImageUrl;
+                    imagePreview.onload = function() {
+                        imagePreview.style.display = 'block';
+                        if (imagePlaceholder) imagePlaceholder.style.display = 'none';
+                        if (removeBtn) removeBtn.style.display = 'flex';
+                    };
+
+                    imagePreview.onerror = function() {
+                        console.error('Failed to load image:', fullImageUrl);
+                        if (imagePlaceholder) imagePlaceholder.style.display = 'block';
+                        imagePreview.style.display = 'none';
+                        if (removeBtn) removeBtn.style.display = 'none';
+                    };
+                } else {
+                    imagePreview.src = '';
+                    imagePreview.style.display = 'none';
+                    if (imagePlaceholder) imagePlaceholder.style.display = 'block';
+                    if (removeBtn) removeBtn.style.display = 'none';
+                    uploadedImageUrl = null;
+                }
+
+                // MODE EDIT: RÉAFFICHER tous les contrôles d'upload
+                const chooseButtons = document.querySelectorAll('label[for="cropImage"], .choose-image-btn, button');
+                chooseButtons.forEach(btn => {
+                    const text = (btn.textContent || btn.innerText || '').toLowerCase();
+                    if (text.includes('choose')) {
+                        btn.style.display = '';
+                        btn.style.visibility = 'visible';
+                    }
+                });
+
+                if (fileInput) {
+                    fileInput.disabled = false;
+                }
+
+                // Réafficher le message info
+                const allTexts = document.querySelectorAll('p, small, span');
+                allTexts.forEach(el => {
+                    const text = (el.textContent || el.innerText || '').toLowerCase();
+                    if (text.includes('max size') || text.includes('supported formats')) {
+                        el.style.display = '';
+                    }
+                });
+
+                // Réactiver tous les champs (sauf ceux qui doivent rester désactivés)
+                document.querySelectorAll('#cropForm input, #cropForm select, #cropForm textarea').forEach(input => {
+                    if (input.id !== 'cropImage') {
+                        input.disabled = false;
+                    }
+                });
+
+                // Réafficher le bouton submit
+                const submitBtn = document.getElementById('cropSubmitBtn');
+                if (submitBtn) {
+                    submitBtn.style.display = 'block';
+                }
+            }, 100);
+        } else {
+            showToast('Error loading crop data', 'error');
+        }
+    } catch (error) {
+        console.error('Error loading crop:', error);
+        showToast('Error loading crop data', 'error');
+    } finally {
+        showLoading(false);
+    }
+}
+
+
+async function viewCrop(cropId) {
+    try {
+        showLoading(true);
+        console.log('=== DEBUG VIEW CROP START ===');
+        console.log('Loading crop for view with ID:', cropId);
+
+        const response = await fetch(`${API_BASE_URL}/${cropId}`);
+        console.log('API Response status:', response.status);
+
+        const result = await response.json();
+        console.log('API Response full result:', result);
+
+        if (result.success && result.data) {
+            const crop = result.data;
+            console.log('=== CROP DATA RECEIVED ===');
+            console.log('Full crop object:', crop);
+
+            // Vérifier si imageUrl existe dans l'objet
+            const hasImageUrl = crop.hasOwnProperty('imageUrl');
+            const imageUrlValue = crop.imageUrl;
+            console.log('Has imageUrl property?', hasImageUrl);
+            console.log('imageUrl value:', imageUrlValue);
+
+            currentEditingCropId = cropId;
+
+            // Remplir tous les champs
+            document.getElementById('cropModalTitle').textContent = 'View Crop Details';
+            document.getElementById('cropId').value = crop.id || '';
+            document.getElementById('cropName').value = crop.cropName || '';
+            document.getElementById('cropType').value = crop.cropType || '';
+            document.getElementById('scientificName').value = crop.scientificName || '';
+            document.getElementById('variety').value = crop.variety || '';
+            document.getElementById('growingPeriodDays').value = crop.growingPeriodDays || '';
+            document.getElementById('plantingSeason').value = crop.plantingSeason || '';
+            document.getElementById('harvestSeason').value = crop.harvestSeason || '';
+            document.getElementById('waterRequirement').value = crop.waterRequirement || '';
+            document.getElementById('climaticRequirement').value = crop.climaticRequirement || '';
+            document.getElementById('soilPhMin').value = crop.soilPhMin || '';
+            document.getElementById('soilPhMax').value = crop.soilPhMax || '';
+            document.getElementById('temperatureMin').value = crop.temperatureMin || '';
+            document.getElementById('temperatureMax').value = crop.temperatureMax || '';
+            document.getElementById('rainfallRequirement').value = crop.rainfallRequirement || '';
+            document.getElementById('marketDemandLevel').value = crop.marketDemandLevel || 'MEDIUM';
+            document.getElementById('nutritionalValue').value = crop.nutritionalValue || '';
+            document.getElementById('storageLifeDays').value = crop.storageLifeDays || '';
+            document.getElementById('imageUrl').value = imageUrlValue || '';
+
+            // Afficher le modal
+            console.log('Showing modal...');
+            document.getElementById('cropModal').classList.add('show');
+
+            // Attendre que le modal soit affiché
+            setTimeout(() => {
+                const imagePreview = document.getElementById('imagePreview');
+                const imagePlaceholder = document.getElementById('imagePlaceholder');
+                const removeBtn = document.getElementById('removeImageBtn');
+                const fileInput = document.getElementById('cropImage');
+
+                console.log('=== DOM ELEMENTS ===');
+                console.log('Image Preview element:', imagePreview);
+                console.log('Image Placeholder element:', imagePlaceholder);
+
+                // Gérer l'image - VERSION SIMPLIFIÉE
+                if (hasImageUrl && imageUrlValue && imageUrlValue.trim() !== '' &&
+                    imageUrlValue !== 'null' && imageUrlValue !== 'undefined') {
+
+                    console.log('=== PROCESSING IMAGE ===');
+                    console.log('Image URL to use:', imageUrlValue);
+
+                    // Construire l'URL
+                    let fullImageUrl;
+                    if (imageUrlValue.startsWith('http')) {
+                        fullImageUrl = imageUrlValue;
+                    } else if (imageUrlValue.startsWith('/')) {
+                        fullImageUrl = 'http://localhost:1010' + imageUrlValue;
+                    } else {
+                        fullImageUrl = 'http://localhost:1010/uploads/crops/' + imageUrlValue;
+                    }
+
+                    console.log('Full image URL:', fullImageUrl);
+
+                    // Essayer de charger l'image
+                    imagePreview.src = fullImageUrl;
+                    imagePreview.style.display = 'block';
+
+                    imagePreview.onload = function() {
+                        console.log('✅ Image loaded successfully!');
+                        imagePlaceholder.style.display = 'none';
+                        if (removeBtn) removeBtn.style.display = 'none';
+                    };
+
+                    imagePreview.onerror = function() {
+                        console.error('❌ Image failed to load');
+                        // Montrer le placeholder
+                        imagePlaceholder.innerHTML = `
+                            <i class="fas fa-seedling"></i>
+                            <p>${crop.cropName || 'Crop Image'}</p>
+                            <small style="font-size: 10px; color: #666;">
+                                Image not found
+                            </small>
+                        `;
+                        imagePlaceholder.style.display = 'block';
+                        imagePreview.style.display = 'none';
+                    };
+
+                } else {
+                    console.log('=== NO IMAGE AVAILABLE ===');
+                    // Afficher le placeholder par défaut
+                    imagePreview.style.display = 'none';
+                    imagePlaceholder.innerHTML = `
+                        <i class="fas fa-seedling"></i>
+                        <p>${crop.cropName || 'Crop Image'}</p>
+                        <small style="font-size: 10px; color: #666;">
+                            No image available
+                        </small>
+                    `;
+                    imagePlaceholder.style.display = 'block';
+                }
+
+                // MODE VIEW: Cacher tous les contrôles d'upload
+                const uploadControls = document.querySelectorAll(
+                    '#cropImage, button.btn-upload, .image-upload-actions button, .image-upload-hint'
+                );
+                uploadControls.forEach(control => {
+                    if (control) {
+                        control.style.display = 'none';
+                        control.disabled = true;
+                    }
+                });
+
+                // Désactiver tous les champs du formulaire
+                const formElements = document.querySelectorAll('#cropForm input, #cropForm select, #cropForm textarea');
+                formElements.forEach(input => {
+                    if (input.id !== 'imagePreview' && input.id !== 'imagePlaceholder') {
+                        input.disabled = true;
+                    }
+                });
+
+                // Cacher le bouton submit
+                const submitBtn = document.getElementById('cropSubmitBtn');
+                if (submitBtn) submitBtn.style.display = 'none';
+
+                console.log('=== VIEW MODE SETUP COMPLETE ===');
+
+            }, 100);
+        } else {
+            console.error('API did not return success:', result);
+            showToast('Error loading crop data', 'error');
+        }
+    } catch (error) {
+        console.error('Error in viewCrop:', error);
+        showToast('Error loading crop data: ' + error.message, 'error');
+    } finally {
+        showLoading(false);
+    }
+}
+
+
 
     async function deleteCrop(cropId) {
         if (!confirm('Are you sure you want to delete this crop? This action cannot be undone.')) {
@@ -3438,8 +4023,11 @@ async function refreshAllPredictions() {
         }
     }
 
+let uploadedImageUrl = null;
 
-    let uploadedImageUrl = null;
+
+
+
 
 async function handleImageUpload(event) {
     const file = event.target.files[0];
@@ -3448,12 +4036,14 @@ async function handleImageUpload(event) {
 
     // Validation
     if (!file.type.startsWith('image/')) {
-        showToast('Please select an image file', 'error');
+        showToast('Veuillez sélectionner un fichier image valide', 'error');
+        event.target.value = '';
         return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-        showToast('Image size must not exceed 5MB', 'error');
+        showToast('La taille de l\'image ne doit pas dépasser 5MB', 'error');
+        event.target.value = '';
         return;
     }
 
@@ -3468,36 +4058,100 @@ async function handleImageUpload(event) {
             body: formData
         });
 
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
         const result = await response.json();
+        console.log('Upload response:', result);
 
-        if (result.success === 'true' && result.imageUrl) {
-            uploadedImageUrl = result.imageUrl;
-            document.getElementById('imageUrl').value = result.imageUrl;
+        // Vérifier le succès
+        if (result.success === 'true' || result.success === true) {
+            if (result.imageUrl) {
+                uploadedImageUrl = result.imageUrl;
+                document.getElementById('imageUrl').value = result.imageUrl;
 
-            // Show preview
-            const previewImg = document.getElementById('previewImg');
-            previewImg.src = 'http://localhost:1010' + result.imageUrl;
-            document.getElementById('imagePreview').style.display = 'block';
+                // Afficher l'aperçu
+                const imagePreview = document.getElementById('imagePreview');
+                const imagePlaceholder = document.getElementById('imagePlaceholder');
+                const removeBtn = document.getElementById('removeImageBtn');
 
-            showToast('Image uploaded successfully', 'success');
+                // Construire l'URL complète
+                const fullImageUrl = result.imageUrl.startsWith('http')
+                    ? result.imageUrl
+                    : `http://localhost:1010${result.imageUrl}`;
+
+                imagePreview.src = fullImageUrl;
+
+                imagePreview.onload = function() {
+                    imagePreview.style.display = 'block';
+                    imagePlaceholder.style.display = 'none';
+                    removeBtn.style.display = 'flex';
+                    console.log('Image loaded successfully:', fullImageUrl);
+                };
+
+                imagePreview.onerror = function() {
+                    console.error('Failed to load image:', fullImageUrl);
+                    showToast('Erreur lors du chargement de l\'aperçu', 'error');
+                    removeImage();
+                };
+
+                showToast('Image téléchargée avec succès', 'success');
+            } else {
+                showToast('URL de l\'image manquante dans la réponse', 'error');
+                event.target.value = '';
+            }
         } else {
-            showToast(result.message || 'Failed to upload image', 'error');
+            showToast(result.message || 'Échec du téléchargement de l\'image', 'error');
+            event.target.value = '';
         }
     } catch (error) {
-        console.error('Error uploading image:', error);
-        showToast('Error uploading image', 'error');
+        console.error('Erreur lors du téléchargement de l\'image:', error);
+        showToast('Erreur lors du téléchargement: ' + error.message, 'error');
+        event.target.value = '';
     } finally {
         showLoading(false);
     }
 }
 
+
 function removeImage() {
-    document.getElementById('cropImage').value = '';
-    document.getElementById('imageUrl').value = '';
-    document.getElementById('imagePreview').style.display = 'none';
+    const imagePreview = document.getElementById('imagePreview');
+    const imagePlaceholder = document.getElementById('imagePlaceholder');
+    const removeBtn = document.getElementById('removeImageBtn');
+    const fileInput = document.getElementById('cropImage');
+
+    // Réinitialiser tous les éléments
+    if (imagePreview) {
+        imagePreview.src = '';
+        imagePreview.style.display = 'none';
+        imagePreview.onload = null;
+        imagePreview.onerror = null;
+    }
+
+    if (imagePlaceholder) {
+        imagePlaceholder.style.display = 'block';
+    }
+
+    if (removeBtn) {
+        removeBtn.style.display = 'none';
+    }
+
+    if (fileInput) {
+        fileInput.value = '';
+    }
+
+    const imageUrlInput = document.getElementById('imageUrl');
+    if (imageUrlInput) {
+        imageUrlInput.value = '';
+    }
+
     uploadedImageUrl = null;
-    showToast('Image removed', 'info');
+
+    showToast('Image supprimée', 'info');
 }
+
+
 
     function showLoading(show) {
         document.getElementById('loadingOverlay').classList.toggle('show', show);
@@ -3515,6 +4169,24 @@ function removeImage() {
         }, 5000);
     }
 
+
+setTimeout(() => {
+    // RÉAFFICHE TOUT (style.display = '')
+    btn.style.display = '';
+    btn.style.visibility = 'visible';
+}, 50);
+
+setTimeout(() => {
+    // CACHE TOUT (style.display = 'none')
+    btn.style.display = 'none';
+    btn.style.visibility = 'hidden';
+}, 100);
+
+setTimeout(() => {
+    // RÉAFFICHE TOUT (style.display = '')
+    btn.style.display = '';
+    btn.style.visibility = 'visible';
+}, 100);
 
 
 

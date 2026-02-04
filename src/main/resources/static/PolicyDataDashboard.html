@@ -3361,6 +3361,13 @@
 
 <script src="js/SessionTracker.js"></script>
 <script src="js/user_session_handler.js"></script>
+
+
+
+
+
+
+
 <script >
 
 
@@ -3369,18 +3376,28 @@
 // POLICY DASHBOARD - COMPLETE BACKEND INTEGRATION
 // =======================================================================================
 
-// Configuration
+// =======================================================================================
+// CONFIGURATION OPTIMISÉE
+// =======================================================================================
+
 const CONFIG = {
     API_BASE_URL: 'http://localhost:1010/api/policies',
     DEFAULT_PAGE_SIZE: 20,
     TOAST_DURATION: 3000,
-    AUTO_REFRESH_INTERVAL: 300000, // 5 minutes
+    AUTO_REFRESH_INTERVAL: 300000, // 5 minutes - UNIQUEMENT pour dashboard
     DATE_FORMAT: 'YYYY-MM-DD',
-    CURRENCY: 'RWF'
+    CURRENCY: 'RWF',
+    // NOUVELLES CONFIGURATIONS
+    CACHE_DURATION: 60000, // 1 minute pour le cache
+    DEBOUNCE_DELAY: 300, // 300ms pour le debouncing
+    MAX_PARALLEL_REQUESTS: 5, // Limiter les requêtes parallèles
+    LAZY_LOAD_DELAY: 100 // Délai pour le lazy loading
 };
 
+
+
 // =======================================================================================
-// STATE MANAGEMENT
+// STATE MANAGEMENT OPTIMISÉ
 // =======================================================================================
 
 const AppState = {
@@ -3391,7 +3408,7 @@ const AppState = {
     },
     policies: [],
     filteredPolicies: [],
-    statistics: {},
+    statistics: null, // null au lieu de {} pour vérifier facilement
     charts: {},
     currentSection: 'dashboard',
     currentTab: 'basic',
@@ -3408,52 +3425,149 @@ const AppState = {
         totalPages: 0,
         totalElements: 0
     },
-    topFarmers: [] // Stocker les données des Top Farmers pour réutilisation
+    topFarmers: [],
+
+    // NOUVEAU: Système de cache
+    cache: {
+        policies: null,
+        farmers: null,
+        statistics: null,
+        lastFetch: {},
+        isFetching: {} // Pour éviter les requêtes parallèles
+    },
+
+    // NOUVEAU: Gestionnaire de temps
+    timers: {
+        autoRefresh: null,
+        notifications: null,
+        monitoring: null
+    }
+};
+
+// NOUVEAU: Gestionnaire de cache
+const CacheManager = {
+    set(key, data) {
+        AppState.cache[key] = {
+            data,
+            timestamp: Date.now()
+        };
+    },
+
+    get(key, maxAge = CONFIG.CACHE_DURATION) {
+        const cached = AppState.cache[key];
+        if (!cached) return null;
+
+        const age = Date.now() - cached.timestamp;
+        return age < maxAge ? cached.data : null;
+    },
+
+    clear(key) {
+        if (key) {
+            delete AppState.cache[key];
+        } else {
+            AppState.cache = {
+                policies: null,
+                farmers: null,
+                statistics: null,
+                lastFetch: {},
+                isFetching: {}
+            };
+        }
+    }
 };
 
 // =======================================================================================
 // API SERVICE
 // =======================================================================================
-
 const ApiService = {
-    // Generic request handler
+    // Cache pour éviter les doublons de requêtes
+    pendingRequests: new Map(),
+
     async request(endpoint, options = {}) {
         const url = `${CONFIG.API_BASE_URL}${endpoint}`;
+        const requestKey = `${options.method || 'GET'}_${url}`;
+
+        // Vérifier si une requête identique est déjà en cours
+        if (this.pendingRequests.has(requestKey)) {
+            console.log(`📦 Reusing pending request: ${requestKey}`);
+            return this.pendingRequests.get(requestKey);
+        }
+
         const defaultOptions = {
             headers: {
                 'Content-Type': 'application/json',
-            }
+            },
+            timeout: 10000 // 10 secondes timeout
         };
 
         try {
-            showLoading();
-            const response = await fetch(url, { ...defaultOptions, ...options });
+            // Marquer la requête comme en cours
+            const requestPromise = (async () => {
+                try {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-            if (!response.ok) {
-                const error = await response.json();
-                throw new Error(error.message || 'Request failed');
-            }
+                    const response = await fetch(url, {
+                        ...defaultOptions,
+                        ...options,
+                        signal: controller.signal
+                    });
 
-            const data = await response.json();
-            return data;
+                    clearTimeout(timeoutId);
+
+                    if (!response.ok) {
+                        const error = await response.json().catch(() => ({ message: 'Request failed' }));
+                        throw new Error(error.message || 'Request failed');
+                    }
+
+                    const data = await response.json();
+                    return data;
+                } catch (error) {
+                    console.error('API Error:', error);
+                    if (error.name !== 'AbortError') {
+                        showToast(error.message || 'An error occurred', 'error');
+                    }
+                    throw error;
+                }
+            })();
+
+            this.pendingRequests.set(requestKey, requestPromise);
+
+            const result = await requestPromise;
+            this.pendingRequests.delete(requestKey);
+            return result;
         } catch (error) {
-            console.error('API Error:', error);
-            showToast(error.message || 'An error occurred', 'error');
+            this.pendingRequests.delete(requestKey);
             throw error;
-        } finally {
-            hideLoading();
         }
     },
 
-    // CRUD Operations
-    async getAllPolicies(page = 0, size = CONFIG.DEFAULT_PAGE_SIZE, sortBy = 'lastUpdated', sortDir = 'desc') {
-        return this.request(`?page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`);
+    // OPTIMISATION: Toutes les méthodes avec cache
+    async getAllPolicies(page = 0, size = CONFIG.DEFAULT_PAGE_SIZE, sortBy = 'lastUpdated', sortDir = 'desc', forceRefresh = false) {
+        const cacheKey = `policies_${page}_${size}_${sortBy}_${sortDir}`;
+
+        if (!forceRefresh) {
+            const cached = CacheManager.get(cacheKey);
+            if (cached) {
+                console.log('📦 Using cached policies');
+                return cached;
+            }
+        }
+
+        const data = await this.request(`?page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`);
+        CacheManager.set(cacheKey, data);
+        return data;
     },
 
     async getPolicyById(id) {
-        return this.request(`/${id}`);
-    },
+        const cacheKey = `policy_${id}`;
+        const cached = CacheManager.get(cacheKey);
+        if (cached) return cached;
 
+        const data = await this.request(`/${id}`);
+        CacheManager.set(cacheKey, data);
+        return data;
+    },
     async createPolicy(policyData) {
         return this.request('', {
             method: 'POST',
@@ -3575,7 +3689,6 @@ const ApiService = {
 // =======================================================================================
 
 document.addEventListener('DOMContentLoaded', () => {
-    // OPTIMISATION: Ne pas bloquer le chargement de la page
     initializeApp().catch(err => {
         console.error('Error initializing app:', err);
     });
@@ -3874,12 +3987,16 @@ function updateScrollbarsOnThemeChange() {
 }
 
 
+
 async function initializeApp() {
+    console.log('🚀 Initializing app with optimizations...');
+
+    // 1. Setup de base (non bloquant)
     setupEventListeners();
     updateDateTime();
-    setInterval(updateDateTime, 60000);
+    setInterval(updateDateTime, 60000); // Mettre à jour l'heure
 
-    // Load theme preference
+    // 2. Charger le thème
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme === 'dark') {
         document.body.classList.add('dark-mode');
@@ -3887,39 +4004,105 @@ async function initializeApp() {
         updateThemeToggle();
     }
 
-    // Initialiser les scrollbars
-    initializeScrollbars();
+    // 3. Initialiser les scrollbars (léger)
+    setTimeout(initializeScrollbars, 500);
 
-    // OPTIMISATION: Charger les données de manière non-bloquante
-    // Ne pas attendre le chargement complet avant d'afficher la page
-    loadDashboardData().catch(err => {
-        console.error('Error in initial load:', err);
-    });
-
-    // Rafraîchir les scrollbars après le chargement des données
-    setTimeout(() => {
-        refreshScrollbars();
-        forceHorizontalScroll(); // FORCER le scroll horizontal
-    }, 2000);
-
-    // Setup auto-refresh
-    setInterval(() => {
-        if (AppState.currentSection === 'dashboard') {
-            loadDashboardData();
+    // 4. Charger les données du dashboard (non bloquant)
+    setTimeout(async () => {
+        try {
+            await loadDashboardData();
+        } catch (err) {
+            console.error('Error in initial load:', err);
         }
-    }, CONFIG.AUTO_REFRESH_INTERVAL);
+    }, 100);
+
+    // 5. Setup auto-refresh UNIQUEMENT pour dashboard
+    startAutoRefresh();
+
+    console.log('✅ App initialized with optimizations');
 }
 
+// NOUVEAU: Gestionnaire d'auto-refresh intelligent
+function startAutoRefresh() {
+    // Nettoyer les anciens timers
+    clearAllTimers();
+
+    // Auto-refresh conditionnel
+    AppState.timers.autoRefresh = setInterval(() => {
+        // RECHARGER UNIQUEMENT si on est sur le dashboard
+        if (AppState.currentSection === 'dashboard' && document.visibilityState === 'visible') {
+            loadDashboardData().catch(console.error);
+        }
+    }, CONFIG.AUTO_REFRESH_INTERVAL);
+
+    // Notifications toutes les 2 minutes
+    AppState.timers.notifications = setInterval(() => {
+        NotificationSystem.loadNotifications().catch(console.error);
+    }, 120000);
+
+    // Monitoring toutes les 30 secondes UNIQUEMENT si visible
+    AppState.timers.monitoring = setInterval(() => {
+        if (AppState.currentSection === 'monitoring' && document.visibilityState === 'visible') {
+            loadRealTimeMonitoring().catch(console.error);
+        }
+    }, 30000);
+}
+
+// NOUVEAU: Nettoyer tous les timers
+function clearAllTimers() {
+    Object.values(AppState.timers).forEach(timer => {
+        if (timer) clearInterval(timer);
+    });
+    AppState.timers = {
+        autoRefresh: null,
+        notifications: null,
+        monitoring: null
+    };
+}
+
+// NOUVEAU: Gérer la visibilité de la page
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+        // Page cachée - ralentir les timers
+        clearAllTimers();
+    } else {
+        // Page visible - reprendre les timers
+        startAutoRefresh();
+    }
+});
 
 
 // =======================================================================================
 // DATA LOADING FUNCTIONS
 // =======================================================================================
 
+// =======================================================================================
+// DATA LOADING FUNCTIONS OPTIMISÉES
+// =======================================================================================
 
 async function loadDashboardData() {
+    // ✅ OPTIMISATION: Ne pas recharger si déjà en cours
+    if (AppState.cache.isFetching?.dashboard) {
+        console.log('⏳ Dashboard fetch already in progress, skipping...');
+        return;
+    }
+
+    // ✅ OPTIMISATION: Vérifier le cache d'abord
+    const cachedStats = CacheManager.get('statistics');
+    const cachedPolicies = CacheManager.get('policies_0_100_lastUpdated_desc');
+
+    if (cachedStats && cachedPolicies && AppState.currentSection !== 'dashboard') {
+        console.log('📦 Using cached dashboard data');
+        AppState.statistics = cachedStats.data;
+        AppState.policies = cachedPolicies.data.content || [];
+        updateDashboardStats(cachedStats.data);
+        return;
+    }
+
     try {
-        // Charger les statistiques et politiques en parallèle
+        AppState.cache.isFetching = { ...AppState.cache.isFetching, dashboard: true };
+
+        // ✅ OPTIMISATION: Charger en parallèle avec timeout
         const [statisticsResult, policiesResult] = await Promise.allSettled([
             ApiService.getStatistics().catch(err => {
                 console.warn('Statistics load failed:', err);
@@ -3935,7 +4118,7 @@ async function loadDashboardData() {
                     }
                 };
             }),
-            ApiService.getAllPolicies(0, 100).catch(err => {
+            ApiService.getAllPolicies(0, 100, 'lastUpdated', 'desc', !cachedPolicies).catch(err => {
                 console.warn('Policies load failed:', err);
                 return {
                     success: true,
@@ -3949,46 +4132,31 @@ async function loadDashboardData() {
             })
         ]);
 
-        // Traiter les statistiques
+        // Traiter les résultats
         if (statisticsResult.status === 'fulfilled' && statisticsResult.value.success) {
             AppState.statistics = statisticsResult.value.data;
+            CacheManager.set('statistics', statisticsResult.value.data);
             updateDashboardStats(statisticsResult.value.data);
         }
 
-        // Traiter les politiques
         if (policiesResult.status === 'fulfilled' && policiesResult.value.success) {
             AppState.policies = policiesResult.value.data.content || [];
-
-            // OPTIMISATION: Mettre à jour les graphiques de manière non-bloquante
-            setTimeout(() => {
-                updateAllCharts().catch(err => console.error('Error updating charts:', err));
-            }, 100);
-
-            // OPTIMISATION: Ne charger les politiques nécessitant révision qu'une fois et de manière non-bloquante
-            if (AppState.currentSection === 'performance') {
-                setTimeout(() => {
-                    loadPoliciesRequiringReview().catch(err => console.error('Error loading review policies:', err));
-                }, 200);
-            }
         }
 
-        console.log('Dashboard loaded with', AppState.policies.length, 'policies');
+        console.log('✅ Dashboard loaded with', AppState.policies.length, 'policies');
+
+        // ✅ OPTIMISATION: Charger les charts UNIQUEMENT si on est sur le dashboard
+        if (AppState.currentSection === 'dashboard') {
+            setTimeout(() => {
+                updateAllCharts().catch(err => console.error('Charts error:', err));
+            }, 500);
+        }
 
     } catch (error) {
-        console.error('Error loading dashboard:', error);
+        console.error('❌ Error loading dashboard:', error);
         showToast('Failed to load dashboard data', 'error');
-
-        // Initialiser avec des données vides
-        AppState.statistics = {
-            totalPolicies: 0,
-            activePolicies: 0,
-            totalBudget: 0,
-            totalBeneficiaries: 0,
-            subsidyPrograms: 0,
-            creditPrograms: 0
-        };
-        AppState.policies = [];
-        updateDashboardStats(AppState.statistics);
+    } finally {
+        AppState.cache.isFetching = { ...AppState.cache.isFetching, dashboard: false };
     }
 }
 
@@ -4049,40 +4217,74 @@ function updateDashboardStats(stats) {
     document.getElementById('creditPrograms').textContent = formatNumber(stats.creditPrograms || 0);
 }
 
-// =======================================================================================
-// CHART RENDERING
-// =======================================================================================
-async function updateAllCharts() {
-    const chartPromises = [
-        renderStatusChart().catch(e => console.error('Status chart error:', e)),
-        renderTypeChart().catch(e => console.error('Type chart error:', e)),
-        renderCategoryChart().catch(e => console.error('Category chart error:', e)),
-        renderBudgetAllocationChart().catch(e => console.error('Budget chart error:', e)),
-        renderGeographicChart().catch(e => console.error('Geographic chart error:', e)),
-        renderUtilizationChart().catch(e => console.error('Utilization chart error:', e)),
-        renderAgenciesChart().catch(e => console.error('Agencies chart error:', e)),
-        renderBudgetUtilizedChart().catch(e => console.error('Budget utilized chart error:', e)),
-        renderBeneficiariesChart().catch(e => console.error('Beneficiaries chart error:', e)),
-        renderSpecialFocusChart().catch(e => console.error('Special focus chart error:', e)),
-        renderMonthlyTrendChart().catch(e => console.error('Monthly trend chart error:', e)),
-        renderScopeDistributionChart().catch(e => console.error('Scope chart error:', e)),
-        renderTopPerformingChart().catch(e => console.error('Top performing chart error:', e)),
-        renderLowPerformingChart().catch(e => console.error('Low performing chart error:', e)),
-        renderAvgUtilizationChart().catch(e => console.error('Avg utilization chart error:', e)),
-        renderEffectivenessChart().catch(e => console.error('Effectiveness chart error:', e)),
-        // NOUVEAUX GRAPHIQUES DE COMPARAISON
-        renderBudgetComparisonChart().catch(e => console.error('Budget comparison chart error:', e)),
-        renderPerformanceComparisonChart().catch(e => console.error('Performance comparison chart error:', e)),
-        renderCategoryComparisonChart().catch(e => console.error('Category comparison chart error:', e)),
-        renderAgencyComparisonChart().catch(e => console.error('Agency comparison chart error:', e))
-    ];
 
-    try {
-        await Promise.allSettled(chartPromises);
-        console.log('All charts rendering completed');
-    } catch (error) {
-        console.error('Error updating charts:', error);
+// =======================================================================================
+// CHARTS OPTIMISÉS
+// =======================================================================================
+
+async function updateAllCharts() {
+    // ✅ OPTIMISATION: Ne charger QUE les charts visibles
+    const visibleSection = AppState.currentSection;
+
+    console.log(`🎨 Rendering charts for section: ${visibleSection}`);
+
+    const chartPromises = [];
+
+    // Dashboard charts
+    if (visibleSection === 'dashboard') {
+        chartPromises.push(
+            renderStatusChart().catch(e => console.debug('Status chart:', e.message)),
+            renderTypeChart().catch(e => console.debug('Type chart:', e.message)),
+            renderCategoryChart().catch(e => console.debug('Category chart:', e.message))
+        );
     }
+
+    // Analytics charts
+    if (visibleSection === 'analytics') {
+        chartPromises.push(
+            renderAgenciesChart().catch(e => console.debug('Agencies chart:', e.message)),
+            renderBudgetComparisonChart().catch(e => console.debug('Budget comparison:', e.message)),
+            renderPerformanceComparisonChart().catch(e => console.debug('Performance comparison:', e.message))
+        );
+    }
+
+    // Performance charts
+    if (visibleSection === 'performance') {
+        chartPromises.push(
+            renderTopPerformingChart().catch(e => console.debug('Top performing:', e.message)),
+            renderLowPerformingChart().catch(e => console.debug('Low performing:', e.message))
+        );
+    }
+
+    // ✅ OPTIMISATION: Limiter le parallélisme
+    try {
+        // Exécuter par groupes de 3
+        for (let i = 0; i < chartPromises.length; i += 3) {
+            const batch = chartPromises.slice(i, i + 3);
+            await Promise.allSettled(batch);
+        }
+        console.log('✅ Charts rendered for section:', visibleSection);
+    } catch (error) {
+        console.error('❌ Error updating charts:', error);
+    }
+}
+
+// NOUVELLE fonction pour détruire les charts inutiles
+function cleanupUnusedCharts() {
+    const sections = ['dashboard', 'analytics', 'performance'];
+    const currentSection = AppState.currentSection;
+
+    Object.keys(AppState.charts).forEach(chartId => {
+        const chart = AppState.charts[chartId];
+        if (chart) {
+            // Détruire les charts qui ne sont pas dans la section courante
+            if (!chartId.includes(currentSection) && !sections.includes(currentSection)) {
+                chart.destroy();
+                delete AppState.charts[chartId];
+                console.log(`🗑️ Cleaned up chart: ${chartId}`);
+            }
+        }
+    });
 }
 
 
@@ -4508,7 +4710,7 @@ function renderPolicyTable(policies) {
         const totalBudget = parseFloat(policy.totalBudget || 0);
         const beneficiariesCount = parseInt(policy.beneficiariesCount || 0);
         const effectiveDate = policy.effectiveDate ? formatDate(policy.effectiveDate) : 'N/A';
-        
+
         return `
         <tr>
             <td style="text-align: left; font-family: monospace; font-size: 0.9em;">
@@ -5451,16 +5653,46 @@ async function exportPoliciesToExcel() {
     showToast('Policies exported successfully', 'success');
 }
 
-// =======================================================================================
-// UI HELPER FUNCTIONS
-// =======================================================================================
+
+
 
 function showSection(sectionName) {
-    // Update active nav item
+    // ✅ OPTIMISATION: Ne pas recharger si déjà actif
+    if (AppState.currentSection === sectionName) {
+        console.log('✅ Already on this section:', sectionName);
+        return;
+    }
+
+    console.log(`🔄 Switching to section: ${sectionName}`);
+
+    // ✅ FIX: Update active nav item CORRECTEMENT
     document.querySelectorAll('.nav-item').forEach(item => {
-        item.classList.remove('active');
+        const link = item.querySelector('.nav-link');
+        const linkText = link?.textContent?.trim().toLowerCase() || '';
+        const sectionMatch = {
+            'dashboard': 'dashboard',
+            'policies': 'policies',
+            'analytics': 'analytics',
+            'performance': 'performance',
+            'farmers': 'top farmers',
+            'budget': 'budget management',
+            'compliance': 'compliance',
+            'audit': 'audit trail',
+            'approvals': 'approvals',
+            'stakeholders': 'stakeholders',
+            'monitoring': 'real-time monitoring',
+            'alerts': 'alerts & warnings',
+            'impact': 'impact assessment',
+            'exports': 'data exports',
+            'reports': 'generate reports'
+        };
+
+        if (linkText.includes(sectionMatch[sectionName]?.toLowerCase())) {
+            item.classList.add('active');
+        } else {
+            item.classList.remove('active');
+        }
     });
-    event.target.closest('.nav-item').classList.add('active');
 
     // Hide all sections
     document.querySelectorAll('.content-section').forEach(section => {
@@ -5473,7 +5705,6 @@ function showSection(sectionName) {
         'policies': 'policiesSection',
         'analytics': 'analyticsSection',
         'performance': 'performanceSection',
-        'reports': 'reportsSection',
         'farmers': 'farmersSection',
         'budget': 'budgetSection',
         'compliance': 'complianceSection',
@@ -5483,60 +5714,123 @@ function showSection(sectionName) {
         'monitoring': 'monitoringSection',
         'alerts': 'alertsSection',
         'impact': 'impactSection',
-        'exports': 'exportsSection'
+        'exports': 'exportsSection',
+        'reports': 'reportsSection'
     };
 
     const sectionId = sectionMap[sectionName];
     if (sectionId) {
-        document.getElementById(sectionId).classList.add('active');
-        AppState.currentSection = sectionName;
+        const sectionElement = document.getElementById(sectionId);
+        if (sectionElement) {
+            sectionElement.classList.add('active');
+            AppState.currentSection = sectionName;
 
-        // Load section-specific data
+            // ✅ OPTIMISATION: Charger les données de manière LAZY
+            setTimeout(() => {
+                loadSectionData(sectionName).catch(err => {
+                    console.error(`Error loading ${sectionName} data:`, err);
+                });
+            }, CONFIG.LAZY_LOAD_DELAY);
+
+            // ✅ OPTIMISATION: Rafraîchir les scrollbars
+            setTimeout(refreshScrollbars, 300);
+        } else {
+            console.error(`❌ Section element not found: ${sectionId}`);
+        }
+    } else {
+        console.error(`❌ Unknown section name: ${sectionName}`);
+    }
+}
+
+
+
+async function loadSectionData(sectionName) {
+    console.log(`📂 Loading data for section: ${sectionName}`);
+
+    try {
         switch (sectionName) {
             case 'dashboard':
-                loadDashboardData();
+                console.log('🏠 Loading dashboard...');
+                if (!AppState.statistics || AppState.policies.length === 0) {
+                    await loadDashboardData();
+                }
                 break;
+
             case 'policies':
-                loadAllPoliciesOptimized();
+                console.log('📋 Loading policies...');
+                if (AppState.policies.length === 0) {
+                    await loadAllPoliciesOptimized();
+                } else {
+                    renderPolicyTable(AppState.policies);
+                }
                 break;
-            case 'analytics':
-                updateAllCharts();
-                break;
-            case 'performance':
-                loadPoliciesRequiringReview();
-                updateAllCharts();
-                break;
+
             case 'farmers':
-                loadTopFarmers();
+                console.log('👨‍🌾 Loading farmers...');
+                await loadFarmersOptimized();
                 break;
+
+            case 'analytics':
+                console.log('📊 Loading analytics...');
+                await updateAllCharts();
+                break;
+
+            case 'performance':
+                console.log('⚡ Loading performance...');
+                await Promise.all([
+                    loadPoliciesRequiringReview(),
+                    updateAllCharts()
+                ]);
+                break;
+
             case 'budget':
-                loadBudgetManagement();
+                console.log('💰 Loading budget management...');
+                await loadBudgetManagement();
                 break;
+
             case 'compliance':
-                loadComplianceData();
+                console.log('✅ Loading compliance...');
+                await loadComplianceData();
                 break;
+
             case 'audit':
-                loadAuditTrail();
+                console.log('🔍 Loading audit trail...');
+                await loadAuditTrail();
                 break;
+
             case 'approvals':
-                loadApprovals();
+                console.log('✔️ Loading approvals...');
+                await loadApprovals();
                 break;
+
             case 'stakeholders':
-                loadStakeholdersData();
+                console.log('🤝 Loading stakeholders...');
+                await loadStakeholdersData();
                 break;
+
             case 'monitoring':
-                loadRealTimeMonitoring();
+                console.log('📡 Loading monitoring...');
+                await loadRealTimeMonitoring();
                 break;
+
             case 'alerts':
-                loadAlerts();
+                console.log('⚠️ Loading alerts...');
+                await loadAlerts();
                 break;
+
             case 'impact':
-                loadImpactData();
+                console.log('📈 Loading impact assessment...');
+                await loadImpactData();
                 break;
+
+            default:
+                console.log(`⚠️ Unknown section: ${sectionName}`);
         }
-        
-        // Rafraîchir les scrollbars après changement de section
-        setTimeout(refreshScrollbars, 500);
+
+        console.log(`✅ Section ${sectionName} loaded successfully`);
+    } catch (error) {
+        console.error(`❌ Error loading section ${sectionName}:`, error);
+        showToast(`Failed to load ${sectionName} data`, 'error');
     }
 }
 
@@ -5903,11 +6197,15 @@ function destroyChart(chartId) {
     }
 }
 
+
+
 // =======================================================================================
-// EVENT LISTENERS
+// EVENT LISTENERS OPTIMISÉS
 // =======================================================================================
 
 function setupEventListeners() {
+    console.log('🔧 Setting up optimized event listeners...');
+
     // Close modals on escape key
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
@@ -5916,11 +6214,148 @@ function setupEventListeners() {
         }
     });
 
-    // Handle form submissions
-   <!-- document.getElementById('policyForm')?.addEventListener('submit', submitPolicyForm);
--->
-    // Update notification count periodically
-    setInterval(updateNotificationCount, 60000);
+    // ✅ OPTIMISATION: Debounced search
+    let searchTimeout = null;
+    const searchInput = document.getElementById('globalSearch');
+    if (searchInput) {
+        searchInput.addEventListener('input', () => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                handleGlobalSearchDebounced();
+            }, CONFIG.DEBOUNDE_DELAY);
+        });
+    }
+
+    // ✅ OPTIMISATION: Click outside notifications
+    document.addEventListener('click', (e) => {
+        const dropdown = document.getElementById('notificationDropdown');
+        const btn = document.getElementById('notificationBtn');
+        if (dropdown && btn && !dropdown.contains(e.target) && !btn.contains(e.target)) {
+            closeNotificationDropdown();
+        }
+    });
+
+    // ✅ OPTIMISATION: Infinite scroll pour les tables
+    setupInfiniteScroll();
+
+    console.log('✅ Event listeners setup complete');
+}
+
+// NOUVEAU: Infinite scroll optimisé
+function setupInfiniteScroll() {
+    const tableWrappers = document.querySelectorAll('.data-table-wrapper');
+
+    tableWrappers.forEach(wrapper => {
+        let isScrolling = false;
+
+        wrapper.addEventListener('scroll', () => {
+            if (isScrolling) return;
+
+            isScrolling = true;
+
+            // Déclencher le traitement une fois le scroll terminé
+            setTimeout(() => {
+                const scrollLeft = wrapper.scrollLeft;
+                const maxScroll = wrapper.scrollWidth - wrapper.clientWidth;
+
+                updateScrollShadows(wrapper);
+
+                // Charger plus de données si proche de la fin
+                if (scrollLeft > maxScroll - 100 && AppState.currentSection === 'policies') {
+                    loadMorePolicies().catch(console.error);
+                }
+
+                isScrolling = false;
+            }, 150);
+        });
+    });
+}
+
+// NOUVEAU: Charger plus de politiques (infinite scroll)
+async function loadMorePolicies() {
+    if (AppState.pagination.currentPage >= AppState.pagination.totalPages - 1) {
+        return; // Pas plus de pages
+    }
+
+    const nextPage = AppState.pagination.currentPage + 1;
+
+    try {
+        const response = await ApiService.getAllPolicies(nextPage, CONFIG.DEFAULT_PAGE_SIZE);
+        if (response.success) {
+            const newPolicies = response.data.content || [];
+            AppState.policies = [...AppState.policies, ...newPolicies];
+            AppState.pagination.currentPage = nextPage;
+
+            // Ajouter à la table existante
+            appendToPolicyTable(newPolicies);
+        }
+    } catch (error) {
+        console.error('Error loading more policies:', error);
+    }
+}
+
+function appendToPolicyTable(policies) {
+    const tbody = document.getElementById('policyTableBody');
+    if (!tbody) return;
+
+    const newRows = policies.map(policy => {
+        // Même format que renderPolicyTable
+        return `
+        <tr>
+            <td style="text-align: left; font-family: monospace; font-size: 0.9em;">
+                <strong>${escapeHtml(policy.policyCode || 'N/A')}</strong>
+            </td>
+            <td style="text-align: left; width: 250px; min-width: 250px; max-width: 250px;">
+                <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%;" title="${escapeHtml(policy.policyName)}">
+                    ${escapeHtml(policy.policyName)}
+                </div>
+            </td>
+            <td style="text-align: left;">
+                ${escapeHtml(formatEnumValue(policy.policyType || 'N/A'))}
+            </td>
+            <td style="text-align: left;">
+                ${escapeHtml(formatEnumValue(policy.policyCategory || 'N/A'))}
+            </td>
+            <td style="text-align: center;">
+                <span class="status-badge status-${(policy.status || 'DRAFT').toLowerCase()}">${formatEnumValue(policy.status)}</span>
+            </td>
+            <td style="text-align: right;">
+                ${formatCurrency(parseFloat(policy.totalBudget || 0))}
+            </td>
+            <td style="text-align: right;">
+                ${formatNumber(parseInt(policy.beneficiariesCount || 0))}
+            </td>
+            <td style="text-align: center; white-space: nowrap;">
+                ${policy.effectiveDate ? formatDate(policy.effectiveDate) : 'N/A'}
+            </td>
+            <td style="text-align: center;">
+                <div class="action-buttons">
+                    <button class="action-btn action-btn-view" onclick="viewPolicy('${policy.id}')" title="View Details">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="action-btn action-btn-edit" onclick="editPolicy('${policy.id}')" title="Edit">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    ${policy.status === 'DRAFT' ? `
+                        <button class="action-btn action-btn-activate" onclick="activatePolicyConfirm('${policy.id}')" title="Activate">
+                            <i class="fas fa-check"></i>
+                        </button>
+                    ` : ''}
+                    ${policy.status === 'ACTIVE' ? `
+                        <button class="action-btn action-btn-suspend" onclick="suspendPolicyConfirm('${policy.id}')" title="Suspend">
+                            <i class="fas fa-pause"></i>
+                        </button>
+                    ` : ''}
+                    <button class="action-btn action-btn-delete" onclick="deletePolicyConfirm('${policy.id}')" title="Delete">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>
+        `;
+    }).join('');
+
+    tbody.innerHTML += newRows;
 }
 
 async function updateNotificationCount() {
@@ -6639,7 +7074,7 @@ async function renderPerformanceComparisonChart() {
             categoryData[category].totalBudget += budget;
             categoryData[category].totalUtilized += utilized;
             categoryData[category].count++;
-            
+
             if (budget > 0) {
                 const rate = (utilized / budget) * 100;
                 categoryData[category].utilizationRates.push(rate);
@@ -6649,8 +7084,8 @@ async function renderPerformanceComparisonChart() {
         const categories = Object.keys(categoryData);
         const avgUtilization = categories.map(cat => {
             const rates = categoryData[cat].utilizationRates;
-            return rates.length > 0 
-                ? rates.reduce((a, b) => a + b, 0) / rates.length 
+            return rates.length > 0
+                ? rates.reduce((a, b) => a + b, 0) / rates.length
                 : 0;
         });
         const totalBudgets = categories.map(cat => categoryData[cat].totalBudget);
@@ -6843,7 +7278,7 @@ async function renderCategoryComparisonChart() {
                                 const label = context.dataset.label || '';
                                 const value = context.parsed.r.toFixed(1);
                                 const category = categories[context.dataIndex];
-                                
+
                                 // Afficher les valeurs réelles dans le tooltip
                                 if (label.includes('Policies')) {
                                     return `${label}: ${categoryData[category].count} policies`;
@@ -7045,10 +7480,10 @@ const NotificationSystem = {
 
             // Trier par date (plus récentes en premier)
             this.notifications.sort((a, b) => b.timestamp - a.timestamp);
-            
+
             // Calculer le nombre de non lues
             this.unreadCount = this.notifications.filter(n => !n.read).length;
-            
+
             // Mettre à jour l'UI
             this.updateNotificationUI();
         } catch (error) {
@@ -7056,232 +7491,107 @@ const NotificationSystem = {
         }
     },
 
-    async getFarmersWithManyFarms() {
-        try {
-            console.log('🔄 Loading farmers from /api/users/farmers...');
-            
-            // ÉTAPE 1: Charger tous les users avec rôle FARMER depuis UserController
-            const usersResponse = await fetch('http://localhost:1010/api/users/farmers');
-            if (!usersResponse.ok) {
-                console.error('Failed to fetch farmers:', usersResponse.status);
-                return [];
-            }
-            
-            const usersData = await usersResponse.json();
-            // L'API retourne directement un tableau de UserDTO
-            const farmers = Array.isArray(usersData) ? usersData : [];
-            
-            console.log(`✅ Loaded ${farmers.length} farmers from users API`);
-            
-            if (farmers.length === 0) {
-                console.warn('No farmers found in database');
-                return [];
-            }
-            
-            // ÉTAPE 2: Pour chaque user farmer, charger ses données Farmer et ses farms
-            const farmersWithFarms = [];
-            
-            for (const farmerUser of farmers) {
-                try {
-                    const userId = farmerUser.id;
-                    console.log(`🔍 Loading farmer data and farms for user ${userId}...`);
-                    
-                    // ÉTAPE 2a: Charger les données du Farmer depuis /api/farmers/user/{userId}
-                    // NOTE: Un User avec rôle FARMER peut ne pas avoir de Farmer enregistré (404 est normal)
-                    let farmerData = null;
-                    try {
-                        const farmerResponse = await fetch(`http://localhost:1010/api/farmers/user/${userId}`);
-                        if (farmerResponse.ok) {
-                            farmerData = await farmerResponse.json();
-                            console.log(`  → Loaded farmer data for user ${userId}`);
-                        } else if (farmerResponse.status === 404) {
-                            // C'est normal - le User n'a pas encore de Farmer enregistré
-                            console.debug(`  → No farmer record found for user ${userId} (this is normal)`);
-                        } else {
-                            console.debug(`  → Error loading farmer data for user ${userId} (status: ${farmerResponse.status})`);
-                        }
-                    } catch (e) {
-                        // Ignorer silencieusement les erreurs réseau pour cet endpoint
-                        console.debug(`  → Could not load farmer data for user ${userId} (network error)`);
-                    }
-                    
-                    // ÉTAPE 2b: Charger les farms de ce farmer depuis /api/farms/farmer/{userId}/all
-                    const farmsResponse = await fetch(`http://localhost:1010/api/farms/farmer/${userId}/all`);
-                    
-                    if (farmsResponse.ok) {
-                        const farmsData = await farmsResponse.json();
-                        const farmArray = Array.isArray(farmsData) ? farmsData : [];
-                        
-                        console.log(`  → Found ${farmArray.length} farms for farmer ${userId}`);
-                        
-                        // Afficher TOUS les farmers qui ont au moins 1 farm
-                        if (farmArray.length > 0) {
-                            // Calculer la superficie totale (utiliser farmSize)
-                            const totalArea = farmArray.reduce((sum, farm) => {
-                                const area = parseFloat(farm.farmSize || farm.area || 0);
-                                return sum + area;
-                            }, 0);
-                            
-                            // Calculer la taille moyenne
-                            const avgFarmSize = farmArray.length > 0 ? totalArea / farmArray.length : 0;
-                            
-                            // Construire la localisation complète depuis les données du Farmer
-                            let location = '';
-                            if (farmerData) {
-                                // Utiliser les données du Farmer en priorité
-                                const parts = [];
-                                if (farmerData.location) parts.push(farmerData.location);
-                                if (farmerData.sector) parts.push(farmerData.sector);
-                                if (farmerData.district) parts.push(farmerData.district);
-                                if (farmerData.province) parts.push(farmerData.province);
-                                location = parts.length > 0 ? parts.join(', ') : '';
-                            }
-                            
-                            // Fallback sur les données du User si pas de données Farmer
-                            if (!location) {
-                                const userParts = [];
-                                if (farmerUser.location) userParts.push(farmerUser.location);
-                                if (farmerUser.sector) userParts.push(farmerUser.sector);
-                                if (farmerUser.district) userParts.push(farmerUser.district);
-                                if (farmerUser.province) userParts.push(farmerUser.province);
-                                location = userParts.length > 0 ? userParts.join(', ') : '';
-                            }
-                            
-                            // Si toujours pas de location, utiliser les coordonnées ou un message
-                            if (!location && farmerData && farmerData.latitude && farmerData.longitude) {
-                                location = `${farmerData.latitude.toFixed(4)}, ${farmerData.longitude.toFixed(4)}`;
-                            }
-                            
-                            // Dernier recours
-                            if (!location) {
-                                location = 'Location not specified';
-                            }
-                            
-                            farmersWithFarms.push({
-                                // Données du User
-                                id: userId,
-                                userId: userId,
-                                farmerCode: farmerData?.farmerCode || farmerUser.farmerCode || `FARMER-${userId.substring(0, 8)}`,
-                                fullName: farmerUser.fullName || 'N/A',
-                                email: farmerUser.email || 'N/A',
-                                phoneNumber: farmerUser.phoneNumber || 'N/A',
-                                
-                                // Données du Farmer (location)
-                                location: location,
-                                province: farmerData?.province || farmerUser.province || '',
-                                district: farmerData?.district || farmerUser.district || '',
-                                sector: farmerData?.sector || farmerUser.sector || '',
-                                latitude: farmerData?.latitude || null,
-                                longitude: farmerData?.longitude || null,
-                                
-                                // Données calculées depuis les farms
-                                farmCount: farmArray.length,
-                                totalArea: totalArea,
-                                avgFarmSize: avgFarmSize,
-                                farms: farmArray
-                            });
-                        }
-                    } else {
-                        console.debug(`  → No farms found for farmer ${userId} (status: ${farmsResponse.status})`);
-                    }
-                } catch (e) {
-                    console.warn(`⚠️ Error loading data for farmer ${farmerUser.id}:`, e);
-                    // Continuer avec le prochain farmer même en cas d'erreur
-                }
-            }
-            
-            console.log(`✅ Found ${farmersWithFarms.length} farmers with farms`);
-            
-            // Trier par nombre de fermes (décroissant), puis par superficie totale
-            return farmersWithFarms.sort((a, b) => {
-                if (b.farmCount !== a.farmCount) {
-                    return b.farmCount - a.farmCount;
-                }
-                return b.totalArea - a.totalArea;
-            });
-        } catch (error) {
-            console.error('❌ Error getting farmers with many farms:', error);
+
+
+
+
+
+async getFarmersWithManyFarms() {
+    try {
+        console.log('🔄 Loading farmers from /api/users/farmers...');
+
+        // ✅ ÉTAPE 1: Charger TOUS les users farmers (1 requête)
+        const usersResponse = await fetch('http://localhost:1010/api/users/farmers');
+        if (!usersResponse.ok) {
+            console.error('❌ Failed to fetch farmers:', usersResponse.status);
             return [];
         }
-    },
 
-    updateNotificationUI() {
-        const badge = document.getElementById('notificationCount');
-        if (badge) {
-            if (this.unreadCount > 0) {
-                badge.textContent = this.unreadCount > 99 ? '99+' : this.unreadCount;
-                badge.classList.remove('hidden');
-            } else {
-                badge.classList.add('hidden');
+        const usersData = await usersResponse.json();
+        const farmers = Array.isArray(usersData) ? usersData : [];
+
+        console.log(`✅ Loaded ${farmers.length} farmers from users API`);
+
+        if (farmers.length === 0) {
+            return [];
+        }
+
+        // ✅ ÉTAPE 2: Charger les farms en BATCH (10 max en parallèle)
+        const BATCH_SIZE = 10;
+        const farmersWithFarms = [];
+
+        for (let i = 0; i < farmers.length; i += BATCH_SIZE) {
+            const batch = farmers.slice(i, i + BATCH_SIZE);
+
+            const batchPromises = batch.map(async (farmerUser) => {
+                try {
+                    const userId = farmerUser.id;
+
+                    // ✅ NE charger QUE les farms (skip /api/farmers/user/{userId})
+                    const farmsResponse = await fetch(`http://localhost:1010/api/farms/farmer/${userId}/all`);
+
+                    if (!farmsResponse.ok) {
+                        return null; // Pas de farms - OK
+                    }
+
+                    const farmsData = await farmsResponse.json();
+                    const farmArray = Array.isArray(farmsData) ? farmsData : [];
+
+                    if (farmArray.length === 0) {
+                        return null; // Skip si pas de farms
+                    }
+
+                    // ✅ Calculer statistiques
+                    const totalArea = farmArray.reduce((sum, farm) => {
+                        return sum + parseFloat(farm.farmSize || 0);
+                    }, 0);
+
+                    // ✅ Location depuis User directement
+                    const parts = [];
+                    if (farmerUser.sector) parts.push(farmerUser.sector);
+                    if (farmerUser.district) parts.push(farmerUser.district);
+                    if (farmerUser.province) parts.push(farmerUser.province);
+                    const location = parts.length > 0 ? parts.join(', ') : 'Location not specified';
+
+                    return {
+                        id: userId,
+                        userId: userId,
+                        farmerCode: farmerUser.farmerCode || `FARMER-${userId.substring(0, 8)}`,
+                        fullName: farmerUser.fullName || 'N/A',
+                        email: farmerUser.email || 'N/A',
+                        phoneNumber: farmerUser.phoneNumber || 'N/A',
+                        location: location,
+                        province: farmerUser.province || '',
+                        district: farmerUser.district || '',
+                        sector: farmerUser.sector || '',
+                        farmCount: farmArray.length,
+                        totalArea: totalArea,
+                        avgFarmSize: totalArea / farmArray.length,
+                        farms: farmArray
+                    };
+                } catch (e) {
+                    return null; // Skip en cas d'erreur
+                }
+            });
+
+            const batchResults = await Promise.all(batchPromises);
+            farmersWithFarms.push(...batchResults.filter(f => f !== null));
+        }
+
+        console.log(`✅ Found ${farmersWithFarms.length} farmers with farms`);
+
+        // ✅ Trier par nombre de farms
+        return farmersWithFarms.sort((a, b) => {
+            if (b.farmCount !== a.farmCount) {
+                return b.farmCount - a.farmCount;
             }
-        }
-        this.renderNotifications();
-    },
-
-    renderNotifications() {
-        const list = document.getElementById('notificationList');
-        if (!list) return;
-
-        if (this.notifications.length === 0) {
-            list.innerHTML = `
-                <div class="notification-item">
-                    <div class="notification-content">
-                        <div class="notification-title">No notifications</div>
-                        <div class="notification-message">You're all caught up!</div>
-                    </div>
-                </div>
-            `;
-            return;
-        }
-
-        list.innerHTML = this.notifications.map(notif => {
-            const iconClass = {
-                'info': 'info',
-                'success': 'success',
-                'warning': 'warning',
-                'error': 'error'
-            }[notif.type] || 'info';
-
-            const timeAgo = this.getTimeAgo(notif.timestamp);
-            const unreadClass = notif.read ? 'read' : 'unread';
-
-            return `
-                <div class="notification-item ${unreadClass}" onclick="NotificationSystem.handleNotificationClick('${notif.id}')">
-                    <div class="notification-icon ${iconClass}">
-                        <i class="fas fa-${this.getIconForType(notif.type)}"></i>
-                    </div>
-                    <div class="notification-content">
-                        <div class="notification-title">${escapeHtml(notif.title)}</div>
-                        <div class="notification-message">${escapeHtml(notif.message)}</div>
-                        <div class="notification-time">${timeAgo}</div>
-                    </div>
-                </div>
-            `;
-        }).join('');
-    },
-
-    getIconForType(type) {
-        const icons = {
-            'info': 'info-circle',
-            'success': 'check-circle',
-            'warning': 'exclamation-triangle',
-            'error': 'times-circle'
-        };
-        return icons[type] || 'bell';
-    },
-
-    getTimeAgo(timestamp) {
-        const now = new Date();
-        const diff = now - timestamp;
-        const minutes = Math.floor(diff / 60000);
-        const hours = Math.floor(minutes / 60);
-        const days = Math.floor(hours / 24);
-
-        if (days > 0) return `${days} day${days > 1 ? 's' : ''} ago`;
-        if (hours > 0) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
-        if (minutes > 0) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
-        return 'Just now';
-    },
+            return b.totalArea - a.totalArea;
+        });
+    } catch (error) {
+        console.error('❌ Error getting farmers with many farms:', error);
+        return [];
+    }
+},
 
     async loadFarmersNotification() {
         try {
@@ -7298,13 +7608,13 @@ const NotificationSystem = {
                     read: false,
                     action: () => showSection('farmers')
                 };
-                
+
                 if (existingIndex >= 0) {
                     this.notifications[existingIndex] = notification;
                 } else {
                     this.notifications.push(notification);
                 }
-                
+
                 this.unreadCount = this.notifications.filter(n => !n.read).length;
                 this.updateNotificationUI();
             }
@@ -7370,18 +7680,18 @@ async function loadTopFarmers() {
     try {
         console.log('🚀 Loading top farmers...');
         showLoading();
-        
+
         // Utiliser NotificationSystem.getFarmersWithManyFarms() qui fonctionne correctement
         const farmers = await NotificationSystem.getFarmersWithManyFarms();
-        
+
         console.log(`✅ Found ${farmers.length} farmers with farms`);
-        
+
         // Stocker les données dans AppState pour les réutiliser dans viewFarmerDetails
         AppState.topFarmers = farmers;
-        
+
         // Afficher dans la table
         renderTopFarmersTable(farmers);
-        
+
         hideLoading();
     } catch (error) {
         console.error('❌ Error loading top farmers:', error);
@@ -7415,7 +7725,7 @@ function renderTopFarmersTable(farmers) {
         const totalFarms = farmer.farmCount || 0;
         const totalArea = farmer.totalArea || 0;
         const avgFarmSize = farmer.avgFarmSize || 0;
-        
+
         // Construire la localisation complète depuis les données du Farmer
         let location = farmer.location || '';
         if (!location || location === 'N/A' || location === 'Location not specified') {
@@ -7431,10 +7741,10 @@ function renderTopFarmersTable(farmers) {
                 location = 'Location not specified';
             }
         }
-        
+
         // Contact (email ou téléphone)
         const contact = farmer.phoneNumber || farmer.email || 'N/A';
-        
+
         return `
         <tr>
             <td style="text-align: left;">
@@ -7486,7 +7796,7 @@ function viewFarmerDetails(farmerId) {
 
 function checkScrollbarsVisibility() {
     const tableWrappers = document.querySelectorAll('.data-table-wrapper');
-    
+
     tableWrappers.forEach((wrapper, index) => {
         // Attendre que le wrapper soit visible et ait une largeur
         const checkWrapper = () => {
@@ -7495,25 +7805,25 @@ function checkScrollbarsVisibility() {
                 setTimeout(checkWrapper, 200);
                 return;
             }
-            
+
             // Forcer le recalcul en forçant un reflow
             wrapper.style.overflow = 'hidden';
             void wrapper.offsetWidth; // Force reflow
             wrapper.style.overflow = 'auto';
-            
+
             // Attendre un peu pour que le DOM se mette à jour
             setTimeout(() => {
                 const table = wrapper.querySelector('.data-table');
                 if (!table) return;
-                
+
                 // S'assurer que la table a une largeur minimale
                 if (!table.style.minWidth || table.style.minWidth === '0px') {
                     table.style.minWidth = '1800px';
                 }
-                
+
                 const hasHorizontalScroll = wrapper.scrollWidth > wrapper.clientWidth;
                 const hasVerticalScroll = wrapper.scrollHeight > wrapper.clientHeight;
-                
+
                 console.log(`🔍 Scroll check Table ${index + 1}:`, {
                     horizontal: hasHorizontalScroll,
                     vertical: hasVerticalScroll,
@@ -7521,7 +7831,7 @@ function checkScrollbarsVisibility() {
                     contentWidth: wrapper.scrollWidth,
                     tableMinWidth: table.style.minWidth
                 });
-                
+
                 if (hasHorizontalScroll) {
                     wrapper.classList.add('has-scroll');
                     console.log(`✅ Scrollbar horizontale ACTIVÉE pour la table ${index + 1}`);
@@ -7535,14 +7845,14 @@ function checkScrollbarsVisibility() {
                 }
             }, 150);
         };
-        
+
         checkWrapper();
     });
 }
 
 function forceHorizontalScroll() {
     const tableWrappers = document.querySelectorAll('.data-table-wrapper');
-    
+
     tableWrappers.forEach((wrapper, index) => {
         // Vérifier que le wrapper est visible
         if (wrapper.clientWidth === 0) {
@@ -7550,14 +7860,14 @@ function forceHorizontalScroll() {
             setTimeout(() => forceHorizontalScroll(), 300);
             return;
         }
-        
+
         const table = wrapper.querySelector('.data-table');
         if (table) {
             // S'assurer que la table a une largeur minimale suffisante
             const currentMinWidth = parseInt(table.style.minWidth) || 1800;
             const requiredWidth = Math.max(currentMinWidth, wrapper.clientWidth + 300);
             table.style.minWidth = `${requiredWidth}px`;
-            
+
             // Attendre et vérifier à nouveau
             setTimeout(() => {
                 if (wrapper.scrollWidth <= wrapper.clientWidth && wrapper.clientWidth > 0) {
@@ -7571,16 +7881,16 @@ function forceHorizontalScroll() {
 
 function refreshScrollbars() {
     console.log('🔄 Refreshing scrollbars...');
-    
+
     const tableWrappers = document.querySelectorAll('.data-table-wrapper');
-    
+
     tableWrappers.forEach(wrapper => {
         // Technique pour forcer le recalcul
         wrapper.style.overflow = 'hidden';
         void wrapper.offsetHeight; // Force reflow
         wrapper.style.overflow = 'auto';
     });
-    
+
     setTimeout(() => {
         checkScrollbarsVisibility();
         forceHorizontalScroll();
@@ -7594,7 +7904,7 @@ function refreshScrollbars() {
 async function loadBudgetManagement() {
     try {
         showLoading();
-        
+
         // Charger toutes les politiques pour calculer les statistiques
         if (AppState.policies.length === 0) {
             const response = await ApiService.getAllPolicies(0, 1000);
@@ -7602,16 +7912,16 @@ async function loadBudgetManagement() {
                 AppState.policies = response.data.content;
             }
         }
-        
+
         const totalAllocated = AppState.policies.reduce((sum, p) => {
             const allocated = parseFloat(p.budgetAllocated || p.totalBudget || 0);
             return sum + allocated;
         }, 0);
-        
+
         const totalUtilized = AppState.policies.reduce((sum, p) => {
             return sum + (parseFloat(p.budgetUtilized || 0));
         }, 0);
-        
+
         const utilizationRate = totalAllocated > 0 ? (totalUtilized / totalAllocated * 100) : 0;
         const remaining = totalAllocated - totalUtilized;
 
@@ -7619,10 +7929,10 @@ async function loadBudgetManagement() {
         document.getElementById('totalBudgetUtilized').textContent = formatCurrency(totalUtilized);
         document.getElementById('budgetUtilizationRate').textContent = utilizationRate.toFixed(2) + '%';
         document.getElementById('remainingBudget').textContent = formatCurrency(remaining);
-        
+
         // Rendre le graphique de budget
         await renderBudgetManagementChart();
-        
+
         hideLoading();
     } catch (error) {
         console.error('Error loading budget management:', error);
@@ -7637,7 +7947,7 @@ async function renderBudgetManagementChart() {
 
     try {
         const policies = AppState.policies;
-        
+
         // Grouper par type de politique
         const typeData = {};
         policies.forEach(policy => {
@@ -7719,7 +8029,7 @@ async function loadAuditTrail() {
         // Créer un audit trail basé sur les données des politiques
         // Utiliser les dates de création et modification
         const auditEntries = [];
-        
+
         AppState.policies.forEach(policy => {
             // Entrée de création
             if (policy.createdDate) {
@@ -7732,7 +8042,7 @@ async function loadAuditTrail() {
                     ipAddress: 'N/A'
                 });
             }
-            
+
             // Entrée de modification
             if (policy.lastUpdated && policy.lastUpdated !== policy.createdDate) {
                 auditEntries.push({
@@ -7789,7 +8099,7 @@ function exportToCSV() {
         showToast('No data to export', 'warning');
         return;
     }
-    
+
     const headers = ['Policy Code', 'Policy Name', 'Type', 'Category', 'Status', 'Budget', 'Beneficiaries'];
     const rows = policies.map(p => [
         p.policyCode || '',
@@ -7800,7 +8110,7 @@ function exportToCSV() {
         p.totalBudget || 0,
         p.beneficiariesCount || 0
     ]);
-    
+
     const csvContent = [headers, ...rows].map(row => row.join(',')).join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
@@ -7817,7 +8127,7 @@ function exportToJSON() {
         showToast('No data to export', 'warning');
         return;
     }
-    
+
     const jsonContent = JSON.stringify(policies, null, 2);
     const blob = new Blob([jsonContent], { type: 'application/json' });
     const url = window.URL.createObjectURL(blob);
@@ -7834,7 +8144,7 @@ function exportToXML() {
         showToast('No data to export', 'warning');
         return;
     }
-    
+
     let xmlContent = '<?xml version="1.0" encoding="UTF-8"?>\n<policies>\n';
     policies.forEach(p => {
         xmlContent += `  <policy>
@@ -7848,7 +8158,7 @@ function exportToXML() {
   </policy>\n`;
     });
     xmlContent += '</policies>';
-    
+
     const blob = new Blob([xmlContent], { type: 'application/xml' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -7895,7 +8205,7 @@ async function loadComplianceData() {
             // Calculer le score de conformité basé sur plusieurs facteurs
             let score = 100;
             let status = 'COMPLIANT';
-            
+
             // Vérifier si la politique est expirée
             if (policy.expiryDate) {
                 const expiryDate = new Date(policy.expiryDate);
@@ -8014,7 +8324,7 @@ async function loadApprovals() {
             }
         }
 
-        const pendingApprovals = AppState.policies.filter(p => 
+        const pendingApprovals = AppState.policies.filter(p =>
             p.status === 'DRAFT' || p.status === 'UNDER_REVIEW'
         );
 
@@ -8089,7 +8399,7 @@ async function approvePolicy(id) {
 async function loadStakeholdersData() {
     try {
         showLoading();
-        
+
         if (AppState.policies.length === 0) {
             const response = await ApiService.getAllPolicies(0, 1000);
             if (response.success && response.data.content) {
@@ -8182,7 +8492,7 @@ async function renderStakeholdersChart(stakeholders) {
 
     try {
         const topStakeholders = stakeholders.slice(0, 10);
-        
+
         destroyChart('stakeholdersChart');
 
         AppState.charts.stakeholdersChart = new Chart(ctx, {
@@ -8459,7 +8769,7 @@ function viewPolicyByName(policyName) {
 async function loadImpactData() {
     try {
         showLoading();
-        
+
         if (AppState.policies.length === 0) {
             const response = await ApiService.getAllPolicies(0, 1000);
             if (response.success && response.data.content) {
@@ -8487,7 +8797,7 @@ async function renderImpactChart() {
             if (policy.createdDate) {
                 const date = new Date(policy.createdDate);
                 const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-                
+
                 if (!monthlyData[monthKey]) {
                     monthlyData[monthKey] = {
                         policies: 0,
@@ -8495,7 +8805,7 @@ async function renderImpactChart() {
                         budget: 0
                     };
                 }
-                
+
                 monthlyData[monthKey].policies++;
                 monthlyData[monthKey].beneficiaries += parseInt(policy.beneficiariesCount || 0);
                 monthlyData[monthKey].budget += parseFloat(policy.totalBudget || 0);
@@ -8606,14 +8916,14 @@ async function renderImpactChart() {
 async function loadRealTimeMonitoring() {
     try {
         console.log('🔄 Loading real-time monitoring data...');
-        
+
         // Charger les statistiques en temps réel depuis le backend
         const [statsResult, policiesResult, farmersResult] = await Promise.allSettled([
             ApiService.getStatistics().catch(e => ({ success: false, data: {} })),
             ApiService.getAllPolicies(0, 100).catch(e => ({ success: false, data: { content: [] } })),
             fetch('http://localhost:1010/api/users/farmers').then(r => r.ok ? r.json() : []).catch(() => [])
         ]);
-        
+
         // Statistiques des politiques
         let activePolicies = 0;
         if (statsResult.status === 'fulfilled' && statsResult.value.success) {
@@ -8622,34 +8932,34 @@ async function loadRealTimeMonitoring() {
             const policies = policiesResult.value.data.content || [];
             activePolicies = policies.filter(p => p.status === 'ACTIVE').length;
         }
-        
+
         // Statistiques des farmers
         let activeFarmers = 0;
         if (farmersResult.status === 'fulfilled') {
             const farmers = Array.isArray(farmersResult.value) ? farmersResult.value : [];
             activeFarmers = farmers.filter(f => f.isActive !== false).length;
         }
-        
+
         // Mettre à jour l'UI
         const activeMonitoringEl = document.getElementById('activeMonitoring');
         if (activeMonitoringEl) {
             // Afficher le total (policies + farmers actifs)
             activeMonitoringEl.textContent = formatNumber(activePolicies + activeFarmers);
         }
-        
+
         // Mettre à jour l'heure de dernière mise à jour
         const lastUpdateEl = document.getElementById('lastUpdate');
         if (lastUpdateEl) {
             const now = new Date();
-            const timeString = now.toLocaleTimeString('en-US', { 
-                hour: '2-digit', 
-                minute: '2-digit', 
+            const timeString = now.toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
                 second: '2-digit',
-                hour12: true 
+                hour12: true
             });
             lastUpdateEl.textContent = timeString;
         }
-        
+
         console.log(`✅ Real-time monitoring updated: ${activePolicies} active policies, ${activeFarmers} active farmers`);
     } catch (error) {
         console.error('❌ Error loading real-time monitoring:', error);
@@ -8665,111 +8975,70 @@ async function loadRealTimeMonitoring() {
     }
 }
 
-// =======================================================================================
-// VIEW FARMER DETAILS
-// =======================================================================================
+
 
 async function viewFarmerDetails(userId) {
     try {
-        console.log(`🔍 Viewing details for farmer user: ${userId}`);
+        console.log(`🔍 Viewing details for farmer: ${userId}`);
         showLoading();
-        
-        // OPTIMISATION: Utiliser les données déjà chargées dans AppState.topFarmers si disponibles
+
+        // ✅ OPTIMISATION: Utiliser le cache d'abord
         let farmerInfo = null;
         if (AppState.topFarmers && Array.isArray(AppState.topFarmers)) {
             farmerInfo = AppState.topFarmers.find(f => f.userId === userId || f.id === userId);
         }
-        
-        let user, farmerData, farms;
-        
+
+        let user, farms;
+
         if (farmerInfo) {
-            // Utiliser les données déjà chargées depuis Top Farmers
-            console.log('✅ Using cached farmer data from Top Farmers table');
+            // ✅ CACHE HIT: Utiliser les données déjà chargées
+            console.log('✅ Using cached farmer data (0ms)');
             user = {
                 id: farmerInfo.userId || farmerInfo.id,
                 fullName: farmerInfo.fullName,
                 email: farmerInfo.email,
                 phoneNumber: farmerInfo.phoneNumber,
-                isActive: true
-            };
-            farmerData = {
-                farmerCode: farmerInfo.farmerCode,
-                location: farmerInfo.location,
                 province: farmerInfo.province,
                 district: farmerInfo.district,
                 sector: farmerInfo.sector,
-                latitude: farmerInfo.latitude,
-                longitude: farmerInfo.longitude
+                isActive: true
             };
             farms = farmerInfo.farms || [];
         } else {
-            // Fallback: Charger depuis l'API si pas dans le cache
+            // ✅ CACHE MISS: Charger depuis l'API (2 requêtes seulement)
             console.log('⚠️ Farmer not in cache, loading from API...');
-            const [userResponse, farmerDataResponse, farmsResponse] = await Promise.allSettled([
-                fetch(`http://localhost:1010/api/users/${userId}`).then(r => r.ok ? r.json() : null).catch(() => null),
-                fetch(`http://localhost:1010/api/farmers/user/${userId}`).then(r => r.ok ? r.json() : null).catch(() => null),
-                fetch(`http://localhost:1010/api/farms/farmer/${userId}/all`).then(r => r.ok ? r.json() : []).catch(() => [])
+            const [userResponse, farmsResponse] = await Promise.allSettled([
+                fetch(`http://localhost:1010/api/users/${userId}`).then(r => r.ok ? r.json() : null),
+                fetch(`http://localhost:1010/api/farms/farmer/${userId}/all`).then(r => r.ok ? r.json() : [])
             ]);
-            
+
             user = userResponse.status === 'fulfilled' ? userResponse.value : null;
-            farmerData = farmerDataResponse.status === 'fulfilled' ? farmerDataResponse.value : null;
-            farms = farmsResponse.status === 'fulfilled' && Array.isArray(farmsResponse.value) 
+            farms = farmsResponse.status === 'fulfilled' && Array.isArray(farmsResponse.value)
                 ? farmsResponse.value : [];
         }
-        
+
         if (!user) {
             showToast('Farmer not found', 'error');
             hideLoading();
             return;
         }
-        
-        // Debug: Afficher les données récupérées
-        console.log('📋 User data:', user);
-        console.log('📋 Farmer data:', farmerData);
-        console.log('📋 Farms data:', farms);
-        
-        // Construire la location complète
-        let location = '';
-        if (farmerData) {
-            const parts = [];
-            if (farmerData.location) parts.push(farmerData.location);
-            if (farmerData.sector) parts.push(farmerData.sector);
-            if (farmerData.district) parts.push(farmerData.district);
-            if (farmerData.province) parts.push(farmerData.province);
-            location = parts.length > 0 ? parts.join(', ') : '';
-        }
-        
-        if (!location) {
-            const userParts = [];
-            if (user.location) userParts.push(user.location);
-            if (user.sector) userParts.push(user.sector);
-            if (user.district) userParts.push(user.district);
-            if (user.province) userParts.push(user.province);
-            location = userParts.length > 0 ? userParts.join(', ') : '';
-        }
-        
-        if (!location && farmerData?.latitude && farmerData?.longitude) {
-            location = `Lat: ${parseFloat(farmerData.latitude).toFixed(4)}, Lng: ${parseFloat(farmerData.longitude).toFixed(4)}`;
-        }
-        
-        if (!location) {
-            location = 'Location not specified';
-        }
-        
+
+        // ✅ Calculer statistiques
         const totalArea = farms.reduce((sum, f) => sum + parseFloat(f.farmSize || 0), 0);
         const avgFarmSize = farms.length > 0 ? totalArea / farms.length : 0;
-        
-        // Générer un farmerCode si non disponible
-        let farmerCode = farmerData?.farmerCode;
-        if (!farmerCode && user.id) {
-            // Générer un code basé sur l'ID du user
-            farmerCode = `FARMER-${user.id.substring(0, 8).toUpperCase()}`;
-        }
-        
-        // S'assurer que fullName existe
-        const fullName = user.fullName || user.username || `User ${user.id?.substring(0, 8) || 'Unknown'}`;
-        
-        // Créer le contenu du modal
+
+        // ✅ Construire location
+        let location = '';
+        const parts = [];
+        if (user.sector) parts.push(user.sector);
+        if (user.district) parts.push(user.district);
+        if (user.province) parts.push(user.province);
+        location = parts.length > 0 ? parts.join(', ') : 'Location not specified';
+
+        const farmerCode = user.farmerCode || farmerInfo?.farmerCode || `FARMER-${user.id.substring(0, 8)}`;
+        const fullName = user.fullName || `User ${user.id?.substring(0, 8) || 'Unknown'}`;
+
+        // ✅ Créer le modal (code HTML identique)
         const modalContent = `
             <div class="modal-header">
                 <h2>Farmer Details - ${escapeHtml(fullName)}</h2>
@@ -8785,7 +9054,7 @@ async function viewFarmerDetails(userId) {
                     </div>
                     <div class="info-item">
                         <div class="info-label">Farmer Code</div>
-                        <div class="info-value" style="font-family: monospace;">${escapeHtml(farmerCode || 'N/A')}</div>
+                        <div class="info-value" style="font-family: monospace;">${escapeHtml(farmerCode)}</div>
                     </div>
                     <div class="info-item">
                         <div class="info-label">Email</div>
@@ -8800,18 +9069,6 @@ async function viewFarmerDetails(userId) {
                         <div class="info-value">${escapeHtml(location)}</div>
                     </div>
                     <div class="info-item">
-                        <div class="info-label">Province</div>
-                        <div class="info-value">${escapeHtml(farmerData?.province || user.province || 'N/A')}</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">District</div>
-                        <div class="info-value">${escapeHtml(farmerData?.district || user.district || 'N/A')}</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">Sector</div>
-                        <div class="info-value">${escapeHtml(farmerData?.sector || user.sector || 'N/A')}</div>
-                    </div>
-                    <div class="info-item">
                         <div class="info-label">Total Farms</div>
                         <div class="info-value"><strong>${farms.length}</strong></div>
                     </div>
@@ -8823,38 +9080,30 @@ async function viewFarmerDetails(userId) {
                         <div class="info-label">Average Farm Size</div>
                         <div class="info-value">${formatNumber(avgFarmSize.toFixed(2))} ha</div>
                     </div>
-                    <div class="info-item">
-                        <div class="info-label">Status</div>
-                        <div class="info-value">
-                            <span class="status-badge ${user.isActive !== false ? 'status-active' : 'status-suspended'}">
-                                ${user.isActive !== false ? 'Active' : 'Inactive'}
-                            </span>
-                        </div>
-                    </div>
                 </div>
-                
+
                 ${farms.length > 0 ? `
-                <h3 style="margin-top: 24px; margin-bottom: 16px; color: var(--text-primary);">Farms (${farms.length})</h3>
+                <h3 style="margin-top: 24px; margin-bottom: 16px;">Farms (${farms.length})</h3>
                 <div class="data-table-wrapper" style="max-height: 400px; overflow-y: auto;">
-                    <table class="data-table" style="width: 100%; border-collapse: collapse;">
+                    <table class="data-table">
                         <thead>
                             <tr>
-                                <th style="min-width: 150px; text-align: left; padding: 12px; background: var(--bg-secondary); border-bottom: 2px solid var(--border-color);">Farm Name</th>
-                                <th style="min-width: 150px; text-align: left; padding: 12px; background: var(--bg-secondary); border-bottom: 2px solid var(--border-color);">Farm Code</th>
-                                <th style="min-width: 100px; text-align: right; padding: 12px; background: var(--bg-secondary); border-bottom: 2px solid var(--border-color);">Size (ha)</th>
-                                <th style="min-width: 120px; text-align: left; padding: 12px; background: var(--bg-secondary); border-bottom: 2px solid var(--border-color);">Soil Type</th>
-                                <th style="min-width: 180px; text-align: left; padding: 12px; background: var(--bg-secondary); border-bottom: 2px solid var(--border-color);">Coordinates</th>
+                                <th>Farm Name</th>
+                                <th>Farm Code</th>
+                                <th>Size (ha)</th>
+                                <th>Soil Type</th>
+                                <th>Coordinates</th>
                             </tr>
                         </thead>
                         <tbody>
                             ${farms.map(farm => `
-                                <tr style="border-bottom: 1px solid var(--border-color);">
-                                    <td style="padding: 12px; text-align: left; vertical-align: middle;">${escapeHtml(farm.farmName || 'N/A')}</td>
-                                    <td style="padding: 12px; text-align: left; vertical-align: middle; font-family: monospace; font-size: 0.9em;">${escapeHtml(farm.farmCode || 'N/A')}</td>
-                                    <td style="padding: 12px; text-align: right; vertical-align: middle;">${formatNumber(parseFloat(farm.farmSize || 0).toFixed(2))}</td>
-                                    <td style="padding: 12px; text-align: left; vertical-align: middle;">${escapeHtml(farm.soilType || 'N/A')}</td>
-                                    <td style="padding: 12px; text-align: left; vertical-align: middle; font-family: monospace; font-size: 0.85em;">
-                                        ${farm.latitude && farm.longitude 
+                                <tr>
+                                    <td>${escapeHtml(farm.farmName || 'N/A')}</td>
+                                    <td style="font-family: monospace;">${escapeHtml(farm.farmCode || 'N/A')}</td>
+                                    <td style="text-align: right;">${formatNumber(parseFloat(farm.farmSize || 0).toFixed(2))}</td>
+                                    <td>${escapeHtml(farm.soilType || 'N/A')}</td>
+                                    <td style="font-family: monospace; font-size: 0.85em;">
+                                        ${farm.latitude && farm.longitude
                                             ? `${parseFloat(farm.latitude).toFixed(4)}, ${parseFloat(farm.longitude).toFixed(4)}`
                                             : 'N/A'}
                                     </td>
@@ -8863,14 +9112,14 @@ async function viewFarmerDetails(userId) {
                         </tbody>
                     </table>
                 </div>
-                ` : '<p style="margin-top: 24px; color: var(--text-secondary); text-align: center;">No farms registered for this farmer.</p>'}
+                ` : '<p style="margin-top: 24px; text-align: center;">No farms registered.</p>'}
             </div>
             <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border-color); text-align: right;">
                 <button class="btn btn-secondary" onclick="closeDetailsModal()">Close</button>
             </div>
         `;
-        
-        // Créer ou réutiliser le modal
+
+        // ✅ Afficher le modal
         let modal = document.getElementById('detailsModal');
         if (!modal) {
             modal = document.createElement('div');
@@ -8881,65 +9130,102 @@ async function viewFarmerDetails(userId) {
             };
             document.body.appendChild(modal);
         }
-        
+
         const modalContentDiv = document.createElement('div');
         modalContentDiv.className = 'modal-content modal-large';
         modalContentDiv.innerHTML = modalContent;
-        
-        // Vider et remplir le modal
+
         modal.innerHTML = '';
         modal.appendChild(modalContentDiv);
         modal.style.display = 'flex';
-        
+
         hideLoading();
     } catch (error) {
-        console.error('Error viewing farmer details:', error);
+        console.error('❌ Error viewing farmer details:', error);
         showToast('Failed to load farmer details', 'error');
         hideLoading();
     }
 }
-
 // =======================================================================================
 // SEARCH WITH DEBOUNCING - OPTIMISATION PERFORMANCE
 // =======================================================================================
 
 let searchTimeout = null;
+
+// =======================================================================================
+// SEARCH OPTIMISÉ
+// =======================================================================================
+
 function handleGlobalSearchDebounced() {
-    // Annuler la recherche précédente si elle existe
-    if (searchTimeout) {
-        clearTimeout(searchTimeout);
+    const searchTerm = document.getElementById('globalSearch')?.value?.trim() || '';
+
+    if (searchTerm.length < 2) {
+        // Afficher toutes les données si recherche vide
+        if (AppState.currentSection === 'policies') {
+            renderPolicyTable(AppState.policies);
+        } else if (AppState.currentSection === 'farmers') {
+            renderTopFarmersTable(AppState.topFarmers);
+        }
+        return;
     }
-    
-    // Attendre 300ms avant d'exécuter la recherche (debouncing)
-    searchTimeout = setTimeout(() => {
-        handleGlobalSearch();
-    }, 300);
+
+    console.log(`🔍 Searching for: "${searchTerm}"`);
+
+    // Recherche côté client pour éviter les requêtes API
+    if (AppState.currentSection === 'policies' && AppState.policies.length > 0) {
+        const filtered = AppState.policies.filter(policy =>
+            (policy.policyName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (policy.policyCode || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (policy.description || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (policy.implementingAgency || '').toLowerCase().includes(searchTerm.toLowerCase())
+        );
+
+        renderPolicyTable(filtered);
+        showToast(`Found ${filtered.length} policies matching "${searchTerm}"`, 'info');
+
+    } else if (AppState.currentSection === 'farmers' && AppState.topFarmers.length > 0) {
+        const filtered = AppState.topFarmers.filter(farmer =>
+            (farmer.fullName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (farmer.farmerCode || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (farmer.location || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (farmer.email || '').toLowerCase().includes(searchTerm.toLowerCase())
+        );
+
+        renderTopFarmersTable(filtered);
+        showToast(`Found ${filtered.length} farmers matching "${searchTerm}"`, 'info');
+
+    } else {
+        // Fallback: Recherche API
+        setTimeout(() => {
+            handleGlobalSearch();
+        }, 500);
+    }
 }
 
 function handleGlobalSearch() {
     const searchValue = document.getElementById('globalSearch')?.value?.toLowerCase().trim() || '';
     const visibleSection = document.querySelector('.content-section.active');
-    
+
     if (!visibleSection) return;
-    
+
     // Recherche dans la table visible
     const tbody = visibleSection.querySelector('tbody');
     if (tbody) {
         const rows = tbody.getElementsByTagName('tr');
         let visibleCount = 0;
-        
+
         for (let row of rows) {
             // Ignorer les lignes d'état vide
             if (row.classList.contains('empty-state')) {
                 continue;
             }
-            
+
             const text = row.textContent.toLowerCase();
             const shouldShow = !searchValue || text.includes(searchValue);
             row.style.display = shouldShow ? '' : 'none';
             if (shouldShow) visibleCount++;
         }
-        
+
         // Afficher un message si aucun résultat
         if (searchValue && visibleCount === 0) {
             // Ne pas modifier si c'est déjà un état vide
@@ -8987,7 +9273,7 @@ async function loadAllPoliciesOptimized() {
             renderPolicyTable(AppState.policies);
             return;
         }
-        
+
         const response = await ApiService.getAllPolicies(
             AppState.pagination.currentPage,
             CONFIG.DEFAULT_PAGE_SIZE
@@ -8998,7 +9284,7 @@ async function loadAllPoliciesOptimized() {
             // Mettre en cache
             dataCache.policies = AppState.policies;
             dataCache.lastFetch = now;
-            
+
             AppState.pagination = {
                 currentPage: response.data.number,
                 totalPages: response.data.totalPages,
@@ -9012,151 +9298,190 @@ async function loadAllPoliciesOptimized() {
     }
 }
 
-// Optimisation: Charger les farmers en parallèle avec limite de concurrence
+
+// =======================================================================================
+// FARMERS LOADING OPTIMISÉ
+// =======================================================================================
+
 async function loadFarmersOptimized() {
-    try {
-        console.log('🚀 Starting optimized farmers loading...');
-        showLoading();
-        
-        // Charger les users farmers
-        const usersResponse = await fetch('http://localhost:1010/api/users/farmers');
-        if (!usersResponse.ok) {
-            throw new Error('Failed to fetch farmers');
-        }
-        
-        // FIX: Ne lire le body qu'une seule fois
-        const farmersData = await usersResponse.json();
-        const farmers = Array.isArray(farmersData) ? farmersData : [];
-        console.log(`✅ Loaded ${farmers.length} farmers from users API`);
-        
-        if (farmers.length === 0) {
-            renderTopFarmersTable([]);
-            hideLoading();
-            return;
-        }
-        
-        // Limiter le nombre de requêtes parallèles (batch processing)
-        const BATCH_SIZE = 5;
-        const farmersWithFarms = [];
-        
-        for (let i = 0; i < farmers.length; i += BATCH_SIZE) {
-            const batch = farmers.slice(i, i + BATCH_SIZE);
-            const batchPromises = batch.map(async (farmerUser) => {
-                try {
-                    const userId = farmerUser.id;
-                    
-                    // Charger farmer data et farms en parallèle
-                    const [farmerDataResponse, farmsResponse] = await Promise.allSettled([
-                        fetch(`http://localhost:1010/api/farmers/user/${userId}`)
-                            .then(r => {
-                                if (r.ok) return r.json();
-                                if (r.status === 404) {
-                                    // C'est normal - le User n'a pas encore de Farmer enregistré
-                                    console.debug(`  → No farmer record found for user ${userId} (this is normal)`);
-                                    return null;
-                                }
-                                return null;
-                            })
-                            .catch(() => null),
-                        fetch(`http://localhost:1010/api/farms/farmer/${userId}/all`)
-                            .then(r => r.ok ? r.json() : [])
-                            .catch(() => [])
-                    ]);
-                    
-                    const farmerData = farmerDataResponse.status === 'fulfilled' ? farmerDataResponse.value : null;
-                    const farmArray = farmsResponse.status === 'fulfilled' && Array.isArray(farmsResponse.value) ? farmsResponse.value : [];
-                    
-                    console.log(`  → Found ${farmArray.length} farms for farmer ${userId}`);
-                    
-                    if (farmArray.length > 0) {
-                        const totalArea = farmArray.reduce((sum, f) => {
-                            const area = parseFloat(f.farmSize || f.area || 0);
-                            return sum + area;
-                        }, 0);
-                        const avgFarmSize = farmArray.length > 0 ? totalArea / farmArray.length : 0;
-                        
-                        // Construire location
-                        let location = '';
-                        if (farmerData) {
-                            const parts = [];
-                            if (farmerData.location) parts.push(farmerData.location);
-                            if (farmerData.sector) parts.push(farmerData.sector);
-                            if (farmerData.district) parts.push(farmerData.district);
-                            if (farmerData.province) parts.push(farmerData.province);
-                            location = parts.length > 0 ? parts.join(', ') : '';
-                        }
-                        
-                        if (!location) {
-                            const userParts = [];
-                            if (farmerUser.location) userParts.push(farmerUser.location);
-                            if (farmerUser.sector) userParts.push(farmerUser.sector);
-                            if (farmerUser.district) userParts.push(farmerUser.district);
-                            if (farmerUser.province) userParts.push(farmerUser.province);
-                            location = userParts.length > 0 ? userParts.join(', ') : '';
-                        }
-                        
-                        if (!location && farmerData?.latitude && farmerData?.longitude) {
-                            location = `${parseFloat(farmerData.latitude).toFixed(4)}, ${parseFloat(farmerData.longitude).toFixed(4)}`;
-                        }
-                        
-                        if (!location) {
-                            location = 'Location not specified';
-                        }
-                        
-                        return {
-                            id: userId,
-                            userId: userId,
-                            farmerCode: farmerData?.farmerCode || farmerUser.farmerCode || `FARMER-${userId.substring(0, 8)}`,
-                            fullName: farmerUser.fullName || farmerUser.username || `User ${userId.substring(0, 8)}`,
-                            email: farmerUser.email || '',
-                            phoneNumber: farmerUser.phoneNumber || '',
-                            location: location,
-                            province: farmerData?.province || farmerUser.province || '',
-                            district: farmerData?.district || farmerUser.district || '',
-                            sector: farmerData?.sector || farmerUser.sector || '',
-                            latitude: farmerData?.latitude || null,
-                            longitude: farmerData?.longitude || null,
-                            farmCount: farmArray.length,
-                            totalArea: totalArea,
-                            avgFarmSize: avgFarmSize,
-                            farms: farmArray // Stocker les farms pour viewFarmerDetails
-                        };
-                    } else {
-                        console.debug(`  → No farms found for farmer ${userId} (farmArray.length = ${farmArray.length})`);
-                    }
-                    return null;
-                } catch (e) {
-                    console.debug(`Error loading data for farmer ${farmerUser.id}:`, e);
-                    return null;
-                }
-            });
-            
-            const batchResults = await Promise.all(batchPromises);
-            farmersWithFarms.push(...batchResults.filter(f => f !== null));
-            
-            // Mise à jour progressive de l'UI
-            if (farmersWithFarms.length > 0) {
-                renderTopFarmersTable(farmersWithFarms.sort((a, b) => b.farmCount - a.farmCount));
-            }
-        }
-        
-        console.log(`✅ Found ${farmersWithFarms.length} farmers with farms`);
-        
-        // Stocker les données dans AppState pour les réutiliser dans viewFarmerDetails
-        AppState.topFarmers = farmersWithFarms.sort((a, b) => {
-            if (b.farmCount !== a.farmCount) return b.farmCount - a.farmCount;
-            return b.totalArea - a.totalArea;
-        });
-        
+    // ✅ OPTIMISATION: Vérifier le cache
+    if (AppState.topFarmers && AppState.topFarmers.length > 0) {
+        console.log('📦 Using cached farmers data');
         renderTopFarmersTable(AppState.topFarmers);
-        
+        return;
+    }
+
+    // ✅ OPTIMISATION: Vérifier si déjà en cours
+    if (AppState.cache.isFetching?.farmers) {
+        console.log('⏳ Farmers fetch already in progress');
+        return;
+    }
+
+    try {
+        console.log('🚀 Loading farmers with optimization...');
+        AppState.cache.isFetching = { ...AppState.cache.isFetching, farmers: true };
+        showLoading();
+
+        // ✅ OPTIMISATION: Charger UNIQUEMENT les farmers avec farms
+        const farmersWithFarms = await NotificationSystem.getFarmersWithManyFarms();
+
+        console.log(`✅ Found ${farmersWithFarms.length} farmers with farms`);
+
+        // Stocker dans AppState et cache
+        AppState.topFarmers = farmersWithFarms;
+        CacheManager.set('farmers', farmersWithFarms);
+
+        // Rendre la table
+        renderTopFarmersTable(farmersWithFarms);
+
         hideLoading();
     } catch (error) {
         console.error('❌ Error loading farmers:', error);
-        showToast('Failed to load farmers data: ' + error.message, 'error');
+        showToast('Failed to load farmers: ' + error.message, 'error');
         hideLoading();
+    } finally {
+        AppState.cache.isFetching = { ...AppState.cache.isFetching, farmers: false };
     }
 }
+
+// NOUVEAU: Fonction optimisée pour NotificationSystem
+async function getFarmersWithManyFarms() {
+    try {
+        console.log('🔄 Loading farmers from /api/users/farmers...');
+
+        // ✅ ÉTAPE 1: Charger TOUS les users farmers (1 requête)
+        const usersResponse = await fetchWithTimeout('http://localhost:1010/api/users/farmers');
+        if (!usersResponse.ok) {
+            console.error('❌ Failed to fetch farmers:', usersResponse.status);
+            return [];
+        }
+
+        const usersData = await usersResponse.json();
+        const farmers = Array.isArray(usersData) ? usersData : [];
+
+        console.log(`✅ Loaded ${farmers.length} farmers from users API`);
+
+        if (farmers.length === 0) {
+            return [];
+        }
+
+        // ✅ ÉTAPE 2: Charger les farms en BATCH (limité à 5 en parallèle)
+        const BATCH_SIZE = 5;
+        const farmersWithFarms = [];
+
+        for (let i = 0; i < farmers.length; i += BATCH_SIZE) {
+            const batch = farmers.slice(i, i + BATCH_SIZE);
+
+            const batchPromises = batch.map(async (farmerUser) => {
+                try {
+                    const userId = farmerUser.id;
+
+                    // ✅ NE charger QUE les farms
+                    const farmsResponse = await fetchWithTimeout(
+                        `http://localhost:1010/api/farms/farmer/${userId}/all`,
+                        5000 // 5 secondes timeout
+                    );
+
+                    if (!farmsResponse.ok) {
+                        return null; // Pas de farms - OK
+                    }
+
+                    const farmsData = await farmsResponse.json();
+                    const farmArray = Array.isArray(farmsData) ? farmsData : [];
+
+                    if (farmArray.length === 0) {
+                        return null; // Skip si pas de farms
+                    }
+
+                    // ✅ Calculer statistiques
+                    const totalArea = farmArray.reduce((sum, farm) => {
+                        return sum + parseFloat(farm.farmSize || 0);
+                    }, 0);
+
+                    // ✅ Location depuis User directement
+                    const parts = [];
+                    if (farmerUser.sector) parts.push(farmerUser.sector);
+                    if (farmerUser.district) parts.push(farmerUser.district);
+                    if (farmerUser.province) parts.push(farmerUser.province);
+                    const location = parts.length > 0 ? parts.join(', ') : 'Location not specified';
+
+                    return {
+                        id: userId,
+                        userId: userId,
+                        farmerCode: farmerUser.farmerCode || `FARMER-${userId.substring(0, 8)}`,
+                        fullName: farmerUser.fullName || 'N/A',
+                        email: farmerUser.email || 'N/A',
+                        phoneNumber: farmerUser.phoneNumber || 'N/A',
+                        location: location,
+                        province: farmerUser.province || '',
+                        district: farmerUser.district || '',
+                        sector: farmerUser.sector || '',
+                        farmCount: farmArray.length,
+                        totalArea: totalArea,
+                        avgFarmSize: totalArea / farmArray.length,
+                        farms: farmArray
+                    };
+                } catch (e) {
+                    console.debug(`⚠️ Error loading farms:`, e.message);
+                    return null;
+                }
+            });
+
+            const batchResults = await Promise.allSettled(batchPromises);
+            const validResults = batchResults
+                .filter(result => result.status === 'fulfilled' && result.value !== null)
+                .map(result => result.value);
+
+            farmersWithFarms.push(...validResults);
+
+            // ✅ OPTIMISATION: Mettre à jour l'UI progressivement
+            if (validResults.length > 0) {
+                const tempResults = [...farmersWithFarms].sort((a, b) => {
+                    if (b.farmCount !== a.farmCount) {
+                        return b.farmCount - a.farmCount;
+                    }
+                    return b.totalArea - a.totalArea;
+                });
+
+                renderTopFarmersTable(tempResults);
+            }
+        }
+
+        // Trier final
+        farmersWithFarms.sort((a, b) => {
+            if (b.farmCount !== a.farmCount) {
+                return b.farmCount - a.farmCount;
+            }
+            return b.totalArea - a.totalArea;
+        });
+
+        console.log(`✅ Total farmers with farms: ${farmersWithFarms.length}`);
+        return farmersWithFarms;
+    } catch (error) {
+        console.error('❌ Error getting farmers with many farms:', error);
+        return [];
+    }
+}
+
+// NOUVEAU: Fonction fetch avec timeout
+async function fetchWithTimeout(url, timeout = 10000) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+    try {
+        const response = await fetch(url, { signal: controller.signal });
+        clearTimeout(timeoutId);
+        return response;
+    } catch (error) {
+        clearTimeout(timeoutId);
+        throw error;
+    }
+}
+
+
+
+
+
 
 // Fonction pour rendre la table des Top Farmers
 function renderTopFarmersTable(farmers) {
@@ -9165,7 +9490,7 @@ function renderTopFarmersTable(farmers) {
         console.warn('⚠️ topFarmersTableBody not found');
         return;
     }
-    
+
     if (!farmers || farmers.length === 0) {
         tbody.innerHTML = `
             <tr>
@@ -9177,13 +9502,13 @@ function renderTopFarmersTable(farmers) {
         `;
         return;
     }
-    
+
     tbody.innerHTML = farmers.map(farmer => {
         const location = farmer.location || 'Location not specified';
-        const contact = farmer.phoneNumber && farmer.phoneNumber !== 'N/A' 
-            ? farmer.phoneNumber 
+        const contact = farmer.phoneNumber && farmer.phoneNumber !== 'N/A'
+            ? farmer.phoneNumber
             : (farmer.email && farmer.email !== 'N/A' ? farmer.email : 'N/A');
-        
+
         return `
             <tr>
                 <td style="text-align: left;">
@@ -9217,26 +9542,204 @@ function renderTopFarmersTable(farmers) {
             </tr>
         `;
     }).join('');
-    
+
     console.log(`✅ Rendered ${farmers.length} farmers in table`);
 }
 
-// Charger les notifications au démarrage
+// ✅ Charger UNE SEULE FOIS au démarrage
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
         NotificationSystem.loadNotifications();
-        // Recharger les notifications toutes les 2 minutes
-        setInterval(() => NotificationSystem.loadNotifications(), 120000);
-        
-        // Charger le monitoring en temps réel
         loadRealTimeMonitoring();
-        setInterval(loadRealTimeMonitoring, 30000); // Toutes les 30 secondes
     }, 2000);
 });
 
+
+// =======================================================================================
+// CLEANUP FUNCTIONS
+// =======================================================================================
+
+// Appeler lors du changement de page/fermeture
+window.addEventListener('beforeunload', () => {
+    cleanupBeforeUnload();
+});
+
+function cleanupBeforeUnload() {
+    console.log('🧹 Cleaning up before unload...');
+
+    // 1. Nettoyer tous les timers
+    clearAllTimers();
+
+    // 2. Nettoyer toutes les requêtes en cours
+    ApiService.pendingRequests.clear();
+
+    // 3. Détruire tous les charts
+    Object.values(AppState.charts).forEach(chart => {
+        if (chart && chart.destroy) {
+            chart.destroy();
+        }
+    });
+
+    // 4. Vider les états
+    AppState.charts = {};
+    AppState.cache.isFetching = {};
+
+    console.log('✅ Cleanup complete');
+}
+
+// Nettoyer périodiquement le cache
+setInterval(() => {
+    const now = Date.now();
+    Object.keys(AppState.cache).forEach(key => {
+        if (AppState.cache[key] && AppState.cache[key].timestamp) {
+            const age = now - AppState.cache[key].timestamp;
+            if (age > CONFIG.CACHE_DURATION * 5) { // 5x la durée normale
+                delete AppState.cache[key];
+                console.log(`🗑️ Auto-cleaned cache: ${key}`);
+            }
+        }
+    });
+}, 300000); // Toutes les 5 minutes
 // Exposer les fonctions globalement
 window.handleGlobalSearch = handleGlobalSearch;
 window.handleGlobalSearchDebounced = handleGlobalSearchDebounced;
+
+
+
+// =======================================================================================
+// DEBUG HELPERS
+// =======================================================================================
+
+window.debugDashboard = function() {
+    console.log('🐛 DASHBOARD DEBUG INFO');
+    console.log('Current Section:', AppState.currentSection);
+    console.log('Policies Count:', AppState.policies.length);
+    console.log('Top Farmers Count:', AppState.topFarmers?.length || 0);
+    console.log('Statistics:', AppState.statistics);
+    console.log('Charts:', Object.keys(AppState.charts));
+    console.log('Cache:', AppState.cache);
+    console.log('Notifications:', NotificationSystem.notifications.length);
+};
+
+window.debugSection = function(sectionName) {
+    console.log(`🐛 DEBUGGING SECTION: ${sectionName}`);
+    const sectionMap = {
+        'dashboard': 'dashboardSection',
+        'policies': 'policiesSection',
+        'analytics': 'analyticsSection',
+        'performance': 'performanceSection',
+        'farmers': 'farmersSection',
+        'budget': 'budgetSection',
+        'compliance': 'complianceSection',
+        'audit': 'auditSection',
+        'approvals': 'approvalsSection',
+        'stakeholders': 'stakeholdersSection',
+        'monitoring': 'monitoringSection',
+        'alerts': 'alertsSection',
+        'impact': 'impactSection'
+    };
+
+    const sectionId = sectionMap[sectionName];
+    const element = document.getElementById(sectionId);
+
+    console.log('Section ID:', sectionId);
+    console.log('Element exists:', !!element);
+    console.log('Element classes:', element?.className);
+    console.log('Is active:', element?.classList.contains('active'));
+    console.log('Has content:', element?.innerHTML?.length);
+
+    const tbody = element?.querySelector('tbody');
+    console.log('Has tbody:', !!tbody);
+    console.log('Tbody rows:', tbody?.children?.length);
+};
+
+window.forceLoadSection = function(sectionName) {
+    console.log(`🔄 Force loading section: ${sectionName}`);
+    AppState.currentSection = null; // Force reload
+    showSection(sectionName);
+};
+
+// Test notification system
+window.testNotifications = function() {
+    console.log('🧪 Testing notifications...');
+    NotificationSystem.notifications = [
+        {
+            id: 'test-1',
+            type: 'success',
+            title: 'Test Success',
+            message: 'This is a test success notification',
+            timestamp: new Date(),
+            read: false
+        },
+        {
+            id: 'test-2',
+            type: 'warning',
+            title: 'Test Warning',
+            message: 'This is a test warning notification',
+            timestamp: new Date(),
+            read: false
+        }
+    ];
+    NotificationSystem.unreadCount = 2;
+    NotificationSystem.updateNotificationUI();
+    console.log('✅ Test notifications added');
+};
+
+    // =======================================================================================
+// EXPORT FUNCTIONS FOR GLOBAL ACCESS
+// =======================================================================================
+
+// Exporter uniquement les fonctions nécessaires
+window.showSection = showSection;
+window.showTab = showTab;
+window.toggleSidebar = toggleSidebar;
+window.toggleTheme = toggleTheme;
+window.toggleDateRange = toggleDateRange;
+window.showAddPolicyModal = showAddPolicyModal;
+window.closePolicyModal = closePolicyModal;
+window.viewPolicy = viewPolicy;
+window.editPolicy = editPolicy;
+window.submitPolicyForm = submitPolicyForm;
+window.deletePolicyConfirm = deletePolicyConfirm;
+window.activatePolicyConfirm = activatePolicyConfirm;
+window.suspendPolicyConfirm = suspendPolicyConfirm;
+window.applyFilters = applyFilters;
+window.searchPolicies = searchPolicies;
+window.handleGlobalSearchDebounced = handleGlobalSearchDebounced;
+window.loadAllPolicies = loadAllPoliciesOptimized;
+window.loadPoliciesRequiringReview = loadPoliciesRequiringReview;
+window.generatePDFReport = generatePDFReport;
+window.generateExcelReport = generateExcelReport;
+window.exportPoliciesToExcel = exportPoliciesToExcel;
+window.closeDetailsModal = closeDetailsModal;
+window.handleLogout = handleLogout;
+window.scrollToTableElement = scrollToTableElement;
+window.scrollToTableStart = scrollToTableStart;
+window.scrollToTableEnd = scrollToTableEnd;
+window.toggleNotifications = toggleNotifications;
+window.closeNotificationDropdown = closeNotificationDropdown;
+window.markAllAsRead = markAllAsRead;
+window.loadTopFarmers = loadFarmersOptimized;
+window.loadBudgetManagement = loadBudgetManagement;
+window.loadAuditTrail = loadAuditTrail;
+window.exportToCSV = exportToCSV;
+window.exportToJSON = exportToJSON;
+window.exportToXML = exportToXML;
+window.refreshScrollbars = refreshScrollbars;
+window.checkScrollbarsVisibility = checkScrollbarsVisibility;
+window.forceHorizontalScroll = forceHorizontalScroll;
+window.loadComplianceData = loadComplianceData;
+window.loadApprovals = loadApprovals;
+window.approvePolicy = approvePolicy;
+window.loadStakeholdersData = loadStakeholdersData;
+window.loadAlerts = loadAlerts;
+window.loadImpactData = loadImpactData;
+window.loadRealTimeMonitoring = loadRealTimeMonitoring;
+window.viewPolicyByName = viewPolicyByName;
+window.viewFarmerDetails = viewFarmerDetails;
+window.cleanupBeforeUnload = cleanupBeforeUnload;
+
+console.log('✅ AgriGuard AI Policy Dashboard optimized and ready!');
 </script>
 </body>
 </html>

@@ -18,7 +18,8 @@ public class CropDTO {
     @NotBlank(message = "Crop name is required")
     @Size(max = 100, message = "Crop name must not exceed 100 characters")
     private String cropName;
-    private String imageUrl;
+    private String imageUrl; // Ce champ existe mais n'est pas défini dans fromEntity()
+
     @NotNull(message = "Crop type is required")
     private Crop.CropType cropType;
 
@@ -101,7 +102,8 @@ public class CropDTO {
         this.harvestSeason = harvestSeason;
     }
 
-    // Méthodes de conversion
+
+
     public static CropDTO fromEntity(Crop crop) {
         if (crop == null) return null;
 
@@ -126,6 +128,9 @@ public class CropDTO {
         dto.setStorageLifeDays(crop.getStorageLifeDays());
         dto.setCreatedAt(crop.getCreatedAt());
         dto.setUpdatedAt(crop.getUpdatedAt());
+
+        // CORRECTION CRITIQUE : Ajouter cette ligne
+        dto.setImageUrl(crop.getImageUrl()); // <-- Cette ligne manque !
 
         // Champs calculés
         dto.setGrowingPeriodDisplay(crop.getGrowingPeriodInMonths());
@@ -162,10 +167,14 @@ public class CropDTO {
         crop.setCreatedAt(this.createdAt);
         crop.setUpdatedAt(this.updatedAt);
 
+        // CORRECTION : Ajouter l'imageUrl
+        crop.setImageUrl(this.imageUrl);
+
         return crop;
     }
 
-    // Méthode pour mettre à jour une entité existante
+
+
     public void updateEntity(Crop crop) {
         if (crop == null) return;
 
@@ -187,6 +196,9 @@ public class CropDTO {
         if (this.marketDemandLevel != null) crop.setMarketDemandLevel(this.marketDemandLevel);
         if (this.nutritionalValue != null) crop.setNutritionalValue(this.nutritionalValue);
         if (this.storageLifeDays != null) crop.setStorageLifeDays(this.storageLifeDays);
+
+        // CORRECTION : Ajouter cette ligne pour mettre à jour l'imageUrl
+        if (this.imageUrl != null) crop.setImageUrl(this.imageUrl);
     }
 
     // Getters et Setters
@@ -285,6 +297,7 @@ public class CropDTO {
         return "CropDTO{" +
                 "id='" + id + '\'' +
                 ", cropName='" + cropName + '\'' +
+                ", imageUrl='" + imageUrl + '\'' + // Ajouter imageUrl dans toString
                 ", cropType=" + cropType +
                 ", variety='" + variety + '\'' +
                 ", growingPeriodDays=" + growingPeriodDays +

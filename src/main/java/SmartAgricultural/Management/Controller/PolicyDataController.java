@@ -71,6 +71,9 @@ public class PolicyDataController {
         }
     }
 
+
+
+
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<PolicyData>> getPolicyById(@PathVariable String id) {
         try {

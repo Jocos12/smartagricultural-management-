@@ -1,11 +1,11 @@
 package SmartAgricultural.Management.Controller;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,9 +20,7 @@ import java.util.UUID;
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class FileUploadController {
 
-    // Créez ce dossier dans votre projet : src/main/resources/static/uploads/crops/
-    @Value("${file.upload-dir:uploads/crops}")
-    private String uploadDir;
+    private static final String UPLOAD_DIR = "uploads/crops";
 
     @PostMapping("/crop-image")
     public ResponseEntity<Map<String, String>> uploadCropImage(
@@ -54,20 +52,24 @@ public class FileUploadController {
             }
 
             // Créer le répertoire s'il n'existe pas
-            Path uploadPath = Paths.get(uploadDir);
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
+            File uploadDirFile = new File(UPLOAD_DIR);
+            if (!uploadDirFile.exists()) {
+                uploadDirFile.mkdirs();
+                System.out.println("✅ Created directory: " + uploadDirFile.getAbsolutePath());
             }
 
             // Générer un nom de fichier unique
             String originalFilename = file.getOriginalFilename();
             String fileExtension = originalFilename != null ?
-                    originalFilename.substring(originalFilename.lastIndexOf(".")) : ".jpg";
+                    originalFilename.substring(originalFilename.lastIndexOf(".")).toLowerCase() : ".jpg";
             String uniqueFilename = UUID.randomUUID().toString() + fileExtension;
 
             // Sauvegarder le fichier
-            Path filePath = uploadPath.resolve(uniqueFilename);
+            Path filePath = Paths.get(UPLOAD_DIR, uniqueFilename);
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+            // Log de confirmation
+            System.out.println("✅ File saved: " + filePath.toAbsolutePath());
 
             // Construire l'URL accessible
             String fileUrl = "/uploads/crops/" + uniqueFilename;
@@ -80,6 +82,7 @@ public class FileUploadController {
             return ResponseEntity.ok(response);
 
         } catch (IOException e) {
+            e.printStackTrace();
             response.put("success", "false");
             response.put("message", "Failed to upload file: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
@@ -93,7 +96,7 @@ public class FileUploadController {
         Map<String, String> response = new HashMap<>();
 
         try {
-            Path filePath = Paths.get(uploadDir).resolve(filename);
+            Path filePath = Paths.get(UPLOAD_DIR, filename);
 
             if (Files.exists(filePath)) {
                 Files.delete(filePath);
@@ -103,7 +106,7 @@ public class FileUploadController {
             } else {
                 response.put("success", "false");
                 response.put("message", "File not found");
-                return ResponseEntity.notFound().build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
             }
 
         } catch (IOException e) {

@@ -2646,6 +2646,286 @@
     ============================================================================ */
 
 
+
+        /* ============================================================================
+   MODAL BODY - FIXED SCROLL
+   ============================================================================ */
+
+.modal-body {
+    padding: 32px;
+    max-height: 60vh !important; /* LIMITE la hauteur */
+    overflow-y: auto !important; /* Active le défilement */
+    position: relative;
+}
+
+.modal-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+    border-radius: 10px;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+    background: var(--primary-green);
+    border-radius: 10px;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-dark);
+}
+
+/* Assure que le modal-container a une hauteur maximale */
+.modal-container {
+    max-height: 85vh !important; /* Ajuste selon vos besoins */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Assure que le modal-body prend tout l'espace disponible */
+.modal-body {
+    flex: 1;
+    overflow-y: auto;
+}
+
+/* Assure que le footer reste en bas */
+.modal-footer {
+    flex-shrink: 0;
+    margin-top: auto;
+}
+
+
+
+
+
+        /* ============================================================================
+   MODAL ERROR MESSAGES
+   ============================================================================ */
+
+.modal-error-container {
+    background: linear-gradient(135deg, #fee2e2, #fecaca);
+    border-left: 4px solid #ef4444;
+    border-radius: var(--radius-md);
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+    animation: slideInError 0.3s ease;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
+}
+
+.modal-error-container.success {
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+    border-left-color: #10b981;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+}
+
+.modal-error-container.warning {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border-left-color: #f59e0b;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
+}
+
+.modal-error-container.info {
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+    border-left-color: #3b82f6;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+@keyframes slideInError {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-error-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.modal-error-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 0.95rem;
+}
+
+.modal-error-container .modal-error-icon {
+    background: #ef4444;
+    color: white;
+}
+
+.modal-error-container.success .modal-error-icon {
+    background: #10b981;
+    color: white;
+}
+
+.modal-error-container.warning .modal-error-icon {
+    background: #f59e0b;
+    color: white;
+}
+
+.modal-error-container.info .modal-error-icon {
+    background: #3b82f6;
+    color: white;
+}
+
+.modal-error-title {
+    font-weight: 700;
+    font-size: 1rem;
+    margin: 0;
+}
+
+.modal-error-container .modal-error-title {
+    color: #991b1b;
+}
+
+.modal-error-container.success .modal-error-title {
+    color: #065f46;
+}
+
+.modal-error-container.warning .modal-error-title {
+    color: #92400e;
+}
+
+.modal-error-container.info .modal-error-title {
+    color: #1e40af;
+}
+
+.modal-error-message {
+    margin: 0;
+    line-height: 1.5;
+    font-size: 0.9rem;
+}
+
+.modal-error-container .modal-error-message {
+    color: #7f1d1d;
+}
+
+.modal-error-container.success .modal-error-message {
+    color: #064e3b;
+}
+
+.modal-error-container.warning .modal-error-message {
+    color: #78350f;
+}
+
+.modal-error-container.info .modal-error-message {
+    color: #1e3a8a;
+}
+
+.modal-error-details {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    font-size: 0.85rem;
+    font-family: 'Courier New', monospace;
+}
+
+.modal-error-container .modal-error-details {
+    color: #991b1b;
+}
+
+.modal-error-close {
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: var(--radius-sm);
+    transition: all 0.2s;
+    opacity: 0.7;
+    font-size: 1.1rem;
+    line-height: 1;
+}
+
+.modal-error-close:hover {
+    opacity: 1;
+    background: rgba(0, 0, 0, 0.1);
+}
+
+
+        /* ============================================================================
+   MODAL FIXES FOR CENTERED ERROR MESSAGES
+   ============================================================================ */
+
+.modal-overlay-center {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;
+    padding: 20px;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.modal-overlay-center.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-center {
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    width: 100%;
+    max-width: 500px;
+    box-shadow: var(--shadow-lg);
+    animation: modalCenterIn 0.3s ease;
+    overflow: hidden;
+}
+
+@keyframes modalCenterIn {
+    from {
+        opacity: 0;
+        transform: translateY(-30px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.modal-center .modal-header {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: white;
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-center .modal-body {
+    padding: 2rem;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.modal-center .modal-footer {
+    padding: 1.5rem;
+    background: var(--bg-secondary);
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -4044,43 +4324,58 @@ async function handleSearch(e) {
 
 
 
+async function loadSectionData(sectionName) {
+    console.log('=== LOAD SECTION DATA ===');
+    console.log('Section:', sectionName);
+
+    switch (sectionName) {
+        case 'overview':
+            await loadOverviewData();
+            break;
+        case 'marketplace':
+            // ⭐ FIX: Vérifier si on a déjà du contenu AVANT de recharger
+            const productsGrid = document.getElementById('productsGrid');
+            const hasMarketplaceHeader = productsGrid?.querySelector('.marketplace-header');
+
+            // ⭐ RECHARGER SEULEMENT SI:
+            // - Pas de contenu OU
+            // - On vient de quitter la vue d'un farmer spécifique (pas d'en-tête "Tous les produits")
+            if (!productsGrid || !productsGrid.innerHTML || !hasMarketplaceHeader) {
+                console.log('Loading marketplace data (empty or from farmer view)');
+                await loadMarketplaceData();
+            } else {
+                console.log('Marketplace already has content, skipping reload');
+            }
+            break;
+        case 'orders':
+            await loadOrdersData();
+            break;
+        case 'cart':
+            updateCartDisplay();
+            break;
+        case 'transactions':
+            await loadTransactionsData();
+            break;
+        case 'farmers':
+            await loadFarmersData();
+            break;
+        case 'tracking':
+            await loadTrackingData();
+            break;
+        case 'quality':
+            await loadQualityData();
+            break;
+        case 'messages':
+            await loadMessagesData();
+            break;
+        case 'reports':
+            await loadReportsData();
+            break;
+    }
+}
 
 
 
-  async function loadSectionData(sectionName) {
-      switch (sectionName) {
-          case 'overview':
-              await loadOverviewData();
-              break;
-          case 'marketplace':
-              await loadMarketplaceData();
-              break;
-          case 'orders':
-              await loadOrdersData();
-              break;
-          case 'cart':
-              updateCartDisplay();
-              break;
-          case 'transactions':
-              await loadTransactionsData();
-              break;
-          case 'farmers':
-              await loadFarmersData();
-              break;
-          case 'tracking':
-              await loadTrackingData();
-              break;
-          case 'quality':
-              await loadQualityData();
-              break;
-          case 'messages':
-              await loadMessagesData();
-              break;
-          case 'reports':
-              await loadReportsData();
-              break;
-      }
-  }
 
   // ==================== DASHBOARD DATA LOADING ====================
 
@@ -4406,101 +4701,239 @@ function getStatusIcon(status) {
       loadOrderStatusChart(analytics);
   }
 
-  async function loadPurchasingTrendsChart() {
-      try {
-          const filterEl = document.getElementById('purchasingChartFilter');
-          const range = (filterEl && filterEl.value) || 'month';
-          let days = 30;
-          if (range === 'week') days = 7;
-          else if (range === 'year') days = 365;
+// ==================== FIXED PURCHASING TRENDS CHART ====================
 
-          const endDate = new Date();
-          const startDate = new Date();
-          startDate.setDate(startDate.getDate() - days);
+async function loadPurchasingTrendsChart() {
+    try {
+        const filterEl = document.getElementById('purchasingChartFilter');
+        const range = (filterEl && filterEl.value) || 'month';
+        let days = 30;
+        if (range === 'week') days = 7;
+        else if (range === 'year') days = 365;
 
-          const transactions = await apiCall(
-              `${ENDPOINTS.transactionsByBuyer(currentUser.id)}?page=0&size=500&sortBy=createdAt&sortDir=desc`
-          );
-          const list = transactions.content || transactions;
-          const filtered = Array.isArray(list) ? list.filter(t => new Date(t.createdAt) >= startDate) : [];
+        const endDate = new Date();
+        const startDate = new Date();
+        startDate.setDate(startDate.getDate() - days);
 
-          const chartData = processTransactionsForChart(filtered);
-          renderPurchasingChart(chartData);
-      } catch (error) {
-          console.error('Error loading purchasing trends:', error);
-          renderPurchasingChart([]);
-      }
-  }
+        // ⭐ FIX: Limit size to 100 to comply with backend validation
+        // Fetch multiple pages if needed for longer periods
+        let allTransactions = [];
+        const maxSize = 100; // Backend maximum
+        let currentPage = 0;
+        let hasMore = true;
 
-  function processTransactionsForChart(transactions) {
-      const dailyData = {};
-      (transactions || []).forEach(transaction => {
-          const date = formatDate(transaction.createdAt);
-          if (!dailyData[date]) {
-              dailyData[date] = { date, amount: 0, count: 0 };
-          }
-          dailyData[date].amount += parseFloat(transaction.totalAmount || 0);
-          dailyData[date].count += 1;
-      });
-      return Object.values(dailyData).sort((a, b) => new Date(a.date) - new Date(b.date));
-  }
+        console.log('=== LOADING PURCHASING TRENDS ===');
+        console.log('Range:', range, 'Days:', days);
 
-  function renderPurchasingChart(data) {
-      const canvas = document.getElementById('purchasingChartCanvas');
-      if (!canvas || typeof Chart === 'undefined') return;
+        // Fetch transactions in batches
+        while (hasMore && allTransactions.length < 500) { // Safety limit
+            try {
+                const response = await apiCall(
+                    `${ENDPOINTS.transactionsByBuyer(currentUser.id)}?page=${currentPage}&size=${maxSize}&sortBy=createdAt&sortDir=desc`
+                );
 
-      if (purchasingChartInstance) {
-          purchasingChartInstance.destroy();
-          purchasingChartInstance = null;
-      }
+                const pageTransactions = response.content || response;
 
-      const ctx = canvas.getContext('2d');
-      const labels = data.length ? data.map(d => d.date) : ['No data'];
-      const values = data.length ? data.map(d => d.amount) : [0];
+                if (!Array.isArray(pageTransactions) || pageTransactions.length === 0) {
+                    hasMore = false;
+                    break;
+                }
 
-      purchasingChartInstance = new Chart(ctx, {
-          type: 'line',
-          data: {
-              labels,
-              datasets: [{
-                  label: 'Amount (RF)',
-                  data: values,
-                  borderColor: '#22c55e',
-                  backgroundColor: 'rgba(34, 197, 94, 0.12)',
-                  fill: true,
-                  tension: 0.35,
-                  pointBackgroundColor: '#22c55e',
-                  pointBorderColor: '#fff',
-                  pointBorderWidth: 2,
-                  pointRadius: 4,
-                  pointHoverRadius: 6
-              }]
-          },
-          options: {
-              responsive: true,
-              maintainAspectRatio: false,
-              plugins: {
-                  legend: { display: false },
-                  tooltip: {
-                      callbacks: {
-                          label: (c) => ' ' + formatCurrency(c.raw)
-                      }
-                  }
-              },
-              scales: {
-                  y: {
-                      beginAtZero: true,
-                      grid: { color: 'rgba(0,0,0,0.06)' },
-                      ticks: { callback: (v) => 'RF ' + (v >= 1000 ? (v/1000) + 'k' : v) }
-                  },
-                  x: {
-                      grid: { display: false },
-                      ticks: { maxRotation: 45, minRotation: 0, maxTicksLimit: 10 }
-                  }
-              }
-          }
-      });
-  }
+                allTransactions = allTransactions.concat(pageTransactions);
+
+                // Check if we have more pages
+                if (response.content && response.totalPages) {
+                    hasMore = (currentPage + 1) < response.totalPages;
+                } else {
+                    // If no pagination info, assume no more pages if we got less than maxSize
+                    hasMore = pageTransactions.length === maxSize;
+                }
+
+                currentPage++;
+
+                console.log(`Fetched page ${currentPage}, total transactions: ${allTransactions.length}`);
+
+                // For week/month, one page might be enough
+                if (range === 'week' || range === 'month') {
+                    break;
+                }
+
+            } catch (pageError) {
+                console.error(`Error fetching page ${currentPage}:`, pageError);
+                hasMore = false;
+            }
+        }
+
+        console.log(`Total transactions fetched: ${allTransactions.length}`);
+
+        // Filter by date range
+        const filtered = allTransactions.filter(t => {
+            const transactionDate = new Date(t.createdAt);
+            return transactionDate >= startDate && transactionDate <= endDate;
+        });
+
+        console.log(`Transactions in date range: ${filtered.length}`);
+
+        const chartData = processTransactionsForChart(filtered);
+        renderPurchasingChart(chartData);
+
+    } catch (error) {
+        console.error('Error loading purchasing trends:', error);
+
+        // Show user-friendly error
+        if (error.message.includes('500')) {
+            showNotification('Server error loading chart data. Using cached data.', 'warning');
+        } else if (error.message.includes('401')) {
+            handleUnauthorized();
+            return;
+        } else {
+            showNotification('Could not load purchasing trends', 'warning');
+        }
+
+        // Render empty chart on error
+        renderPurchasingChart([]);
+    }
+}
+
+function processTransactionsForChart(transactions) {
+    if (!Array.isArray(transactions) || transactions.length === 0) {
+        return [];
+    }
+
+    const dailyData = {};
+
+    transactions.forEach(transaction => {
+        const date = formatDate(transaction.createdAt);
+        if (!dailyData[date]) {
+            dailyData[date] = { date, amount: 0, count: 0 };
+        }
+        dailyData[date].amount += parseFloat(transaction.totalAmount || 0);
+        dailyData[date].count += 1;
+    });
+
+    return Object.values(dailyData).sort((a, b) => new Date(a.date) - new Date(b.date));
+}
+
+function renderPurchasingChart(data) {
+    const canvas = document.getElementById('purchasingChartCanvas');
+    if (!canvas) {
+        console.warn('Purchase chart canvas not found');
+        return;
+    }
+
+    // Destroy existing chart
+    if (window.purchasingChartInstance) {
+        window.purchasingChartInstance.destroy();
+        window.purchasingChartInstance = null;
+    }
+
+    if (typeof Chart === 'undefined') {
+        console.error('Chart.js not loaded');
+        return;
+    }
+
+    const ctx = canvas.getContext('2d');
+
+    // Handle empty data
+    const labels = data.length ? data.map(d => d.date) : ['No data'];
+    const values = data.length ? data.map(d => d.amount) : [0];
+
+    window.purchasingChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels,
+            datasets: [{
+                label: 'Amount (RWF)',
+                data: values,
+                borderColor: '#22c55e',
+                backgroundColor: 'rgba(34, 197, 94, 0.12)',
+                fill: true,
+                tension: 0.35,
+                pointBackgroundColor: '#22c55e',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointRadius: 4,
+                pointHoverRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    padding: 12,
+                    titleColor: '#fff',
+                    bodyColor: '#fff',
+                    callbacks: {
+                        label: (context) => {
+                            return ' ' + formatCurrency(context.parsed.y);
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0,0,0,0.06)'
+                    },
+                    ticks: {
+                        callback: (value) => {
+                            if (value >= 1000000) {
+                                return 'RF ' + (value / 1000000).toFixed(1) + 'M';
+                            } else if (value >= 1000) {
+                                return 'RF ' + (value / 1000).toFixed(0) + 'k';
+                            }
+                            return 'RF ' + value;
+                        }
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        maxRotation: 45,
+                        minRotation: 0,
+                        maxTicksLimit: 10
+                    }
+                }
+            }
+        }
+    });
+
+    console.log('✅ Purchasing chart rendered successfully');
+}
+
+// Make function globally available
+window.loadPurchasingTrendsChart = loadPurchasingTrendsChart;
+
+console.log('✅ Fixed purchasing trends chart loaded');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   function loadOrderStatusChart(analytics) {
       analytics = analytics || {};
@@ -4566,58 +4999,70 @@ function getStatusIcon(status) {
 
 
 
-
-
-
 async function loadMarketplaceData() {
     try {
-        console.log('=== LOADING MARKETPLACE ===');
+        console.log('=== LOADING MARKETPLACE WITH VALIDATION ===');
 
-        // 1. Load active productions
         const productionsResponse = await apiCall(`${API_BASE_URL}/v1/crop-productions/active`);
         const productions = extractDataFromResponse(productionsResponse);
 
-        console.log('=== PRODUCTIONS LOADED ===');
-        console.log('Productions Count:', productions.length);
+        // ⭐ FILTER products based on criteria
+        const validProductions = productions.filter(prod => {
+            const validation = validateProductCriteria(prod);
+            return validation.isValid;
+        });
 
-        if (productions.length === 0) {
-            console.warn('No active productions found');
-            showNotification('No products available in marketplace', 'info');
-            displayMarketplaceProducts([]);
+        console.log(`Filtered: ${productions.length} total → ${validProductions.length} valid products`);
+
+        if (validProductions.length === 0) {
+            const productsGrid = document.getElementById('productsGrid');
+            if (productsGrid) {
+                productsGrid.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1 / -1; text-align: center; padding: 4rem;">
+                        <div style="width: 120px; height: 120px; margin: 0 auto 2rem; background: linear-gradient(135deg, #fef3c7, #fde68a); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(245, 158, 11, 0.15);">
+                            <i class="fas fa-exclamation-triangle" style="font-size: 3.5rem; color: #f59e0b;"></i>
+                        </div>
+                        <h3 style="font-size: 1.8rem; color: var(--text-dark); margin-bottom: 1rem;">No Products Available for Purchase</h3>
+                        <div style="background: linear-gradient(135deg, #fffbeb, #fef3c7); border-radius: var(--radius-lg); padding: 1.5rem; margin: 2rem auto; max-width: 600px; border-left: 4px solid #f59e0b;">
+                            <h4 style="color: #d97706; margin-bottom: 1rem; font-size: 1.1rem;">
+                                <i class="fas fa-info-circle"></i> Purchase Requirements
+                            </h4>
+                            <ul style="text-align: left; color: var(--text-dark); padding-left: 1.5rem; line-height: 1.8;">
+                                <li>✅ Status must be: <strong>PLANTED, GROWING, or HARVESTED</strong></li>
+                                <li>✅ Available quantity must be <strong>greater than 0 kg</strong></li>
+                                <li>❌ Cannot be: <strong>PLANNED, SOLD, DAMAGED, or CANCELLED</strong></li>
+                            </ul>
+                        </div>
+                        <button class="btn btn-primary" onclick="loadMarketplaceData()" style="padding: 1rem 2rem; font-size: 1.1rem; margin-top: 1rem;">
+                            <i class="fas fa-sync"></i> Refresh Marketplace
+                        </button>
+                    </div>
+                `;
+            }
             return;
         }
 
-        // 2. Load crops
+        // Load crops and farmers data
         const cropsResponse = await apiCall(`${API_BASE_URL}/v1/crops/all`);
         const crops = extractDataFromResponse(cropsResponse);
 
-        // 3. ⭐ Load all farmers
         const farmersResponse = await apiCall(`${API_BASE_URL}/users/farmers`);
         const farmers = extractDataFromResponse(farmersResponse);
 
-        console.log('=== FARMERS LOADED ===');
-        console.log('Farmers Count:', farmers.length);
-
-        // 4. Create maps
+        // Enrich valid productions
         const cropsMap = {};
         crops.forEach(crop => {
             if (crop.id) cropsMap[crop.id] = crop;
-            if (crop.cropId) cropsMap[crop.cropId] = crop;
         });
 
         const farmersMap = {};
         farmers.forEach(farmer => {
-            if (farmer.id) {
-                farmersMap[farmer.id] = farmer;
-            }
+            if (farmer.id) farmersMap[farmer.id] = farmer;
         });
 
-        // 5. ⭐ Enrich productions with crop AND farmer details
-        const enrichedProductions = productions.map(prod => {
+        const enrichedProductions = validProductions.map(prod => {
             const crop = cropsMap[prod.cropId];
             const farmer = farmersMap[prod.farmerId];
-
-            const farmerName = farmer?.fullName || farmer?.username || 'Contact Support';
 
             return {
                 id: prod.id,
@@ -4628,36 +5073,23 @@ async function loadMarketplaceData() {
                 cropImageUrl: crop?.imageUrl || prod.cropImageUrl,
                 cropDescription: crop?.description || prod.notes,
                 cropVariety: crop?.variety || prod.seedVariety,
-
-                // ⭐ FARMER INFORMATION
                 farmerId: prod.farmerId,
-                farmerName: farmerName,
-                farmerFullName: farmer?.fullName || farmerName,
+                farmerName: farmer?.fullName || farmer?.username || 'Contact Support',
+                farmerFullName: farmer?.fullName || farmer?.username,
                 farmerEmail: farmer?.email,
                 farmerPhone: farmer?.phoneNumber,
                 farmId: prod.farmId,
-
-                // Availability
                 availableQuantity: prod.expectedYield || prod.actualYield || 0,
-                price: prod.estimatedPrice || prod.marketPrice || 0,
-                pricePerKg: prod.estimatedPrice || prod.marketPrice || 0,
-
-                // Dates
+                pricePerKg: prod.pricePerKg || prod.estimatedPrice || prod.marketPrice || 0,
                 expectedHarvestDate: prod.expectedHarvestDate,
                 actualHarvestDate: prod.actualHarvestDate,
                 plantingDate: prod.plantingDate,
-
-                // Location & Status
                 location: prod.location || 'Rwanda',
                 productionStatus: prod.productionStatus,
                 productionMethod: prod.productionMethod,
-
-                // Quality
                 qualityGrade: prod.qualityGrade || 'STANDARD',
                 isOrganic: prod.productionMethod?.includes('ORGANIC'),
                 certification: prod.certification,
-
-                // Additional info
                 unit: 'Kg',
                 currency: 'RWF',
                 type: 'crop_production',
@@ -4665,22 +5097,12 @@ async function loadMarketplaceData() {
             };
         });
 
-        console.log('=== ENRICHED PRODUCTIONS ===');
-        console.log('Count:', enrichedProductions.length);
-        if (enrichedProductions.length > 0) {
-            console.log('First product:', enrichedProductions[0]);
-        }
-
         populateCategoryFilter(crops);
         displayMarketplaceProducts(enrichedProductions);
-        showNotification(`${enrichedProductions.length} products loaded`, 'success');
-        if (enrichedProductions.length > 0 && !window._marketplaceNotifiedThisSession && typeof pushBuyerNotification === 'function') {
-            window._marketplaceNotifiedThisSession = true;
-            pushBuyerNotification('New products in Marketplace', `${enrichedProductions.length} products available to browse`, 'info');
-        }
+        showNotification(`${enrichedProductions.length} products available`, 'success');
 
     } catch (error) {
-        console.error('=== ERROR LOADING MARKETPLACE ===', error);
+        console.error('Error loading marketplace:', error);
         showNotification('Failed to load marketplace: ' + error.message, 'error');
         displayMarketplaceProducts([]);
     }
@@ -4927,6 +5349,7 @@ function mergeMarketPricesWithProductions(marketPrices, productions) {
 
 
 
+
 function displayMarketplaceProducts(products) {
     const productsGrid = document.getElementById('productsGrid');
     if (!productsGrid) return;
@@ -4935,92 +5358,219 @@ function displayMarketplaceProducts(products) {
 
     if (!products || products.length === 0) {
         productsGrid.innerHTML = `
-            <div class="empty-state" style="grid-column: 1 / -1;">
-                <i class="fas fa-inbox"></i>
-                <h3>No Products Available</h3>
-                <p>There are no products available in the marketplace at the moment.</p>
+            <div class="empty-state" style="grid-column: 1 / -1; text-align: center; padding: 4rem;">
+                <div style="width: 120px; height: 120px; margin: 0 auto 2rem; background: linear-gradient(135deg, #f0f9ff, #dbeafe); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(59, 130, 246, 0.15);">
+                    <i class="fas fa-shopping-basket" style="font-size: 3.5rem; color: var(--primary-color);"></i>
+                </div>
+                <h3 style="font-size: 1.8rem; color: var(--text-dark); margin-bottom: 1rem;">No Products Available</h3>
+                <p style="font-size: 1.1rem; color: var(--text-light); margin-bottom: 2rem;">The marketplace is currently empty. Check back soon for new products!</p>
+                <button class="btn btn-primary" onclick="loadMarketplaceData()" style="padding: 1rem 2rem; font-size: 1.1rem;">
+                    <i class="fas fa-sync"></i> Refresh Marketplace
+                </button>
             </div>
         `;
         return;
     }
 
-    productsGrid.innerHTML = products.map((product, index) => {
-        console.log(`Product ${index}:`, {
-            id: product.id,
-            cropName: product.cropName,
-            price: product.pricePerKg,
-            type: product.id.startsWith('MP') ? 'market_price' : 'crop_production'
-        });
+    // ⭐ EN-TÊTE MODERNE ET ÉLÉGANT
+    const headerHTML = `
+        <div class="marketplace-header" style="grid-column: 1 / -1; background: linear-gradient(135deg, #10b981, #059669); border-radius: var(--radius-xl); padding: 2.5rem; margin-bottom: 2rem; box-shadow: 0 10px 30px rgba(16, 185, 129, 0.2); position: relative; overflow: hidden;">
+            <!-- Décorations de fond -->
+            <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: rgba(255, 255, 255, 0.1); border-radius: 50%; filter: blur(40px);"></div>
+            <div style="position: absolute; bottom: -30px; left: -30px; width: 150px; height: 150px; background: rgba(255, 255, 255, 0.08); border-radius: 50%; filter: blur(30px);"></div>
 
-        return `
-            <div class="product-card">
-                <div class="product-image" onclick="viewProductDetails('${product.id}')">
-                    ${product.cropImageUrl ?
-                        `<img src="${product.cropImageUrl}" alt="${product.cropName}">` :
-                        `<div class="product-placeholder">
-                            <i class="fas fa-seedling"></i>
-                            <span>No Image</span>
-                         </div>`
-                    }
-                    ${product.priceTrend === 'INCREASING' ?
-                        '<span class="product-badge organic" style="background: var(--danger-color);">Price Rising ↗</span>' :
-                        product.priceTrend === 'DECREASING' ?
-                        '<span class="product-badge ready" style="background: var(--success-color);">Price Falling ↘</span>' :
-                        '<span class="product-badge" style="background: var(--info-color);">Price Stable →</span>'
-                    }
-                    ${product.id.startsWith('MP') ?
-                        '<span class="product-badge" style="background: var(--primary-color); top: 40px;">Market Price</span>' :
-                        '<span class="product-badge" style="background: var(--secondary-color); top: 40px;">Direct Sale</span>'
-                    }
+            <!-- Contenu principal -->
+            <div style="position: relative; z-index: 1;">
+                <div style="display: flex; align-items: center; justify-content: center; gap: 1rem; margin-bottom: 1rem;">
+                    <div style="width: 60px; height: 60px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
+                        <i class="fas fa-store" style="font-size: 1.8rem; color: #10b981;"></i>
+                    </div>
+                    <h2 style="margin: 0; color: white; font-size: 2rem; font-weight: 800; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+                        🌾 AgriGuard Marketplace
+                    </h2>
                 </div>
-                <div class="product-info">
-                    <div class="product-category">${product.cropType || 'Agriculture'}</div>
-                    <h3 class="product-name">${product.cropName}</h3>
 
-                    <div class="product-details">
-                        <div class="detail-item">
-                            <i class="fas fa-weight"></i>
-                            <span>${product.availableQuantity || 0} kg available</span>
-                        </div>
-                        <div class="detail-item">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <span>${product.location || 'N/A'}</span>
-                        </div>
-                        <div class="detail-item">
-                            <i class="fas fa-store"></i>
-                            <span>${product.marketName || 'Market'}</span>
+                <div style="text-align: center; color: white;">
+                    <p style="margin: 0; font-size: 1.2rem; opacity: 0.95; font-weight: 500;">
+                        Discover fresh, quality agricultural products from verified farmers
+                    </p>
+                </div>
+
+                <!-- Statistiques -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
+                    <div style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); border-radius: var(--radius-lg); padding: 1.5rem; border: 1px solid rgba(255, 255, 255, 0.2);">
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <div style="width: 50px; height: 50px; background: white; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-box" style="font-size: 1.5rem; color: #10b981;"></i>
+                            </div>
+                            <div>
+                                <div style="font-size: 2rem; font-weight: 800; color: white;">${products.length}</div>
+                                <div style="font-size: 0.9rem; color: rgba(255, 255, 255, 0.9);">Products Available</div>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="product-footer">
-                        <div class="product-price">
-                            <span class="price-value">${formatCurrency(product.pricePerKg || product.price || 0)}</span>
-                            <span class="price-unit">/kg</span>
+                    <div style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); border-radius: var(--radius-lg); padding: 1.5rem; border: 1px solid rgba(255, 255, 255, 0.2);">
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <div style="width: 50px; height: 50px; background: white; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-users" style="font-size: 1.5rem; color: #10b981;"></i>
+                            </div>
+                            <div>
+                                <div style="font-size: 2rem; font-weight: 800; color: white;">${new Set(products.map(p => p.farmerId)).size}</div>
+                                <div style="font-size: 0.9rem; color: rgba(255, 255, 255, 0.9);">Active Farmers</div>
+                            </div>
                         </div>
-                        <div class="product-actions" style="display: flex; gap: 0.5rem;">
-                            <button class="btn btn-secondary btn-sm"
-                                    onclick="viewProductDetails('${product.id}')"
-                                    style="flex: 1; padding: 0.5rem; font-size: 0.85rem;">
-                                <i class="fas fa-info-circle"></i> Details
-                            </button>
-                            ${(product.availableQuantity || 0) > 0 || product.id.startsWith('MP') ? `
-                                <button class="btn btn-primary btn-sm"
-                                        onclick="addToCart('${product.id}')"
-                                        style="flex: 1; padding: 0.5rem; font-size: 0.85rem;">
-                                    <i class="fas fa-shopping-cart"></i> Add
-                                </button>
-                            ` : `
-                                <button class="btn btn-secondary btn-sm" disabled
-                                        style="flex: 1; padding: 0.5rem; font-size: 0.85rem;">
-                                    <i class="fas fa-ban"></i> Out of Stock
-                                </button>
-                            `}
+                    </div>
+
+                    <div style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); border-radius: var(--radius-lg); padding: 1.5rem; border: 1px solid rgba(255, 255, 255, 0.2);">
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <div style="width: 50px; height: 50px; background: white; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-leaf" style="font-size: 1.5rem; color: #10b981;"></i>
+                            </div>
+                            <div>
+                                <div style="font-size: 2rem; font-weight: 800; color: white;">${products.filter(p => p.isOrganic).length}</div>
+                                <div style="font-size: 0.9rem; color: rgba(255, 255, 255, 0.9);">Organic Products</div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
+    `;
+
+    // ⭐ CARTES DE PRODUITS AVEC DESIGN MODERNE
+    const productsHTML = products.map((product) => {
+        const harvestDate = product.actualHarvestDate || product.expectedHarvestDate;
+        const harvestLabel = product.actualHarvestDate ? 'Harvested' : 'Expected Harvest';
+        const timeAgo = harvestDate ? getTimeAgo(new Date(harvestDate)) : 'Date not set';
+
+        return `
+            <div class="product-card" style="background: white; border-radius: var(--radius-xl); overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); transition: all 0.3s ease; cursor: pointer; border: 2px solid transparent; position: relative;"
+                 onmouseover="this.style.transform='translateY(-8px)'; this.style.boxShadow='0 12px 24px rgba(16, 185, 129, 0.15)'; this.style.borderColor='var(--primary-color)';"
+                 onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(0, 0, 0, 0.08)'; this.style.borderColor='transparent';"
+                 onclick="viewProductDetails('${product.id}')">
+
+                <!-- Badge de statut en haut à gauche -->
+                <div style="position: absolute; top: 1rem; left: 1rem; z-index: 10; display: flex; flex-direction: column; gap: 0.5rem;">
+                    ${product.isOrganic ?
+                        '<div style="background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); display: flex; align-items: center; gap: 0.5rem;"><i class="fas fa-leaf"></i> ORGANIC</div>' : ''
+                    }
+                    ${product.certification ?
+                        '<div style="background: linear-gradient(135deg, #3b82f6, #1e40af); color: white; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); display: flex; align-items: center; gap: 0.5rem;"><i class="fas fa-certificate"></i> CERTIFIED</div>' : ''
+                    }
+                </div>
+
+                <!-- Image du produit -->
+                <div style="position: relative; width: 100%; height: 250px; background: linear-gradient(135deg, #f0fdf4, #dcfce7); overflow: hidden;">
+                    ${product.cropImageUrl ?
+                        `<img src="${product.cropImageUrl}" alt="${product.cropName}"
+                             style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s;"
+                             onmouseover="this.style.transform='scale(1.05)'"
+                             onmouseout="this.style.transform='scale(1)'"
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                         <div style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center; flex-direction: column; background: linear-gradient(135deg, #f0fdf4, #dcfce7);">
+                             <i class="fas fa-seedling" style="font-size: 4rem; color: var(--primary-color); margin-bottom: 1rem;"></i>
+                             <span style="color: var(--text-light); font-weight: 600;">No Image</span>
+                         </div>` :
+                        `<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; flex-direction: column;">
+                             <i class="fas fa-seedling" style="font-size: 4rem; color: var(--primary-color); margin-bottom: 1rem;"></i>
+                             <span style="color: var(--text-light); font-weight: 600;">No Image Available</span>
+                         </div>`
+                    }
+
+                    <!-- Prix en overlay -->
+                    <div style="position: absolute; bottom: 1rem; right: 1rem; background: rgba(16, 185, 129, 0.95); backdrop-filter: blur(10px); color: white; padding: 0.75rem 1.25rem; border-radius: 30px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);">
+                        <div style="font-size: 1.5rem; font-weight: 800;">${formatCurrency(product.pricePerKg || product.price || 0)}</div>
+                        <div style="font-size: 0.75rem; opacity: 0.9;">/kg</div>
+                    </div>
+                </div>
+
+                <!-- Informations du produit -->
+                <div style="padding: 1.5rem;">
+                    <!-- Catégorie -->
+                    <div style="display: inline-block; background: var(--primary-light); color: var(--primary-dark); padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.75rem;">
+                        ${product.cropType || 'Agriculture'}
+                    </div>
+
+                    <!-- Nom du produit -->
+                    <h3 style="margin: 0 0 1rem 0; font-size: 1.3rem; font-weight: 700; color: var(--text-dark); line-height: 1.3;">
+                        ${product.cropName}
+                    </h3>
+
+                    <!-- Informations du fermier -->
+                    <div style="background: linear-gradient(135deg, #f0fdf4, #dcfce7); border-radius: var(--radius-md); padding: 1rem; margin-bottom: 1rem; border-left: 4px solid var(--success-color);">
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <div style="width: 45px; height: 45px; border-radius: 50%; background: var(--success-color); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 1.2rem; box-shadow: 0 4px 8px rgba(16, 185, 129, 0.2);">
+                                ${(product.farmerName || 'F').charAt(0).toUpperCase()}
+                            </div>
+                            <div style="flex: 1; min-width: 0;">
+                                <div style="font-size: 0.7rem; color: var(--success-color); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; margin-bottom: 0.25rem;">
+                                    <i class="fas fa-user"></i> Farmer
+                                </div>
+                                <div style="font-weight: 700; color: var(--text-dark); font-size: 0.95rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                    ${product.farmerName || 'Contact Support'}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Détails du produit -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem;">
+                        <div style="background: var(--light-gray); border-radius: var(--radius-md); padding: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <div style="width: 35px; height: 35px; background: white; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-weight" style="color: var(--primary-color); font-size: 1.1rem;"></i>
+                            </div>
+                            <div style="flex: 1; min-width: 0;">
+                                <div style="font-size: 0.7rem; color: var(--text-light); text-transform: uppercase;">Available</div>
+                                <div style="font-weight: 700; color: var(--text-dark); font-size: 0.95rem;">${product.availableQuantity} kg</div>
+                            </div>
+                        </div>
+
+                        <div style="background: var(--light-gray); border-radius: var(--radius-md); padding: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <div style="width: 35px; height: 35px; background: white; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-calendar" style="color: var(--info-color); font-size: 1.1rem;"></i>
+                            </div>
+                            <div style="flex: 1; min-width: 0;">
+                                <div style="font-size: 0.7rem; color: var(--text-light); text-transform: uppercase;">${harvestLabel}</div>
+                                <div style="font-weight: 700; color: var(--text-dark); font-size: 0.85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${timeAgo}</div>
+                            </div>
+                        </div>
+
+                        <div style="background: var(--light-gray); border-radius: var(--radius-md); padding: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <div style="width: 35px; height: 35px; background: white; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-map-marker-alt" style="color: var(--danger-color); font-size: 1.1rem;"></i>
+                            </div>
+                            <div style="flex: 1; min-width: 0;">
+                                <div style="font-size: 0.7rem; color: var(--text-light); text-transform: uppercase;">Location</div>
+                                <div style="font-weight: 700; color: var(--text-dark); font-size: 0.85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${product.location}</div>
+                            </div>
+                        </div>
+
+                        <div style="background: var(--light-gray); border-radius: var(--radius-md); padding: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <div style="width: 35px; height: 35px; background: white; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-leaf" style="color: var(--warning-color); font-size: 1.1rem;"></i>
+                            </div>
+                            <div style="flex: 1; min-width: 0;">
+                                <div style="font-size: 0.7rem; color: var(--text-light); text-transform: uppercase;">Method</div>
+                                <div style="font-weight: 700; color: var(--text-dark); font-size: 0.85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${product.productionMethod || 'CONVENTIONAL'}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bouton Add to Cart -->
+                    <button onclick="event.stopPropagation(); addToCart('${product.id}')"
+                            style="width: 100%; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; border-radius: var(--radius-lg); padding: 1rem; font-weight: 700; font-size: 1rem; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2); display: flex; align-items: center; justify-content: center; gap: 0.5rem;"
+                            onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(16, 185, 129, 0.3)';"
+                            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(16, 185, 129, 0.2)';">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span>Add to Cart</span>
+                    </button>
+                </div>
+            </div>
         `;
     }).join('');
+
+    productsGrid.innerHTML = headerHTML + productsHTML;
 }
 
 
@@ -5481,209 +6031,370 @@ function saveCartToStorage() {
 
 
 
+// ==================== PRODUCT VALIDATION FUNCTION ====================
+
+/**
+ * Validates if a product meets the criteria to be sold
+ * ✅ Active production status: PLANTED, GROWING, HARVESTED
+ * ✅ Available quantity > 0: expectedYield > 0 OR actualYield > 0
+ * ❌ Excluded statuses: PLANNED, SOLD, DAMAGED, CANCELLED
+ */
+function validateProductCriteria(product) {
+    const validStatuses = ['PLANTED', 'GROWING', 'HARVESTED'];
+    const invalidStatuses = ['PLANNED', 'SOLD', 'DAMAGED', 'CANCELLED'];
+
+    const currentStatus = product.productionStatus?.toUpperCase();
+
+    // Check status
+    if (!currentStatus || invalidStatuses.includes(currentStatus) || !validStatuses.includes(currentStatus)) {
+        return {
+            isValid: false,
+            message: 'This product does not meet the purchase criteria',
+            reason: 'INVALID_STATUS'
+        };
+    }
+
+    // Check quantity
+    const expectedYield = parseFloat(product.expectedYield) || 0;
+    const actualYield = parseFloat(product.actualYield) || 0;
+    const availableQuantity = expectedYield > 0 ? expectedYield : actualYield;
+
+    if (availableQuantity <= 0) {
+        return {
+            isValid: false,
+            message: 'This product has no available quantity',
+            reason: 'NO_QUANTITY'
+        };
+    }
+
+    return {
+        isValid: true,
+        availableQuantity: availableQuantity,
+        price: product.pricePerKg || product.estimatedPrice || product.price || 0
+    };
+}
+
+
+
 
 
 async function addToCart(productId) {
-    console.log('=== ADD TO CART CALLED ===');
+    console.log('=== ADD TO CART WITH MODAL MESSAGES ===');
     console.log('Product ID:', productId);
 
     try {
-        showNotification('Adding to cart...', 'info');
+        showNotification('Checking product availability...', 'info');
 
         let productData = null;
         let productType = null;
 
-        // STRATEGY 1: Market Price
+        // Try as Market Price first (if ID starts with MP)
         if (productId.startsWith('MP')) {
-            console.log('Detected Market Price ID');
             try {
                 const marketPriceResponse = await apiCall(`${API_BASE_URL}/market-prices/${productId}`);
-                // ⭐ UNWRAP ApiResponse if needed
                 productData = marketPriceResponse.data || marketPriceResponse;
                 productType = 'market_price';
-                console.log('✓ Market Price found:', productData);
+                console.log('✓ Found as Market Price');
             } catch (error) {
-                console.error('Market Price not found:', error);
+                console.warn('Not a market price, trying as crop production...', error);
             }
         }
 
-        // STRATEGY 2: Crop Production
+        // Try as Crop Production
         if (!productData) {
-            console.log('Trying as Crop Production...');
             try {
                 const productionResponse = await apiCall(`${API_BASE_URL}/v1/crop-productions/${productId}`);
-
-                // ⭐ CRITICAL FIX: Unwrap ApiResponse wrapper
-                console.log('Raw API Response:', productionResponse);
-
-                // Check if response has a 'data' property (ApiResponse wrapper)
-                if (productionResponse.data) {
-                    productData = productionResponse.data;
-                } else if (productionResponse.success && productionResponse.data) {
-                    productData = productionResponse.data;
-                } else {
-                    // Response is the data itself
-                    productData = productionResponse;
-                }
-
+                productData = productionResponse.data || productionResponse;
                 productType = 'crop_production';
+                console.log('✓ Found as Crop Production');
 
-                console.log('✓ Crop Production found:', productData);
-                console.log('✓ Crop Name:', productData.cropName);
-                console.log('✓ Farmer Name:', productData.farmerName);
-                console.log('✓ Available quantity:', productData.expectedYield || productData.actualYield);
+                // ⭐ VALIDATE PRODUCT CRITERIA
+                const validation = validateProductCriteria(productData);
 
-                // ⭐ VALIDATION: Check if enrichment succeeded
-                if (!productData.cropName || productData.cropName === 'Unknown Crop') {
-                    console.error('❌ Crop name is missing after API call!');
-                    throw new Error('Product information incomplete - crop name missing');
+                if (!validation.isValid) {
+                    console.error('❌ Product validation failed:', validation.message);
+
+                    // Check if modal is open
+                    const modalOpen = document.querySelector('.modal.show');
+                    if (modalOpen) {
+                        showModalMessage('.modal.show',
+                            validation.message,
+                            'warning',
+                            `Reason: ${validation.reason || 'Product does not meet purchase criteria'}`
+                        );
+                    } else {
+                        showModalMessage('center',
+                            validation.message,
+                            'warning',
+                            `Reason: ${validation.reason || 'Product does not meet purchase criteria'}`
+                        );
+                    }
+                    return;
                 }
 
-                if (!productData.farmerName || productData.farmerName === 'Unknown Farmer') {
-                    console.warn('⚠️ Farmer name is missing');
-                }
+                console.log('✅ Product validation passed!');
 
             } catch (error) {
-                console.error('Crop Production not found:', error);
-                throw error;
+                console.error('Product not found as production:', error);
+
+                const errorMessage = error.message.includes('404')
+                    ? 'Product not found or has been removed'
+                    : 'Failed to load product information';
+
+                const modalOpen = document.querySelector('.modal.show');
+                if (modalOpen) {
+                    showModalMessage('.modal.show', errorMessage, 'error', error.message);
+                } else {
+                    showModalMessage('center', errorMessage, 'error', error.message);
+                }
+                return;
             }
         }
 
+        // If no product found
         if (!productData) {
-            showNotification('Product not found or unavailable', 'error');
+            const errorMsg = 'Product not found or unavailable';
+            const modalOpen = document.querySelector('.modal.show');
+            if (modalOpen) {
+                showModalMessage('.modal.show', errorMsg, 'error');
+            } else {
+                showModalMessage('center', errorMsg, 'error');
+            }
             return;
         }
 
-        // ⭐ PROCESS BASED ON TYPE
+        // Process based on type
         if (productType === 'market_price') {
             await addMarketPriceToCart(productData);
         } else if (productType === 'crop_production') {
             await addCropProductionToCart(productData);
         }
 
+        // Show success message
+        const successMsg = `${productData.cropName || 'Product'} added to cart successfully!`;
+        const modalOpen = document.querySelector('.modal.show');
+        if (modalOpen) {
+            showModalMessage('.modal.show', successMsg, 'success');
+        } else {
+            showModalMessage('center', successMsg, 'success');
+        }
+
     } catch (error) {
         console.error('Error in addToCart:', error);
-        showNotification('Failed to add product to cart: ' + error.message, 'error');
+
+        // User-friendly error messages
+        let errorMessage = 'Failed to add product to cart';
+        let errorDetails = null;
+
+        if (error.message.includes('401') || error.message.includes('Authentication')) {
+            errorMessage = 'Your session has expired. Please login again.';
+            errorDetails = 'You will be redirected to the login page in 2 seconds...';
+
+            const modalOpen = document.querySelector('.modal.show');
+            if (modalOpen) {
+                showModalMessage('.modal.show', errorMessage, 'error', errorDetails);
+            } else {
+                showModalMessage('center', errorMessage, 'error', errorDetails);
+            }
+
+            setTimeout(() => {
+                window.location.href = '/login.html';
+            }, 2000);
+
+        } else if (error.message.includes('404')) {
+            errorMessage = 'Product not found. It may have been sold out or removed.';
+            errorDetails = `Error: ${error.status || '404'} - ${error.message || 'Product no longer available'}`;
+
+            const modalOpen = document.querySelector('.modal.show');
+            if (modalOpen) {
+                showModalMessage('.modal.show', errorMessage, 'error', errorDetails);
+            } else {
+                showModalMessage('center', errorMessage, 'error', errorDetails);
+            }
+
+        } else if (error.message.includes('Network')) {
+            errorMessage = 'Network connection failed. Please check your internet connection.';
+            errorDetails = `Network Error: ${error.message || 'Unable to reach server'}`;
+
+            const modalOpen = document.querySelector('.modal.show');
+            if (modalOpen) {
+                showModalMessage('.modal.show', errorMessage, 'error', errorDetails);
+            } else {
+                showModalMessage('center', errorMessage, 'error', errorDetails);
+            }
+
+        } else if (error.message.includes('stock') || error.message.includes('quantity')) {
+            errorMessage = 'This product is out of stock or unavailable.';
+            errorDetails = `Availability Error: ${error.message || 'Insufficient quantity'}`;
+
+            const modalOpen = document.querySelector('.modal.show');
+            if (modalOpen) {
+                showModalMessage('.modal.show', errorMessage, 'error', errorDetails);
+            } else {
+                showModalMessage('center', errorMessage, 'error', errorDetails);
+            }
+
+        } else {
+            errorMessage = error.message || 'An unexpected error occurred';
+            errorDetails = `Error: ${error.status || 'Unknown'} - ${error.message || 'No details available'}`;
+
+            const modalOpen = document.querySelector('.modal.show');
+            if (modalOpen) {
+                showModalMessage('.modal.show', errorMessage, 'error', errorDetails);
+            } else {
+                showModalMessage('center', errorMessage, 'error', errorDetails);
+            }
+        }
     }
 }
 
+// Make functions globally available
+window.showModalMessage = showModalMessage;
+window.clearModalMessages = clearModalMessages;
+window.confirmOrder = confirmOrder;
+window.addToCart = addToCart;
+
+console.log('✅ FIXED: Modal message system loaded with proper error display');
 
 
 
+/**
+ * Add Crop Production to cart with validation
+ * @param {Object} production - The production object
+ */
 async function addCropProductionToCart(production) {
-    console.log('=== ADDING CROP PRODUCTION TO CART ===');
+    console.log('=== ADDING CROP PRODUCTION TO CART WITH VALIDATION ===');
     console.log('Production data:', production);
 
-    const availableQty = parseFloat(production.expectedYield || production.actualYield || 0);
+    try {
+        // ⭐ VALIDATION FINALE AVANT AJOUT AU PANIER
+        const validation = validateProductCriteria(production);
 
-    if (availableQty <= 0 || isNaN(availableQty)) {
-        console.warn('Product out of stock. Quantity:', availableQty);
-        showNotification('This product is out of stock', 'warning');
-        return;
-    }
-
-    // ⭐ CRITICAL: Get enriched information
-    const cropName = production.cropName;
-    const farmerName = production.farmerName;
-    const location = production.location || production.deliveryLocation || 'Location not specified';
-
-    // ⭐ UTILISER pricePerKg avec fallback sur estimatedPrice
-    let pricePerKg = parseFloat(production.pricePerKg || 0);
-
-    // Si pricePerKg est 0, essayer d'utiliser estimatedPrice
-    if (pricePerKg === 0 && production.estimatedPrice) {
-        pricePerKg = parseFloat(production.estimatedPrice);
-    }
-
-    // Si toujours 0, utiliser un prix par défaut
-    if (pricePerKg === 0) {
-        pricePerKg = 1000; // Prix par défaut
-        console.warn('⚠️ No price found, using default: 1000 RWF/kg');
-    }
-
-    // ⭐ VALIDATION
-    if (!cropName || cropName === 'Unknown Crop') {
-        console.error('❌ Crop name is missing!');
-        showNotification('Product information incomplete - crop name missing', 'error');
-        return;
-    }
-
-    if (!farmerName || farmerName === 'Unknown Farmer' || farmerName === 'Farmer Info Unavailable') {
-        console.error('❌ Farmer name is missing!');
-        showNotification('Product information incomplete - farmer information missing', 'error');
-        return;
-    }
-
-    // Check if already in cart
-    const existingItemIndex = shoppingCart.findIndex(item =>
-        item.productionId === production.id
-    );
-
-    if (existingItemIndex !== -1) {
-        const existingItem = shoppingCart[existingItemIndex];
-        if (existingItem.quantity + 1 > availableQty) {
-            showNotification(`Maximum ${availableQty} kg available`, 'warning');
-            return;
+        if (!validation.isValid) {
+            console.error('❌ Final validation failed:', validation.message);
+            throw new Error(validation.message);
         }
-        existingItem.quantity += 1;
-        showNotification('Quantity updated in cart', 'success');
-        if (typeof pushBuyerNotification === 'function') {
-            pushBuyerNotification('Cart updated', `Quantity updated for ${cropName}`, 'success');
+
+        const availableQty = validation.availableQuantity;
+        const pricePerKg = validation.price || production.pricePerKg || production.estimatedPrice || 1000;
+
+        // Check if already in cart
+        const existingItemIndex = shoppingCart.findIndex(item =>
+            item.productionId === production.id
+        );
+
+        if (existingItemIndex !== -1) {
+            const existingItem = shoppingCart[existingItemIndex];
+
+            // Check if adding one more exceeds available quantity
+            if (existingItem.quantity + 1 > availableQty) {
+                throw new Error(`Maximum ${availableQty} kg available. You already have ${existingItem.quantity} kg in your cart.`);
+            }
+
+            existingItem.quantity += 1;
+
+            const updateMsg = `Quantity updated to ${existingItem.quantity} kg`;
+            if (document.querySelector('.modal.show')) {
+                showModalMessage('.modal.show', updateMsg, 'success');
+            } else {
+                showNotification(updateMsg, 'success');
+            }
+
+            if (typeof pushBuyerNotification === 'function') {
+                pushBuyerNotification('Cart updated', `Quantity updated for ${production.cropName}`, 'success');
+            }
+        } else {
+            // ⭐ Enrich with farmer details if missing
+            let farmerName = production.farmerName;
+            let farmerEmail = production.farmerEmail;
+            let farmerPhone = production.farmerPhone;
+
+            if (!farmerName && production.farmerId) {
+                try {
+                    const farmerResponse = await apiCall(`${API_BASE_URL}/users/${production.farmerId}`);
+                    const farmer = farmerResponse.data || farmerResponse;
+                    farmerName = farmer.fullName || farmer.username || 'Unknown Farmer';
+                    farmerEmail = farmer.email;
+                    farmerPhone = farmer.phoneNumber;
+                } catch (error) {
+                    console.warn('Could not load farmer details:', error);
+                    farmerName = 'Farmer Info Unavailable';
+                }
+            }
+
+            // ⭐ Add new item with complete information
+            const cartItem = {
+                productionId: production.id,
+                cropId: production.cropId,
+
+                // ⭐ CROP INFO
+                cropName: production.cropName || 'Unknown Crop',
+                cropImageUrl: production.cropImageUrl,
+                cropType: production.cropType,
+
+                // ⭐ FARMER INFO
+                farmerId: production.farmerId,
+                farmerName: farmerName,
+                farmerEmail: farmerEmail,
+                farmerPhone: farmerPhone,
+
+                // ⭐ PRICING & QUANTITY
+                pricePerKg: pricePerKg,
+                price: pricePerKg,
+                quantity: 1,
+                availableQuantity: availableQty,
+
+                // ⭐ VALIDATION INFO
+                productionStatus: production.productionStatus,
+                expectedYield: production.expectedYield,
+                actualYield: production.actualYield,
+                isValidated: true,
+
+                // ⭐ LOCATION
+                location: production.location || 'Rwanda',
+                unit: 'kg',
+                type: 'crop_production',
+
+                // Additional info
+                expectedHarvestDate: production.expectedHarvestDate,
+                productionMethod: production.productionMethod,
+                qualityGrade: production.qualityGrade || 'STANDARD',
+                packaging: production.packaging || 'BAG',
+
+                // Timestamp
+                addedAt: new Date().toISOString()
+            };
+
+            console.log('✓ Cart item to add:', cartItem);
+            console.log('✓ Validation status: PASSED');
+            console.log(`✓ Available: ${availableQty} kg`);
+            console.log(`✓ Price: ${pricePerKg} RWF/kg`);
+
+            shoppingCart.push(cartItem);
+
+            const addMsg = `${production.cropName} added to cart (1 kg at ${formatCurrency(pricePerKg)}/kg)`;
+            if (document.querySelector('.modal.show')) {
+                showModalMessage('.modal.show', addMsg, 'success');
+            } else {
+                showNotification(addMsg, 'success');
+            }
+
+            if (typeof pushBuyerNotification === 'function') {
+                pushBuyerNotification('Product added to cart', `${production.cropName} added (1 kg)`, 'success');
+            }
         }
-    } else {
-        // ⭐ Add new item with complete information
-        const cartItem = {
-            productionId: production.id,
-            cropId: production.cropId,
 
-            // ⭐ CROP INFO
-            cropName: cropName,
-            cropImageUrl: production.cropImageUrl,
-            cropType: production.cropType,
+        // Save and update UI
+        saveCartToStorage();
+        updateCartBadge();
+        updateCartDisplay();
 
-            // ⭐ FARMER INFO
-            farmerId: production.farmId,
-            farmerName: farmerName,
-            farmerEmail: production.farmerEmail,
-            farmerPhone: production.farmerPhone,
+        console.log('Shopping cart after adding:', shoppingCart);
 
-            // ⭐ PRICING & QUANTITY - UTILISER pricePerKg
-            pricePerKg: pricePerKg,
-            price: pricePerKg, // Pour compatibilité
-            quantity: 1,
-            availableQuantity: availableQty,
-
-            // ⭐ LOCATION
-            location: location,
-            unit: 'kg',
-            type: 'crop_production',
-
-            // Additional info
-            expectedHarvestDate: production.expectedHarvestDate,
-            productionMethod: production.productionMethod,
-            qualityGrade: production.qualityGrade || 'STANDARD',
-            packaging: production.packaging || 'BAG'
-        };
-
-        console.log('✓ Cart item to add:', cartItem);
-        console.log('✓ Crop name:', cartItem.cropName);
-        console.log('✓ Farmer name:', cartItem.farmerName);
-        console.log('✓ Location:', cartItem.location);
-        console.log('✓ Price per kg:', cartItem.pricePerKg, 'RWF');
-        console.log('✓ Total for 1kg:', cartItem.pricePerKg * 1, 'RWF');
-
-        shoppingCart.push(cartItem);
-        showNotification(`Added ${cropName} to cart at ${pricePerKg} RWF/kg`, 'success');
-        if (typeof pushBuyerNotification === 'function') {
-            pushBuyerNotification('Product added to cart', `${cropName} added (1 kg)`, 'success');
-        }
+    } catch (error) {
+        console.error('Error in addCropProductionToCart:', error);
+        throw error; // Re-throw to be caught by parent function
     }
-
-    saveCartToStorage();
-    updateCartBadge();
-    updateCartDisplay();
-
-    console.log('Shopping cart after adding:', shoppingCart);
 }
 
 // Make functions globally available
@@ -5709,73 +6420,110 @@ function updateCartBadge() {
 
 
 
-
-// ⭐ AJOUTER MARKET PRICE AU PANIER
+/**
+ * Add Market Price to cart
+ * @param {Object} marketPrice - The market price object
+ */
 async function addMarketPriceToCart(marketPrice) {
-    console.log('Adding Market Price to cart:', marketPrice);
+    console.log('=== ADDING MARKET PRICE TO CART ===');
+    console.log('Market Price data:', marketPrice);
 
-    // Check available quantity
-    const availableQty = marketPrice.availableQuantity || 0;
-    if (availableQty <= 0) {
-        showNotification('This product is out of stock', 'warning');
-        return;
+    try {
+        // Check available quantity
+        const availableQty = marketPrice.availableQuantity || 0;
+        if (availableQty <= 0) {
+            throw new Error('This product is out of stock');
+        }
+
+        // Get crop details if needed
+        let cropDetails = null;
+        if (marketPrice.cropId && !marketPrice.cropName) {
+            try {
+                const cropResponse = await apiCall(`${API_BASE_URL}/v1/crops/${marketPrice.cropId}`);
+                cropDetails = cropResponse.data || cropResponse;
+            } catch (error) {
+                console.warn('Could not load crop details:', error);
+            }
+        }
+
+        // Check if already in cart
+        const existingItemIndex = shoppingCart.findIndex(item =>
+            item.marketPriceId === marketPrice.id
+        );
+
+        const cropName = cropDetails?.cropName || marketPrice.cropName || 'Unknown Crop';
+        const price = marketPrice.pricePerKg || marketPrice.price || 0;
+
+        if (existingItemIndex !== -1) {
+            const existingItem = shoppingCart[existingItemIndex];
+
+            if (existingItem.quantity + 1 > availableQty) {
+                throw new Error(`Maximum ${availableQty} kg available. You already have ${existingItem.quantity} kg in your cart.`);
+            }
+
+            existingItem.quantity += 1;
+
+            const updateMsg = `Quantity updated to ${existingItem.quantity} kg`;
+            if (document.querySelector('.modal.show')) {
+                showModalMessage('.modal.show', updateMsg, 'success');
+            } else {
+                showNotification(updateMsg, 'success');
+            }
+
+            if (typeof pushBuyerNotification === 'function') {
+                pushBuyerNotification('Cart updated', `Quantity updated for ${cropName}`, 'success');
+            }
+        } else {
+            shoppingCart.push({
+                marketPriceId: marketPrice.id,
+                cropId: marketPrice.cropId,
+                cropName: cropName,
+                cropImageUrl: cropDetails?.imageUrl || marketPrice.cropImageUrl,
+                price: price,
+                pricePerKg: price,
+                quantity: 1,
+                availableQuantity: availableQty,
+                location: marketPrice.location || 'N/A',
+                marketName: marketPrice.marketName || 'Market',
+                unit: 'kg',
+                type: 'market_price',
+                marketType: marketPrice.marketType,
+                demandLevel: marketPrice.demandLevel,
+                supplyLevel: marketPrice.supplyLevel,
+                addedAt: new Date().toISOString()
+            });
+
+            const addMsg = `${cropName} added to cart (1 kg at ${formatCurrency(price)}/kg)`;
+            if (document.querySelector('.modal.show')) {
+                showModalMessage('.modal.show', addMsg, 'success');
+            } else {
+                showNotification(addMsg, 'success');
+            }
+
+            if (typeof pushBuyerNotification === 'function') {
+                pushBuyerNotification('Product added to cart', `${cropName} added (1 kg)`, 'success');
+            }
+        }
+
+        // Save and update UI
+        saveCartToStorage();
+        updateCartBadge();
+        updateCartDisplay();
+
+        console.log('Shopping cart after adding:', shoppingCart);
+
+    } catch (error) {
+        console.error('Error in addMarketPriceToCart:', error);
+        throw error; // Re-throw to be caught by parent function
     }
-
-    // Get crop details if needed
-    let cropDetails = null;
-    if (marketPrice.cropId) {
-        try {
-            const cropResponse = await apiCall(`${API_BASE_URL}/v1/crops/${marketPrice.cropId}`);
-            cropDetails = cropResponse.data || cropResponse;
-        } catch (error) {
-            console.warn('Could not load crop details:', error);
-        }
-    }
-
-    // Check if already in cart
-    const existingItemIndex = shoppingCart.findIndex(item =>
-        item.marketPriceId === marketPrice.id
-    );
-
-    const cropName = cropDetails?.cropName || marketPrice.cropName || 'Unknown Crop';
-    if (existingItemIndex !== -1) {
-        const existingItem = shoppingCart[existingItemIndex];
-        if (existingItem.quantity + 1 > availableQty) {
-            showNotification(`Maximum ${availableQty} kg available`, 'warning');
-            return;
-        }
-        existingItem.quantity += 1;
-        showNotification('Quantity updated in cart', 'success');
-        if (typeof pushBuyerNotification === 'function') {
-            pushBuyerNotification('Cart updated', `Quantity updated for ${cropName}`, 'success');
-        }
-    } else {
-        shoppingCart.push({
-            marketPriceId: marketPrice.id,
-            cropId: marketPrice.cropId,
-            cropName,
-            cropImageUrl: cropDetails?.imageUrl || marketPrice.cropImageUrl,
-            price: marketPrice.pricePerKg || marketPrice.price || 0,
-            quantity: 1,
-            availableQuantity: availableQty,
-            location: marketPrice.location || 'N/A',
-            marketName: marketPrice.marketName || 'Market',
-            unit: 'kg',
-            type: 'market_price',
-            marketType: marketPrice.marketType,
-            demandLevel: marketPrice.demandLevel,
-            supplyLevel: marketPrice.supplyLevel
-        });
-        showNotification('Product added to cart', 'success');
-        if (typeof pushBuyerNotification === 'function') {
-            pushBuyerNotification('Product added to cart', `${cropName} added (1 kg)`, 'success');
-        }
-    }
-
-    saveCartToStorage();
-    updateCartBadge();
-    updateCartDisplay();
 }
+
+// Make functions globally available
+window.addToCart = addToCart;
+window.addCropProductionToCart = addCropProductionToCart;
+window.addMarketPriceToCart = addMarketPriceToCart;
+
+console.log('✅ Enhanced addToCart functions loaded with modal error handling');
 
 
 
@@ -5993,8 +6741,7 @@ function updateCartSummary(subtotal, shipping, tax) {
 
 
 
-
-// ==================== ORDER CONFIRMATION MODAL ====================
+// ==================== BEAUTIFUL ORDER CONFIRMATION MODAL - COMPLETE REDESIGN ====================
 
 function showOrderConfirmationModal(cartItems) {
     console.log('=== SHOWING ORDER CONFIRMATION ===');
@@ -6012,7 +6759,7 @@ function showOrderConfirmationModal(cartItems) {
     const modal = document.createElement('div');
     modal.className = 'modal';
 
-    // Calculer les totaux
+    // Calculate totals
     const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const shipping = calculateShipping(subtotal);
     const tax = calculateTax(subtotal);
@@ -6021,104 +6768,300 @@ function showOrderConfirmationModal(cartItems) {
     console.log('Totals:', { subtotal, shipping, tax, total });
 
     modal.innerHTML = `
-        <div class="modal-content" style="max-width: 700px;">
-            <div class="modal-header" style="background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); color: white; border-radius: var(--radius-lg) var(--radius-lg) 0 0;">
-                <h2><i class="fas fa-shopping-cart"></i> Confirm Your Order</h2>
-                <button class="modal-close" style="color: white; background: rgba(255,255,255,0.2);">
+        <div class="modal-content" style="max-width: 900px; max-height: 95vh; overflow: hidden; border-radius: 20px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);">
+
+            <!-- ========== MODAL HEADER ========== -->
+            <div style="background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 2rem 2.5rem; position: relative; overflow: hidden;">
+                <!-- Background decorations -->
+                <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: rgba(255, 255, 255, 0.1); border-radius: 50%; filter: blur(40px);"></div>
+                <div style="position: absolute; bottom: -30px; left: -30px; width: 150px; height: 150px; background: rgba(255, 255, 255, 0.08); border-radius: 50%; filter: blur(30px);"></div>
+
+                <div style="position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem;">
+                            <div style="width: 50px; height: 50px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
+                                <i class="fas fa-shopping-cart" style="font-size: 1.5rem;"></i>
+                            </div>
+                            <div>
+                                <h2 style="margin: 0; font-size: 1.8rem; font-weight: 800; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+                                    Confirm Your Order
+                                </h2>
+                                <p style="margin: 0.25rem 0 0 0; opacity: 0.9; font-size: 0.95rem;">
+                                    Review your items before checkout
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="this.closest('.modal').remove()"
+                            style="background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); border: none; color: white; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; font-size: 1.3rem; transition: all 0.2s; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);"
+                            onmouseover="this.style.background='rgba(255, 255, 255, 0.3)'; this.style.transform='rotate(90deg)'"
+                            onmouseout="this.style.background='rgba(255, 255, 255, 0.2)'; this.style.transform='rotate(0deg)'">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ========== MODAL BODY ========== -->
+            <div style="max-height: calc(95vh - 280px); overflow-y: auto; background: #f8f9fa;">
+
+                <!-- Order Items Section -->
+                <div style="padding: 2rem 2.5rem; background: white;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 2px solid #e5e7eb;">
+                        <h3 style="margin: 0; color: #1f2937; font-size: 1.3rem; font-weight: 700; display: flex; align-items: center; gap: 0.75rem;">
+                            <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
+                                <i class="fas fa-list" style="color: white; font-size: 1.1rem;"></i>
+                            </div>
+                            <span>Order Items</span>
+                        </h3>
+                        <div style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #1e40af; padding: 0.5rem 1.25rem; border-radius: 25px; font-weight: 700; font-size: 0.9rem; box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);">
+                            ${cartItems.length} ${cartItems.length === 1 ? 'Item' : 'Items'}
+                        </div>
+                    </div>
+
+                    <!-- Cart Items List -->
+                    <div style="display: flex; flex-direction: column; gap: 1rem;">
+                        ${cartItems.map((item, index) => `
+                            <div style="background: linear-gradient(135deg, #f9fafb, #ffffff); border-radius: 16px; padding: 1.25rem; border: 2px solid #e5e7eb; transition: all 0.3s; position: relative; overflow: hidden;"
+                                 onmouseover="this.style.borderColor='#10b981'; this.style.boxShadow='0 8px 24px rgba(16, 185, 129, 0.15)'"
+                                 onmouseout="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none'">
+
+                                <!-- Item number badge -->
+                                <div style="position: absolute; top: -8px; left: 1.25rem; background: linear-gradient(135deg, #10b981, #059669); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem; box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);">
+                                    ${index + 1}
+                                </div>
+
+                                <div style="display: flex; gap: 1.25rem; align-items: center;">
+                                    <!-- Product Image -->
+                                    <div style="width: 90px; height: 90px; flex-shrink: 0; border-radius: 12px; overflow: hidden; background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 3px solid #10b981; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);">
+                                        ${item.cropImageUrl || item.imageUrl ? `
+                                            <img src="${item.cropImageUrl || item.imageUrl}"
+                                                 alt="${item.cropName}"
+                                                 style="width: 100%; height: 100%; object-fit: cover;"
+                                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                            <div style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center; background: linear-gradient(135deg, #f0fdf4, #dcfce7);">
+                                                <i class="fas fa-seedling" style="font-size: 2rem; color: #10b981; opacity: 0.5;"></i>
+                                            </div>
+                                        ` : `
+                                            <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                                                <i class="fas fa-seedling" style="font-size: 2rem; color: #10b981; opacity: 0.5;"></i>
+                                            </div>
+                                        `}
+                                    </div>
+
+                                    <!-- Product Details -->
+                                    <div style="flex: 1; min-width: 0;">
+                                        <!-- Product Name -->
+                                        <h4 style="margin: 0 0 0.75rem 0; color: #111827; font-size: 1.15rem; font-weight: 700; line-height: 1.3;">
+                                            ${item.cropName}
+                                        </h4>
+
+                                        <!-- Farmer Info -->
+                                        <div style="background: linear-gradient(135deg, #ecfdf5, #d1fae5); border-radius: 10px; padding: 0.75rem 1rem; margin-bottom: 0.75rem; border-left: 3px solid #10b981;">
+                                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                                <div style="width: 36px; height: 36px; border-radius: 50%; background: #10b981; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 1rem; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3); flex-shrink: 0;">
+                                                    ${(item.farmerName || 'F').charAt(0).toUpperCase()}
+                                                </div>
+                                                <div style="flex: 1; min-width: 0;">
+                                                    <div style="font-size: 0.7rem; color: #047857; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; margin-bottom: 0.15rem;">
+                                                        <i class="fas fa-user"></i> Farmer
+                                                    </div>
+                                                    <div style="font-weight: 700; color: #065f46; font-size: 0.95rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                                        ${item.farmerName || 'Farmer Info Unavailable'}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Quantity and Price -->
+                                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                                            <div style="background: white; border-radius: 8px; padding: 0.65rem 0.85rem; border: 1px solid #e5e7eb;">
+                                                <div style="font-size: 0.7rem; color: #6b7280; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 0.25rem;">
+                                                    <i class="fas fa-weight"></i> Quantity
+                                                </div>
+                                                <div style="font-weight: 700; color: #111827; font-size: 1rem;">
+                                                    ${item.quantity} kg
+                                                </div>
+                                            </div>
+                                            <div style="background: white; border-radius: 8px; padding: 0.65rem 0.85rem; border: 1px solid #e5e7eb;">
+                                                <div style="font-size: 0.7rem; color: #6b7280; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 0.25rem;">
+                                                    <i class="fas fa-tag"></i> Price/kg
+                                                </div>
+                                                <div style="font-weight: 700; color: #10b981; font-size: 1rem;">
+                                                    ${formatCurrency(item.price)}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Item Total -->
+                                    <div style="text-align: right; padding-left: 1rem; border-left: 2px solid #e5e7eb;">
+                                        <div style="font-size: 0.75rem; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem; font-weight: 600;">
+                                            Subtotal
+                                        </div>
+                                        <div style="font-size: 1.8rem; font-weight: 900; color: #10b981; line-height: 1;">
+                                            ${formatCurrency(item.price * item.quantity)}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <!-- Order Summary Section -->
+                <div style="padding: 2rem 2.5rem; background: linear-gradient(135deg, #f0fdf4, #dcfce7);">
+                    <div style="background: white; border-radius: 16px; padding: 2rem; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08); border: 2px solid #10b981;">
+
+                        <!-- Summary Header -->
+                        <h3 style="margin: 0 0 1.5rem 0; color: #1f2937; font-size: 1.3rem; font-weight: 700; display: flex; align-items: center; gap: 0.75rem; padding-bottom: 1rem; border-bottom: 2px solid #e5e7eb;">
+                            <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
+                                <i class="fas fa-receipt" style="color: white; font-size: 1.1rem;"></i>
+                            </div>
+                            <span>Order Summary</span>
+                        </h3>
+
+                        <!-- Summary Rows -->
+                        <div style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem;">
+                            <!-- Subtotal -->
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0;">
+                                <span style="color: #6b7280; font-size: 1rem; font-weight: 500;">
+                                    <i class="fas fa-shopping-basket" style="margin-right: 0.5rem; color: #10b981;"></i>
+                                    Subtotal
+                                </span>
+                                <span style="font-weight: 700; color: #111827; font-size: 1.1rem;">
+                                    ${formatCurrency(subtotal)}
+                                </span>
+                            </div>
+
+                            <!-- Shipping -->
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0;">
+                                <span style="color: #6b7280; font-size: 1rem; font-weight: 500;">
+                                    <i class="fas fa-truck" style="margin-right: 0.5rem; color: #10b981;"></i>
+                                    Shipping Fee
+                                </span>
+                                <span style="font-weight: 700; color: #111827; font-size: 1.1rem;">
+                                    ${formatCurrency(shipping)}
+                                </span>
+                            </div>
+
+                            <!-- Tax -->
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 2px dashed #e5e7eb;">
+                                <span style="color: #6b7280; font-size: 1rem; font-weight: 500;">
+                                    <i class="fas fa-percentage" style="margin-right: 0.5rem; color: #10b981;"></i>
+                                    Tax (18%)
+                                </span>
+                                <span style="font-weight: 700; color: #111827; font-size: 1.1rem;">
+                                    ${formatCurrency(tax)}
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Total -->
+                        <div style="background: linear-gradient(135deg, #10b981, #059669); border-radius: 12px; padding: 1.5rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3); position: relative; overflow: hidden;">
+                            <div style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(255, 255, 255, 0.1); border-radius: 50%; filter: blur(25px);"></div>
+                            <div style="position: relative; z-index: 1;">
+                                <div style="color: rgba(255, 255, 255, 0.9); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.25rem; font-weight: 600;">
+                                    <i class="fas fa-money-bill-wave"></i> Total Amount
+                                </div>
+                                <div style="color: white; font-size: 2.2rem; font-weight: 900; line-height: 1;">
+                                    ${formatCurrency(total)}
+                                </div>
+                            </div>
+                            <div style="position: relative; z-index: 1; width: 70px; height: 70px; background: rgba(255, 255, 255, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px);">
+                                <i class="fas fa-coins" style="font-size: 2rem; color: white;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Delivery & Payment Info -->
+                <div style="padding: 2rem 2.5rem; background: white;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+
+                        <!-- Delivery Info -->
+                        <div style="background: linear-gradient(135deg, #e8f5e9, #c8e6c9); border-radius: 12px; padding: 1.5rem; border-left: 4px solid #10b981;">
+                            <h4 style="margin: 0 0 1rem 0; color: #065f46; font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
+                                <i class="fas fa-truck"></i>
+                                Delivery Information
+                            </h4>
+                            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                                <div style="display: flex; align-items: start; gap: 0.75rem;">
+                                    <div style="width: 32px; height: 32px; background: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                        <i class="fas fa-map-marker-alt" style="color: #10b981;"></i>
+                                    </div>
+                                    <div>
+                                        <div style="font-size: 0.75rem; color: #047857; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 0.25rem;">
+                                            Address
+                                        </div>
+                                        <div style="color: #065f46; font-weight: 600; font-size: 0.95rem;">
+                                            ${currentUser.address || 'To be confirmed'}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="display: flex; align-items: start; gap: 0.75rem;">
+                                    <div style="width: 32px; height: 32px; background: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                        <i class="fas fa-calendar-check" style="color: #10b981;"></i>
+                                    </div>
+                                    <div>
+                                        <div style="font-size: 0.75rem; color: #047857; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 0.25rem;">
+                                            Delivery Time
+                                        </div>
+                                        <div style="color: #065f46; font-weight: 600; font-size: 0.95rem;">
+                                            5-7 business days
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Payment Info -->
+                        <div style="background: linear-gradient(135deg, #fef3c7, #fde68a); border-radius: 12px; padding: 1.5rem; border-left: 4px solid #f59e0b;">
+                            <h4 style="margin: 0 0 1rem 0; color: #92400e; font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
+                                <i class="fas fa-credit-card"></i>
+                                Payment Method
+                            </h4>
+                            <div style="display: flex; align-items: start; gap: 0.75rem;">
+                                <div style="width: 32px; height: 32px; background: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                    <i class="fas fa-money-bill-wave" style="color: #f59e0b;"></i>
+                                </div>
+                                <div>
+                                    <div style="font-size: 0.75rem; color: #b45309; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 0.25rem;">
+                                        Payment Type
+                                    </div>
+                                    <div style="color: #92400e; font-weight: 700; font-size: 1rem; margin-bottom: 0.25rem;">
+                                        Cash on Delivery (COD)
+                                    </div>
+                                    <div style="color: #b45309; font-size: 0.85rem; line-height: 1.4;">
+                                        Pay when your order is delivered
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ========== MODAL FOOTER ========== -->
+            <div style="background: linear-gradient(to top, #f9fafb, #ffffff); padding: 1.75rem 2.5rem; border-top: 2px solid #e5e7eb; display: flex; gap: 1rem; justify-content: flex-end; align-items: center;">
+                <button onclick="this.closest('.modal').remove()"
+                        class="modal-cancel"
+                        style="background: white; color: #374151; border: 2px solid #d1d5db; padding: 0.9rem 1.75rem; border-radius: 12px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 0.65rem; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);"
+                        onmouseover="this.style.borderColor='#9ca3af'; this.style.background='#f9fafb'; this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 8px rgba(0, 0, 0, 0.1)'"
+                        onmouseout="this.style.borderColor='#d1d5db'; this.style.background='white'; this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 4px rgba(0, 0, 0, 0.05)'">
                     <i class="fas fa-times"></i>
+                    <span>Cancel</span>
+                </button>
+                <button onclick="confirmOrder(this, this.closest('.modal'))"
+                        class="modal-confirm"
+                        style="background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 0.9rem 2.5rem; border-radius: 12px; font-weight: 700; font-size: 1.05rem; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); display: flex; align-items: center; gap: 0.75rem;"
+                        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 20px rgba(16, 185, 129, 0.4)'"
+                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(16, 185, 129, 0.3)'">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Confirm Order (${formatCurrency(total)})</span>
                 </button>
             </div>
 
-            <div class="modal-body" style="max-height: 60vh; overflow-y: auto; padding: 2rem;">
-                <!-- Order Items -->
-                <div class="order-summary" style="margin-bottom: 2rem;">
-                    <h3 style="color: var(--text-dark); margin-bottom: 1rem; border-bottom: 2px solid var(--primary-color); padding-bottom: 0.5rem;">
-                        <i class="fas fa-list"></i> Order Items (${cartItems.length})
-                    </h3>
-
-                   // Dans la section où vous affichez les items dans showOrderConfirmationModal
-${cartItems.map((item, index) => `
-    <div class="order-item-summary" style="...">
-        <div class="item-info" style="flex: 1;">
-            <div style="display: flex; align-items: center; gap: 1rem;">
-                ${item.cropImageUrl || item.imageUrl ? `...` : ''}
-                <div style="flex: 1;">
-                    <strong style="display: block; color: var(--text-dark); font-size: 1.1rem; margin-bottom: 0.25rem;">
-                        ${item.cropName}
-                    </strong>
-                    <span style="color: var(--text-light); font-size: 0.9rem;">
-                        <i class="fas fa-weight"></i> ${item.quantity} kg × ${formatCurrency(item.price)}/kg
-                    </span>
-                    <!-- ⭐ AFFICHER LE NOM DU FERMIER -->
-                    <span style="display: block; color: var(--success-color); font-size: 0.85rem; margin-top: 0.25rem; font-weight: 600;">
-                        <i class="fas fa-user"></i> ${item.farmerName || 'Farmer Info Unavailable'}
-                    </span>
-                </div>
-            </div>
-        </div>
-        <div class="item-total" style="...">
-            ${formatCurrency(item.price * item.quantity)}
-        </div>
-    </div>
-`).join('')}
-
-                <!-- Order Totals -->
-                <div class="order-totals" style="background: var(--light-gray); padding: 1.5rem; border-radius: var(--radius-md); margin-bottom: 1.5rem;">
-                    <div class="total-row" style="display: flex; justify-content: space-between; margin-bottom: 0.75rem; padding: 0.5rem 0; font-size: 1rem;">
-                        <span style="color: var(--text-light);">Subtotal:</span>
-                        <span style="font-weight: 600; color: var(--text-dark);">${formatCurrency(subtotal)}</span>
-                    </div>
-                    <div class="total-row" style="display: flex; justify-content: space-between; margin-bottom: 0.75rem; padding: 0.5rem 0; font-size: 1rem;">
-                        <span style="color: var(--text-light);">Shipping Fee:</span>
-                        <span style="font-weight: 600; color: var(--text-dark);">${formatCurrency(shipping)}</span>
-                    </div>
-                    <div class="total-row" style="display: flex; justify-content: space-between; margin-bottom: 1rem; padding: 0.5rem 0; border-bottom: 1px solid var(--border-color); font-size: 1rem;">
-                        <span style="color: var(--text-light);">Tax (18%):</span>
-                        <span style="font-weight: 600; color: var(--text-dark);">${formatCurrency(tax)}</span>
-                    </div>
-                    <div class="total-row final-total" style="display: flex; justify-content: space-between; padding: 1rem 0; margin-top: 1rem; border-top: 3px solid var(--primary-color);">
-                        <span style="font-size: 1.3rem; font-weight: bold; color: var(--text-dark);">
-                            <i class="fas fa-receipt"></i> Total:
-                        </span>
-                        <span style="font-size: 1.8rem; font-weight: bold; color: var(--primary-color);">
-                            ${formatCurrency(total)}
-                        </span>
-                    </div>
-                </div>
-
-                <!-- Delivery Information -->
-                <div class="delivery-info" style="padding: 1.5rem; background: linear-gradient(135deg, #e8f5e9, #c8e6c9); border-radius: var(--radius-md); border-left: 4px solid var(--success-color); margin-bottom: 1rem;">
-                    <h4 style="color: var(--success-color); margin-bottom: 1rem; font-size: 1.1rem;">
-                        <i class="fas fa-truck"></i> Delivery Information
-                    </h4>
-                    <p style="margin-bottom: 0.5rem; color: var(--text-dark);">
-                        <strong><i class="fas fa-map-marker-alt"></i> Delivery Address:</strong><br>
-                        <span style="margin-left: 1.5rem;">${currentUser.address || 'To be confirmed during checkout'}</span>
-                    </p>
-                    <p style="margin: 0; color: var(--text-dark);">
-                        <strong><i class="fas fa-calendar-check"></i> Expected Delivery:</strong><br>
-                        <span style="margin-left: 1.5rem;">Within 5-7 business days</span>
-                    </p>
-                </div>
-
-                <!-- Payment Information -->
-                <div style="padding: 1rem; background: #fff3cd; border-radius: var(--radius-md); border-left: 4px solid var(--warning-color);">
-                    <p style="margin: 0; color: #856404; font-size: 0.95rem; line-height: 1.6;">
-                        <i class="fas fa-info-circle"></i>
-                        <strong>Payment Method:</strong> Cash on Delivery (COD)<br>
-                        <span style="margin-left: 1.5rem;">You will pay when your order is delivered.</span>
-                    </p>
-                </div>
-            </div>
-
-            <div class="modal-footer" style="background: var(--light-gray); display: flex; gap: 1rem; justify-content: flex-end; padding: 1.5rem; border-radius: 0 0 var(--radius-lg) var(--radius-lg);">
-                <button class="btn btn-secondary modal-cancel" style="padding: 0.75rem 1.5rem; font-size: 1rem;">
-                    <i class="fas fa-times"></i> Cancel
-                </button>
-                <button class="btn btn-primary modal-confirm" style="padding: 0.75rem 2rem; font-size: 1.1rem; box-shadow: 0 4px 8px rgba(46, 204, 113, 0.3);">
-                    <i class="fas fa-check-circle"></i> Confirm Order (${formatCurrency(total)})
-                </button>
-            </div>
         </div>
     `;
 
@@ -6129,26 +7072,6 @@ ${cartItems.map((item, index) => `
         modal.classList.add('show');
         console.log('Modal displayed');
     }, 10);
-
-    // Event listeners for modal
-    const closeBtn = modal.querySelector('.modal-close');
-    const cancelBtn = modal.querySelector('.modal-cancel');
-    const confirmBtn = modal.querySelector('.modal-confirm');
-
-    closeBtn.addEventListener('click', () => {
-        console.log('Close button clicked');
-        modal.remove();
-    });
-
-    cancelBtn.addEventListener('click', () => {
-        console.log('Cancel button clicked');
-        modal.remove();
-    });
-
-    confirmBtn.addEventListener('click', async () => {
-        console.log('Confirm button clicked');
-        await confirmOrder(confirmBtn, modal);
-    });
 
     // Close on outside click
     modal.addEventListener('click', (e) => {
@@ -6175,38 +7098,77 @@ async function confirmOrder(confirmBtn, modal) {
     console.log('=== CONFIRMING ORDER ===');
 
     if (!confirmBtn) {
-        console.error('Confirm button not found');
+        console.error('❌ Confirm button not found');
         return;
     }
 
     try {
+        // Clear any existing messages
+        clearModalMessages('.modal.show');
+
         // Disable button and show loading
         confirmBtn.disabled = true;
         const originalHTML = confirmBtn.innerHTML;
         confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing Order...';
+        confirmBtn.style.opacity = '0.7';
+        confirmBtn.style.cursor = 'not-allowed';
 
         console.log('Calling handleCheckout...');
 
         // Call checkout function
         await handleCheckout();
 
-        console.log('Checkout successful');
+        console.log('✅ Checkout successful');
 
-        // Close modal on success
-        if (modal) {
-            modal.remove();
-        }
+        // Show success message
+        showModalMessage('.modal.show',
+            'Your order has been placed successfully! You will receive a confirmation shortly.',
+            'success'
+        );
+
+        // Close modal after 2 seconds
+        setTimeout(() => {
+            if (modal) {
+                modal.remove();
+            }
+        }, 2000);
 
     } catch (error) {
-        console.error('Order confirmation error:', error);
+        console.error('❌ Order confirmation error:', error);
 
         // Re-enable button on error
         if (confirmBtn) {
             confirmBtn.disabled = false;
-            confirmBtn.innerHTML = '<i class="fas fa-check-circle"></i> Confirm Order';
+            confirmBtn.innerHTML = '<i class="fas fa-check-circle"></i> <span>Confirm Order</span>';
+            confirmBtn.style.opacity = '1';
+            confirmBtn.style.cursor = 'pointer';
         }
 
-        showNotification('Failed to place order. Please try again.', 'error');
+        // Extract user-friendly error message
+        let errorMessage = 'Failed to place order. Please try again.';
+        let errorDetails = null;
+
+        if (error.message) {
+            if (error.message.includes('401') || error.message.includes('Authentication')) {
+                errorMessage = 'Your session has expired. Please login again.';
+                setTimeout(() => {
+                    window.location.href = '/login.html';
+                }, 2000);
+            } else if (error.message.includes('404')) {
+                errorMessage = 'Product not found. It may have been sold out.';
+            } else if (error.message.includes('500')) {
+                errorMessage = 'Server error. Please try again later.';
+            } else if (error.message.includes('Network')) {
+                errorMessage = 'Network connection failed. Please check your internet connection.';
+            } else {
+                errorMessage = error.message;
+            }
+
+            errorDetails = `Error: ${error.status || 'Unknown'} - ${error.message}`;
+        }
+
+        // Display error in modal
+        showModalMessage('.modal.show', errorMessage, 'error', errorDetails);
     }
 }
 
@@ -6214,7 +7176,23 @@ async function confirmOrder(confirmBtn, modal) {
 window.showOrderConfirmationModal = showOrderConfirmationModal;
 window.confirmOrder = confirmOrder;
 
-console.log('✅ Order confirmation functions loaded');
+console.log('✅ Beautiful order confirmation modal loaded');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // ==================== ERROR HANDLING ====================
 
@@ -6917,6 +7895,252 @@ function showOrderDetailsModal(order) {
 
 
 
+
+
+
+
+/**
+ * ⭐ FIXED: Display error/success/warning/info message in modal (creates modal if needed)
+ * @param {string} modalSelector - CSS selector for existing modal OR 'center' for centered modal
+ * @param {string} message - Main message
+ * @param {string} type - Type: 'error', 'success', 'warning', 'info'
+ * @param {string} details - Optional technical details
+ * @param {boolean} dismissible - Whether the message can be closed
+ */
+function showModalMessage(modalSelector, message, type = 'error', details = null, dismissible = true) {
+    console.log('=== SHOW MODAL MESSAGE ===');
+    console.log('Modal selector:', modalSelector);
+    console.log('Message:', message);
+    console.log('Type:', type);
+
+    // If selector is 'center' or no modal found, create a centered modal
+    if (modalSelector === 'center' || !document.querySelector(modalSelector)) {
+        return showCenteredModal(message, type, details, dismissible);
+    }
+
+    const modal = document.querySelector(modalSelector);
+    if (!modal) {
+        console.error('❌ Modal not found:', modalSelector);
+        showCenteredModal(message, type, details, dismissible);
+        return;
+    }
+
+    const modalBody = modal.querySelector('.modal-body');
+    if (!modalBody) {
+        console.error('❌ Modal body not found in:', modalSelector);
+        showCenteredModal(message, type, details, dismissible);
+        return;
+    }
+
+    // Remove existing messages
+    const existingMessages = modalBody.querySelectorAll('.modal-error-container');
+    existingMessages.forEach(msg => msg.remove());
+
+    // Icon mapping
+    const icons = {
+        'error': 'fa-exclamation-circle',
+        'success': 'fa-check-circle',
+        'warning': 'fa-exclamation-triangle',
+        'info': 'fa-info-circle'
+    };
+
+    // Title mapping
+    const titles = {
+        'error': 'Error',
+        'success': 'Success',
+        'warning': 'Warning',
+        'info': 'Information'
+    };
+
+    // Create message container
+    const messageContainer = document.createElement('div');
+    messageContainer.className = `modal-error-container ${type}`;
+    messageContainer.style.marginBottom = '1.5rem';
+
+    messageContainer.innerHTML = `
+        <div class="modal-error-header">
+            <div class="modal-error-icon">
+                <i class="fas ${icons[type]}"></i>
+            </div>
+            <h4 class="modal-error-title">${titles[type]}</h4>
+            ${dismissible ? `
+                <button class="modal-error-close" onclick="this.closest('.modal-error-container').remove()" title="Close">
+                    <i class="fas fa-times"></i>
+                </button>
+            ` : ''}
+        </div>
+        <p class="modal-error-message">${message}</p>
+        ${details ? `<div class="modal-error-details">${details}</div>` : ''}
+    `;
+
+    // Insert at the beginning of modal body
+    modalBody.insertBefore(messageContainer, modalBody.firstChild);
+
+    console.log('✅ Modal message displayed');
+
+    // Auto-dismiss success messages after 5 seconds
+    if (type === 'success' && dismissible) {
+        setTimeout(() => {
+            if (messageContainer.parentNode) {
+                messageContainer.style.opacity = '0';
+                messageContainer.style.transform = 'translateY(-10px)';
+                setTimeout(() => messageContainer.remove(), 300);
+            }
+        }, 5000);
+    }
+
+    // Scroll to the message
+    messageContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+/**
+ * NEW: Show centered modal for messages when no modal exists
+ */
+function showCenteredModal(message, type = 'error', details = null, dismissible = true) {
+    console.log('Creating centered modal for message...');
+
+    // Remove any existing centered modal
+    const existingModal = document.getElementById('centeredModalOverlay');
+    if (existingModal) {
+        existingModal.remove();
+    }
+
+    // Icon and title mapping
+    const config = {
+        'error': {
+            icon: 'exclamation-circle',
+            title: 'Error',
+            color: '#ef4444',
+            bgColor: '#fee2e2'
+        },
+        'success': {
+            icon: 'check-circle',
+            title: 'Success',
+            color: '#10b981',
+            bgColor: '#d1fae5'
+        },
+        'warning': {
+            icon: 'exclamation-triangle',
+            title: 'Warning',
+            color: '#f59e0b',
+            bgColor: '#fef3c7'
+        },
+        'info': {
+            icon: 'info-circle',
+            title: 'Information',
+            color: '#3b82f6',
+            bgColor: '#dbeafe'
+        }
+    };
+
+    const cfg = config[type] || config.error;
+
+    // Create modal overlay
+    const modalOverlay = document.createElement('div');
+    modalOverlay.id = 'centeredModalOverlay';
+    modalOverlay.className = 'modal-overlay-center';
+
+    modalOverlay.innerHTML = `
+        <div class="modal-center">
+            <div class="modal-header" style="background: linear-gradient(135deg, ${cfg.color}, ${cfg.color}aa);">
+                <h3 style="margin: 0; color: white; font-size: 1.25rem; display: flex; align-items: center; gap: 0.75rem;">
+                    <i class="fas ${cfg.icon}" style="font-size: 1.5rem;"></i>
+                    ${cfg.title}
+                </h3>
+                ${dismissible ? `
+                    <button class="modal-close" onclick="document.getElementById('centeredModalOverlay').remove()"
+                            style="background: rgba(255,255,255,0.2); color: white; width: 36px; height: 36px; border-radius: 50%; border: none; cursor: pointer; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"
+                            onmouseover="this.style.background='rgba(255,255,255,0.3)'"
+                            onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+                        <i class="fas fa-times"></i>
+                    </button>
+                ` : ''}
+            </div>
+            <div class="modal-body">
+                <div style="text-align: center; padding: 1rem 0 2rem;">
+                    <div style="width: 80px; height: 80px; margin: 0 auto 1.5rem; background: ${cfg.bgColor}; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas ${cfg.icon}" style="font-size: 2.5rem; color: ${cfg.color};"></i>
+                    </div>
+                    <h4 style="margin: 0 0 1rem 0; color: var(--text-dark); font-size: 1.35rem; font-weight: 700; line-height: 1.4;">
+                        ${message}
+                    </h4>
+                    ${details ? `
+                        <div style="background: rgba(0,0,0,0.05); border-radius: var(--radius-md); padding: 1rem; margin-top: 1.5rem; text-align: left;">
+                            <div style="font-size: 0.8rem; color: var(--text-light); margin-bottom: 0.5rem; font-weight: 600;">
+                                <i class="fas fa-info-circle"></i> Details
+                            </div>
+                            <div style="font-family: 'Courier New', monospace; font-size: 0.85rem; color: var(--text-dark); line-height: 1.5; word-break: break-word;">
+                                ${details}
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+            <div class="modal-footer">
+                ${dismissible ? `
+                    <button class="btn btn-primary"
+                            onclick="document.getElementById('centeredModalOverlay').remove()"
+                            style="padding: 0.75rem 2rem; font-weight: 700;">
+                        <i class="fas fa-check"></i> OK
+                    </button>
+                ` : ''}
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modalOverlay);
+
+    // Show modal with animation
+    setTimeout(() => {
+        modalOverlay.classList.add('show');
+    }, 10);
+
+    console.log('✅ Centered modal displayed');
+
+    // Auto-dismiss success messages after 5 seconds
+    if (type === 'success' && dismissible) {
+        setTimeout(() => {
+            if (modalOverlay.parentNode) {
+                modalOverlay.classList.remove('show');
+                setTimeout(() => modalOverlay.remove(), 300);
+            }
+        }, 5000);
+    }
+
+    // Close on outside click
+    modalOverlay.addEventListener('click', (e) => {
+        if (e.target === modalOverlay && dismissible) {
+            modalOverlay.classList.remove('show');
+            setTimeout(() => modalOverlay.remove(), 300);
+        }
+    });
+
+    // Close on Escape key
+    if (dismissible) {
+        const handleEscape = (e) => {
+            if (e.key === 'Escape') {
+                modalOverlay.classList.remove('show');
+                setTimeout(() => {
+                    modalOverlay.remove();
+                    document.removeEventListener('keydown', handleEscape);
+                }, 300);
+            }
+        };
+        document.addEventListener('keydown', handleEscape);
+    }
+}
+
+/**
+ * Clear all messages from a modal
+ * @param {string} modalSelector - CSS selector for the modal
+ */
+function clearModalMessages(modalSelector) {
+    const modal = document.querySelector(modalSelector);
+    if (!modal) return;
+
+    const messages = modal.querySelectorAll('.modal-error-container');
+    messages.forEach(msg => msg.remove());
+}
 
 
 
@@ -8020,7 +9244,7 @@ async function loadFarmersData() {
 
         // Store farmers globally for search
         window.allFarmers = farmers;
-        
+
         displayFarmers(farmers);
 
     } catch (error) {
@@ -8147,158 +9371,293 @@ async function searchFarmers(query) {
 
 
 
-
-
-
-
 async function viewFarmerProducts(farmerId) {
     try {
-        console.log('Loading products for farmer:', farmerId);
+        console.log('=== VIEW FARMER PRODUCTS ===');
+        console.log('Farmer ID:', farmerId);
 
-        // Utiliser le nouvel endpoint pour récupérer les productions du farmer
-        const response = await apiCall(`${ENDPOINTS.cropProductions}/farmer/${farmerId}`);
+        showNotification('Loading farmer products...', 'info');
 
-        console.log('Farmer products response:', response);
+        const endpoint = `${API_BASE_URL}/v1/crop-productions/farmer/${farmerId}`;
+        const response = await apiCall(endpoint);
 
-        // Vérifier si la réponse contient des données
         let productions = [];
         if (response && response.data) {
-            productions = response.data; // Si la réponse a une structure {success, message, data}
+            productions = response.data;
         } else if (Array.isArray(response)) {
-            productions = response; // Si la réponse est directement un tableau
+            productions = response;
         } else if (response && response.content) {
-            productions = response.content; // Si pagination
+            productions = response.content;
         }
 
-        console.log('Processed productions:', productions);
+        console.log(`Total productions for farmer: ${productions.length}`);
 
-        if (!productions || productions.length === 0) {
-            showNotification('This farmer has no products available at the moment', 'info');
+        // ⭐ FILTER based on criteria
+        const validProductions = productions.filter(prod => {
+            const validation = validateProductCriteria(prod);
+            return validation.isValid;
+        });
+
+        console.log(`Valid products: ${validProductions.length}`);
+
+        if (validProductions.length === 0) {
+            const productsGrid = document.getElementById('productsGrid');
+            if (productsGrid) {
+                productsGrid.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1 / -1; text-align: center; padding: 4rem;">
+                        <div style="width: 120px; height: 120px; margin: 0 auto 2rem; background: linear-gradient(135deg, #fef3c7, #fde68a); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(245, 158, 11, 0.15);">
+                            <i class="fas fa-exclamation-triangle" style="font-size: 3.5rem; color: #f59e0b;"></i>
+                        </div>
+                        <h3 style="font-size: 1.8rem; color: var(--text-dark); margin-bottom: 1rem;">No Products Available for Purchase</h3>
+                        <div style="background: linear-gradient(135deg, #fffbeb, #fef3c7); border-radius: var(--radius-lg); padding: 1.5rem; margin: 2rem auto; max-width: 600px; border-left: 4px solid #f59e0b;">
+                            <h4 style="color: #d97706; margin-bottom: 1rem; font-size: 1.1rem;">
+                                <i class="fas fa-info-circle"></i> This farmer's products don't meet purchase criteria
+                            </h4>
+                            <ul style="text-align: left; color: var(--text-dark); padding-left: 1.5rem; line-height: 1.8;">
+                                <li>✅ Required status: <strong>PLANTED, GROWING, or HARVESTED</strong></li>
+                                <li>✅ Required quantity: <strong>greater than 0 kg</strong></li>
+                                <li>❌ Excluded status: <strong>PLANNED, SOLD, DAMAGED, CANCELLED</strong></li>
+                            </ul>
+                        </div>
+                        <button class="btn btn-primary" onclick="loadMarketplaceData()" style="padding: 1rem 2rem; font-size: 1.1rem; margin-top: 1rem;">
+                            <i class="fas fa-store"></i> Browse All Products
+                        </button>
+                    </div>
+                `;
+            }
+            showNotification('This farmer has no products available for purchase', 'info');
+
+            // Navigate to marketplace
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            const marketplaceSection = document.getElementById('marketplace');
+            if (marketplaceSection) {
+                marketplaceSection.classList.add('active');
+            }
             return;
         }
 
-        // Afficher les produits dans le marketplace
-        displayFarmerProducts(productions, farmerId);
+        // Load crops and farmers for enrichment
+        const cropsResponse = await apiCall(`${API_BASE_URL}/v1/crops/all`);
+        const crops = extractDataFromResponse(cropsResponse);
 
-        // Aller à la section marketplace
-        setActiveSection('marketplace');
+        const farmersResponse = await apiCall(`${API_BASE_URL}/users/farmers`);
+        const farmers = extractDataFromResponse(farmersResponse);
 
-        showNotification(`Showing ${productions.length} products from this farmer`, 'success');
+        const cropsMap = {};
+        crops.forEach(crop => {
+            if (crop.id) cropsMap[crop.id] = crop;
+        });
+
+        const farmersMap = {};
+        farmers.forEach(farmer => {
+            if (farmer.id) farmersMap[farmer.id] = farmer;
+        });
+
+        // Enrich valid productions
+        const enrichedProductions = validProductions.map(prod => {
+            const crop = cropsMap[prod.cropId];
+            const farmer = farmersMap[prod.farmerId];
+
+            return {
+                id: prod.id,
+                productionCode: prod.productionCode,
+                cropId: prod.cropId,
+                cropName: crop?.cropName || prod.cropName || 'Unknown Crop',
+                cropType: crop?.cropType || prod.cropType || 'Unknown',
+                cropImageUrl: crop?.imageUrl || prod.cropImageUrl,
+                cropDescription: crop?.description || prod.notes,
+                cropVariety: crop?.variety || prod.seedVariety,
+                farmerId: prod.farmerId,
+                farmerName: farmer?.fullName || farmer?.username || 'Contact Support',
+                farmerFullName: farmer?.fullName || farmer?.username,
+                farmerEmail: farmer?.email,
+                farmerPhone: farmer?.phoneNumber,
+                farmId: prod.farmId,
+                availableQuantity: prod.expectedYield || prod.actualYield || 0,
+                pricePerKg: prod.pricePerKg || prod.estimatedPrice || prod.marketPrice || 0,
+                expectedHarvestDate: prod.expectedHarvestDate,
+                actualHarvestDate: prod.actualHarvestDate,
+                plantingDate: prod.plantingDate,
+                location: prod.location || 'Rwanda',
+                productionStatus: prod.productionStatus,
+                productionMethod: prod.productionMethod,
+                qualityGrade: prod.qualityGrade || 'STANDARD',
+                isOrganic: prod.productionMethod?.includes('ORGANIC'),
+                certification: prod.certification,
+                unit: 'Kg',
+                currency: 'RWF',
+                type: 'crop_production',
+                productionId: prod.id
+            };
+        });
+
+        displayMarketplaceProducts(enrichedProductions);
+
+        // Navigate to marketplace
+        document.querySelectorAll('.content-section').forEach(section => {
+            section.classList.remove('active');
+        });
+        const marketplaceSection = document.getElementById('marketplace');
+        if (marketplaceSection) {
+            marketplaceSection.classList.add('active');
+        }
+
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.classList.remove('active');
+            if (item.dataset.section === 'marketplace') {
+                item.classList.add('active');
+            }
+        });
+
+        showNotification(`${enrichedProductions.length} products available from this farmer`, 'success');
 
     } catch (error) {
         console.error('Error loading farmer products:', error);
-        showNotification('Failed to load farmer products. Please try again.', 'error');
+        showNotification('Error loading products: ' + error.message, 'error');
     }
 }
 
-// Nouvelle fonction pour afficher les produits d'un farmer spécifique
+
+
+
 function displayFarmerProducts(productions, farmerId) {
+    console.log('=== DISPLAY FARMER PRODUCTS CALLED ===');
+    console.log('Productions to display:', productions.length);
+    console.log('Farmer ID:', farmerId);
+
     const productsGrid = document.getElementById('productsGrid');
-    if (!productsGrid) return;
+    if (!productsGrid) {
+        console.error('❌ productsGrid element not found!');
+        return;
+    }
 
     if (!productions || productions.length === 0) {
+        console.warn('⚠️ No productions to display');
         productsGrid.innerHTML = `
-            <div class="empty-state">
+            <div class="empty-state" style="grid-column: 1 / -1;">
                 <i class="fas fa-inbox"></i>
-                <p>No products available from this farmer</p>
-                <button class="btn btn-primary" onclick="loadMarketplaceData()">
-                    Browse All Products
+                <p>Aucun produit disponible pour ce fermier</p>
+                <button class="btn btn-primary" onclick="console.log('Loading all marketplace'); loadMarketplaceData()">
+                    Parcourir tous les produits
                 </button>
             </div>
         `;
         return;
     }
 
-    // Ajouter un en-tête pour indiquer qu'on voit les produits d'un farmer spécifique
-    const farmerHeader = document.createElement('div');
-    farmerHeader.className = 'farmer-products-header';
-    farmerHeader.style.gridColumn = '1 / -1';
-    farmerHeader.style.textAlign = 'center';
-    farmerHeader.style.padding = 'var(--spacing-lg)';
-    farmerHeader.style.backgroundColor = 'var(--primary-light)';
-    farmerHeader.style.borderRadius = 'var(--radius-lg)';
-    farmerHeader.style.marginBottom = 'var(--spacing-lg)';
+    // ✅ OBTENIR LE NOM DU FERMIER
+    const farmerName = productions[0]?.farmerName || 'ce fermier';
+    console.log('Farmer name:', farmerName);
 
-    farmerHeader.innerHTML = `
-        <h3>Products from ${productions[0]?.farmerName || 'This Farmer'}</h3>
-        <p>Showing ${productions.length} available products</p>
-        <button class="btn btn-secondary btn-sm" onclick="loadMarketplaceData()">
-            <i class="fas fa-store"></i>
-            View All Products
-        </button>
-    `;
-
-    productsGrid.innerHTML = '';
-    productsGrid.appendChild(farmerHeader);
-
-    // Afficher les produits
-    productsGrid.innerHTML += productions.map(production => `
-        <div class="product-card">
-            <div class="product-image">
-                ${production.cropImageUrl ?
-                    `<img src="${production.cropImageUrl}" alt="${production.cropName}"
-                         onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjZWNmMGYxIi8+CjxwYXRoIGQ9Ik03NSA1MEgxMjVWMTUwSDc1VjUwWiIgZmlsbD0iIzJlY2M3MSIvPgo8Y2lyY2xlIGN4PSIxMDAiIGN5PSI3NSIgcj0iMTUiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPg=='">` :
-                    `<div class="product-placeholder">
-                        <i class="fas fa-seedling"></i>
-                        <span>No Image</span>
-                     </div>`
-                }
-                ${production.isOrganic ? '<span class="product-badge organic">Organic</span>' : ''}
-                ${production.productionStatus === 'HARVESTED' ? '<span class="product-badge ready">Ready</span>' : ''}
+    // ✅ CRÉER L'EN-TÊTE
+    const headerHTML = `
+        <div class="farmer-products-header" style="grid-column: 1 / -1; text-align: center; padding: var(--spacing-lg); background: linear-gradient(135deg, #dcfce7, #bbf7d0); border-radius: var(--radius-lg); margin-bottom: var(--spacing-lg); border: 2px solid var(--success-color);">
+            <div style="display: inline-flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                <div style="width: 60px; height: 60px; background: var(--success-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem; font-weight: 700; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
+                    ${farmerName.charAt(0).toUpperCase()}
+                </div>
+                <div style="text-align: left;">
+                    <h3 style="margin: 0; color: var(--success-color); font-size: 1.5rem;">
+                        <i class="fas fa-user-circle"></i> Produits de ${farmerName}
+                    </h3>
+                    <p style="margin: 0.25rem 0 0 0; color: var(--text-dark); font-size: 0.95rem;">
+                        <i class="fas fa-box"></i> ${productions.length} produit(s) disponible(s)
+                    </p>
+                </div>
             </div>
-            <div class="product-info">
-                <div class="product-category">${production.cropType || 'Agriculture'}</div>
-                <h3 class="product-name">${production.cropName || 'Unknown Crop'}</h3>
-                <p class="product-farmer">
-                    <i class="fas fa-user"></i>
-                    ${production.farmerName || 'Unknown Farmer'}
-                </p>
-
-                <div class="product-details">
-                    <div class="detail-item">
-                        <i class="fas fa-weight"></i>
-                        <span>${production.expectedYield || 0} kg available</span>
-                    </div>
-                    <div class="detail-item">
-                        <i class="fas fa-map-marker-alt"></i>
-                        <span>${production.location || 'Location not specified'}</span>
-                    </div>
-                    <div class="detail-item">
-                        <i class="fas fa-calendar"></i>
-                        <span>Harvest: ${formatDate(production.expectedHarvestDate)}</span>
-                    </div>
-                </div>
-
-                <div class="product-quality">
-                    <span class="quality-badge ${getQualityClass(production)}">
-                        ${getQualityText(production)}
-                    </span>
-                    <span class="production-method">
-                        ${production.productionMethod || 'Traditional'}
-                    </span>
-                </div>
-
-                <div class="product-footer">
-                    <div class="product-price">
-                        <span class="price-value">${formatCurrency(production.estimatedPrice || 0)}</span>
-                        <span class="price-unit">/kg</span>
-                    </div>
-                    <div class="product-actions">
-                        <button class="btn btn-secondary btn-sm" onclick="viewProductDetails('${production.id}')">
-                            <i class="fas fa-info-circle"></i>
-                            Details
-                        </button>
-                        <button class="btn btn-primary btn-sm" onclick="addToCart('${production.id}')"
-                                ${(production.expectedYield || 0) <= 0 ? 'disabled' : ''}>
-                            <i class="fas fa-shopping-cart"></i>
-                            ${(production.expectedYield || 0) <= 0 ? 'Out of Stock' : 'Add to Cart'}
-                        </button>
-                    </div>
-                </div>
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                <button class="btn btn-primary btn-sm" onclick="console.log('Contacting farmer'); contactFarmer('${farmerId}')" style="padding: 0.75rem 1.5rem;">
+                    <i class="fas fa-envelope"></i> Contacter ce fermier
+                </button>
+                <button class="btn btn-secondary btn-sm" onclick="console.log('Loading all marketplace'); loadMarketplaceData();" style="padding: 0.75rem 1.5rem;">
+                    <i class="fas fa-store"></i> Voir tous les produits
+                </button>
             </div>
         </div>
-    `).join('');
+    `;
+
+    // ✅ CRÉER LES CARTES DE PRODUITS
+    const productsHTML = productions.map((production, index) => {
+        console.log(`Creating card for product ${index}:`, {
+            id: production.id,
+            cropName: production.cropName,
+            farmerName: production.farmerName,
+            farmId: production.farmId
+        });
+
+        return `
+            <div class="product-card" style="border: 2px solid var(--success-color); position: relative; overflow: visible;">
+                <!-- Badge "Produit du fermier" -->
+                <div style="position: absolute; top: -10px; right: -10px; z-index: 10; background: linear-gradient(135deg, var(--success-color), var(--primary-dark)); color: white; padding: 0.5rem 1rem; border-radius: 20px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
+                    <i class="fas fa-check-circle"></i> ${farmerName}
+                </div>
+
+                <div class="product-image">
+                    ${production.cropImageUrl ?
+                        `<img src="${production.cropImageUrl}" alt="${production.cropName}"
+                             onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjZWNmMGYxIi8+CjxwYXRoIGQ9Ik03NSA1MEgxMjVWMTUwSDc1VjUwWiIgZmlsbD0iIzJlY2M3MSIvPgo8Y2lyY2xlIGN4PSIxMDAiIGN5PSI3NSIgcj0iMTUiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPg==';">` :
+                        `<div class="product-placeholder">
+                            <i class="fas fa-seedling"></i>
+                            <span>Pas d'image</span>
+                         </div>`
+                    }
+                    ${production.isOrganic ? '<span class="product-badge organic">Bio</span>' : ''}
+                    ${production.productionStatus === 'HARVESTED' ? '<span class="product-badge ready">Prêt</span>' : ''}
+                </div>
+                <div class="product-info">
+                    <div class="product-category">${production.cropType || 'Agriculture'}</div>
+                    <h3 class="product-name">${production.cropName || 'Culture inconnue'}</h3>
+
+                    <div class="product-details">
+                        <div class="detail-item">
+                            <i class="fas fa-weight"></i>
+                            <span>${production.expectedYield || production.actualYield || 0} kg disponible</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>${production.location || 'Lieu non spécifié'}</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-calendar"></i>
+                            <span>Récolte: ${formatDate(production.expectedHarvestDate || production.actualHarvestDate)}</span>
+                        </div>
+                    </div>
+
+                    <div class="product-footer">
+                        <div class="product-price">
+                            <span class="price-value">${formatCurrency(production.estimatedPrice || production.pricePerKg || 0)}</span>
+                            <span class="price-unit">/kg</span>
+                        </div>
+                        <div class="product-actions">
+                            <button class="btn btn-secondary btn-sm" onclick="viewProductDetails('${production.id}')">
+                                <i class="fas fa-info-circle"></i>
+                                Détails
+                            </button>
+                            <button class="btn btn-primary btn-sm" onclick="addToCart('${production.id}')"
+                                    ${(production.expectedYield || production.actualYield || 0) <= 0 ? 'disabled' : ''}>
+                                <i class="fas fa-shopping-cart"></i>
+                                ${(production.expectedYield || production.actualYield || 0) <= 0 ? 'Épuisé' : 'Ajouter'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    // ✅ INJECTER LE HTML
+    console.log('Setting productsGrid.innerHTML');
+    productsGrid.innerHTML = headerHTML + productsHTML;
+    console.log('✅ Products displayed successfully');
 }
+
+
+
+
+
+
 
 // Fonctions utilitaires pour la qualité
 function getQualityClass(production) {
@@ -9763,122 +11122,349 @@ function generateQualityReportContent(doc, order, qualityScore, scorePercentage,
 }
 
 
+
+// ⭐ COMPLETELY REDESIGNED viewProductDetails FUNCTION
 async function viewProductDetails(productId) {
-    console.log('=== VIEW PRODUCT DETAILS CALLED ===');
-    console.log('Input value:', productId);
-    console.log('Input type:', typeof productId);
+    console.log('=== VIEW PRODUCT DETAILS ===');
+    console.log('Product ID:', productId);
 
     try {
         showNotification('Loading product details...', 'info');
 
-        let productData = null;
-        let searchStrategy = '';
+        // Fetch product/production details
+        let product = null;
+        let productType = null;
 
-        // STRATEGY 1: Check if it's a Market Price (starts with MP)
+        // Try as Market Price first
         if (productId.startsWith('MP')) {
             try {
-                console.log('Strategy 1: Searching in market prices...');
-                const marketPricesResponse = await apiCall(`${API_BASE_URL}/market-prices`);
-                const marketPrices = extractDataFromResponse(marketPricesResponse);
-
-                productData = marketPrices.find(mp => mp.id === productId);
-
-                if (productData) {
-                    searchStrategy = 'market_price';
-                    console.log('✓ Found in market prices');
-
-                    // Enrich with crop data
-                    if (productData.cropId) {
-                        try {
-                            const cropResponse = await apiCall(`${ENDPOINTS.crops}/${productData.cropId}`);
-                            const crop = cropResponse.data || cropResponse;
-                            productData.cropDetails = crop;
-                            console.log('✓ Crop details loaded');
-                        } catch (error) {
-                            console.warn('Could not load crop details:', error);
-                        }
-                    }
-
-                    // Show market price details
-                    showMarketPriceDetailsModal(productData);
-                    return;
-                }
+                const marketPriceResponse = await apiCall(`${API_BASE_URL}/market-prices/${productId}`);
+                product = marketPriceResponse.data || marketPriceResponse;
+                productType = 'market_price';
             } catch (error) {
-                console.error('Strategy 1 failed:', error);
+                console.warn('Not a market price:', error);
             }
         }
 
-        // STRATEGY 2: Search in active crop productions
-        try {
-            console.log('Strategy 2: Searching in active productions...');
-            const allProductionsResponse = await apiCall(ENDPOINTS.cropProductionsActive);
-            const allProductions = extractDataFromResponse(allProductionsResponse);
-
-            productData = allProductions.find(p =>
-                p.id === productId ||
-                p.productionCode === productId
-            );
-
-            if (productData) {
-                searchStrategy = 'crop_production';
-                console.log('✓ Found in crop productions');
-
-                // Fetch crop details
-                let crop = null;
-                if (productData.cropId) {
-                    try {
-                        const cropResponse = await apiCall(`${ENDPOINTS.crops}/${productData.cropId}`);
-                        crop = cropResponse.data || cropResponse;
-                    } catch (error) {
-                        console.warn('Could not load crop details:', error);
-                    }
-                }
-
-                showProductDetailsModal(productData, crop);
+        // Try as Crop Production
+        if (!product) {
+            try {
+                const productionResponse = await apiCall(`${API_BASE_URL}/v1/crop-productions/${productId}`);
+                product = productionResponse.data || productionResponse;
+                productType = 'crop_production';
+            } catch (error) {
+                console.error('Product not found:', error);
+                showNotification('Product not found', 'error');
                 return;
             }
-        } catch (error) {
-            console.error('Strategy 2 failed:', error);
         }
 
-        // STRATEGY 3: Try direct crop production lookup
-        try {
-            console.log('Strategy 3: Direct crop production lookup...');
-            const response = await apiCall(`${ENDPOINTS.cropProductions}/${productId}`);
-            productData = response.data || response;
-
-            if (productData) {
-                searchStrategy = 'direct_crop_production';
-                console.log('✓ Direct crop production lookup successful');
-
-                // Fetch crop details
-                let crop = null;
-                if (productData.cropId) {
-                    try {
-                        const cropResponse = await apiCall(`${ENDPOINTS.crops}/${productData.cropId}`);
-                        crop = cropResponse.data || cropResponse;
-                    } catch (error) {
-                        console.warn('Could not load crop details:', error);
-                    }
-                }
-
-                showProductDetailsModal(productData, crop);
-                return;
+        // Enrich with crop details if needed
+        if (product.cropId && !product.cropName) {
+            try {
+                const cropResponse = await apiCall(`${API_BASE_URL}/v1/crops/${product.cropId}`);
+                const crop = cropResponse.data || cropResponse;
+                product.cropName = crop.cropName || crop.name || 'Unknown Crop';
+                product.cropImageUrl = crop.imageUrl || product.cropImageUrl;
+                product.cropType = crop.cropType || product.cropType;
+                product.cropDescription = crop.description || product.notes;
+            } catch (error) {
+                console.warn('Could not load crop details:', error);
             }
-        } catch (error) {
-            console.log('✗ Direct crop production lookup failed:', error.message);
         }
 
-        // If still not found
-        console.error('=== PRODUCT NOT FOUND ===');
-        console.error('Search value:', productId);
-        showNotification('Product not found. It may have been removed or is no longer available.', 'error');
+        // Enrich with farmer details if needed
+        if (product.farmerId && !product.farmerName) {
+            try {
+                const farmerResponse = await apiCall(`${API_BASE_URL}/users/${product.farmerId}`);
+                const farmer = farmerResponse.data || farmerResponse;
+                product.farmerName = farmer.fullName || farmer.username || 'Unknown Farmer';
+                product.farmerPhone = farmer.phoneNumber;
+                product.farmerEmail = farmer.email;
+            } catch (error) {
+                console.warn('Could not load farmer details:', error);
+            }
+        }
+
+        showProductDetailsModal(product, productType);
 
     } catch (error) {
-        console.error('=== CRITICAL ERROR ===', error);
-        showNotification('Failed to load product details. Please try again.', 'error');
+        console.error('Error viewing product details:', error);
+        showNotification('Failed to load product details: ' + error.message, 'error');
     }
 }
+
+
+
+
+
+
+// ⭐ BEAUTIFUL PRODUCT DETAILS MODAL - FIXED DESIGN
+function showProductDetailsModal(product, productType) {
+    // Remove existing modals
+    document.querySelectorAll('.modal').forEach(m => m.remove());
+
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+
+    const harvestDate = product.actualHarvestDate || product.expectedHarvestDate;
+    const harvestLabel = product.actualHarvestDate ? 'Harvested' : 'Expected Harvest';
+    const availableQty = product.expectedYield || product.actualYield || product.availableQuantity || 0;
+    const price = product.pricePerKg || product.estimatedPrice || product.price || 0;
+    const statusBadge = getProductStatusBadge(product.productionStatus || product.status);
+
+    modal.innerHTML = `
+        <div class="modal-content" style="max-width: 1000px; max-height: 95vh; overflow: hidden; border-radius: var(--radius-xl); box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);">
+
+            <!-- MODAL HEADER -->
+            <div style="background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 2rem; position: relative; overflow: hidden;">
+                <!-- Background decorations -->
+                <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: rgba(255, 255, 255, 0.1); border-radius: 50%; filter: blur(40px);"></div>
+                <div style="position: absolute; bottom: -30px; left: -30px; width: 150px; height: 150px; background: rgba(255, 255, 255, 0.08); border-radius: 50%; filter: blur(30px);"></div>
+
+                <div style="position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div style="flex: 1;">
+                        <div style="display: inline-block; background: rgba(255, 255, 255, 0.25); backdrop-filter: blur(10px); padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.75rem;">
+                            ${product.cropType || 'Agricultural Product'}
+                        </div>
+                        <h2 style="margin: 0; font-size: 2rem; font-weight: 800; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); line-height: 1.2;">
+                            ${product.cropName || 'Product Details'}
+                        </h2>
+                        ${product.cropVariety ? `
+                            <p style="margin: 0.5rem 0 0 0; opacity: 0.95; font-size: 1rem;">
+                                Variety: ${product.cropVariety}
+                            </p>
+                        ` : ''}
+                    </div>
+                    <button onclick="this.closest('.modal').remove()"
+                            style="background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; transition: all 0.2s; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); flex-shrink: 0; margin-left: 1rem;"
+                            onmouseover="this.style.background='rgba(255, 255, 255, 0.3)'"
+                            onmouseout="this.style.background='rgba(255, 255, 255, 0.2)'">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- MODAL BODY -->
+            <div style="max-height: calc(95vh - 200px); overflow-y: auto; padding: 0;">
+
+                <!-- MAIN CONTENT GRID -->
+                <div style="display: grid; grid-template-columns: 400px 1fr; gap: 0; min-height: 500px;">
+
+                    <!-- LEFT COLUMN - IMAGE & DESCRIPTION -->
+                    <div style="background: linear-gradient(135deg, #f9fafb, #f3f4f6); padding: 2rem; border-right: 1px solid #e5e7eb;">
+                        <!-- Product Image -->
+                        <div style="position: relative; width: 100%; height: 300px; background: white; border-radius: var(--radius-lg); overflow: hidden; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08); margin-bottom: 1.5rem;">
+                            ${product.cropImageUrl ? `
+                                <img src="${product.cropImageUrl}"
+                                     alt="${product.cropName}"
+                                     style="width: 100%; height: 100%; object-fit: cover;"
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center; flex-direction: column; background: linear-gradient(135deg, #f0fdf4, #dcfce7);">
+                                    <i class="fas fa-seedling" style="font-size: 4rem; color: var(--primary-color); margin-bottom: 1rem; opacity: 0.3;"></i>
+                                    <span style="color: var(--text-light); font-weight: 600; font-size: 0.95rem;">No Image Available</span>
+                                </div>
+                            ` : `
+                                <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; flex-direction: column; background: linear-gradient(135deg, #f0fdf4, #dcfce7);">
+                                    <i class="fas fa-seedling" style="font-size: 4rem; color: var(--primary-color); margin-bottom: 1rem; opacity: 0.3;"></i>
+                                    <span style="color: var(--text-light); font-weight: 600; font-size: 0.95rem;">No Image Available</span>
+                                </div>
+                            `}
+
+                            <!-- Status Badges -->
+                            <div style="position: absolute; top: 1rem; left: 1rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                                ${statusBadge}
+                                ${product.isOrganic || product.productionMethod?.includes('ORGANIC') ? `
+                                    <div style="background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 0.4rem 0.8rem; border-radius: 15px; font-size: 0.7rem; font-weight: 700; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3); display: flex; align-items: center; gap: 0.4rem;">
+                                        <i class="fas fa-leaf"></i> ORGANIC
+                                    </div>
+                                ` : ''}
+                                ${product.certification ? `
+                                    <div style="background: linear-gradient(135deg, #3b82f6, #1e40af); color: white; padding: 0.4rem 0.8rem; border-radius: 15px; font-size: 0.7rem; font-weight: 700; box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3); display: flex; align-items: center; gap: 0.4rem;">
+                                        <i class="fas fa-certificate"></i> CERTIFIED
+                                    </div>
+                                ` : ''}
+                                ${product.qualityGrade && product.qualityGrade !== 'STANDARD' ? `
+                                    <div style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 0.4rem 0.8rem; border-radius: 15px; font-size: 0.7rem; font-weight: 700; box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3); display: flex; align-items: center; gap: 0.4rem;">
+                                        <i class="fas fa-award"></i> ${product.qualityGrade}
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        ${product.cropDescription || product.notes ? `
+                            <div style="background: white; border-radius: var(--radius-lg); padding: 1.25rem; border-left: 4px solid var(--primary-color); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
+                                <h4 style="margin: 0 0 0.75rem 0; color: var(--text-dark); font-size: 1rem; display: flex; align-items: center; gap: 0.5rem; font-weight: 700;">
+                                    <i class="fas fa-info-circle" style="color: var(--primary-color);"></i>
+                                    Description
+                                </h4>
+                                <p style="margin: 0; color: var(--text-dark); line-height: 1.6; font-size: 0.9rem;">
+                                    ${product.cropDescription || product.notes || 'No description available'}
+                                </p>
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    <!-- RIGHT COLUMN - DETAILS -->
+                    <div style="padding: 2rem; background: white;">
+
+                        <!-- Price Card -->
+                        <div style="background: linear-gradient(135deg, #10b981, #059669); border-radius: var(--radius-lg); padding: 1.75rem; margin-bottom: 1.5rem; box-shadow: 0 8px 24px rgba(16, 185, 129, 0.25); position: relative; overflow: hidden;">
+                            <div style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(255, 255, 255, 0.1); border-radius: 50%; filter: blur(25px);"></div>
+                            <div style="position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <div style="color: rgba(255, 255, 255, 0.9); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; font-weight: 600;">
+                                        Price per Kilogram
+                                    </div>
+                                    <div style="color: white; font-size: 2.5rem; font-weight: 900; line-height: 1;">
+                                        ${formatCurrency(price)}
+                                    </div>
+                                    <div style="color: rgba(255, 255, 255, 0.9); font-size: 0.85rem; margin-top: 0.25rem;">
+                                        per kg
+                                    </div>
+                                </div>
+                                <div style="width: 70px; height: 70px; background: rgba(255, 255, 255, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px);">
+                                    <i class="fas fa-tag" style="font-size: 2rem; color: white;"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Farmer Information -->
+                        <div style="background: linear-gradient(135deg, #f0fdf4, #dcfce7); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1.5rem; border: 2px solid #10b981;">
+                            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                                <div style="width: 50px; height: 50px; border-radius: 50%; background: var(--success-color); display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 1.3rem; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); flex-shrink: 0;">
+                                    ${(product.farmerName || 'F').charAt(0).toUpperCase()}
+                                </div>
+                                <div style="flex: 1; min-width: 0;">
+                                    <div style="font-size: 0.7rem; color: var(--success-color); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; margin-bottom: 0.25rem;">
+                                        <i class="fas fa-user"></i> Farmer
+                                    </div>
+                                    <div style="font-weight: 800; color: var(--text-dark); font-size: 1.1rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                        ${product.farmerName || 'Contact Support'}
+                                    </div>
+                                </div>
+                            </div>
+                            ${product.farmerPhone || product.farmerEmail ? `
+                                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                    ${product.farmerPhone ? `
+                                        <div style="display: flex; align-items: center; gap: 0.75rem; padding: 0.65rem 1rem; background: white; border-radius: var(--radius-md); font-size: 0.85rem;">
+                                            <i class="fas fa-phone" style="color: var(--success-color); width: 16px;"></i>
+                                            <span style="color: var(--text-dark); font-weight: 600;">${product.farmerPhone}</span>
+                                        </div>
+                                    ` : ''}
+                                    ${product.farmerEmail ? `
+                                        <div style="display: flex; align-items: center; gap: 0.75rem; padding: 0.65rem 1rem; background: white; border-radius: var(--radius-md); font-size: 0.85rem;">
+                                            <i class="fas fa-envelope" style="color: var(--success-color); width: 16px;"></i>
+                                            <span style="color: var(--text-dark); font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${product.farmerEmail}</span>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            ` : ''}
+                        </div>
+
+                        <!-- Product Details Grid -->
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+                            ${[
+                                { icon: 'weight', color: '#10b981', label: 'Available', value: `${availableQty} kg` },
+                                { icon: 'map-marker-alt', color: '#f59e0b', label: 'Location', value: product.location || 'Rwanda' },
+                                { icon: 'calendar', color: '#3b82f6', label: harvestLabel, value: harvestDate ? formatDate(harvestDate) : 'Not set' },
+                                { icon: 'leaf', color: '#10b981', label: 'Method', value: product.productionMethod || 'CONVENTIONAL' }
+                            ].map(item => `
+                                <div style="background: #f9fafb; border-radius: var(--radius-md); padding: 1.15rem; border: 1px solid #e5e7eb; transition: all 0.2s;" onmouseover="this.style.borderColor='${item.color}'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.08)'" onmouseout="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none'">
+                                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                        <div style="width: 40px; height: 40px; background: white; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                                            <i class="fas fa-${item.icon}" style="color: ${item.color}; font-size: 1.2rem;"></i>
+                                        </div>
+                                        <div style="flex: 1; min-width: 0;">
+                                            <div style="font-size: 0.7rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.25rem; font-weight: 600;">${item.label}</div>
+                                            <div style="font-weight: 700; color: var(--text-dark); font-size: 0.95rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${item.value}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- MODAL FOOTER -->
+            <div style="background: linear-gradient(to top, #f9fafb, #ffffff); padding: 1.5rem 2rem; border-top: 1px solid #e5e7eb; display: flex; gap: 1rem; justify-content: flex-end; align-items: center;">
+                <button onclick="this.closest('.modal').remove()"
+                        style="background: white; color: var(--text-dark); border: 2px solid #e5e7eb; padding: 0.85rem 1.75rem; border-radius: var(--radius-md); font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 0.5rem;"
+                        onmouseover="this.style.borderColor='var(--text-dark)'; this.style.background='#f9fafb'"
+                        onmouseout="this.style.borderColor='#e5e7eb'; this.style.background='white'">
+                    <i class="fas fa-times"></i>
+                    <span>Close</span>
+                </button>
+                ${availableQty > 0 ? `
+                    <button onclick="addToCart('${product.id}'); this.closest('.modal').remove();"
+                            style="background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 0.85rem 2.25rem; border-radius: var(--radius-md); font-weight: 700; font-size: 1rem; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); display: flex; align-items: center; gap: 0.65rem;"
+                            onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(16, 185, 129, 0.4)'"
+                            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(16, 185, 129, 0.3)'">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span>Add to Cart</span>
+                    </button>
+                ` : `
+                    <button disabled
+                            style="background: #9ca3af; color: white; border: none; padding: 0.85rem 2.25rem; border-radius: var(--radius-md); font-weight: 700; font-size: 1rem; cursor: not-allowed; opacity: 0.6; display: flex; align-items: center; gap: 0.65rem;">
+                        <i class="fas fa-times-circle"></i>
+                        <span>Out of Stock</span>
+                    </button>
+                `}
+            </div>
+
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+    setTimeout(() => modal.classList.add('show'), 10);
+
+    // Close handlers
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.remove();
+    });
+
+    const handleEscape = (e) => {
+        if (e.key === 'Escape') {
+            modal.remove();
+            document.removeEventListener('keydown', handleEscape);
+        }
+    };
+    document.addEventListener('keydown', handleEscape);
+}
+
+// Helper function for product status badge
+function getProductStatusBadge(status) {
+    const statusConfig = {
+        'GROWING': { color: '#3b82f6', icon: 'seedling', label: 'GROWING' },
+        'PLANNED': { color: '#6366f1', icon: 'calendar', label: 'PLANNED' },
+        'HARVESTED': { color: '#10b981', icon: 'check-circle', label: 'HARVESTED' },
+        'READY': { color: '#10b981', icon: 'check-circle', label: 'READY' },
+        'SOLD': { color: '#8b5cf6', icon: 'handshake', label: 'SOLD' }
+    };
+
+    const config = statusConfig[status] || statusConfig['GROWING'];
+
+    return `
+        <div style="background: ${config.color}; color: white; padding: 0.4rem 0.8rem; border-radius: 15px; font-size: 0.7rem; font-weight: 700; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); display: flex; align-items: center; gap: 0.4rem;">
+            <i class="fas fa-${config.icon}"></i> ${config.label}
+        </div>
+    `;
+}
+
+// Make function globally available
+window.viewProductDetails = viewProductDetails;
+window.showProductDetailsModal = showProductDetailsModal;
+window.getProductStatusBadge = getProductStatusBadge;
+
+console.log('✅ Beautiful product details modal loaded with fixed design');
+
+
+
+
 
 
 
@@ -9944,239 +11530,6 @@ async function getCurrentMarketplaceProducts() {
     }
 }
 
-function showMarketPriceDetailsModal(marketPrice) {
-    const modal = document.createElement('div');
-    modal.className = 'modal';
-
-    // Extract data safely with fallbacks
-    const cropName = marketPrice.cropDetails?.cropName || marketPrice.cropName || 'Unknown Crop';
-    const cropDescription = marketPrice.cropDetails?.description || marketPrice.notes || 'Market price information';
-    const cropImageUrl = marketPrice.cropDetails?.imageUrl || marketPrice.cropImageUrl || null;
-    const cropType = marketPrice.cropDetails?.cropType || marketPrice.cropType || 'N/A';
-    const price = marketPrice.pricePerKg || marketPrice.price || 0;
-    const location = marketPrice.location || 'Location not specified';
-    const marketName = marketPrice.marketName || 'Local Market';
-    const marketType = marketPrice.marketType || 'RETAIL';
-    const priceDate = marketPrice.priceDate || new Date();
-    const demandLevel = marketPrice.demandLevel || 'MEDIUM';
-    const supplyLevel = marketPrice.supplyLevel || 'MEDIUM';
-    const priceTrend = marketPrice.priceTrend || 'STABLE';
-    const availableQuantity = marketPrice.availableQuantity || 0;
-    const reliabilityScore = marketPrice.reliabilityScore || 3;
-
-    // Determine trend badge
-    let trendBadge = '';
-    let trendClass = '';
-    if (priceTrend === 'INCREASING') {
-        trendBadge = 'Price Rising ↗';
-        trendClass = 'status-organic';
-    } else if (priceTrend === 'DECREASING') {
-        trendBadge = 'Price Falling ↘';
-        trendClass = 'status-certified';
-    } else {
-        trendBadge = 'Price Stable →';
-        trendClass = 'status-growing';
-    }
-
-    // Determine reliability badge
-    let reliabilityBadge = '';
-    if (reliabilityScore >= 4) {
-        reliabilityBadge = 'High Reliability ★★★★★';
-    } else if (reliabilityScore >= 3) {
-        reliabilityBadge = 'Good Reliability ★★★★';
-    } else {
-        reliabilityBadge = 'Fair Reliability ★★★';
-    }
-
-    modal.innerHTML = `
-        <div class="modal-content large">
-            <div class="modal-header">
-                <h2>${cropName} - Market Price</h2>
-                <button class="modal-close" onclick="this.closest('.modal').remove()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-
-            <div class="modal-body">
-                <div class="product-details-grid">
-                    <!-- Image Section -->
-                    <div class="product-image-section">
-                        ${cropImageUrl ?
-                            `<img src="${cropImageUrl}" alt="${cropName}"
-                                  onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjZWNmMGYxIi8+CjxwYXRoIGQ9Ik03NSA1MEgxMjVWMTUwSDc1VjUwWiIgZmlsbD0iIzJlY2M3MSIvPgo8Y2lyY2xlIGN4PSIxMDAiIGN5PSI3NSIgcj0iMTUiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPg==';">` :
-                            `<div class="product-placeholder-large">
-                                <i class="fas fa-chart-line"></i>
-                                <span>Market Price Data</span>
-                             </div>`
-                        }
-                        <div style="margin-top: 1rem; text-align: center;">
-                            <span class="status-badge ${trendClass}">${trendBadge}</span>
-                            <span class="status-badge status-harvested" style="margin-left: 0.5rem;">${reliabilityBadge}</span>
-                        </div>
-                    </div>
-
-                    <!-- Info Section -->
-                    <div class="product-info-section">
-                        <h3 style="margin-bottom: 1rem; color: var(--text-dark);">Market Information</h3>
-                        <p class="product-description" style="color: var(--text-light); margin-bottom: 1.5rem; line-height: 1.6;">
-                            Current market pricing information for ${cropName} based on recent market data.
-                        </p>
-
-                        <div class="info-grid">
-                            <!-- Price Information -->
-                            <div class="info-item">
-                                <span class="label">
-                                    <i class="fas fa-dollar-sign"></i> Current Price:
-                                </span>
-                                <span class="value price-highlight">${formatCurrency(price)}/kg</span>
-                            </div>
-
-                            <div class="info-item">
-                                <span class="label">
-                                    <i class="fas fa-store"></i> Market:
-                                </span>
-                                <span class="value">${marketName}</span>
-                            </div>
-
-                            <!-- Location & Availability -->
-                            <div class="info-item">
-                                <span class="label">
-                                    <i class="fas fa-map-marker-alt"></i> Location:
-                                </span>
-                                <span class="value">${location}</span>
-                            </div>
-
-                            <div class="info-item">
-                                <span class="label">
-                                    <i class="fas fa-box"></i> Estimated Supply:
-                                </span>
-                                <span class="value">${availableQuantity} kg</span>
-                            </div>
-
-                            <!-- Market Conditions -->
-                            <div class="info-item">
-                                <span class="label">
-                                    <i class="fas fa-chart-line"></i> Market Type:
-                                </span>
-                                <span class="value">${marketType}</span>
-                            </div>
-
-                            <div class="info-item">
-                                <span class="label">
-                                    <i class="fas fa-tag"></i> Category:
-                                </span>
-                                <span class="value">${cropType}</span>
-                            </div>
-
-                            <div class="info-item">
-                                <span class="label">
-                                    <i class="fas fa-fire"></i> Demand Level:
-                                </span>
-                                <span class="value" style="color: ${
-                                    demandLevel === 'HIGH' ? 'var(--danger-color)' :
-                                    demandLevel === 'MEDIUM' ? 'var(--warning-color)' : 'var(--success-color)'
-                                }">${demandLevel}</span>
-                            </div>
-
-                            <div class="info-item">
-                                <span class="label">
-                                    <i class="fas fa-warehouse"></i> Supply Level:
-                                </span>
-                                <span class="value" style="color: ${
-                                    supplyLevel === 'HIGH' ? 'var(--success-color)' :
-                                    supplyLevel === 'MEDIUM' ? 'var(--warning-color)' : 'var(--danger-color)'
-                                }">${supplyLevel}</span>
-                            </div>
-
-                            <!-- Additional Info -->
-                            <div class="info-item">
-                                <span class="label">
-                                    <i class="fas fa-calendar"></i> Price Date:
-                                </span>
-                                <span class="value">${formatDate(priceDate)}</span>
-                            </div>
-
-                            <div class="info-item">
-                                <span class="label">
-                                    <i class="fas fa-database"></i> Data Source:
-                                </span>
-                                <span class="value">${marketPrice.dataSource || 'Market Data'}</span>
-                            </div>
-                        </div>
-
-                        <!-- Market Insights -->
-                        <div class="nutritional-info">
-                            <h4>
-                                <i class="fas fa-lightbulb"></i> Market Insights
-                            </h4>
-                            <p style="color: var(--text-dark); line-height: 1.6; margin: 0;">
-                                ${getMarketInsights(demandLevel, supplyLevel, priceTrend)}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">
-                    <i class="fas fa-times"></i> Close
-                </button>
-                ${availableQuantity > 0 ? `
-                    <button class="btn btn-primary" onclick="addMarketPriceToCart('${marketPrice.id}', ${price}); this.closest('.modal').remove(); showNotification('Product added to cart!', 'success');">
-                        <i class="fas fa-shopping-cart"></i> Add to Cart - ${formatCurrency(price)}
-                    </button>
-                ` : `
-                    <button class="btn btn-secondary" disabled>
-                        <i class="fas fa-ban"></i> Limited Availability
-                    </button>
-                `}
-            </div>
-        </div>
-    `;
-
-    // Add modal to page
-    document.body.appendChild(modal);
-
-    // Show modal with animation
-    setTimeout(() => modal.classList.add('show'), 10);
-
-    // Close modal when clicking outside
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            modal.remove();
-        }
-    });
-
-    // Close modal with Escape key
-    const closeModal = (e) => {
-        if (e.key === 'Escape') {
-            modal.remove();
-            document.removeEventListener('keydown', closeModal);
-        }
-    };
-    document.addEventListener('keydown', closeModal);
-}
-
-// Helper function for market insights
-function getMarketInsights(demandLevel, supplyLevel, priceTrend) {
-    const insights = [];
-
-    if (demandLevel === 'HIGH' && supplyLevel === 'LOW') {
-        insights.push('High demand with limited supply suggests favorable selling conditions.');
-    } else if (demandLevel === 'LOW' && supplyLevel === 'HIGH') {
-        insights.push('Low demand with abundant supply may indicate buying opportunities.');
-    }
-
-    if (priceTrend === 'INCREASING') {
-        insights.push('Prices are trending upward, consider purchasing soon.');
-    } else if (priceTrend === 'DECREASING') {
-        insights.push('Prices are trending downward, you may get better deals.');
-    } else {
-        insights.push('Prices are stable, good time for planned purchases.');
-    }
-
-    return insights.join(' ');
-}
 
 
 
@@ -10187,223 +11540,13 @@ function getMarketInsights(demandLevel, supplyLevel, priceTrend) {
 
 
 
-function showProductDetailsModal(production, crop) {
-    // Create modal element
-    const modal = document.createElement('div');
-    modal.className = 'modal';
 
-    // Extract data safely with fallbacks
-    const cropName = crop?.cropName || production.cropName || 'Unknown Crop';
-    const cropDescription = crop?.description || production.notes || 'No description available';
-    const cropImageUrl = crop?.imageUrl || production.cropImageUrl || null;
-    const cropType = crop?.cropType || production.cropType || 'N/A';
-    const variety = crop?.variety || production.seedVariety || 'N/A';
-    const availableQuantity = production.expectedYield || production.actualYield || 0;
-    const price = production.estimatedPrice || production.marketPrice || 0;
-    const harvestDate = production.expectedHarvestDate || production.actualHarvestDate || new Date();
-    const location = production.location || 'Location not specified';
-    const farmerName = production.farmerName || 'Unknown Farmer';
-    const productionMethod = production.productionMethod || 'N/A';
-    const productionStatus = production.productionStatus || 'N/A';
-    const certification = production.certification || 'None';
-    const areaPlanted = production.areaPlanted || 0;
-    const isOrganic = production.isOrganic || productionMethod?.includes('ORGANIC');
-    const isCertified = production.certification && production.certification !== 'None';
 
-    // Determine status badge
-    let statusBadge = '';
-    let statusClass = '';
-    if (isOrganic) {
-        statusBadge = 'Organic';
-        statusClass = 'status-organic';
-    } else if (isCertified) {
-        statusBadge = 'Certified';
-        statusClass = 'status-certified';
-    } else if (productionStatus === 'HARVESTED') {
-        statusBadge = 'Harvested';
-        statusClass = 'status-harvested';
-    } else {
-        statusBadge = 'Growing';
-        statusClass = 'status-growing';
-    }
 
-    modal.innerHTML = `
-        <div class="modal-content large">
-            <div class="modal-header">
-                <h2>${cropName}</h2>
-                <button class="modal-close" onclick="this.closest('.modal').remove()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
 
-            <div class="modal-body">
-                <div class="product-details-grid">
-                    <!-- Image Section -->
-                    <div class="product-image-section">
-                        ${cropImageUrl ?
-                            `<img src="${cropImageUrl}" alt="${cropName}"
-                                  onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjZWNmMGYxIi8+CjxwYXRoIGQ9Ik03NSA1MEgxMjVWMTUwSDc1VjUwWiIgZmlsbD0iIzJlY2M3MSIvPgo8Y2lyY2xlIGN4PSIxMDAiIGN5PSI3NSIgcj0iMTUiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPg==';">` :
-                            `<div class="product-placeholder-large">
-                                <i class="fas fa-seedling"></i>
-                                <span>No Image Available</span>
-                             </div>`
-                        }
-                        <div style="margin-top: 1rem; text-align: center;">
-                            <span class="status-badge ${statusClass}">${statusBadge}</span>
-                        </div>
-                    </div>
 
-                    <!-- Info Section -->
-                    <div class="product-info-section">
-                        <h3 style="margin-bottom: 1rem; color: var(--text-dark);">Product Details</h3>
-                        <p class="product-description" style="color: var(--text-light); margin-bottom: 1.5rem; line-height: 1.6;">
-                            ${cropDescription}
-                        </p>
 
-                        <div class="info-grid">
-                            <!-- Basic Information -->
-                            <div class="info-item">
-                                <span class="label">
-                                    <i class="fas fa-tag"></i> Category:
-                                </span>
-                                <span class="value">${cropType}</span>
-                            </div>
 
-                            <div class="info-item">
-                                <span class="label">
-                                    <i class="fas fa-seedling"></i> Variety:
-                                </span>
-                                <span class="value">${variety}</span>
-                            </div>
-
-                            <!-- Availability & Pricing -->
-                            <div class="info-item">
-                                <span class="label">
-                                    <i class="fas fa-box"></i> Available:
-                                </span>
-                                <span class="value" style="color: ${availableQuantity > 0 ? 'var(--success-color)' : 'var(--danger-color)'}">
-                                    ${availableQuantity} kg
-                                </span>
-                            </div>
-
-                            <div class="info-item">
-                                <span class="label">
-                                    <i class="fas fa-dollar-sign"></i> Price:
-                                </span>
-                                <span class="value price-highlight">${formatCurrency(price)}/kg</span>
-                            </div>
-
-                            <!-- Dates -->
-                            <div class="info-item">
-                                <span class="label">
-                                    <i class="fas fa-calendar"></i> Harvest Date:
-                                </span>
-                                <span class="value">${formatDate(harvestDate)}</span>
-                            </div>
-
-                            <!-- Location & Farmer -->
-                            <div class="info-item">
-                                <span class="label">
-                                    <i class="fas fa-map-marker-alt"></i> Location:
-                                </span>
-                                <span class="value">${location}</span>
-                            </div>
-
-                            <div class="info-item">
-                                <span class="label">
-                                    <i class="fas fa-user"></i> Farmer:
-                                </span>
-                                <span class="value">${farmerName}</span>
-                            </div>
-
-                            <!-- Production Details -->
-                            <div class="info-item">
-                                <span class="label">
-                                    <i class="fas fa-cogs"></i> Method:
-                                </span>
-                                <span class="value">${productionMethod}</span>
-                            </div>
-
-                            <div class="info-item">
-                                <span class="label">
-                                    <i class="fas fa-certificate"></i> Certification:
-                                </span>
-                                <span class="value">${certification}</span>
-                            </div>
-
-                            <!-- Additional Info -->
-                            <div class="info-item">
-                                <span class="label">
-                                    <i class="fas fa-chart-area"></i> Area Planted:
-                                </span>
-                                <span class="value">${areaPlanted} hectares</span>
-                            </div>
-
-                            <div class="info-item">
-                                <span class="label">
-                                    <i class="fas fa-info-circle"></i> Status:
-                                </span>
-                                <span class="value">${productionStatus}</span>
-                            </div>
-                        </div>
-
-                        <!-- Nutritional Information -->
-                        ${crop?.nutritionalInfo ? `
-                            <div class="nutritional-info">
-                                <h4>
-                                    <i class="fas fa-heartbeat"></i> Nutritional Information
-                                </h4>
-                                <p style="color: var(--text-dark); line-height: 1.6; margin: 0;">
-                                    ${crop.nutritionalInfo}
-                                </p>
-                            </div>
-                        ` : ''}
-                    </div>
-                </div>
-            </div>
-
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">
-                    <i class="fas fa-times"></i> Close
-                </button>
-                ${availableQuantity > 0 ? `
-                    <button class="btn btn-primary" onclick="addToCart('${production.id}'); this.closest('.modal').remove(); showNotification('Product added to cart!', 'success');">
-                        <i class="fas fa-shopping-cart"></i> Add to Cart - ${formatCurrency(price)}
-                    </button>
-                ` : `
-                    <button class="btn btn-secondary" disabled>
-                        <i class="fas fa-ban"></i> Out of Stock
-                    </button>
-                `}
-            </div>
-        </div>
-    `;
-
-    // Add modal to page
-    document.body.appendChild(modal);
-
-    // Show modal with animation
-    setTimeout(() => modal.classList.add('show'), 10);
-
-    // Close modal when clicking outside
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            modal.remove();
-        }
-    });
-
-    // Close modal with Escape key
-    const closeModal = (e) => {
-        if (e.key === 'Escape') {
-            modal.remove();
-            document.removeEventListener('keydown', closeModal);
-        }
-    };
-    document.addEventListener('keydown', closeModal);
-}
-
-// Make function globally available
-window.viewProductDetails = viewProductDetails;
 
 
 // Add this CSS to your <style> section

@@ -506,13 +506,15 @@ public class InventoryController {
     // ==================== PRIVATE MAPPING METHODS ====================
 
 
+// ==================== DANS InventoryController.java ====================
+// REMPLACER la méthode mapToDTO par celle-ci:
 
     private InventoryDTO mapToDTO(Inventory inventory) {
         InventoryDTO dto = new InventoryDTO();
         dto.setId(inventory.getId());
         dto.setInventoryCode(inventory.getInventoryCode());
         dto.setCropId(inventory.getCropId());
-        dto.setFarmerId(inventory.getFarmerUserId()); // CHANGÉ
+        dto.setFarmerId(inventory.getFarmerUserId());
         dto.setFacilityType(inventory.getFacilityType());
         dto.setStorageLocation(inventory.getStorageLocation());
         dto.setCurrentQuantity(inventory.getCurrentQuantity());
@@ -520,6 +522,13 @@ public class InventoryController {
         dto.setQualityGrade(inventory.getQualityGrade());
         dto.setStatus(inventory.getStatus());
         dto.setTotalMarketValue(inventory.getTotalMarketValue());
+
+        // ⭐ AJOUTER CES 4 LIGNES:
+        dto.setStorageDate(inventory.getStorageDate());
+        dto.setExpiryDate(inventory.getExpiryDate());
+        dto.setOrganicCertified(inventory.getOrganicCertified());
+        dto.setFairTradeCertified(inventory.getFairTradeCertified());
+
         dto.setCreatedDate(inventory.getCreatedDate());
         dto.setLastUpdated(inventory.getLastUpdated());
         return dto;

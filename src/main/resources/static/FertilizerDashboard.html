@@ -264,6 +264,7 @@
             height: 80px;
             box-shadow: var(--shadow);
             backdrop-filter: blur(10px);
+            z-index: 9999; /* Ajouté */
         }
 
         .header-left {
@@ -365,117 +366,323 @@
             transform: translateY(-2px);
         }
 
-        .notification-btn {
-            background: none;
-            border: none;
-            color: var(--text-primary);
-            font-size: 20px;
-            cursor: pointer;
-            position: relative;
-            padding: 12px;
-            border-radius: 12px;
-            transition: all 0.3s ease;
-        }
 
-        .notification-btn:hover {
-            background: var(--hover-bg);
-            color: var(--primary-green);
-        }
 
-        .notification-badge {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            background: var(--error-color);
-            color: white;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            font-size: 11px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            animation: bounce 1s infinite;
-        }
 
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-            40% { transform: translateY(-5px); }
-            60% { transform: translateY(-3px); }
-        }
 
-        .notification-dropdown {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            margin-top: 10px;
-            width: 350px;
-            max-height: 400px;
-            overflow-y: auto;
-            background: var(--card-bg);
-            border-radius: 12px;
-            box-shadow: var(--shadow-lg);
-            border: 1px solid var(--border-color);
-            display: none;
-            z-index: 1000;
-        }
 
-        .notification-dropdown.show {
-            display: block;
-            animation: slideDown 0.3s ease;
-        }
 
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+/* Notification Dropdown Styles - REMPLACER COMPLÈTEMENT */
+.notification-btn {
+    position: relative;
+    cursor: pointer;
+}
 
-        .notification-header {
-            padding: 16px;
-            border-bottom: 1px solid var(--border-color);
-            font-weight: 600;
-            color: var(--text-primary);
-        }
+.header-right {
+    position: relative;
+}
 
-        .notification-item {
-            padding: 12px 16px;
-            border-bottom: 1px solid var(--border-color);
-            cursor: pointer;
-            transition: background 0.2s ease;
-        }
+.notification-dropdown {
+    position: fixed;
+    top: 70px;
+    right: 20px;
+    width: 400px;
+    max-height: 600px;
+    background: var(--card-bg);
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    z-index: 10000;
+    display: none;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+}
 
-        .notification-item:hover {
-            background: var(--hover-bg);
-        }
+.notification-dropdown.show {
+    display: block;
+    animation: slideDown 0.3s ease;
+}
 
-        .notification-item.unread {
-            background: rgba(34, 197, 94, 0.05);
-        }
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 
-        .notification-title {
-            font-weight: 600;
-            color: var(--text-primary);
-            font-size: 14px;
-            margin-bottom: 4px;
-        }
+.notification-dropdown-header {
+    padding: 18px 20px;
+    border-bottom: 2px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+    color: white;
+}
 
-        .notification-message {
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-bottom: 4px;
-        }
+.notification-dropdown-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
 
-        .notification-time {
-            font-size: 11px;
-            color: var(--text-secondary);
-        }
+.notification-dropdown-header h3 i {
+    font-size: 16px;
+}
+
+.mark-all-read-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 6px 12px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.mark-all-read-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+}
+
+.notification-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.notification-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.notification-list::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+}
+
+.notification-list::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 3px;
+}
+
+.notification-list::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
+}
+
+.notification-empty {
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--text-secondary);
+}
+
+.notification-empty i {
+    font-size: 48px;
+    margin-bottom: 12px;
+    opacity: 0.3;
+}
+
+.notification-empty p {
+    margin: 0;
+    font-size: 14px;
+}
+
+.notification-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    background: var(--card-bg);
+}
+
+.notification-item:hover {
+    background: var(--hover-bg);
+    transform: translateX(4px);
+}
+
+.notification-item:active {
+    transform: translateX(2px);
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.notification-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+
+.notification-success .notification-icon {
+    background: rgba(34, 197, 94, 0.1);
+    color: var(--success-color);
+}
+
+.notification-info .notification-icon {
+    background: rgba(59, 130, 246, 0.1);
+    color: var(--info-color);
+}
+
+.notification-danger .notification-icon {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--error-color);
+}
+
+.notification-warning .notification-icon {
+    background: rgba(245, 158, 11, 0.1);
+    color: var(--warning-color);
+}
+
+.notification-default .notification-icon {
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+}
+
+.notification-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.notification-message {
+    margin: 0 0 4px 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1.4;
+    word-wrap: break-word;
+}
+
+.notification-time {
+    font-size: 12px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 4px;
+}
+
+.notification-time i {
+    font-size: 10px;
+}
+
+.notification-mark-read {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    opacity: 0;
+    margin-left: 8px;
+}
+
+.notification-item:hover .notification-mark-read {
+    opacity: 1;
+}
+
+.notification-mark-read:hover {
+    background: var(--hover-bg);
+    color: var(--primary-green);
+}
+
+.notification-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #ef4444;
+    color: white;
+    border-radius: 12px;
+    padding: 3px 7px;
+    font-size: 11px;
+    font-weight: 700;
+    min-width: 22px;
+    height: 22px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--card-bg);
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+}
+
+.dark-mode .notification-dropdown {
+    background: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+.dark-mode .notification-dropdown-header {
+    background: var(--bg-secondary);
+}
+
+.dark-mode .notification-item:hover {
+    background: var(--hover-bg);
+}
+
+@media (max-width: 768px) {
+    .notification-dropdown {
+        width: calc(100vw - 40px);
+        right: 20px;
+        left: 20px;
+        max-width: 400px;
+    }
+}
+
+/* Animation for new notifications */
+@keyframes notificationSlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.notification-item {
+    animation: notificationSlideIn 0.3s ease;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         .profile-section {
             display: flex;
@@ -1176,6 +1383,12 @@
                 display: none;
             }
         }
+
+
+
+        --info-color: #3b82f6;
+--error-light: rgba(239, 68, 68, 0.1);
+--error: #ef4444;
     </style>
 </head>
 <body>
@@ -1196,6 +1409,11 @@
                 <div class="company-tagline">Smart Agriculture</div>
             </div>
         </div>
+
+
+
+
+
 
         <nav class="sidebar-nav">
             <div class="nav-section">
@@ -1237,13 +1455,17 @@
                             <span>Analysis</span>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="AllSystemReports.html">
+                            <i class="fas fa-file-chart-line"></i>
+                            <span>All System Reports</span>
+                        </a>
+                    </li>
                 </ul>
             </div>
 
-
-
             <div class="nav-section">
-                <h3 class="nav-section-title">Quick Links</h3>
+                <h3 class="nav-section-title">Dashboards</h3>
                 <ul class="nav-menu">
                     <li class="nav-item">
                         <a class="nav-link" href="CropDashboard.html">
@@ -1265,7 +1487,7 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="adminDashboard.html">
-                            <i class="fas fa-flask"></i>
+                            <i class="fas fa-user-shield"></i>
                             <span>Users Dashboard</span>
                         </a>
                     </li>
@@ -1282,16 +1504,57 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="WheatherDashboard.html">
+                            <i class="fas fa-cloud-sun"></i>
+                            <span>Weather Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="ProductPrediction.html">
                             <i class="fas fa-brain"></i>
                             <span>Product Prediction</span>
                         </a>
                     </li>
-
+                    <li class="nav-item">
+                        <a class="nav-link" href="TransactionDashboard.html">
+                            <i class="fas fa-exchange-alt"></i>
+                            <span>Transactions</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="MarketPriceDashboard.html">
+                            <i class="fas fa-dollar-sign"></i>
+                            <span>Market Prices</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="SupplyChain.html">
+                            <i class="fas fa-truck"></i>
+                            <span>Supply Chain</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="Soil.html">
+                            <i class="fas fa-mountain"></i>
+                            <span>Soil Data</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="FoodAlertDashboard.html">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span>Food Security Alerts</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="ResourceRecommendation.html">
+                            <i class="fas fa-lightbulb"></i>
+                            <span>Resource Recommendations</span>
+                        </a>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link" href="WhatsApp.html">
                             <i class="fab fa-whatsapp"></i>
-                            <span>WhatsApp</span>
+                            <span>Chat</span>
                         </a>
                     </li>
                 </ul>
@@ -1316,21 +1579,45 @@
                 <i class="fas fa-search search-icon"></i>
             </div>
 
+
+
+
+
+
             <div class="header-right">
                 <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">
                     <i class="fas fa-moon"></i>
                     <span>Dark Mode</span>
                 </button>
-                <div style="position: relative;">
-                    <button class="notification-btn" onclick="toggleNotifications()">
-                        <i class="fas fa-bell"></i>
-                        <span class="notification-badge" id="notificationCount">0</span>
+
+
+
+
+
+                <!-- Notification Icon avec dropdown -->
+                <div class="notification-container" style="position: relative;">
+                    <button class="notification-btn" onclick="toggleNotifications()" style="background: none; border: none; cursor: pointer; position: relative; padding: 10px;">
+                        <i class="fas fa-bell" style="font-size: 20px; color: var(--text-primary);"></i>
+                        <span class="notification-badge" id="notificationBadge">0</span>
                     </button>
+
+                    <!-- Dropdown de notifications -->
                     <div class="notification-dropdown" id="notificationDropdown">
-                        <div class="notification-header">Notifications</div>
-                        <div id="notificationList"></div>
+                        <div class="notification-dropdown-header">
+                            <h3><i class="fas fa-bell"></i> Notifications</h3>
+                            <button class="mark-all-read-btn" onclick="markAllAsRead()">
+                                <i class="fas fa-check-double"></i> Mark all read
+                            </button>
+                        </div>
+                        <div class="notification-list" id="notificationList">
+                            <div class="notification-empty">
+                                <i class="fas fa-bell-slash"></i>
+                                <p>No notifications yet</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
+
                 <div class="profile-section">
                     <div class="profile-avatar">U</div>
                     <div class="profile-info">
@@ -1840,12 +2127,14 @@
 
 <script src="js/SessionTracker.js"></script>
 <script src="js/user_session_handler.js"></script>
+<script src="js/Notification.js"></script>
 <script>
     const API_BASE_URL = 'http://localhost:1010/api/fertilizer-usages';
     let allFertilizers = [];
     let charts = {};
     let currentEditingFertilizerId = null;
     let sessionHandler = null;
+
     let currentLoggedInUser = null;
 
     function initializeSessionHandler() {
@@ -1917,6 +2206,10 @@
             .join(' ');
     }
 
+
+
+
+
     function trackUserActivity() {
         if (!currentLoggedInUser || !window.sessionTracker) return;
         const userId = currentLoggedInUser.userId || currentLoggedInUser.id;
@@ -1975,30 +2268,44 @@
         setupAutoCalculation();
     });
 
-    async function initializeDashboard() {
-        if (!initializeSessionHandler()) {
-            return;
-        }
 
-        updateUIWithCurrentUser();
-        startSessionMonitoring();
 
-        showLoading(true);
-        try {
-            await Promise.all([
-                loadStatistics(),
-                loadAllFertilizers(),
-                loadNotifications()
-            ]);
-            initializeCharts();
-            calculatePredictions();
-        } catch (error) {
-            console.error('Error initializing dashboard:', error);
-            showToast('Error loading dashboard data', 'error');
-        } finally {
-            showLoading(false);
-        }
+
+
+async function initializeDashboard() {
+    // Initialiser et vérifier la session
+    if (!initializeSessionHandler()) {
+        return;
     }
+
+    // Mettre à jour l'UI avec les infos utilisateur
+    updateUIWithCurrentUser();
+
+    // Démarrer la surveillance de session
+    startSessionMonitoring();
+
+    showLoading(true);
+    try {
+        await Promise.all([
+            loadStatistics(),
+            loadAllFertilizers(),
+            loadNotifications(),
+            loadCropProductionsForDropdown()
+        ]);
+        initializeCharts();
+        calculatePredictions();
+    } catch (error) {
+        console.error('Error initializing dashboard:', error);
+        showToast('Error loading dashboard data', 'error');
+    } finally {
+        showLoading(false);
+    }
+}
+
+
+
+
+
 
     async function loadStatistics() {
         try {

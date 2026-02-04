@@ -38,7 +38,9 @@ public interface SupplyChainRepository extends JpaRepository<SupplyChain, String
 
     @Query("SELECT s FROM SupplyChain s WHERE s.cropProductionId = :cropProductionId ORDER BY s.stageOrder ASC")
     List<SupplyChain> findByCropProductionIdOrderByStageOrder(@Param("cropProductionId") String cropProductionId);
-
+    // Ajouter juste après la méthode existante findByCropProductionIdOrderByStageOrder
+    @Query("SELECT s FROM SupplyChain s WHERE s.cropProductionId = :cropProductionId ORDER BY s.stageOrder ASC")
+    List<SupplyChain> findByCropProductionIdOrderByStageOrderAsc(@Param("cropProductionId") String cropProductionId);
     @Query("SELECT s FROM SupplyChain s WHERE s.cropProductionId = :cropProductionId AND s.stageOrder = :stageOrder")
     Optional<SupplyChain> findByCropProductionIdAndStageOrder(
             @Param("cropProductionId") String cropProductionId,

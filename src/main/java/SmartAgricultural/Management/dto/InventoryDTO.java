@@ -105,6 +105,11 @@ public class InventoryDTO {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime lastUpdated;
 
+
+
+
+    private Boolean organicCertified;
+    private Boolean fairTradeCertified;
     // ==================== CONSTRUCTORS ====================
 
     public InventoryDTO() {
@@ -348,5 +353,21 @@ public class InventoryDTO {
     @Override
     public int hashCode() {
         return id != null ? id.hashCode() : 0;
+    }
+
+    public Boolean getOrganicCertified() {
+        return organicCertified;
+    }
+
+    public void setOrganicCertified(Boolean organicCertified) {
+        this.organicCertified = organicCertified;
+    }
+
+    public Boolean getFairTradeCertified() {
+        return fairTradeCertified;
+    }
+
+    public void setFairTradeCertified(Boolean fairTradeCertified) {
+        this.fairTradeCertified = fairTradeCertified;
     }
 }

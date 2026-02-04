@@ -261,6 +261,8 @@
             height: 80px;
             box-shadow: var(--shadow);
             backdrop-filter: blur(10px);
+
+            z-index: 9999; /* Ajouté */
         }
 
         .header-left {
@@ -362,39 +364,308 @@
             transform: translateY(-2px);
         }
 
-        .notification-btn {
-            background: none;
-            border: none;
-            color: var(--text-primary);
-            font-size: 20px;
-            cursor: pointer;
-            position: relative;
-            padding: 12px;
-            border-radius: 12px;
-            transition: all 0.3s ease;
-        }
 
-        .notification-btn:hover {
-            background: var(--hover-bg);
-            color: var(--primary-green);
-        }
 
-        .notification-badge {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            background: var(--error-color);
-            color: white;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            font-size: 11px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            animation: bounce 1s infinite;
-        }
+
+
+
+
+
+
+
+
+
+/* Notification Dropdown Styles - REMPLACER COMPLÈTEMENT */
+.notification-btn {
+    position: relative;
+    cursor: pointer;
+}
+
+.header-right {
+    position: relative;
+}
+
+.notification-dropdown {
+    position: fixed;
+    top: 70px;
+    right: 20px;
+    width: 400px;
+    max-height: 600px;
+    background: var(--card-bg);
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    z-index: 10000;
+    display: none;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+}
+
+.notification-dropdown.show {
+    display: block;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.notification-dropdown-header {
+    padding: 18px 20px;
+    border-bottom: 2px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+    color: white;
+}
+
+.notification-dropdown-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.notification-dropdown-header h3 i {
+    font-size: 16px;
+}
+
+.mark-all-read-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 6px 12px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.mark-all-read-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+}
+
+.notification-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.notification-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.notification-list::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+}
+
+.notification-list::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 3px;
+}
+
+.notification-list::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
+}
+
+.notification-empty {
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--text-secondary);
+}
+
+.notification-empty i {
+    font-size: 48px;
+    margin-bottom: 12px;
+    opacity: 0.3;
+}
+
+.notification-empty p {
+    margin: 0;
+    font-size: 14px;
+}
+
+.notification-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    background: var(--card-bg);
+}
+
+.notification-item:hover {
+    background: var(--hover-bg);
+    transform: translateX(4px);
+}
+
+.notification-item:active {
+    transform: translateX(2px);
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.notification-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+
+.notification-success .notification-icon {
+    background: rgba(34, 197, 94, 0.1);
+    color: var(--success-color);
+}
+
+.notification-info .notification-icon {
+    background: rgba(59, 130, 246, 0.1);
+    color: var(--info-color);
+}
+
+.notification-danger .notification-icon {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--error-color);
+}
+
+.notification-warning .notification-icon {
+    background: rgba(245, 158, 11, 0.1);
+    color: var(--warning-color);
+}
+
+.notification-default .notification-icon {
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+}
+
+.notification-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.notification-message {
+    margin: 0 0 4px 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1.4;
+    word-wrap: break-word;
+}
+
+.notification-time {
+    font-size: 12px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 4px;
+}
+
+.notification-time i {
+    font-size: 10px;
+}
+
+.notification-mark-read {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    opacity: 0;
+    margin-left: 8px;
+}
+
+.notification-item:hover .notification-mark-read {
+    opacity: 1;
+}
+
+.notification-mark-read:hover {
+    background: var(--hover-bg);
+    color: var(--primary-green);
+}
+
+.notification-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #ef4444;
+    color: white;
+    border-radius: 12px;
+    padding: 3px 7px;
+    font-size: 11px;
+    font-weight: 700;
+    min-width: 22px;
+    height: 22px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--card-bg);
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+}
+
+.dark-mode .notification-dropdown {
+    background: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+.dark-mode .notification-dropdown-header {
+    background: var(--bg-secondary);
+}
+
+.dark-mode .notification-item:hover {
+    background: var(--hover-bg);
+}
+
+@media (max-width: 768px) {
+    .notification-dropdown {
+        width: calc(100vw - 40px);
+        right: 20px;
+        left: 20px;
+        max-width: 400px;
+    }
+}
+
+/* Animation for new notifications */
+@keyframes notificationSlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.notification-item {
+    animation: notificationSlideIn 0.3s ease;
+}
+
+
 
         @keyframes bounce {
             0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
@@ -1790,6 +2061,13 @@
 <div class="toast-container" id="toastContainer"></div>
 
 <div class="dashboard-container">
+
+
+
+
+
+
+
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <div class="logo">
@@ -1800,7 +2078,6 @@
                 <div class="company-tagline">Soil Analysis</div>
             </div>
         </div>
-
 
         <nav class="sidebar-nav">
             <div class="nav-section">
@@ -1830,16 +2107,154 @@
                             <span>AI Predictions</span>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="adminDashboard.html">
+                            <i class="fas fa-users-cog"></i>
+                            <span>Admin Dashboard</span>
+                        </a>
+                    </li>
                 </ul>
             </div>
 
             <div class="nav-section">
-                <h3 class="nav-section-title">Reports</h3>
+                <h3 class="nav-section-title">Dashboards</h3>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a class="nav-link" href="CropDashboard.html">
+                            <i class="fas fa-seedling"></i>
+                            <span>Crop Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="CropProductionDashboard.html">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>Crop Production</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="FarmDashboard.html">
+                            <i class="fas fa-home"></i>
+                            <span>Farm Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="FertilizerDashboard.html">
+                            <i class="fas fa-flask"></i>
+                            <span>Fertilizer Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="InventoryDashboard.html">
+                            <i class="fas fa-boxes"></i>
+                            <span>Inventory Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="IrrigationDashboard.html">
+                            <i class="fas fa-tint"></i>
+                            <span>Irrigation Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="WheatherDashboard.html">
+                            <i class="fas fa-cloud-sun"></i>
+                            <span>Weather Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="ProductPrediction.html">
+                            <i class="fas fa-brain"></i>
+                            <span>Product Prediction</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="TransactionDashboard.html">
+                            <i class="fas fa-exchange-alt"></i>
+                            <span>Transactions</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="MarketPriceDashboard.html">
+                            <i class="fas fa-dollar-sign"></i>
+                            <span>Market Prices</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="SupplyChain.html">
+                            <i class="fas fa-truck"></i>
+                            <span>Supply Chain</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="Soil.html">
+                            <i class="fas fa-mountain"></i>
+                            <span>Soil Data</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="FoodAlertDashboard.html">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span>Food Security Alerts</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="ResourceRecommendation.html">
+                            <i class="fas fa-lightbulb"></i>
+                            <span>Resource Recommendations</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="WhatsApp.html">
+                            <i class="fab fa-whatsapp"></i>
+                            <span>Chat</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="nav-section">
+                <h3 class="nav-section-title">Analytics</h3>
                 <ul class="nav-menu">
                     <li class="nav-item">
                         <a class="nav-link" onclick="showSection('reports')">
                             <i class="fas fa-file-alt"></i>
-                            <span>Generate Reports</span>
+                            <span>Soil Reports</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="AllSystemReports.html">
+                            <i class="fas fa-file-chart-line"></i>
+                            <span>All System Reports</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="nav-section">
+                <h3 class="nav-section-title">Admin</h3>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a class="nav-link" href="adminDashboard.html?section=users">
+                            <i class="fas fa-users"></i>
+                            <span>User Management</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="adminDashboard.html?section=farmers">
+                            <i class="fas fa-tractor"></i>
+                            <span>Farmers</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="adminDashboard.html?section=buyers">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span>Buyers</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="adminDashboard.html?section=admins">
+                            <i class="fas fa-user-shield"></i>
+                            <span>Administrators</span>
                         </a>
                     </li>
                 </ul>
@@ -1869,10 +2284,34 @@
                     <i class="fas fa-moon"></i>
                     <span>Dark Mode</span>
                 </button>
-                <button class="notification-btn">
-                    <i class="fas fa-bell"></i>
-                    <span class="notification-badge" id="notificationCount">0</span>
-                </button>
+
+                <!-- Notification Icon avec dropdown -->
+                <div class="notification-container" style="position: relative;">
+                    <button class="notification-btn" onclick="toggleNotifications()" style="background: none; border: none; cursor: pointer; position: relative; padding: 10px;">
+                        <i class="fas fa-bell" style="font-size: 20px; color: var(--text-primary);"></i>
+                        <span class="notification-badge" id="notificationBadge">0</span>
+                    </button>
+
+                    <!-- Dropdown de notifications -->
+                    <div class="notification-dropdown" id="notificationDropdown">
+                        <div class="notification-dropdown-header">
+                            <h3><i class="fas fa-bell"></i> Notifications</h3>
+                            <button class="mark-all-read-btn" onclick="markAllAsRead()">
+                                <i class="fas fa-check-double"></i> Mark all read
+                            </button>
+                        </div>
+                        <div class="notification-list" id="notificationList">
+                            <div class="notification-empty">
+                                <i class="fas fa-bell-slash"></i>
+                                <p>No notifications yet</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+
                 <div class="profile-section">
                     <div class="profile-avatar">U</div>
                     <div class="profile-info">
@@ -2372,6 +2811,7 @@
 
 <script src="js/SessionTracker.js"></script>
 <script src="js/user_session_handler.js"></script>
+<script src="js/Notification.js"></script>
 <script >
     // Soil Data Dashboard JavaScript
   // API Configuration
@@ -2536,40 +2976,56 @@
   });
 
 
-  async function initializeDashboard() {
-      debugLog('Initializing dashboard...');
 
-      if (!initializeSessionHandler()) {
-          return;
-      }
 
-      updateUIWithCurrentUser();
-      startSessionMonitoring();
+async function initializeDashboard() {
+    debugLog('Initializing dashboard...');
 
-      showLoading(true);
-      try {
-          // Load farms FIRST before other data
-          await loadFarms();
+    if (!initializeSessionHandler()) {
+        return;
+    }
 
-          // Then load other data
-          await Promise.all([
-              loadStatistics(),
-              loadAllSoilData()
-          ]);
+    updateUIWithCurrentUser();
+    startSessionMonitoring();
 
-          initializeMap();
-          initializeCharts();
-          refreshAIAnalysis();
-          generateAIPredictions();
+    showLoading(true);
+    try {
+        // Load farms FIRST before other data
+        await loadFarms();
 
-          debugLog('Dashboard initialized successfully');
-      } catch (error) {
-          debugLog('Error initializing dashboard:', error);
-          showToast('Error loading dashboard data', 'error');
-      } finally {
-          showLoading(false);
-      }
-  }
+        // Then load other data - ne pas laisser loadStatistics bloquer
+        await Promise.allSettled([
+            loadStatistics(),
+            loadAllSoilData()
+        ]);
+
+        // Initialize UI components
+        initializeMap();
+        initializeCharts();
+
+        // Try AI analysis but don't let it block
+        try {
+            refreshAIAnalysis();
+        } catch (aiError) {
+            debugLog('AI Analysis failed (non-critical):', aiError);
+        }
+
+        try {
+            generateAIPredictions();
+        } catch (predError) {
+            debugLog('AI Predictions failed (non-critical):', predError);
+        }
+
+        debugLog('Dashboard initialized successfully');
+    } catch (error) {
+        debugLog('Error initializing dashboard:', error);
+        showToast('Error loading dashboard data', 'error');
+    } finally {
+        showLoading(false);
+    }
+}
+
+
 
 
   async function loadFarms() {
@@ -3141,32 +3597,54 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
-  // Load Statistics
-  async function loadStatistics() {
-      debugLog('Loading statistics...');
-      try {
-          const response = await fetch(`${SOIL_API_BASE_URL}/count`);
-          const totalSamples = await response.json();
 
-          document.getElementById('totalSamples').textContent = totalSamples || 0;
-          document.getElementById('notificationCount').textContent = totalSamples || 0;
 
-          if (allSoilData.length > 0) {
-              const avgPh = calculateAveragePh();
-              const lowNutrients = countLowNutrients();
-              const excellentQuality = countExcellentQuality();
+// Load Statistics
+async function loadStatistics() {
+    debugLog('Loading statistics...');
+    try {
+        const response = await fetch(`${SOIL_API_BASE_URL}/count`);
+        const totalSamples = await response.json();
 
-              document.getElementById('avgPh').textContent = avgPh.toFixed(1);
-              document.getElementById('lowNutrients').textContent = lowNutrients;
-              document.getElementById('excellentQuality').textContent = excellentQuality;
-          }
+        // Vérifier si les éléments existent avant de modifier textContent
+        const totalSamplesEl = document.getElementById('totalSamples');
+        const notificationCountEl = document.getElementById('notificationCount');
+        const avgPhEl = document.getElementById('avgPh');
+        const lowNutrientsEl = document.getElementById('lowNutrients');
+        const excellentQualityEl = document.getElementById('excellentQuality');
 
-          debugLog('Statistics loaded successfully');
-      } catch (error) {
-          debugLog('Error loading statistics:', error);
-          throw error;
-      }
-  }
+        if (totalSamplesEl) {
+            totalSamplesEl.textContent = totalSamples || 0;
+        }
+        if (notificationCountEl) {
+            notificationCountEl.textContent = totalSamples || 0;
+        }
+
+        if (allSoilData.length > 0) {
+            const avgPh = calculateAveragePh();
+            const lowNutrients = countLowNutrients();
+            const excellentQuality = countExcellentQuality();
+
+            if (avgPhEl) {
+                avgPhEl.textContent = avgPh.toFixed(1);
+            }
+            if (lowNutrientsEl) {
+                lowNutrientsEl.textContent = lowNutrients;
+            }
+            if (excellentQualityEl) {
+                excellentQualityEl.textContent = excellentQuality;
+            }
+        }
+
+        debugLog('Statistics loaded successfully');
+    } catch (error) {
+        debugLog('Error loading statistics:', error);
+        // Ne pas throw l'erreur pour permettre au dashboard de continuer à charger
+    }
+}
+
+
+
 
   // Load All Soil Data
   async function loadAllSoilData() {
@@ -4088,7 +4566,6 @@ function getLocationNameFromGPS(gpsString) {
 
 
 
-
 function refreshAIAnalysis() {
     debugLog('Refreshing AI Analysis...');
 
@@ -4152,10 +4629,28 @@ function refreshAIAnalysis() {
 
     if (targetFarmId) {
         debugLog('Initializing AI analysis for farm:', targetFarmId);
-        // Use setTimeout to ensure DOM is ready
-        setTimeout(() => {
-            initializeAIAnalysis(targetFarmId);
-        }, 100);
+        // Vérifier si window.initializeAIAnalysis existe
+        if (typeof window.initializeAIAnalysis === 'function') {
+            setTimeout(() => {
+                initializeAIAnalysis(targetFarmId);
+            }, 100);
+        } else {
+            console.warn('[AI ENGINE] initializeAIAnalysis function not available');
+            const container = document.getElementById('aiPredictionsContainer');
+            if (container) {
+                container.innerHTML = `
+                    <div class="ai-prediction-card" style="background: #fee2e2; border-left: 4px solid #dc2626;">
+                        <div class="prediction-title">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            AI Analysis Not Available
+                        </div>
+                        <div class="prediction-content">
+                            <p>AI analysis system is not loaded. Please refresh the page.</p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
     } else {
         debugLog('No valid farm ID found for AI analysis');
         const container = document.getElementById('aiPredictionsContainer');
@@ -4174,7 +4669,6 @@ function refreshAIAnalysis() {
         }
     }
 }
-
 
 
   function showAddSoilDataModal() {
@@ -4654,33 +5148,40 @@ function showSection(sectionName) {
       }
   }
 
-  function updateDateTime() {
-      const now = new Date();
 
-      const dateOptions = {
-          weekday: 'long',
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric'
-      };
 
-      const currentDateElement = document.getElementById('currentDate');
-      if (currentDateElement) {
-          currentDateElement.textContent = now.toLocaleDateString('en-US', dateOptions);
-      }
 
-      if (currentLoggedInUser) {
-          const greetingText = document.getElementById('greetingText');
-          if (greetingText) {
-              const hour = now.getHours();
-              let greeting = 'Good Morning';
-              if (hour >= 12 && hour < 18) greeting = 'Good Afternoon';
-              else if (hour >= 18) greeting = 'Good Evening';
+function updateDateTime() {
+    const now = new Date();
 
-              greetingText.textContent = `${greeting}, ${currentLoggedInUser.fullName}!`;
-          }
-      }
-  }
+    const dateOptions = {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    };
+
+    const currentDateElement = document.getElementById('currentDate');
+    if (currentDateElement) {
+        currentDateElement.textContent = now.toLocaleDateString('en-US', dateOptions);
+    }
+
+    if (currentLoggedInUser) {
+        const greetingText = document.getElementById('greetingText');
+        if (greetingText) {
+            const hour = now.getHours();
+            let greeting = 'Good Morning';
+            if (hour >= 12 && hour < 18) greeting = 'Good Afternoon';
+            else if (hour >= 18) greeting = 'Good Evening';
+
+            greetingText.textContent = `${greeting}, ${currentLoggedInUser.fullName}!`;
+        }
+    }
+}
+
+
+
+
 
   function showLoading(show) {
       document.getElementById('loadingOverlay').classList.toggle('show', show);

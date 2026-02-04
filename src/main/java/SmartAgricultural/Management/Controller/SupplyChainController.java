@@ -300,36 +300,93 @@ public class SupplyChainController {
         }
     }
 
+
+    // FIXED completeStage method - Replace the existing one in your SupplyChainController.java
+
     @PostMapping("/{id}/complete")
-    public ResponseEntity<SupplyChain> completeStage(
+    public ResponseEntity<?> completeStage(
             @PathVariable String id,
             @RequestBody Map<String, Object> completionData) {
         try {
+            // Log the incoming data for debugging
+            System.out.println("🔍 Completing stage: " + id);
+            System.out.println("🔍 Completion data received: " + completionData);
+
+            // Parse the data
             BigDecimal quantityOut = null;
             String handlingNotes = null;
             QualityStatus qualityStatus = null;
 
             if (completionData.containsKey("quantityOut")) {
-                quantityOut = new BigDecimal(completionData.get("quantityOut").toString());
+                Object qtyOutObj = completionData.get("quantityOut");
+                System.out.println("🔍 quantityOut type: " + qtyOutObj.getClass().getName());
+                System.out.println("🔍 quantityOut value: " + qtyOutObj);
+
+                if (qtyOutObj instanceof Number) {
+                    quantityOut = new BigDecimal(qtyOutObj.toString());
+                } else {
+                    quantityOut = new BigDecimal(qtyOutObj.toString());
+                }
             }
+
             if (completionData.containsKey("handlingNotes")) {
                 handlingNotes = completionData.get("handlingNotes").toString();
             }
+
             if (completionData.containsKey("qualityStatus")) {
-                qualityStatus = QualityStatus.valueOf(completionData.get("qualityStatus").toString());
+                try {
+                    qualityStatus = QualityStatus.valueOf(completionData.get("qualityStatus").toString());
+                } catch (IllegalArgumentException e) {
+                    Map<String, String> error = new HashMap<>();
+                    error.put("error", "Validation Error");
+                    error.put("message", "Invalid quality status: " + completionData.get("qualityStatus"));
+                    System.out.println("❌ Invalid quality status");
+                    return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+                }
             }
 
+            System.out.println("🔍 Parsed values:");
+            System.out.println("  - quantityOut: " + quantityOut);
+            System.out.println("  - handlingNotes: " + handlingNotes);
+            System.out.println("  - qualityStatus: " + qualityStatus);
+
+            // Call the service method
             SupplyChain completed = supplyChainService.completeStage(id, quantityOut, handlingNotes, qualityStatus);
+
+            System.out.println("✅ Stage completed successfully");
             return new ResponseEntity<>(completed, HttpStatus.OK);
+
         } catch (ResourceNotFoundException e) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            System.out.println("❌ Stage not found: " + e.getMessage());
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Resource Not Found");
+            error.put("message", e.getMessage());
+            return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+
         } catch (ValidationException e) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            System.out.println("❌ Validation error: " + e.getMessage());
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Validation Error");
+            error.put("message", e.getMessage());
+            return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+
+        } catch (IllegalArgumentException e) {
+            System.out.println("❌ Illegal argument: " + e.getMessage());
+            e.printStackTrace();
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Validation Error");
+            error.put("message", e.getMessage());
+            return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            System.out.println("❌ Unexpected error: " + e.getMessage());
+            e.printStackTrace();
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Internal Server Error");
+            error.put("message", "An error occurred: " + e.getMessage());
+            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
     @PostMapping("/crop-production/{cropProductionId}/next-stage")
     public ResponseEntity<SupplyChain> createNextStage(
             @PathVariable @NotBlank String cropProductionId,
@@ -455,13 +512,33 @@ public class SupplyChainController {
     }
 
     // Tracking operations
+// Remplacer la méthode trackByCode existante par celle-ci
     @GetMapping("/track/{trackingCode}")
-    public ResponseEntity<SupplyChain> trackByCode(@PathVariable @NotBlank String trackingCode) {
+    public ResponseEntity<?> trackByCode(@PathVariable @NotBlank String trackingCode) {
         try {
-            SupplyChain stage = supplyChainService.findByTrackingCode(trackingCode);
-            return new ResponseEntity<>(stage, HttpStatus.OK);
+            Map<String, Object> trackingInfo = supplyChainService.getCompleteTrackingInfo(trackingCode);
+            return new ResponseEntity<>(trackingInfo, HttpStatus.OK);
         } catch (ResourceNotFoundException e) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Tracking code not found");
+            error.put("message", e.getMessage());
+            return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    // Ajouter cette nouvelle méthode
+    @GetMapping("/track/crop-production/{cropProductionId}")
+    public ResponseEntity<?> trackCropProductionJourney(@PathVariable @NotBlank String cropProductionId) {
+        try {
+            Map<String, Object> journey = supplyChainService.getCompleteJourney(cropProductionId);
+            return new ResponseEntity<>(journey, HttpStatus.OK);
+        } catch (ResourceNotFoundException e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Crop production not found");
+            error.put("message", e.getMessage());
+            return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }

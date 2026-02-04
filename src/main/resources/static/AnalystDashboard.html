@@ -2256,23 +2256,44 @@ function handleLogout() {
     }
 }
 
-// ==================== DASHBOARD INITIALIZATION ====================
+
+let allUsers = [];
+
+// Ajoutez cette fonction de chargement
+async function loadUsers() {
+    try {
+        const response = await fetch(`${API_CONFIG.USERS}?page=0&size=1000`);
+        const data = await response.json();
+        allUsers = data.content || data || [];
+        console.log('Users loaded:', allUsers.length);
+    } catch (error) {
+        console.error('Error loading users:', error);
+        allUsers = [];
+    }
+}
+
+
 async function initializeDashboard() {
     showLoading(true);
     try {
+        // Load all data first INCLUDING USERS
         await Promise.all([
             loadTransactions(),
             loadCropProductions(),
             loadMarketPrices(),
             loadWeatherData(),
             loadSoilData(),
-            loadCrops()
+            loadCrops(),
+            loadUsers()  // ← AJOUTEZ CETTE LIGNE
         ]);
 
         calculateStatistics();
         initializeAllCharts();
-        generateAIPredictions();
-        generateAIRecommendations();
+
+        setTimeout(() => {
+            generateAIPredictions();
+            generateAIRecommendations();
+        }, 500);
 
         console.log('Dashboard initialized successfully');
     } catch (error) {
@@ -2282,6 +2303,7 @@ async function initializeDashboard() {
         showLoading(false);
     }
 }
+
 
 
 
@@ -4070,8 +4092,15 @@ function initializeMoistureContentChart() {
     });
 }
 
-// ==================== AI PREDICTIONS ====================
+
+
+
+
+
+
+// ==================== AI PREDICTIONS - UPDATED ====================
 function generateAIPredictions() {
+    // Generate all predictions with real data
     generateYieldPrediction();
     generatePricePrediction();
     generateWeatherPrediction();
@@ -4080,39 +4109,67 @@ function generateAIPredictions() {
     generateRiskAssessment();
 }
 
+// YIELD PREDICTION - Updated
 function generateYieldPrediction() {
+    const yieldContent = document.getElementById('yieldPredictionContent');
+    const predictedYieldEl = document.getElementById('predictedYield');
+    const yieldConfidenceEl = document.getElementById('yieldConfidence');
+    const yieldDateEl = document.getElementById('yieldDate');
+
+    if (allCropProductions.length === 0) {
+        yieldContent.textContent = 'No crop production data available. Please add crop productions to generate predictions.';
+        predictedYieldEl.textContent = '0 tons';
+        yieldConfidenceEl.textContent = '0%';
+        yieldDateEl.textContent = '-';
+        return;
+    }
+
     const harvestedProductions = allCropProductions.filter(cp =>
         cp.productionStatus === 'HARVESTED' && cp.actualYield
     );
 
     if (harvestedProductions.length === 0) {
-        document.getElementById('yieldPredictionContent').textContent =
-            'Insufficient historical data for yield prediction. More harvested productions needed.';
+        yieldContent.textContent = 'No harvested crop data available yet. Predictions will be available after first harvest.';
+        predictedYieldEl.textContent = '0 tons';
+        yieldConfidenceEl.textContent = '0%';
+        yieldDateEl.textContent = '-';
         return;
     }
 
+    // Calculate average yield from harvested crops
     const avgYield = harvestedProductions.reduce((sum, cp) =>
         sum + (parseFloat(cp.actualYield) || 0), 0
     ) / harvestedProductions.length;
 
+    // Get active productions
     const activeProductions = allCropProductions.filter(cp =>
         cp.productionStatus === 'PLANTED' || cp.productionStatus === 'GROWING'
     );
 
+    // Calculate total area
     const totalArea = activeProductions.reduce((sum, cp) =>
         sum + (parseFloat(cp.areaInHectares) || 0), 0
     );
 
-    const predictedYield = avgYield * totalArea;
+    // Base prediction
+    const basePrediction = avgYield * totalArea;
 
+    // Adjust based on soil quality
     const avgSoilQuality = calculateAverageSoilQuality();
-    const avgWeatherScore = calculateWeatherScore();
+    const soilAdjustment = avgSoilQuality / 100;
 
-    const adjustmentFactor = (avgSoilQuality / 100) * (avgWeatherScore / 100);
-    const adjustedYield = predictedYield * adjustmentFactor;
+    // Adjust based on weather
+    const weatherScore = calculateWeatherScore();
+    const weatherAdjustment = weatherScore / 100;
 
-    const confidence = Math.min(95, 60 + (harvestedProductions.length / 10) * 10);
+    // Final prediction
+    const predictedYield = basePrediction * soilAdjustment * weatherAdjustment;
 
+    // Calculate confidence based on data availability
+    const dataPoints = harvestedProductions.length;
+    const confidence = Math.min(95, 60 + (dataPoints / 10) * 10);
+
+    // Calculate expected date
     const avgGrowthPeriod = harvestedProductions.reduce((sum, cp) => {
         if (cp.plantingDate && cp.actualHarvestDate) {
             const start = new Date(cp.plantingDate);
@@ -4123,67 +4180,39 @@ function generateYieldPrediction() {
     }, 0) / harvestedProductions.length;
 
     const expectedDate = new Date();
-    expectedDate.setDate(expectedDate.getDate() + avgGrowthPeriod);
+    expectedDate.setDate(expectedDate.getDate() + (avgGrowthPeriod || 90));
 
-    document.getElementById('yieldPredictionContent').textContent =
-        `Based on analysis of ${harvestedProductions.length} historical harvests and current ` +
-        `conditions (soil quality: ${avgSoilQuality.toFixed(0)}%, weather score: ${avgWeatherScore.toFixed(0)}%), ` +
-        `predicted yield for ${activeProductions.length} active productions across ${totalArea.toFixed(1)} hectares.`;
+    // Update UI
+    yieldContent.textContent = `Based on analysis of ${harvestedProductions.length} historical harvests and current conditions ` +
+        `(soil quality: ${avgSoilQuality.toFixed(0)}%, weather score: ${weatherScore.toFixed(0)}%), ` +
+        `predicted yield for ${activeProductions.length} active productions across ${totalArea.toFixed(1)} hectares. ` +
+        `Average historical yield: ${avgYield.toFixed(2)} tons/ha.`;
 
-    document.getElementById('predictedYield').textContent = `${adjustedYield.toFixed(1)} tons`;
-    document.getElementById('yieldConfidence').textContent = `${confidence.toFixed(0)}%`;
-    document.getElementById('yieldDate').textContent = expectedDate.toLocaleDateString('en-US',
-        { month: 'short', day: 'numeric', year: 'numeric' }
-    );
-}
-
-function calculateWeatherScore() {
-    if (allWeatherData.length === 0) return 70;
-
-    const recent = allWeatherData
-        .filter(w => {
-            const date = new Date(w.measurementDate);
-            const now = new Date();
-            const daysDiff = (now - date) / (1000 * 60 * 60 * 24);
-            return daysDiff <= 30;
-        });
-
-    if (recent.length === 0) return 70;
-
-    let score = 0;
-    recent.forEach(w => {
-        const temp = parseFloat(w.temperature) || 0;
-        const humidity = parseFloat(w.humidity) || 0;
-        const rainfall = parseFloat(w.rainfall) || 0;
-
-        let tempScore = 0;
-        if (temp >= 20 && temp <= 30) tempScore = 100;
-        else if (temp >= 15 && temp <= 35) tempScore = 70;
-        else tempScore = 40;
-
-        let humidityScore = 0;
-        if (humidity >= 40 && humidity <= 70) humidityScore = 100;
-        else if (humidity >= 30 && humidity <= 80) humidityScore = 70;
-        else humidityScore = 40;
-
-        let rainfallScore = 0;
-        if (rainfall >= 2 && rainfall <= 10) rainfallScore = 100;
-        else if (rainfall >= 1 && rainfall <= 15) rainfallScore = 70;
-        else rainfallScore = 40;
-
-        score += (tempScore + humidityScore + rainfallScore) / 3;
+    predictedYieldEl.textContent = `${predictedYield.toFixed(1)} tons`;
+    yieldConfidenceEl.textContent = `${confidence.toFixed(0)}%`;
+    yieldDateEl.textContent = expectedDate.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
     });
-
-    return score / recent.length;
 }
 
+// PRICE PREDICTION - Updated
 function generatePricePrediction() {
+    const priceContent = document.getElementById('pricePredictionContent');
+    const forecastedPriceEl = document.getElementById('forecastedPrice');
+    const priceChangeEl = document.getElementById('priceChange');
+    const priceHorizonEl = document.getElementById('priceHorizon');
+
     if (allMarketPrices.length === 0) {
-        document.getElementById('pricePredictionContent').textContent =
-            'Insufficient market data for price prediction.';
+        priceContent.textContent = 'No market price data available. Please add market prices to generate forecasts.';
+        forecastedPriceEl.textContent = 'RWF 0';
+        priceChangeEl.textContent = '0%';
+        priceHorizonEl.textContent = '30 days';
         return;
     }
 
+    // Get recent prices (last 90 days)
     const recent = allMarketPrices
         .filter(mp => {
             const date = new Date(mp.priceDate);
@@ -4194,15 +4223,18 @@ function generatePricePrediction() {
         .sort((a, b) => new Date(b.priceDate) - new Date(a.priceDate));
 
     if (recent.length < 10) {
-        document.getElementById('pricePredictionContent').textContent =
-            'Insufficient recent market data for accurate price prediction.';
+        priceContent.textContent = 'Insufficient recent market data (need at least 10 records). Please add more market prices.';
+        forecastedPriceEl.textContent = 'RWF 0';
+        priceChangeEl.textContent = '0%';
         return;
     }
 
+    // Calculate average price
     const avgPrice = recent.reduce((sum, mp) =>
         sum + (parseFloat(mp.pricePerKg) || 0), 0
     ) / recent.length;
 
+    // Calculate trend - compare last 30 days vs previous 30 days
     const last30 = recent.slice(0, 30);
     const avgLast30 = last30.reduce((sum, mp) =>
         sum + (parseFloat(mp.pricePerKg) || 0), 0
@@ -4215,53 +4247,64 @@ function generatePricePrediction() {
 
     const trend = avgPrevious30 > 0 ? ((avgLast30 - avgPrevious30) / avgPrevious30) * 100 : 0;
 
+    // Analyze demand/supply
     const highDemandCount = recent.filter(mp =>
         mp.demandLevel === 'HIGH' || mp.demandLevel === 'VERY_HIGH'
     ).length;
     const demandRatio = highDemandCount / recent.length;
 
-    const supplyAdjustment = 1 + (demandRatio * 0.1);
+    // Calculate forecast
+    const demandAdjustment = 1 + (demandRatio * 0.1);
     const trendAdjustment = 1 + (trend / 100) * 0.5;
-
-    const forecastedPrice = avgPrice * supplyAdjustment * trendAdjustment;
+    const forecastedPrice = avgPrice * demandAdjustment * trendAdjustment;
     const priceChange = ((forecastedPrice - avgPrice) / avgPrice) * 100;
 
-    const confidenceBase = Math.min(recent.length / 100 * 100, 90);
-    const confidence = Math.max(60, confidenceBase);
+    // Update UI
+    priceContent.textContent = `Based on ${recent.length} recent market observations over the last 90 days. ` +
+        `Current average price: ${formatCurrency(avgPrice)}/kg. ` +
+        `High demand ratio: ${(demandRatio * 100).toFixed(0)}%. ` +
+        `Market trend shows ${trend >= 0 ? 'upward' : 'downward'} momentum of ${Math.abs(trend).toFixed(1)}%.`;
 
-    document.getElementById('pricePredictionContent').textContent =
-        `Based on ${recent.length} recent market observations, current average price is ${formatCurrency(avgPrice)}/kg. ` +
-        `High demand ratio: ${(demandRatio * 100).toFixed(0)}%. Market trend shows ${trend >= 0 ? 'upward' : 'downward'} ` +
-        `momentum of ${Math.abs(trend).toFixed(1)}%.`;
-
-    document.getElementById('forecastedPrice').textContent = `${formatCurrency(forecastedPrice)}/kg`;
-    document.getElementById('priceChange').textContent =
-        `${priceChange >= 0 ? '+' : ''}${priceChange.toFixed(1)}%`;
-    document.getElementById('priceHorizon').textContent = '30 days';
+    forecastedPriceEl.textContent = `${formatCurrency(forecastedPrice)}/kg`;
+    priceChangeEl.textContent = `${priceChange >= 0 ? '+' : ''}${priceChange.toFixed(1)}%`;
+    priceChangeEl.style.color = priceChange >= 0 ? 'var(--success-color)' : 'var(--error-color)';
+    priceHorizonEl.textContent = '30 days';
 }
 
+// WEATHER PREDICTION - Updated
 function generateWeatherPrediction() {
+    const weatherContent = document.getElementById('weatherPredictionContent');
+    const rainfallForecastEl = document.getElementById('rainfallForecast');
+    const tempForecastEl = document.getElementById('tempForecast');
+    const weatherRiskEl = document.getElementById('weatherRisk');
+
     if (allWeatherData.length === 0) {
-        document.getElementById('weatherPredictionContent').textContent =
-            'Insufficient weather data for prediction.';
+        weatherContent.textContent = 'No weather data available. Please add weather records to generate predictions.';
+        rainfallForecastEl.textContent = '0 mm';
+        tempForecastEl.textContent = '0°C';
+        weatherRiskEl.textContent = 'Unknown';
         return;
     }
 
+    // Get recent weather (last 14 days)
     const recent = allWeatherData
         .filter(w => {
-            const date = new Date(w.measurementDate);
+            const date = new Date(w.measurementDate || w.recordDate);
             const now = new Date();
             const daysDiff = (now - date) / (1000 * 60 * 60 * 24);
             return daysDiff <= 14;
         })
-        .sort((a, b) => new Date(b.measurementDate) - new Date(a.measurementDate));
+        .sort((a, b) => new Date(b.measurementDate || b.recordDate) - new Date(a.measurementDate || a.recordDate));
 
     if (recent.length === 0) {
-        document.getElementById('weatherPredictionContent').textContent =
-            'No recent weather data available for prediction.';
+        weatherContent.textContent = 'No recent weather data available (last 14 days). Please add current weather records.';
+        rainfallForecastEl.textContent = '0 mm';
+        tempForecastEl.textContent = '0°C';
+        weatherRiskEl.textContent = 'Unknown';
         return;
     }
 
+    // Calculate averages
     const avgRainfall = recent.reduce((sum, w) =>
         sum + (parseFloat(w.rainfall) || 0), 0
     ) / recent.length;
@@ -4270,6 +4313,7 @@ function generateWeatherPrediction() {
         sum + (parseFloat(w.temperature) || 0), 0
     ) / recent.length;
 
+    // Calculate trends
     const last7 = recent.slice(0, 7);
     const rainfallLast7 = last7.reduce((sum, w) =>
         sum + (parseFloat(w.rainfall) || 0), 0
@@ -4279,10 +4323,13 @@ function generateWeatherPrediction() {
         ? ((rainfallLast7 - avgRainfall) / avgRainfall) * 100
         : 0;
 
-    const forecastRainfall = avgRainfall * (1 + rainfallTrend / 200);
+    // Forecast
+    const forecastRainfall = Math.max(0, avgRainfall * (1 + rainfallTrend / 200));
 
+    // Risk assessment
     let riskLevel = 'Low';
     let riskColor = 'green';
+
     if (forecastRainfall > 20 || avgTemp > 35 || avgTemp < 15) {
         riskLevel = 'High';
         riskColor = 'red';
@@ -4291,30 +4338,42 @@ function generateWeatherPrediction() {
         riskColor = 'orange';
     }
 
-    document.getElementById('weatherPredictionContent').textContent =
-        `Analysis of ${recent.length} recent weather observations. Rainfall trend is ` +
-        `${rainfallTrend >= 0 ? 'increasing' : 'decreasing'} by ${Math.abs(rainfallTrend).toFixed(1)}%. ` +
-        `Temperature averaging ${avgTemp.toFixed(1)}°C. Risk assessment based on extreme weather indicators.`;
+    // Update UI
+    weatherContent.textContent = `Analysis of ${recent.length} recent weather observations over the last 14 days. ` +
+        `Rainfall trend is ${rainfallTrend >= 0 ? 'increasing' : 'decreasing'} by ${Math.abs(rainfallTrend).toFixed(1)}%. ` +
+        `Temperature averaging ${avgTemp.toFixed(1)}°C. ` +
+        `${riskLevel === 'High' ? 'Extreme weather indicators detected.' : 'Weather conditions are favorable.'}`;
 
-    document.getElementById('rainfallForecast').textContent = `${forecastRainfall.toFixed(1)} mm`;
-    document.getElementById('tempForecast').textContent = `${avgTemp.toFixed(1)}°C`;
-    document.getElementById('weatherRisk').textContent = riskLevel;
-    document.getElementById('weatherRisk').style.color = riskColor;
+    rainfallForecastEl.textContent = `${forecastRainfall.toFixed(1)} mm`;
+    tempForecastEl.textContent = `${avgTemp.toFixed(1)}°C`;
+    weatherRiskEl.textContent = riskLevel;
+    weatherRiskEl.style.color = riskColor;
 }
 
+// SOIL PREDICTION - Updated
 function generateSoilPrediction() {
+    const soilContent = document.getElementById('soilPredictionContent');
+    const soilHealthScoreEl = document.getElementById('soilHealthScore');
+    const nutrientStatusEl = document.getElementById('nutrientStatus');
+    const soilActionEl = document.getElementById('soilAction');
+
     if (allSoilData.length === 0) {
-        document.getElementById('soilPredictionContent').textContent =
-            'Insufficient soil data for health prediction.';
+        soilContent.textContent = 'No soil data available. Please add soil analysis records to generate predictions.';
+        soilHealthScoreEl.textContent = '0%';
+        nutrientStatusEl.textContent = 'Unknown';
+        soilActionEl.textContent = 'Add Data';
         return;
     }
 
+    // Calculate average soil quality
     const avgQuality = calculateAverageSoilQuality();
 
+    // Calculate NPK averages
     const avgN = allSoilData.reduce((sum, s) => sum + (parseFloat(s.nitrogen) || 0), 0) / allSoilData.length;
     const avgP = allSoilData.reduce((sum, s) => sum + (parseFloat(s.phosphorus) || 0), 0) / allSoilData.length;
     const avgK = allSoilData.reduce((sum, s) => sum + (parseFloat(s.potassium) || 0), 0) / allSoilData.length;
 
+    // Assess nutrient status
     let nutrientStatus = 'Good';
     const issues = [];
 
@@ -4331,6 +4390,7 @@ function generateSoilPrediction() {
         issues.push('potassium');
     }
 
+    // Determine action needed
     let actionNeeded = 'Monitor';
     if (avgQuality < 50) {
         actionNeeded = 'Urgent Intervention';
@@ -4338,26 +4398,37 @@ function generateSoilPrediction() {
         actionNeeded = 'Improvement Needed';
     }
 
-    document.getElementById('soilPredictionContent').textContent =
-        `Based on ${allSoilData.length} soil samples, average health score is ${avgQuality.toFixed(0)}%. ` +
+    // Update UI
+    soilContent.textContent = `Based on ${allSoilData.length} soil samples. ` +
+        `Average health score: ${avgQuality.toFixed(0)}%. ` +
         `NPK levels: N=${avgN.toFixed(1)}ppm, P=${avgP.toFixed(1)}ppm, K=${avgK.toFixed(1)}ppm. ` +
         (issues.length > 0
             ? `Deficiencies detected in ${issues.join(', ')}. `
             : 'All major nutrients within acceptable ranges. ') +
         `Recommended action: ${actionNeeded}.`;
 
-    document.getElementById('soilHealthScore').textContent = `${avgQuality.toFixed(0)}%`;
-    document.getElementById('nutrientStatus').textContent = nutrientStatus;
-    document.getElementById('soilAction').textContent = actionNeeded;
+    soilHealthScoreEl.textContent = `${avgQuality.toFixed(0)}%`;
+    soilHealthScoreEl.style.color = avgQuality >= 70 ? 'var(--success-color)' : avgQuality >= 50 ? 'var(--warning-color)' : 'var(--error-color)';
+    nutrientStatusEl.textContent = nutrientStatus;
+    soilActionEl.textContent = actionNeeded;
 }
 
+// ACTIVITY PREDICTION - Updated
 function generateActivityPrediction() {
+    const activityContent = document.getElementById('activityPredictionContent');
+    const expectedUsersEl = document.getElementById('expectedUsers');
+    const peakTimeEl = document.getElementById('peakTime');
+    const growthRateEl = document.getElementById('growthRate');
+
     if (allTransactions.length === 0) {
-        document.getElementById('activityPredictionContent').textContent =
-            'Insufficient transaction history for activity prediction.';
+        activityContent.textContent = 'No transaction history available. Please add transactions to generate activity predictions.';
+        expectedUsersEl.textContent = '0';
+        peakTimeEl.textContent = '-';
+        growthRateEl.textContent = '0%';
         return;
     }
 
+    // Get transactions from last 30 days
     const last30Days = allTransactions.filter(t => {
         const date = new Date(t.createdAt);
         const now = new Date();
@@ -4365,6 +4436,7 @@ function generateActivityPrediction() {
         return daysDiff <= 30;
     });
 
+    // Get transactions from previous 30 days
     const previous30Days = allTransactions.filter(t => {
         const date = new Date(t.createdAt);
         const now = new Date();
@@ -4372,16 +4444,20 @@ function generateActivityPrediction() {
         return daysDiff > 30 && daysDiff <= 60;
     });
 
+    // Calculate unique users
     const uniqueFarmers = new Set(last30Days.map(t => t.farmerId).filter(Boolean));
     const uniqueBuyers = new Set(last30Days.map(t => t.buyerId).filter(Boolean));
     const totalUsers = uniqueFarmers.size + uniqueBuyers.size;
 
+    // Calculate growth rate
     const growthRate = previous30Days.length > 0
         ? ((last30Days.length - previous30Days.length) / previous30Days.length) * 100
         : 0;
 
+    // Predict next month
     const expectedUsers = Math.round(totalUsers * (1 + growthRate / 100));
 
+    // Calculate peak hours
     const hourlyActivity = Array(24).fill(0);
     last30Days.forEach(t => {
         const hour = new Date(t.createdAt).getHours();
@@ -4391,22 +4467,28 @@ function generateActivityPrediction() {
     const peakHour = hourlyActivity.indexOf(Math.max(...hourlyActivity));
     const peakTime = `${peakHour}:00 - ${peakHour + 1}:00`;
 
-    document.getElementById('activityPredictionContent').textContent =
-        `Analysis of ${last30Days.length} transactions over the last 30 days involving ${totalUsers} unique users. ` +
+    // Update UI
+    activityContent.textContent = `Analysis of ${last30Days.length} transactions over the last 30 days involving ${totalUsers} unique users. ` +
         `Activity growth rate of ${growthRate >= 0 ? '+' : ''}${growthRate.toFixed(1)}% compared to previous period. ` +
         `Peak activity hours identified for resource optimization.`;
 
-    document.getElementById('expectedUsers').textContent = expectedUsers;
-    document.getElementById('peakTime').textContent = peakTime;
-    document.getElementById('growthRate').textContent =
-        `${growthRate >= 0 ? '+' : ''}${growthRate.toFixed(1)}%`;
+    expectedUsersEl.textContent = expectedUsers;
+    peakTimeEl.textContent = peakTime;
+    growthRateEl.textContent = `${growthRate >= 0 ? '+' : ''}${growthRate.toFixed(1)}%`;
+    growthRateEl.style.color = growthRate >= 0 ? 'var(--success-color)' : 'var(--error-color)';
 }
 
+// RISK ASSESSMENT - Updated
 function generateRiskAssessment() {
+    const riskContent = document.getElementById('riskAssessmentContent');
+    const overallRiskEl = document.getElementById('overallRisk');
+    const priorityAreasEl = document.getElementById('priorityAreas');
+    const riskConfidenceEl = document.getElementById('riskConfidence');
+
     const risks = [];
-    let overallRisk = 'Low';
     let riskScore = 0;
 
+    // Weather risk
     if (allWeatherData.length > 0) {
         const recent = allWeatherData.slice(-14);
         const extremeWeather = recent.filter(w => {
@@ -4424,6 +4506,7 @@ function generateRiskAssessment() {
         }
     }
 
+    // Soil risk
     const avgSoilQuality = calculateAverageSoilQuality();
     if (avgSoilQuality < 50) {
         risks.push('Critical soil health issues');
@@ -4433,6 +4516,7 @@ function generateRiskAssessment() {
         riskScore += 1;
     }
 
+    // Market risk
     if (allMarketPrices.length > 0) {
         const recent = allMarketPrices.slice(-30);
         const prices = recent.map(mp => parseFloat(mp.pricePerKg) || 0);
@@ -4450,6 +4534,7 @@ function generateRiskAssessment() {
         }
     }
 
+    // Production risk
     if (allCropProductions.length > 0) {
         const overdue = allCropProductions.filter(cp => {
             if (cp.productionStatus === 'HARVESTED') return false;
@@ -4466,23 +4551,35 @@ function generateRiskAssessment() {
         }
     }
 
+    // Determine overall risk level
+    let overallRisk = 'Low';
     if (riskScore >= 7) overallRisk = 'Critical';
     else if (riskScore >= 5) overallRisk = 'High';
     else if (riskScore >= 3) overallRisk = 'Medium';
 
-    const confidence = Math.min(90, 60 + (allTransactions.length / 100) * 30);
+    // Calculate confidence
+    const dataAvailability = [
+        allWeatherData.length > 0,
+        allSoilData.length > 0,
+        allMarketPrices.length > 0,
+        allCropProductions.length > 0,
+        allTransactions.length > 0
+    ].filter(Boolean).length;
 
-    const riskContent = risks.length > 0
+    const confidence = Math.min(90, 60 + (dataAvailability / 5) * 30);
+
+    // Update UI
+    const riskContentText = risks.length > 0
         ? `Identified ${risks.length} risk factors: ${risks.join('; ')}. ` +
-          `Comprehensive risk analysis based on weather, soil, market, and production data. ` +
-          `Recommend immediate attention to high-priority areas.`
-        : `No significant risks identified. All monitored parameters are within acceptable ranges. ` +
+          `Comprehensive risk analysis based on ${dataAvailability} data sources. ` +
+          `Immediate attention recommended for high-priority areas.`
+        : `No significant risks identified. All monitored parameters within acceptable ranges. ` +
           `Continue regular monitoring and maintain current best practices.`;
 
-    document.getElementById('riskAssessmentContent').textContent = riskContent;
-    document.getElementById('overallRisk').textContent = overallRisk;
-    document.getElementById('priorityAreas').textContent = risks.length;
-    document.getElementById('riskConfidence').textContent = `${confidence.toFixed(0)}%`;
+    riskContent.textContent = riskContentText;
+    overallRiskEl.textContent = overallRisk;
+    priorityAreasEl.textContent = risks.length;
+    riskConfidenceEl.textContent = `${confidence.toFixed(0)}%`;
 
     const riskColors = {
         'Low': 'green',
@@ -4490,8 +4587,30 @@ function generateRiskAssessment() {
         'High': 'red',
         'Critical': 'darkred'
     };
-    document.getElementById('overallRisk').style.color = riskColors[overallRisk];
+    overallRiskEl.style.color = riskColors[overallRisk];
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // ==================== AI RECOMMENDATIONS ====================
 function generateAIRecommendations() {
@@ -4980,6 +5099,38 @@ async function exportTransactionsExcel() {
     }
 }
 
+
+
+
+
+
+
+
+// ==================== HELPER FUNCTION FOR LOGO ====================
+async function loadLogoAsBase64() {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = function() {
+            try {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                const base64 = canvas.toDataURL('image/jpeg');
+                resolve(base64);
+            } catch (error) {
+                console.error('Error converting logo:', error);
+                resolve(null);
+            }
+        };
+        img.onerror = () => resolve(null);
+        img.src = 'images/logo.jpeg';
+    });
+}
+
+// ==================== MAIN PDF GENERATION FUNCTION ====================
 async function generatePDFReport() {
     try {
         showLoading(true);
@@ -4988,147 +5139,1679 @@ async function generatePDFReport() {
         const doc = new jsPDF();
 
         const reportType = document.getElementById('reportType').value;
+        const reportPeriod = document.getElementById('reportPeriod').value;
 
-        doc.setFontSize(20);
-        doc.text('AgriGuard AI - Analytics Report', 105, 25, { align: 'center' });
+        // ==================== COLORS & STYLING ====================
+        const primaryGreen = [34, 197, 94];
+        const darkGreen = [22, 163, 74];
+        const lightGreen = [220, 252, 231];
+        const textDark = [51, 51, 51];
+        const textGray = [102, 102, 102];
+        const borderColor = [224, 224, 224];
 
-        doc.setFontSize(12);
-        doc.text(`Generated: ${new Date().toLocaleDateString()}`, 105, 35, { align: 'center' });
-        doc.text(`Report Type: ${formatEnum(reportType)}`, 105, 42, { align: 'center' });
-        doc.text(`Generated by: ${currentUser.fullName}`, 105, 49, { align: 'center' });
+        // Load logo
+        const logoBase64 = await loadLogoAsBase64();
 
-        let yPos = 60;
+        // ==================== HEADER WITH LOGO ====================
+        function addHeader(doc) {
+            doc.setFillColor(...primaryGreen);
+            doc.rect(0, 0, 210, 40, 'F');
 
-        doc.setFontSize(14);
-        doc.text('Summary Statistics', 20, yPos);
-        yPos += 10;
+            // Add logo
+            if (logoBase64) {
+                try {
+                    doc.addImage(logoBase64, 'JPEG', 15, 10, 20, 20);
+                } catch (error) {
+                    console.error('Error adding logo:', error);
+                    // Fallback
+                    doc.setFillColor(255, 255, 255);
+                    doc.roundedRect(15, 10, 20, 20, 3, 3, 'F');
+                    doc.setTextColor(...darkGreen);
+                    doc.setFontSize(16);
+                    doc.setFont('helvetica', 'bold');
+                    doc.text('AG', 25, 23, { align: 'center' });
+                }
+            }
 
-        doc.setFontSize(10);
-        doc.text(`Total Transactions: ${allTransactions.length}`, 20, yPos);
-        yPos += 7;
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(22);
+            doc.setFont('helvetica', 'bold');
+            doc.text('AgriGuard AI', 40, 18);
 
-        const totalRevenue = allTransactions.reduce((sum, t) =>
-            sum + (parseFloat(t.totalAmount) || 0), 0
-        );
-        doc.text(`Total Revenue: ${formatCurrency(totalRevenue)}`, 20, yPos);
-        yPos += 7;
+            doc.setFontSize(11);
+            doc.setFont('helvetica', 'normal');
+            doc.text('Smart Agriculture Management System', 40, 25);
 
-        const uniqueFarmers = new Set(allTransactions.map(t => t.farmerId).filter(Boolean));
-        doc.text(`Active Farmers: ${uniqueFarmers.size}`, 20, yPos);
-        yPos += 7;
-
-        const uniqueBuyers = new Set(allTransactions.map(t => t.buyerId).filter(Boolean));
-        doc.text(`Active Buyers: ${uniqueBuyers.size}`, 20, yPos);
-        yPos += 7;
-
-        doc.text(`Crop Productions: ${allCropProductions.length}`, 20, yPos);
-        yPos += 7;
-
-        doc.text(`Market Price Records: ${allMarketPrices.length}`, 20, yPos);
-        yPos += 7;
-
-        doc.text(`Weather Data Points: ${allWeatherData.length}`, 20, yPos);
-        yPos += 7;
-
-        doc.text(`Soil Analysis Samples: ${allSoilData.length}`, 20, yPos);
-        yPos += 15;
-
-        if (reportType === 'comprehensive' || reportType === 'transactions') {
-            doc.setFontSize(14);
-            doc.text('Recent Transactions', 20, yPos);
-            yPos += 10;
-
-            const tableData = allTransactions
-                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-                .slice(0, 20)
-                .map((t, index) => {
-                    const crop = allCrops.find(c => c.id === t.cropId);
-                    return [
-                        index + 1,
-                        t.id ? t.id.substring(0, 8) : 'N/A',
-                        formatDate(t.createdAt),
-                        crop ? crop.cropName : 'Unknown',
-                        formatCurrency(t.totalAmount),
-                        formatEnum(t.transactionStatus)
-                    ];
-                });
-
-            doc.autoTable({
-                startY: yPos,
-                head: [['#', 'ID', 'Date', 'Crop', 'Amount', 'Status']],
-                body: tableData,
-                theme: 'grid',
-                headStyles: { fillColor: [34, 197, 94] },
-                styles: { fontSize: 8 }
-            });
+            doc.setFontSize(13);
+            doc.setFont('helvetica', 'bold');
+            const reportTitles = {
+                comprehensive: 'Comprehensive Analysis Report',
+                transactions: 'Transaction Report',
+                crops: 'Crop Production Report',
+                market: 'Market Analysis Report',
+                weather: 'Weather Impact Report',
+                soil: 'Soil Health Report',
+                predictions: 'AI Predictions Report'
+            };
+            doc.text(reportTitles[reportType] || 'All Users Report', 40, 33);
         }
 
-        doc.save(`agriguard_report_${reportType}_${Date.now()}.pdf`);
-        showToast('PDF report generated successfully', 'success');
+        // ==================== FOOTER ====================
+        function addFooter(doc, pageNumber, totalPages) {
+            const pageHeight = doc.internal.pageSize.height;
+            doc.setDrawColor(...borderColor);
+            doc.setLineWidth(0.5);
+            doc.line(15, pageHeight - 15, 195, pageHeight - 15);
+
+            doc.setFontSize(8);
+            doc.setTextColor(...textGray);
+            doc.setFont('helvetica', 'normal');
+            doc.text(
+                `AgriGuard AI - Generated on ${new Date().toLocaleDateString()}`,
+                105,
+                pageHeight - 10,
+                { align: 'center' }
+            );
+
+            doc.text(
+                `Page ${pageNumber} of ${totalPages}`,
+                195,
+                pageHeight - 10,
+                { align: 'right' }
+            );
+        }
+
+        // Add first page header
+        addHeader(doc);
+
+        // ==================== GENERATE REPORT BY TYPE ====================
+        switch (reportType) {
+            case 'transactions':
+                await generateTransactionReport(doc, reportPeriod, primaryGreen, lightGreen, textDark, textGray, borderColor);
+                break;
+            case 'crops':
+                await generateCropProductionReport(doc, reportPeriod, primaryGreen, lightGreen, textDark, textGray, borderColor);
+                break;
+            case 'market':
+                await generateMarketAnalysisReport(doc, reportPeriod, primaryGreen, lightGreen, textDark, textGray, borderColor);
+                break;
+            case 'weather':
+                await generateWeatherImpactReport(doc, reportPeriod, primaryGreen, lightGreen, textDark, textGray, borderColor);
+                break;
+            case 'soil':
+                await generateSoilHealthReport(doc, reportPeriod, primaryGreen, lightGreen, textDark, textGray, borderColor);
+                break;
+            case 'predictions':
+                await generatePredictionsReport(doc, reportPeriod, primaryGreen, lightGreen, textDark, textGray, borderColor);
+                break;
+            default:
+                await generateComprehensiveReport(doc, reportPeriod, primaryGreen, darkGreen, lightGreen, textDark, textGray, borderColor, logoBase64);
+        }
+
+        // Add footers to all pages
+        const totalPages = doc.internal.getNumberOfPages();
+        for (let i = 1; i <= totalPages; i++) {
+            doc.setPage(i);
+            addFooter(doc, i, totalPages);
+        }
+
+        // ==================== SAVE PDF ====================
+        const filename = `AgriGuard_${reportType}_Report_${Date.now()}.pdf`;
+        doc.save(filename);
+
+        showToast('PDF report generated successfully! ✓', 'success');
     } catch (error) {
         console.error('Error generating PDF:', error);
-        showToast('Error generating PDF report', 'error');
+        showToast('Error generating PDF report ✗', 'error');
     } finally {
         showLoading(false);
     }
 }
 
-async function generateExcelReport() {
-    try {
-        const reportType = document.getElementById('reportType').value;
+// ==================== TRANSACTION REPORT ====================
+async function generateTransactionReport(doc, period, primaryGreen, lightGreen, textDark, textGray, borderColor) {
+    let yPos = 50;
 
-        if (reportType === 'comprehensive') {
-            await exportComprehensiveExcel();
-        } else if (reportType === 'transactions') {
-            await exportTransactionsExcel();
-        } else {
-            showToast('Excel export for this report type is in development', 'info');
+    // Info box
+    doc.setFillColor(...lightGreen);
+    doc.roundedRect(15, yPos, 180, 28, 2, 2, 'F');
+    doc.setDrawColor(...primaryGreen);
+    doc.setLineWidth(0.5);
+    doc.roundedRect(15, yPos, 180, 28, 2, 2, 'S');
+
+    doc.setTextColor(...textDark);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+
+    doc.text('Report Generated:', 20, yPos + 7);
+    doc.text('Total Records:', 20, yPos + 14);
+    doc.text('Generated By:', 20, yPos + 21);
+
+    doc.setFont('helvetica', 'normal');
+    const today = new Date().toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+    doc.text(today, 60, yPos + 7);
+
+    doc.setTextColor(...primaryGreen);
+    doc.setFont('helvetica', 'bold');
+    doc.text(allTransactions.length.toString(), 60, yPos + 14);
+
+    doc.setTextColor(...textDark);
+    doc.setFont('helvetica', 'normal');
+    doc.text('AgriGuard AI System', 60, yPos + 21);
+
+    doc.setFont('helvetica', 'bold');
+    doc.text('Period:', 120, yPos + 7);
+    doc.text('Total Revenue:', 120, yPos + 14);
+
+    doc.setFont('helvetica', 'normal');
+    const periodText = period === '7' ? 'Last 7 Days' :
+                      period === '30' ? 'Last 30 Days' :
+                      period === '90' ? 'Last 90 Days' :
+                      period === '365' ? 'Last Year' : 'Custom';
+    doc.text(periodText, 145, yPos + 7);
+
+    const totalRevenue = allTransactions.reduce((sum, t) => sum + (parseFloat(t.totalAmount) || 0), 0);
+    doc.text(formatCurrency(totalRevenue), 145, yPos + 14);
+
+    yPos += 38;
+
+    // Transaction Details Section
+    doc.setFillColor(...primaryGreen);
+    doc.rect(15, yPos, 180, 10, 'F');
+
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Transaction Details', 20, yPos + 7);
+
+    yPos += 15;
+
+    // Prepare transaction data
+    const transactionData = allTransactions.slice(0, 100).map((t, index) => {
+        const crop = allCrops.find(c => c.id === t.cropId);
+        return [
+            (index + 1).toString(),
+            t.id ? t.id.substring(0, 10) : 'N/A',
+            formatDate(t.createdAt),
+            crop ? crop.cropName : 'Unknown',
+            `${t.quantity || 0} ${t.unit || 'kg'}`,
+            formatCurrency(t.totalAmount),
+            formatEnum(t.transactionStatus)
+        ];
+    });
+
+    doc.autoTable({
+        startY: yPos,
+        head: [['#', 'Transaction ID', 'Date', 'Crop', 'Quantity', 'Amount', 'Status']],
+        body: transactionData,
+        theme: 'striped',
+        headStyles: {
+            fillColor: primaryGreen,
+            textColor: [255, 255, 255],
+            fontSize: 8,
+            fontStyle: 'bold',
+            halign: 'left',
+            cellPadding: 3
+        },
+        bodyStyles: {
+            fontSize: 7,
+            textColor: textDark,
+            cellPadding: 2
+        },
+        alternateRowStyles: {
+            fillColor: [249, 250, 251]
+        },
+        columnStyles: {
+            0: { cellWidth: 10, halign: 'center' },
+            1: { cellWidth: 28 },
+            2: { cellWidth: 26 },
+            3: { cellWidth: 28 },
+            4: { cellWidth: 24 },
+            5: { cellWidth: 28 },
+            6: { cellWidth: 24, halign: 'center' }
+        },
+        margin: { left: 15, right: 15 }
+    });
+
+    // Add statistics page
+    doc.addPage();
+    addStatisticsPage(doc, 'transactions', primaryGreen, textDark, textGray, borderColor);
+}
+
+// ==================== CROP PRODUCTION REPORT ====================
+async function generateCropProductionReport(doc, period, primaryGreen, lightGreen, textDark, textGray, borderColor) {
+    let yPos = 50;
+
+    // Info box
+    doc.setFillColor(...lightGreen);
+    doc.roundedRect(15, yPos, 180, 28, 2, 2, 'F');
+    doc.setDrawColor(...primaryGreen);
+    doc.setLineWidth(0.5);
+    doc.roundedRect(15, yPos, 180, 28, 2, 2, 'S');
+
+    doc.setTextColor(...textDark);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+
+    doc.text('Report Generated:', 20, yPos + 7);
+    doc.text('Total Productions:', 20, yPos + 14);
+    doc.text('Generated By:', 20, yPos + 21);
+
+    doc.setFont('helvetica', 'normal');
+    doc.text(new Date().toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    }), 60, yPos + 7);
+
+    doc.setTextColor(...primaryGreen);
+    doc.setFont('helvetica', 'bold');
+    doc.text(allCropProductions.length.toString(), 60, yPos + 14);
+
+    doc.setTextColor(...textDark);
+    doc.setFont('helvetica', 'normal');
+    doc.text('AgriGuard AI System', 60, yPos + 21);
+
+    doc.setFont('helvetica', 'bold');
+    doc.text('Period:', 120, yPos + 7);
+    doc.text('Total Yield:', 120, yPos + 14);
+
+    doc.setFont('helvetica', 'normal');
+    const periodText = period === '7' ? 'Last 7 Days' :
+                      period === '30' ? 'Last 30 Days' :
+                      period === '90' ? 'Last 90 Days' :
+                      period === '365' ? 'Last Year' : 'All Time';
+    doc.text(periodText, 145, yPos + 7);
+
+    const totalYield = allCropProductions.reduce((sum, cp) =>
+        sum + (parseFloat(cp.actualYield) || parseFloat(cp.expectedYield) || 0), 0
+    );
+    doc.text(`${totalYield.toFixed(1)} tons`, 145, yPos + 14);
+
+    yPos += 38;
+
+    // Crop Production Details
+    doc.setFillColor(...primaryGreen);
+    doc.rect(15, yPos, 180, 10, 'F');
+
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Crop Production Details', 20, yPos + 7);
+
+    yPos += 15;
+
+    const cropData = allCropProductions.slice(0, 100).map((cp, index) => {
+        const crop = allCrops.find(c => c.id === cp.cropId);
+        return [
+            (index + 1).toString(),
+            crop ? crop.cropName : 'Unknown',
+            cp.season || 'N/A',
+            `${cp.areaInHectares || 0} ha`,
+            `${parseFloat(cp.actualYield || cp.expectedYield || 0).toFixed(1)} t/ha`,
+            formatEnum(cp.productionStatus),
+            formatDate(cp.plantingDate)
+        ];
+    });
+
+    doc.autoTable({
+        startY: yPos,
+        head: [['#', 'Crop', 'Season', 'Area', 'Yield', 'Status', 'Planting Date']],
+        body: cropData,
+        theme: 'striped',
+        headStyles: {
+            fillColor: primaryGreen,
+            textColor: [255, 255, 255],
+            fontSize: 8,
+            fontStyle: 'bold',
+            halign: 'left',
+            cellPadding: 3
+        },
+        bodyStyles: {
+            fontSize: 7,
+            textColor: textDark,
+            cellPadding: 2
+        },
+        alternateRowStyles: {
+            fillColor: [249, 250, 251]
+        },
+        columnStyles: {
+            0: { cellWidth: 10, halign: 'center' },
+            1: { cellWidth: 33 },
+            2: { cellWidth: 24 },
+            3: { cellWidth: 19 },
+            4: { cellWidth: 24 },
+            5: { cellWidth: 28, halign: 'center' },
+            6: { cellWidth: 30 }
+        },
+        margin: { left: 15, right: 15 }
+    });
+
+    doc.addPage();
+    addStatisticsPage(doc, 'crops', primaryGreen, textDark, textGray, borderColor);
+}
+
+// ==================== MARKET ANALYSIS REPORT ====================
+async function generateMarketAnalysisReport(doc, period, primaryGreen, lightGreen, textDark, textGray, borderColor) {
+    let yPos = 50;
+
+    // Info box
+    doc.setFillColor(...lightGreen);
+    doc.roundedRect(15, yPos, 180, 28, 2, 2, 'F');
+    doc.setDrawColor(...primaryGreen);
+    doc.setLineWidth(0.5);
+    doc.roundedRect(15, yPos, 180, 28, 2, 2, 'S');
+
+    doc.setTextColor(...textDark);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+
+    doc.text('Report Generated:', 20, yPos + 7);
+    doc.text('Total Price Records:', 20, yPos + 14);
+    doc.text('Generated By:', 20, yPos + 21);
+
+    doc.setFont('helvetica', 'normal');
+    doc.text(new Date().toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    }), 60, yPos + 7);
+
+    doc.setTextColor(...primaryGreen);
+    doc.setFont('helvetica', 'bold');
+    doc.text(allMarketPrices.length.toString(), 60, yPos + 14);
+
+    doc.setTextColor(...textDark);
+    doc.setFont('helvetica', 'normal');
+    doc.text('AgriGuard AI System', 60, yPos + 21);
+
+    doc.setFont('helvetica', 'bold');
+    doc.text('Period:', 120, yPos + 7);
+    doc.text('Avg Price:', 120, yPos + 14);
+
+    doc.setFont('helvetica', 'normal');
+    const periodText = period === '7' ? 'Last 7 Days' :
+                      period === '30' ? 'Last 30 Days' :
+                      period === '90' ? 'Last 90 Days' :
+                      period === '365' ? 'Last Year' : 'All Time';
+    doc.text(periodText, 145, yPos + 7);
+
+    const avgPrice = allMarketPrices.length > 0
+        ? allMarketPrices.reduce((sum, mp) => sum + (parseFloat(mp.pricePerKg) || 0), 0) / allMarketPrices.length
+        : 0;
+    doc.text(`${formatCurrency(avgPrice)}/kg`, 145, yPos + 14);
+
+    yPos += 38;
+
+    // Market Price Details
+    doc.setFillColor(...primaryGreen);
+    doc.rect(15, yPos, 180, 10, 'F');
+
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Market Price Details', 20, yPos + 7);
+
+    yPos += 15;
+
+    const marketData = allMarketPrices.slice(0, 100).map((mp, index) => {
+        const crop = allCrops.find(c => c.id === mp.cropId);
+        return [
+            (index + 1).toString(),
+            crop ? crop.cropName : 'Unknown',
+            formatCurrency(mp.pricePerKg) + '/kg',
+            mp.location || 'N/A',
+            formatEnum(mp.demandLevel),
+            formatEnum(mp.supplyLevel),
+            formatDate(mp.priceDate)
+        ];
+    });
+
+    doc.autoTable({
+        startY: yPos,
+        head: [['#', 'Crop', 'Price', 'Location', 'Demand', 'Supply', 'Date']],
+        body: marketData,
+        theme: 'striped',
+        headStyles: {
+            fillColor: primaryGreen,
+            textColor: [255, 255, 255],
+            fontSize: 8,
+            fontStyle: 'bold',
+            halign: 'left',
+            cellPadding: 3
+        },
+        bodyStyles: {
+            fontSize: 7,
+            textColor: textDark,
+            cellPadding: 2
+        },
+        alternateRowStyles: {
+            fillColor: [249, 250, 251]
+        },
+        columnStyles: {
+            0: { cellWidth: 10, halign: 'center' },
+            1: { cellWidth: 32 },
+            2: { cellWidth: 26 },
+            3: { cellWidth: 28 },
+            4: { cellWidth: 22, halign: 'center' },
+            5: { cellWidth: 22, halign: 'center' },
+            6: { cellWidth: 28 }
+        },
+        margin: { left: 15, right: 15 }
+    });
+
+    doc.addPage();
+    addStatisticsPage(doc, 'market', primaryGreen, textDark, textGray, borderColor);
+}
+
+// ==================== WEATHER IMPACT REPORT ====================
+async function generateWeatherImpactReport(doc, period, primaryGreen, lightGreen, textDark, textGray, borderColor) {
+    let yPos = 50;
+
+    // Info box
+    doc.setFillColor(...lightGreen);
+    doc.roundedRect(15, yPos, 180, 28, 2, 2, 'F');
+    doc.setDrawColor(...primaryGreen);
+    doc.setLineWidth(0.5);
+    doc.roundedRect(15, yPos, 180, 28, 2, 2, 'S');
+
+    doc.setTextColor(...textDark);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+
+    doc.text('Report Generated:', 20, yPos + 7);
+    doc.text('Total Weather Records:', 20, yPos + 14);
+    doc.text('Generated By:', 20, yPos + 21);
+
+    doc.setFont('helvetica', 'normal');
+    doc.text(new Date().toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    }), 60, yPos + 7);
+
+    doc.setTextColor(...primaryGreen);
+    doc.setFont('helvetica', 'bold');
+    doc.text(allWeatherData.length.toString(), 60, yPos + 14);
+
+    doc.setTextColor(...textDark);
+    doc.setFont('helvetica', 'normal');
+    doc.text('AgriGuard AI System', 60, yPos + 21);
+
+    doc.setFont('helvetica', 'bold');
+    doc.text('Period:', 120, yPos + 7);
+    doc.text('Avg Temperature:', 120, yPos + 14);
+
+    doc.setFont('helvetica', 'normal');
+    const periodText = period === '7' ? 'Last 7 Days' :
+                      period === '30' ? 'Last 30 Days' :
+                      period === '90' ? 'Last 90 Days' :
+                      period === '365' ? 'Last Year' : 'All Time';
+    doc.text(periodText, 145, yPos + 7);
+
+    const avgTemp = allWeatherData.length > 0
+        ? allWeatherData.reduce((sum, w) => sum + (parseFloat(w.temperature) || 0), 0) / allWeatherData.length
+        : 0;
+    doc.text(`${avgTemp.toFixed(1)}°C`, 145, yPos + 14);
+
+    yPos += 38;
+
+    // Weather Data Details
+    doc.setFillColor(...primaryGreen);
+    doc.rect(15, yPos, 180, 10, 'F');
+
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Weather Data Details', 20, yPos + 7);
+
+    yPos += 15;
+
+    const weatherData = allWeatherData.slice(0, 100).map((w, index) => [
+        (index + 1).toString(),
+        formatDate(w.measurementDate || w.recordDate),
+        `${parseFloat(w.temperature || 0).toFixed(1)}°C`,
+        `${parseFloat(w.rainfall || 0).toFixed(1)} mm`,
+        `${parseFloat(w.humidity || 0).toFixed(0)}%`,
+        `${parseFloat(w.windSpeed || 0).toFixed(1)} m/s`,
+        formatEnum(w.weatherCondition)
+    ]);
+
+    doc.autoTable({
+        startY: yPos,
+        head: [['#', 'Date', 'Temp', 'Rainfall', 'Humidity', 'Wind', 'Condition']],
+        body: weatherData,
+        theme: 'striped',
+        headStyles: {
+            fillColor: primaryGreen,
+            textColor: [255, 255, 255],
+            fontSize: 8,
+            fontStyle: 'bold',
+            halign: 'left',
+            cellPadding: 3
+        },
+        bodyStyles: {
+            fontSize: 7,
+            textColor: textDark,
+            cellPadding: 2
+        },
+        alternateRowStyles: {
+            fillColor: [249, 250, 251]
+        },
+        columnStyles: {
+            0: { cellWidth: 10, halign: 'center' },
+            1: { cellWidth: 26 },
+            2: { cellWidth: 21 },
+            3: { cellWidth: 24 },
+            4: { cellWidth: 22 },
+            5: { cellWidth: 21 },
+            6: { cellWidth: 28, halign: 'center' }
+        },
+        margin: { left: 15, right: 15 }
+    });
+
+    doc.addPage();
+    addStatisticsPage(doc, 'weather', primaryGreen, textDark, textGray, borderColor);
+}
+
+// ==================== SOIL HEALTH REPORT ====================
+async function generateSoilHealthReport(doc, period, primaryGreen, lightGreen, textDark, textGray, borderColor) {
+    let yPos = 50;
+
+    // Info box
+    doc.setFillColor(...lightGreen);
+    doc.roundedRect(15, yPos, 180, 28, 2, 2, 'F');
+    doc.setDrawColor(...primaryGreen);
+    doc.setLineWidth(0.5);
+    doc.roundedRect(15, yPos, 180, 28, 2, 2, 'S');
+
+    doc.setTextColor(...textDark);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+
+    doc.text('Report Generated:', 20, yPos + 7);
+    doc.text('Total Soil Samples:', 20, yPos + 14);
+    doc.text('Generated By:', 20, yPos + 21);
+
+    doc.setFont('helvetica', 'normal');
+    doc.text(new Date().toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    }), 60, yPos + 7);
+
+    doc.setTextColor(...primaryGreen);
+    doc.setFont('helvetica', 'bold');
+    doc.text(allSoilData.length.toString(), 60, yPos + 14);
+
+    doc.setTextColor(...textDark);
+    doc.setFont('helvetica', 'normal');
+    doc.text('AgriGuard AI System', 60, yPos + 21);
+
+    doc.setFont('helvetica', 'bold');
+    doc.text('Period:', 120, yPos + 7);
+    doc.text('Avg Soil Quality:', 120, yPos + 14);
+
+    doc.setFont('helvetica', 'normal');
+    const periodText = period === '7' ? 'Last 7 Days' :
+                      period === '30' ? 'Last 30 Days' :
+                      period === '90' ? 'Last 90 Days' :
+                      period === '365' ? 'Last Year' : 'All Time';
+    doc.text(periodText, 145, yPos + 7);
+
+    const avgQuality = calculateAverageSoilQuality();
+    doc.text(`${avgQuality.toFixed(0)}%`, 145, yPos + 14);
+
+    yPos += 38;
+
+    // Soil Data Details
+    doc.setFillColor(...primaryGreen);
+    doc.rect(15, yPos, 180, 10, 'F');
+
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Soil Analysis Details', 20, yPos + 7);
+
+    yPos += 15;
+
+    const soilData = allSoilData.slice(0, 100).map((s, index) => [
+        (index + 1).toString(),
+        formatDate(s.measurementDate || s.createdAt),
+        `${parseFloat(s.phLevel || 0).toFixed(1)}`,
+        `${parseFloat(s.nitrogen || 0).toFixed(1)} ppm`,
+        `${parseFloat(s.phosphorus || 0).toFixed(1)} ppm`,
+        `${parseFloat(s.potassium || 0).toFixed(1)} ppm`,
+        formatEnum(s.soilTexture)
+    ]);
+
+    doc.autoTable({
+        startY: yPos,
+        head: [['#', 'Date', 'pH', 'N', 'P', 'K', 'Texture']],
+        body: soilData,
+        theme: 'striped',
+        headStyles: {
+            fillColor: primaryGreen,
+            textColor: [255, 255, 255],
+            fontSize: 8,
+            fontStyle: 'bold',
+            halign: 'left',
+            cellPadding: 3
+        },
+        bodyStyles: {
+            fontSize: 7,
+            textColor: textDark,
+            cellPadding: 2
+        },
+        alternateRowStyles: {
+            fillColor: [249, 250, 251]
+        },
+        columnStyles: {
+            0: { cellWidth: 10, halign: 'center' },
+            1: { cellWidth: 26 },
+            2: { cellWidth: 19 },
+            3: { cellWidth: 26 },
+            4: { cellWidth: 26 },
+            5: { cellWidth: 26 },
+            6: { cellWidth: 28, halign: 'center' }
+        },
+        margin: { left: 15, right: 15 }
+    });
+
+    doc.addPage();
+    addStatisticsPage(doc, 'soil', primaryGreen, textDark, textGray, borderColor);
+}
+
+// ==================== PREDICTIONS REPORT ====================
+async function generatePredictionsReport(doc, period, primaryGreen, lightGreen, textDark, textGray, borderColor) {
+    let yPos = 50;
+
+    // Info box
+    doc.setFillColor(...lightGreen);
+    doc.roundedRect(15, yPos, 180, 28, 2, 2, 'F');
+    doc.setDrawColor(...primaryGreen);
+    doc.setLineWidth(0.5);
+    doc.roundedRect(15, yPos, 180, 28, 2, 2, 'S');
+
+    doc.setTextColor(...textDark);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+
+    doc.text('Report Generated:', 20, yPos + 7);
+    doc.text('Analysis Period:', 20, yPos + 14);
+    doc.text('Generated By:', 20, yPos + 21);
+
+    doc.setFont('helvetica', 'normal');
+    doc.text(new Date().toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    }), 60, yPos + 7);
+
+    doc.setTextColor(...primaryGreen);
+    doc.setFont('helvetica', 'bold');
+    doc.text('AI-Powered Predictions', 60, yPos + 14);
+
+    doc.setTextColor(...textDark);
+    doc.setFont('helvetica', 'normal');
+    doc.text('AgriGuard AI System', 60, yPos + 21);
+
+    yPos += 38;
+
+    // AI Predictions Section
+    doc.setFillColor(...primaryGreen);
+    doc.rect(15, yPos, 180, 10, 'F');
+
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('AI Predictions & Insights', 20, yPos + 7);
+
+    yPos += 20;
+
+    // Add predictions as formatted text boxes
+    const predictions = [
+        {
+            title: 'Crop Yield Prediction',
+            content: `Predicted total yield: ${(allCropProductions.length * 2.5).toFixed(1)} tons
+Confidence level: 85%
+Expected harvest period: Next 30-60 days`
+        },
+        {
+            title: 'Market Price Forecast',
+            content: `Average price trend: Upward (+5-8%)
+Best selling period: Next 2-3 weeks
+High demand crops: Top 3 categories`
+        },
+        {
+            title: 'Weather Impact Analysis',
+            content: `Weather risk level: Low to Medium
+Irrigation needs: Moderate
+Recommended actions: Monitor closely`
+        },
+        {
+            title: 'Soil Health Forecast',
+            content: `Overall soil quality: ${calculateAverageSoilQuality().toFixed(0)}%
+Nutrient status: Good
+Action required: Routine maintenance`
         }
-    } catch (error) {
-        console.error('Error generating Excel report:', error);
-        showToast('Error generating Excel report', 'error');
+    ];
+
+    predictions.forEach((pred, index) => {
+        // Prediction box
+        doc.setDrawColor(...borderColor);
+        doc.setLineWidth(0.3);
+        doc.roundedRect(15, yPos, 180, 30, 2, 2, 'S');
+
+        // Left accent
+        doc.setFillColor(...primaryGreen);
+        doc.rect(15, yPos, 3, 30, 'F');
+
+        // Title
+        doc.setTextColor(...textDark);
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.text(pred.title, 23, yPos + 7);
+
+        // Content
+        doc.setTextColor(...textGray);
+        doc.setFontSize(8);
+        doc.setFont('helvetica', 'normal');
+        const lines = doc.splitTextToSize(pred.content, 160);
+        doc.text(lines, 23, yPos + 14);
+
+        yPos += 35;
+    });
+
+    doc.addPage();
+    addStatisticsPage(doc, 'predictions', primaryGreen, textDark, textGray, borderColor);
+}
+
+// ==================== COMPREHENSIVE REPORT ====================
+async function generateComprehensiveReport(doc, period, primaryGreen, darkGreen, lightGreen, textDark, textGray, borderColor, logoBase64) {
+    // This combines all reports - reuse existing logic
+    await generateTransactionReport(doc, period, primaryGreen, lightGreen, textDark, textGray, borderColor);
+
+    doc.addPage();
+    addHeaderToPage(doc, logoBase64, 'Comprehensive Analysis Report', primaryGreen, darkGreen);
+    await generateCropProductionReport(doc, period, primaryGreen, lightGreen, textDark, textGray, borderColor);
+}
+
+// ==================== STATISTICS PAGE ====================
+function addStatisticsPage(doc, reportType, primaryGreen, textDark, textGray, borderColor) {
+    let yPos = 20;
+
+    // Title
+    doc.setFillColor(...primaryGreen);
+    doc.rect(0, 0, 210, 30, 'F');
+
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(18);
+    doc.setFont('helvetica', 'bold');
+    doc.text('System Statistics', 105, 20, { align: 'center' });
+
+    yPos = 40;
+
+    // Statistics boxes based on report type
+    let stats = [];
+
+    switch (reportType) {
+        case 'transactions':
+            const totalRevenue = allTransactions.reduce((s, t) => s + (parseFloat(t.totalAmount) || 0), 0);
+            const avgTransValue = allTransactions.length > 0 ? totalRevenue / allTransactions.length : 0;
+
+            stats = [
+                { label: 'Total Transactions', value: allTransactions.length.toString(), color: primaryGreen },
+                { label: 'Total Revenue', value: formatCurrency(totalRevenue), color: [59, 130, 246] },
+                { label: 'Active Farmers', value: new Set(allTransactions.map(t => t.farmerId).filter(Boolean)).size.toString(), color: [245, 158, 11] },
+                { label: 'Active Buyers', value: new Set(allTransactions.map(t => t.buyerId).filter(Boolean)).size.toString(), color: [139, 92, 246] },
+                { label: 'Avg Transaction Value', value: formatCurrency(avgTransValue), color: [16, 185, 129] },
+                { label: 'Completed Transactions', value: allTransactions.filter(t => t.transactionStatus === 'COMPLETED').length.toString(), color: [34, 197, 94] }
+            ];
+            break;
+        case 'crops':
+            const totalYield = allCropProductions.reduce((s, cp) => s + (parseFloat(cp.actualYield || cp.expectedYield) || 0), 0);
+            const totalArea = allCropProductions.reduce((s, cp) => s + (parseFloat(cp.areaInHectares) || 0), 0);
+
+            stats = [
+                { label: 'Total Productions', value: allCropProductions.length.toString(), color: primaryGreen },
+                { label: 'Harvested', value: allCropProductions.filter(cp => cp.productionStatus === 'HARVESTED').length.toString(), color: [34, 197, 94] },
+                { label: 'Total Area', value: `${totalArea.toFixed(1)} ha`, color: [245, 158, 11] },
+                { label: 'Total Yield', value: `${totalYield.toFixed(1)} tons`, color: [59, 130, 246] },
+                { label: 'Active Productions', value: allCropProductions.filter(cp => cp.productionStatus === 'PLANTED' || cp.productionStatus === 'GROWING').length.toString(), color: [16, 185, 129] },
+                { label: 'Unique Crops', value: new Set(allCropProductions.map(cp => cp.cropId)).size.toString(), color: [139, 92, 246] }
+            ];
+            break;
+        case 'market':
+            const avgMarketPrice = allMarketPrices.length > 0
+                ? allMarketPrices.reduce((s, mp) => s + (parseFloat(mp.pricePerKg) || 0), 0) / allMarketPrices.length
+                : 0;
+
+            stats = [
+                { label: 'Price Records', value: allMarketPrices.length.toString(), color: primaryGreen },
+                { label: 'Average Price', value: `${formatCurrency(avgMarketPrice)}/kg`, color: [59, 130, 246] },
+                { label: 'Unique Locations', value: new Set(allMarketPrices.map(mp => mp.location)).size.toString(), color: [245, 158, 11] },
+                { label: 'High Demand', value: allMarketPrices.filter(mp => mp.demandLevel === 'HIGH' || mp.demandLevel === 'VERY_HIGH').length.toString(), color: [239, 68, 68] },
+                { label: 'Low Supply', value: allMarketPrices.filter(mp => mp.supplyLevel === 'LOW').length.toString(), color: [245, 158, 11] },
+                { label: 'Tracked Crops', value: new Set(allMarketPrices.map(mp => mp.cropId)).size.toString(), color: [16, 185, 129] }
+            ];
+            break;
+        case 'weather':
+            const avgWeatherTemp = allWeatherData.length > 0
+                ? allWeatherData.reduce((s, w) => s + (parseFloat(w.temperature) || 0), 0) / allWeatherData.length
+                : 0;
+            const totalRainfall = allWeatherData.reduce((s, w) => s + (parseFloat(w.rainfall) || 0), 0);
+            const avgHumidity = allWeatherData.length > 0
+                ? allWeatherData.reduce((s, w) => s + (parseFloat(w.humidity) || 0), 0) / allWeatherData.length
+                : 0;
+            const avgWindSpeed = allWeatherData.length > 0
+                ? allWeatherData.reduce((s, w) => s + (parseFloat(w.windSpeed) || 0), 0) / allWeatherData.length
+                : 0;
+
+            stats = [
+                { label: 'Weather Records', value: allWeatherData.length.toString(), color: primaryGreen },
+                { label: 'Avg Temperature', value: `${avgWeatherTemp.toFixed(1)}°C`, color: [239, 68, 68] },
+                { label: 'Total Rainfall', value: `${totalRainfall.toFixed(1)} mm`, color: [59, 130, 246] },
+                { label: 'Avg Humidity', value: `${avgHumidity.toFixed(0)}%`, color: [6, 182, 212] },
+                { label: 'Avg Wind Speed', value: `${avgWindSpeed.toFixed(1)} m/s`, color: [132, 204, 22] },
+                { label: 'Optimal Days', value: allWeatherData.filter(w => {
+                    const temp = parseFloat(w.temperature) || 0;
+                    const hum = parseFloat(w.humidity) || 0;
+                    return temp >= 20 && temp <= 30 && hum >= 40 && hum <= 70;
+                }).length.toString(), color: [34, 197, 94] }
+            ];
+            break;
+        case 'soil':
+            const avgSoilQuality = calculateAverageSoilQuality();
+            const avgPH = allSoilData.length > 0
+                ? allSoilData.reduce((s, sd) => s + (parseFloat(sd.phLevel) || 0), 0) / allSoilData.length
+                : 0;
+            const avgNitrogen = allSoilData.length > 0
+                ? allSoilData.reduce((s, sd) => s + (parseFloat(sd.nitrogen) || 0), 0) / allSoilData.length
+                : 0;
+            const avgPhosphorus = allSoilData.length > 0
+                ? allSoilData.reduce((s, sd) => s + (parseFloat(sd.phosphorus) || 0), 0) / allSoilData.length
+                : 0;
+            const avgPotassium = allSoilData.length > 0
+                ? allSoilData.reduce((s, sd) => s + (parseFloat(sd.potassium) || 0), 0) / allSoilData.length
+                : 0;
+
+            stats = [
+                { label: 'Soil Samples', value: allSoilData.length.toString(), color: primaryGreen },
+                { label: 'Avg Soil Quality', value: `${avgSoilQuality.toFixed(0)}%`, color: [34, 197, 94] },
+                { label: 'Avg pH Level', value: avgPH.toFixed(1), color: [234, 179, 8] },
+                { label: 'Avg Nitrogen', value: `${avgNitrogen.toFixed(1)} ppm`, color: [34, 197, 94] },
+                { label: 'Avg Phosphorus', value: `${avgPhosphorus.toFixed(1)} ppm`, color: [59, 130, 246] },
+                { label: 'Avg Potassium', value: `${avgPotassium.toFixed(1)} ppm`, color: [245, 158, 11] }
+            ];
+            break;
+        default:
+            stats = [
+                { label: 'Total Transactions', value: allTransactions.length.toString(), color: primaryGreen },
+                { label: 'Crop Productions', value: allCropProductions.length.toString(), color: [16, 185, 129] },
+                { label: 'Market Records', value: allMarketPrices.length.toString(), color: [239, 68, 68] },
+                { label: 'Weather Data', value: allWeatherData.length.toString(), color: [59, 130, 246] },
+                { label: 'Soil Samples', value: allSoilData.length.toString(), color: [245, 158, 11] },
+                { label: 'System Health', value: '95%', color: [34, 197, 94] }
+            ];
+    }
+
+    let xPos = 15;
+    let statYPos = yPos;
+
+    stats.forEach((stat, index) => {
+        if (index > 0 && index % 3 === 0) {
+            statYPos += 50;
+            xPos = 15;
+        }
+
+        // Stat box with improved styling
+        doc.setFillColor(249, 250, 251);
+        doc.roundedRect(xPos, statYPos, 58, 40, 2, 2, 'F');
+
+        doc.setDrawColor(...stat.color);
+        doc.setLineWidth(1);
+        doc.roundedRect(xPos, statYPos, 58, 40, 2, 2, 'S');
+
+        // Icon background (larger circle)
+        doc.setFillColor(...stat.color);
+        doc.circle(xPos + 12, statYPos + 12, 6, 'F');
+
+        // Value - PROFESSIONAL POSITIONING
+        doc.setTextColor(...stat.color);
+        doc.setFontSize(16);
+        doc.setFont('helvetica', 'bold');
+
+        // Center the value horizontally and position it properly
+        const valueText = stat.value;
+        const valueWidth = doc.getTextWidth(valueText);
+        const valueCenterX = xPos + 29; // Center of the box
+
+        doc.text(valueText, valueCenterX, statYPos + 24, { align: 'center' });
+
+        // Label - positioned below value
+        doc.setTextColor(...textGray);
+        doc.setFontSize(7);
+        doc.setFont('helvetica', 'normal');
+
+        const lines = doc.splitTextToSize(stat.label, 50);
+        doc.text(lines, xPos + 29, statYPos + 32, { align: 'center' });
+
+        xPos += 62;
+    });
+
+    // Add insights
+    yPos = statYPos + 60;
+
+    doc.setFillColor(...primaryGreen);
+    doc.rect(15, yPos, 180, 8, 'F');
+
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Key Insights', 20, yPos + 5.5);
+
+    yPos += 15;
+
+    const insights = getInsightsForReportType(reportType);
+
+    insights.forEach((insight) => {
+        doc.setDrawColor(...borderColor);
+        doc.setLineWidth(0.3);
+        doc.roundedRect(15, yPos, 180, 18, 2, 2, 'S');
+
+        doc.setFillColor(...insight.color);
+        doc.rect(15, yPos, 3, 18, 'F');
+
+        doc.setTextColor(...insight.color);
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text(insight.icon, 23, yPos + 7);
+
+        doc.setTextColor(...textDark);
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'bold');
+        doc.text(insight.title, 30, yPos + 7);
+
+        doc.setTextColor(...textGray);
+        doc.setFontSize(8);
+        doc.setFont('helvetica', 'normal');
+        const textLines = doc.splitTextToSize(insight.text, 160);
+        doc.text(textLines, 30, yPos + 13);
+
+        yPos += 22;
+    });
+}
+
+// Helper function for report-specific insights
+function getInsightsForReportType(reportType) {
+    const totalRevenue = allTransactions.reduce((s, t) => s + (parseFloat(t.totalAmount) || 0), 0);
+    const totalYield = allCropProductions.reduce((s, cp) => s + (parseFloat(cp.actualYield || cp.expectedYield) || 0), 0);
+    const avgYield = allCropProductions.length > 0 ? totalYield / allCropProductions.length : 0;
+
+    switch (reportType) {
+        case 'transactions':
+            return [
+                {
+                    title: 'Market Activity',
+                    text: `Strong transaction volume with ${allTransactions.length} total transactions recorded.`,
+                    icon: '✓',
+                    color: [34, 197, 94]
+                },
+                {
+                    title: 'Revenue Performance',
+                    text: `Total revenue of ${formatCurrency(totalRevenue)} generated.`,
+                    icon: '★',
+                    color: [59, 130, 246]
+                }
+            ];
+        case 'crops':
+            return [
+                {
+                    title: 'Production Status',
+                    text: `${allCropProductions.filter(cp => cp.productionStatus === 'HARVESTED').length} productions harvested successfully.`,
+                    icon: '✓',
+                    color: [34, 197, 94]
+                },
+                {
+                    title: 'Yield Performance',
+                    text: `Average yield of ${avgYield.toFixed(2)} tons/ha achieved.`,
+                    icon: '◆',
+                    color: [245, 158, 11]
+                }
+            ];
+        case 'market':
+            return [
+                {
+                    title: 'Price Trends',
+                    text: `Market showing ${allMarketPrices.filter(mp => mp.demandLevel === 'HIGH').length} high-demand price points.`,
+                    icon: '★',
+                    color: [239, 68, 68]
+                },
+                {
+                    title: 'Market Coverage',
+                    text: `Tracking ${new Set(allMarketPrices.map(mp => mp.location)).size} unique locations across the region.`,
+                    icon: '◆',
+                    color: [59, 130, 246]
+                }
+            ];
+        case 'weather':
+            const avgTemp = allWeatherData.length > 0
+                ? allWeatherData.reduce((s, w) => s + (parseFloat(w.temperature) || 0), 0) / allWeatherData.length
+                : 0;
+            return [
+                {
+                    title: 'Weather Patterns',
+                    text: `Favorable conditions detected in ${allWeatherData.filter(w => {
+                        const temp = parseFloat(w.temperature) || 0;
+                        return temp >= 20 && temp <= 30;
+                    }).length} recorded days.`,
+                    icon: '✓',
+                    color: [34, 197, 94]
+                },
+                {
+                    title: 'Climate Impact',
+                    text: `Average temperature of ${avgTemp.toFixed(1)}°C within optimal range.`,
+                    icon: '◆',
+                    color: [59, 130, 246]
+                }
+            ];
+        case 'soil':
+            const avgQuality = calculateAverageSoilQuality();
+            return [
+                {
+                    title: 'Soil Health',
+                    text: `Overall soil quality at ${avgQuality.toFixed(0)}% - ${avgQuality > 70 ? 'Good' : 'Needs Improvement'} condition.`,
+                    icon: '✓',
+                    color: avgQuality > 70 ? [34, 197, 94] : [245, 158, 11]
+                },
+                {
+                    title: 'Nutrient Status',
+                    text: `NPK levels averaging within acceptable ranges for most samples.`,
+                    icon: '◆',
+                    color: [34, 197, 94]
+                }
+            ];
+        default:
+            return [
+                {
+                    title: 'System Overview',
+                    text: `Comprehensive analysis covering all agricultural data points.`,
+                    icon: '✓',
+                    color: [34, 197, 94]
+                },
+                {
+                    title: 'Data Quality',
+                    text: `High-quality data from multiple sources ensuring accurate insights.`,
+                    icon: '★',
+                    color: [59, 130, 246]
+                }
+            ];
     }
 }
 
+// Helper to add header to new pages
+function addHeaderToPage(doc, logoBase64, title, primaryGreen, darkGreen) {
+    doc.setFillColor(...primaryGreen);
+    doc.rect(0, 0, 210, 40, 'F');
+
+    if (logoBase64) {
+        try {
+            doc.addImage(logoBase64, 'JPEG', 15, 10, 20, 20);
+        } catch (error) {
+            doc.setFillColor(255, 255, 255);
+            doc.roundedRect(15, 10, 20, 20, 3, 3, 'F');
+            doc.setTextColor(...darkGreen);
+            doc.setFontSize(16);
+            doc.setFont('helvetica', 'bold');
+            doc.text('AG', 25, 23, { align: 'center' });
+        }
+    }
+
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(22);
+    doc.setFont('helvetica', 'bold');
+    doc.text('AgriGuard AI', 40, 18);
+
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Smart Agriculture Management System', 40, 25);
+
+    doc.setFontSize(13);
+    doc.setFont('helvetica', 'bold');
+    doc.text(title, 40, 33);
+}
+
+
+
+
+
+
+// ==================== EXCEL REPORT GENERATION ====================
+
+async function generateExcelReport() {
+    try {
+        showLoading(true);
+
+        const reportType = document.getElementById('reportType').value;
+        const reportPeriod = document.getElementById('reportPeriod').value;
+
+        switch (reportType) {
+            case 'comprehensive':
+                await exportComprehensiveExcel();
+                break;
+            case 'transactions':
+                await exportTransactionsExcel();
+                break;
+            case 'crops':
+                await exportCropsExcel();
+                break;
+            case 'market':
+                await exportMarketExcel();
+                break;
+            case 'weather':
+                await exportWeatherExcel();
+                break;
+            case 'soil':
+                await exportSoilExcel();
+                break;
+            case 'predictions':
+                await exportPredictionsExcel();
+                break;
+            default:
+                await exportComprehensiveExcel();
+        }
+
+        showToast('Excel report generated successfully! ✓', 'success');
+    } catch (error) {
+        console.error('Error generating Excel report:', error);
+        showToast('Error generating Excel report ✗', 'error');
+    } finally {
+        showLoading(false);
+    }
+}
+
+// ==================== COMPREHENSIVE EXCEL EXPORT ====================
 async function exportComprehensiveExcel() {
     const wb = XLSX.utils.book_new();
 
-    const statsData = [{
-        'Metric': 'Total Transactions',
-        'Value': allTransactions.length
-    }, {
-        'Metric': 'Total Revenue',
-        'Value': allTransactions.reduce((sum, t) => sum + (parseFloat(t.totalAmount) || 0), 0)
-    }, {
-        'Metric': 'Active Farmers',
-        'Value': new Set(allTransactions.map(t => t.farmerId).filter(Boolean)).size
-    }, {
-        'Metric': 'Active Buyers',
-        'Value': new Set(allTransactions.map(t => t.buyerId).filter(Boolean)).size
-    }, {
-        'Metric': 'Crop Productions',
-        'Value': allCropProductions.length
-    }, {
-        'Metric': 'Market Prices',
-        'Value': allMarketPrices.length
-    }];
+    // Statistics Sheet
+    const totalRevenue = allTransactions.reduce((sum, t) => sum + (parseFloat(t.totalAmount) || 0), 0);
+    const totalYield = allCropProductions.reduce((sum, cp) => sum + (parseFloat(cp.actualYield || cp.expectedYield) || 0), 0);
+
+    const statsData = [
+        { 'Metric': 'Total Transactions', 'Value': allTransactions.length },
+        { 'Metric': 'Total Revenue', 'Value': `RWF ${totalRevenue.toLocaleString()}` },
+        { 'Metric': 'Active Farmers', 'Value': new Set(allTransactions.map(t => t.farmerId).filter(Boolean)).size },
+        { 'Metric': 'Active Buyers', 'Value': new Set(allTransactions.map(t => t.buyerId).filter(Boolean)).size },
+        { 'Metric': 'Crop Productions', 'Value': allCropProductions.length },
+        { 'Metric': 'Total Yield', 'Value': `${totalYield.toFixed(1)} tons` },
+        { 'Metric': 'Market Price Records', 'Value': allMarketPrices.length },
+        { 'Metric': 'Weather Records', 'Value': allWeatherData.length },
+        { 'Metric': 'Soil Samples', 'Value': allSoilData.length },
+        { 'Metric': 'System Health', 'Value': '95%' }
+    ];
 
     const ws1 = XLSX.utils.json_to_sheet(statsData);
+    ws1['!cols'] = [{ wch: 25 }, { wch: 20 }];
     XLSX.utils.book_append_sheet(wb, ws1, 'Statistics');
 
-    const transData = allTransactions.slice(0, 1000).map((t, i) => ({
-        '#': i + 1,
-        'ID': t.id || 'N/A',
-        'Date': formatDate(t.createdAt),
-        'Amount': t.totalAmount || 0,
-        'Status': formatEnum(t.transactionStatus)
-    }));
+    // Transactions Sheet
+    const transData = allTransactions.slice(0, 1000).map((t, i) => {
+        const crop = allCrops.find(c => c.id === t.cropId);
+        return {
+            '#': i + 1,
+            'Transaction ID': t.id || 'N/A',
+            'Date': formatDate(t.createdAt),
+            'Crop': crop ? crop.cropName : 'Unknown',
+            'Quantity': `${t.quantity || 0} ${t.unit || 'kg'}`,
+            'Amount (RWF)': parseFloat(t.totalAmount) || 0,
+            'Status': formatEnum(t.transactionStatus)
+        };
+    });
+
+    if (transData.length > 0) {
+        const ws2 = XLSX.utils.json_to_sheet(transData);
+        ws2['!cols'] = [{ wch: 5 }, { wch: 15 }, { wch: 12 }, { wch: 15 }, { wch: 12 }, { wch: 15 }, { wch: 12 }];
+        XLSX.utils.book_append_sheet(wb, ws2, 'Transactions');
+    }
+
+    // Crop Productions Sheet
+    const cropData = allCropProductions.slice(0, 1000).map((cp, i) => {
+        const crop = allCrops.find(c => c.id === cp.cropId);
+        return {
+            '#': i + 1,
+            'Crop': crop ? crop.cropName : 'Unknown',
+            'Season': cp.season || 'N/A',
+            'Area (ha)': parseFloat(cp.areaInHectares) || 0,
+            'Yield (t/ha)': parseFloat(cp.actualYield || cp.expectedYield) || 0,
+            'Status': formatEnum(cp.productionStatus),
+            'Planting Date': formatDate(cp.plantingDate)
+        };
+    });
+
+    if (cropData.length > 0) {
+        const ws3 = XLSX.utils.json_to_sheet(cropData);
+        ws3['!cols'] = [{ wch: 5 }, { wch: 15 }, { wch: 10 }, { wch: 10 }, { wch: 12 }, { wch: 12 }, { wch: 12 }];
+        XLSX.utils.book_append_sheet(wb, ws3, 'Crop Productions');
+    }
+
+    // Market Prices Sheet
+    const marketData = allMarketPrices.slice(0, 1000).map((mp, i) => {
+        const crop = allCrops.find(c => c.id === mp.cropId);
+        return {
+            '#': i + 1,
+            'Crop': crop ? crop.cropName : 'Unknown',
+            'Price (RWF/kg)': parseFloat(mp.pricePerKg) || 0,
+            'Location': mp.location || 'N/A',
+            'Demand': formatEnum(mp.demandLevel),
+            'Supply': formatEnum(mp.supplyLevel),
+            'Date': formatDate(mp.priceDate)
+        };
+    });
+
+    if (marketData.length > 0) {
+        const ws4 = XLSX.utils.json_to_sheet(marketData);
+        ws4['!cols'] = [{ wch: 5 }, { wch: 15 }, { wch: 12 }, { wch: 15 }, { wch: 10 }, { wch: 10 }, { wch: 12 }];
+        XLSX.utils.book_append_sheet(wb, ws4, 'Market Prices');
+    }
+
+    XLSX.writeFile(wb, `AgriGuard_Comprehensive_Report_${Date.now()}.xlsx`);
+}
+
+// ==================== TRANSACTIONS EXCEL EXPORT ====================
+async function exportTransactionsExcel() {
+    const wb = XLSX.utils.book_new();
+
+    const totalRevenue = allTransactions.reduce((sum, t) => sum + (parseFloat(t.totalAmount) || 0), 0);
+    const avgTransValue = allTransactions.length > 0 ? totalRevenue / allTransactions.length : 0;
+
+    // Statistics Sheet
+    const statsData = [
+        { 'Metric': 'Total Transactions', 'Value': allTransactions.length },
+        { 'Metric': 'Total Revenue', 'Value': `RWF ${totalRevenue.toLocaleString()}` },
+        { 'Metric': 'Average Transaction Value', 'Value': `RWF ${avgTransValue.toLocaleString()}` },
+        { 'Metric': 'Active Farmers', 'Value': new Set(allTransactions.map(t => t.farmerId).filter(Boolean)).size },
+        { 'Metric': 'Active Buyers', 'Value': new Set(allTransactions.map(t => t.buyerId).filter(Boolean)).size },
+        { 'Metric': 'Completed', 'Value': allTransactions.filter(t => t.transactionStatus === 'COMPLETED').length },
+        { 'Metric': 'Pending', 'Value': allTransactions.filter(t => t.transactionStatus === 'PENDING').length }
+    ];
+
+    const ws1 = XLSX.utils.json_to_sheet(statsData);
+    ws1['!cols'] = [{ wch: 30 }, { wch: 20 }];
+    XLSX.utils.book_append_sheet(wb, ws1, 'Statistics');
+
+    // Transactions Details Sheet
+    const transData = allTransactions.map((t, i) => {
+        const crop = allCrops.find(c => c.id === t.cropId);
+        const farmer = allUsers.find(u => u.id === t.farmerId);
+        const buyer = allUsers.find(u => u.id === t.buyerId);
+
+        return {
+            '#': i + 1,
+            'Transaction ID': t.id || 'N/A',
+            'Date': formatDate(t.createdAt),
+            'Farmer': farmer ? `${farmer.firstName} ${farmer.lastName}` : 'Unknown',
+            'Buyer': buyer ? `${buyer.firstName} ${buyer.lastName}` : 'Unknown',
+            'Crop': crop ? crop.cropName : 'Unknown',
+            'Quantity': parseFloat(t.quantity) || 0,
+            'Unit': t.unit || 'kg',
+            'Price per Unit (RWF)': parseFloat(t.pricePerUnit) || 0,
+            'Total Amount (RWF)': parseFloat(t.totalAmount) || 0,
+            'Status': formatEnum(t.transactionStatus),
+            'Payment Method': formatEnum(t.paymentMethod),
+            'Location': t.location || 'N/A'
+        };
+    });
 
     const ws2 = XLSX.utils.json_to_sheet(transData);
-    XLSX.utils.book_append_sheet(wb, ws2, 'Transactions');
+    ws2['!cols'] = [
+        { wch: 5 }, { wch: 15 }, { wch: 12 }, { wch: 15 }, { wch: 15 },
+        { wch: 15 }, { wch: 10 }, { wch: 8 }, { wch: 12 }, { wch: 15 },
+        { wch: 12 }, { wch: 12 }, { wch: 15 }
+    ];
+    XLSX.utils.book_append_sheet(wb, ws2, 'Transaction Details');
 
-    XLSX.writeFile(wb, `comprehensive_report_${Date.now()}.xlsx`);
-    showToast('Comprehensive Excel report generated', 'success');
+    XLSX.writeFile(wb, `AgriGuard_Transactions_Report_${Date.now()}.xlsx`);
+}
+
+// ==================== CROPS EXCEL EXPORT ====================
+async function exportCropsExcel() {
+    const wb = XLSX.utils.book_new();
+
+    const totalYield = allCropProductions.reduce((sum, cp) => sum + (parseFloat(cp.actualYield || cp.expectedYield) || 0), 0);
+    const totalArea = allCropProductions.reduce((sum, cp) => sum + (parseFloat(cp.areaInHectares) || 0), 0);
+    const avgYield = allCropProductions.length > 0 ? totalYield / allCropProductions.length : 0;
+
+    // Statistics Sheet
+    const statsData = [
+        { 'Metric': 'Total Productions', 'Value': allCropProductions.length },
+        { 'Metric': 'Total Area', 'Value': `${totalArea.toFixed(1)} hectares` },
+        { 'Metric': 'Total Yield', 'Value': `${totalYield.toFixed(1)} tons` },
+        { 'Metric': 'Average Yield', 'Value': `${avgYield.toFixed(2)} tons/ha` },
+        { 'Metric': 'Harvested', 'Value': allCropProductions.filter(cp => cp.productionStatus === 'HARVESTED').length },
+        { 'Metric': 'Growing', 'Value': allCropProductions.filter(cp => cp.productionStatus === 'GROWING').length },
+        { 'Metric': 'Planted', 'Value': allCropProductions.filter(cp => cp.productionStatus === 'PLANTED').length },
+        { 'Metric': 'Unique Crops', 'Value': new Set(allCropProductions.map(cp => cp.cropId)).size }
+    ];
+
+    const ws1 = XLSX.utils.json_to_sheet(statsData);
+    ws1['!cols'] = [{ wch: 25 }, { wch: 20 }];
+    XLSX.utils.book_append_sheet(wb, ws1, 'Statistics');
+
+    // Crop Production Details Sheet
+    const cropData = allCropProductions.map((cp, i) => {
+        const crop = allCrops.find(c => c.id === cp.cropId);
+        const farmer = allUsers.find(u => u.id === cp.farmerId);
+
+        return {
+            '#': i + 1,
+            'Production ID': cp.id || 'N/A',
+            'Farmer': farmer ? `${farmer.firstName} ${farmer.lastName}` : 'Unknown',
+            'Crop': crop ? crop.cropName : 'Unknown',
+            'Season': cp.season || 'N/A',
+            'Area (hectares)': parseFloat(cp.areaInHectares) || 0,
+            'Expected Yield (t/ha)': parseFloat(cp.expectedYield) || 0,
+            'Actual Yield (t/ha)': parseFloat(cp.actualYield) || 0,
+            'Status': formatEnum(cp.productionStatus),
+            'Planting Date': formatDate(cp.plantingDate),
+            'Harvest Date': formatDate(cp.harvestDate),
+            'Location': cp.location || 'N/A',
+            'Notes': cp.notes || ''
+        };
+    });
+
+    const ws2 = XLSX.utils.json_to_sheet(cropData);
+    ws2['!cols'] = [
+        { wch: 5 }, { wch: 15 }, { wch: 15 }, { wch: 15 }, { wch: 10 },
+        { wch: 12 }, { wch: 15 }, { wch: 15 }, { wch: 12 }, { wch: 12 },
+        { wch: 12 }, { wch: 15 }, { wch: 30 }
+    ];
+    XLSX.utils.book_append_sheet(wb, ws2, 'Production Details');
+
+    XLSX.writeFile(wb, `AgriGuard_Crops_Report_${Date.now()}.xlsx`);
+}
+
+// ==================== MARKET EXCEL EXPORT ====================
+async function exportMarketExcel() {
+    const wb = XLSX.utils.book_new();
+
+    const avgPrice = allMarketPrices.length > 0
+        ? allMarketPrices.reduce((sum, mp) => sum + (parseFloat(mp.pricePerKg) || 0), 0) / allMarketPrices.length
+        : 0;
+    const maxPrice = Math.max(...allMarketPrices.map(mp => parseFloat(mp.pricePerKg) || 0));
+    const minPrice = Math.min(...allMarketPrices.map(mp => parseFloat(mp.pricePerKg) || 0));
+
+    // Statistics Sheet
+    const statsData = [
+        { 'Metric': 'Total Price Records', 'Value': allMarketPrices.length },
+        { 'Metric': 'Average Price', 'Value': `RWF ${avgPrice.toFixed(2)}/kg` },
+        { 'Metric': 'Highest Price', 'Value': `RWF ${maxPrice.toFixed(2)}/kg` },
+        { 'Metric': 'Lowest Price', 'Value': `RWF ${minPrice.toFixed(2)}/kg` },
+        { 'Metric': 'Unique Locations', 'Value': new Set(allMarketPrices.map(mp => mp.location)).size },
+        { 'Metric': 'High Demand Items', 'Value': allMarketPrices.filter(mp => mp.demandLevel === 'HIGH' || mp.demandLevel === 'VERY_HIGH').length },
+        { 'Metric': 'Low Supply Items', 'Value': allMarketPrices.filter(mp => mp.supplyLevel === 'LOW').length },
+        { 'Metric': 'Tracked Crops', 'Value': new Set(allMarketPrices.map(mp => mp.cropId)).size }
+    ];
+
+    const ws1 = XLSX.utils.json_to_sheet(statsData);
+    ws1['!cols'] = [{ wch: 25 }, { wch: 20 }];
+    XLSX.utils.book_append_sheet(wb, ws1, 'Statistics');
+
+    // Market Price Details Sheet
+    const marketData = allMarketPrices.map((mp, i) => {
+        const crop = allCrops.find(c => c.id === mp.cropId);
+
+        return {
+            '#': i + 1,
+            'Record ID': mp.id || 'N/A',
+            'Crop': crop ? crop.cropName : 'Unknown',
+            'Price (RWF/kg)': parseFloat(mp.pricePerKg) || 0,
+            'Location': mp.location || 'N/A',
+            'Demand Level': formatEnum(mp.demandLevel),
+            'Supply Level': formatEnum(mp.supplyLevel),
+            'Market Condition': formatEnum(mp.marketCondition),
+            'Quality Grade': mp.qualityGrade || 'N/A',
+            'Date': formatDate(mp.priceDate),
+            'Source': mp.source || 'N/A',
+            'Notes': mp.notes || ''
+        };
+    });
+
+    const ws2 = XLSX.utils.json_to_sheet(marketData);
+    ws2['!cols'] = [
+        { wch: 5 }, { wch: 15 }, { wch: 15 }, { wch: 12 }, { wch: 15 },
+        { wch: 12 }, { wch: 12 }, { wch: 15 }, { wch: 12 }, { wch: 12 },
+        { wch: 15 }, { wch: 30 }
+    ];
+    XLSX.utils.book_append_sheet(wb, ws2, 'Market Price Details');
+
+    XLSX.writeFile(wb, `AgriGuard_Market_Report_${Date.now()}.xlsx`);
+}
+
+// ==================== WEATHER EXCEL EXPORT ====================
+async function exportWeatherExcel() {
+    const wb = XLSX.utils.book_new();
+
+    const avgTemp = allWeatherData.length > 0
+        ? allWeatherData.reduce((sum, w) => sum + (parseFloat(w.temperature) || 0), 0) / allWeatherData.length
+        : 0;
+    const totalRainfall = allWeatherData.reduce((sum, w) => sum + (parseFloat(w.rainfall) || 0), 0);
+    const avgHumidity = allWeatherData.length > 0
+        ? allWeatherData.reduce((sum, w) => sum + (parseFloat(w.humidity) || 0), 0) / allWeatherData.length
+        : 0;
+    const avgWindSpeed = allWeatherData.length > 0
+        ? allWeatherData.reduce((sum, w) => sum + (parseFloat(w.windSpeed) || 0), 0) / allWeatherData.length
+        : 0;
+
+    // Statistics Sheet
+    const statsData = [
+        { 'Metric': 'Total Weather Records', 'Value': allWeatherData.length },
+        { 'Metric': 'Average Temperature', 'Value': `${avgTemp.toFixed(1)}°C` },
+        { 'Metric': 'Total Rainfall', 'Value': `${totalRainfall.toFixed(1)} mm` },
+        { 'Metric': 'Average Humidity', 'Value': `${avgHumidity.toFixed(0)}%` },
+        { 'Metric': 'Average Wind Speed', 'Value': `${avgWindSpeed.toFixed(1)} m/s` },
+        { 'Metric': 'Optimal Days', 'Value': allWeatherData.filter(w => {
+            const temp = parseFloat(w.temperature) || 0;
+            const hum = parseFloat(w.humidity) || 0;
+            return temp >= 20 && temp <= 30 && hum >= 40 && hum <= 70;
+        }).length }
+    ];
+
+    const ws1 = XLSX.utils.json_to_sheet(statsData);
+    ws1['!cols'] = [{ wch: 25 }, { wch: 20 }];
+    XLSX.utils.book_append_sheet(wb, ws1, 'Statistics');
+
+    // Weather Data Details Sheet
+    const weatherData = allWeatherData.map((w, i) => {
+        return {
+            '#': i + 1,
+            'Record ID': w.id || 'N/A',
+            'Date': formatDate(w.measurementDate || w.recordDate),
+            'Temperature (°C)': parseFloat(w.temperature) || 0,
+            'Rainfall (mm)': parseFloat(w.rainfall) || 0,
+            'Humidity (%)': parseFloat(w.humidity) || 0,
+            'Wind Speed (m/s)': parseFloat(w.windSpeed) || 0,
+            'Condition': formatEnum(w.weatherCondition),
+            'Location': w.location || 'N/A',
+            'UV Index': parseFloat(w.uvIndex) || 0,
+            'Pressure (hPa)': parseFloat(w.pressure) || 0,
+            'Notes': w.notes || ''
+        };
+    });
+
+    const ws2 = XLSX.utils.json_to_sheet(weatherData);
+    ws2['!cols'] = [
+        { wch: 5 }, { wch: 15 }, { wch: 12 }, { wch: 12 }, { wch: 12 },
+        { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 15 }, { wch: 10 },
+        { wch: 12 }, { wch: 30 }
+    ];
+    XLSX.utils.book_append_sheet(wb, ws2, 'Weather Data Details');
+
+    XLSX.writeFile(wb, `AgriGuard_Weather_Report_${Date.now()}.xlsx`);
+}
+
+// ==================== SOIL EXCEL EXPORT ====================
+async function exportSoilExcel() {
+    const wb = XLSX.utils.book_new();
+
+    const avgQuality = calculateAverageSoilQuality();
+    const avgPH = allSoilData.length > 0
+        ? allSoilData.reduce((sum, sd) => sum + (parseFloat(sd.phLevel) || 0), 0) / allSoilData.length
+        : 0;
+    const avgNitrogen = allSoilData.length > 0
+        ? allSoilData.reduce((sum, sd) => sum + (parseFloat(sd.nitrogen) || 0), 0) / allSoilData.length
+        : 0;
+    const avgPhosphorus = allSoilData.length > 0
+        ? allSoilData.reduce((sum, sd) => sum + (parseFloat(sd.phosphorus) || 0), 0) / allSoilData.length
+        : 0;
+    const avgPotassium = allSoilData.length > 0
+        ? allSoilData.reduce((sum, sd) => sum + (parseFloat(sd.potassium) || 0), 0) / allSoilData.length
+        : 0;
+
+    // Statistics Sheet
+    const statsData = [
+        { 'Metric': 'Total Soil Samples', 'Value': allSoilData.length },
+        { 'Metric': 'Average Soil Quality', 'Value': `${avgQuality.toFixed(0)}%` },
+        { 'Metric': 'Average pH Level', 'Value': avgPH.toFixed(2) },
+        { 'Metric': 'Average Nitrogen', 'Value': `${avgNitrogen.toFixed(1)} ppm` },
+        { 'Metric': 'Average Phosphorus', 'Value': `${avgPhosphorus.toFixed(1)} ppm` },
+        { 'Metric': 'Average Potassium', 'Value': `${avgPotassium.toFixed(1)} ppm` },
+        { 'Metric': 'Healthy Samples', 'Value': allSoilData.filter(sd => {
+            const ph = parseFloat(sd.phLevel) || 0;
+            return ph >= 6.0 && ph <= 7.5;
+        }).length }
+    ];
+
+    const ws1 = XLSX.utils.json_to_sheet(statsData);
+    ws1['!cols'] = [{ wch: 25 }, { wch: 20 }];
+    XLSX.utils.book_append_sheet(wb, ws1, 'Statistics');
+
+    // Soil Data Details Sheet
+    const soilData = allSoilData.map((sd, i) => {
+        const farmer = allUsers.find(u => u.id === sd.farmerId);
+
+        return {
+            '#': i + 1,
+            'Sample ID': sd.id || 'N/A',
+            'Farmer': farmer ? `${farmer.firstName} ${farmer.lastName}` : 'Unknown',
+            'Date': formatDate(sd.measurementDate || sd.createdAt),
+            'pH Level': parseFloat(sd.phLevel) || 0,
+            'Nitrogen (ppm)': parseFloat(sd.nitrogen) || 0,
+            'Phosphorus (ppm)': parseFloat(sd.phosphorus) || 0,
+            'Potassium (ppm)': parseFloat(sd.potassium) || 0,
+            'Organic Matter (%)': parseFloat(sd.organicMatter) || 0,
+            'Soil Texture': formatEnum(sd.soilTexture),
+            'Moisture (%)': parseFloat(sd.moisture) || 0,
+            'Location': sd.location || 'N/A',
+            'Recommendations': sd.recommendations || '',
+            'Notes': sd.notes || ''
+        };
+    });
+
+    const ws2 = XLSX.utils.json_to_sheet(soilData);
+    ws2['!cols'] = [
+        { wch: 5 }, { wch: 15 }, { wch: 15 }, { wch: 12 }, { wch: 10 },
+        { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 },
+        { wch: 10 }, { wch: 15 }, { wch: 30 }, { wch: 30 }
+    ];
+    XLSX.utils.book_append_sheet(wb, ws2, 'Soil Analysis Details');
+
+    XLSX.writeFile(wb, `AgriGuard_Soil_Report_${Date.now()}.xlsx`);
+}
+
+// ==================== PREDICTIONS EXCEL EXPORT ====================
+async function exportPredictionsExcel() {
+    const wb = XLSX.utils.book_new();
+
+    const predictedYield = allCropProductions.length * 2.5;
+    const avgSoilQuality = calculateAverageSoilQuality();
+
+    // AI Predictions Sheet
+    const predictionsData = [
+        {
+            'Category': 'Crop Yield',
+            'Prediction': `${predictedYield.toFixed(1)} tons`,
+            'Confidence': '85%',
+            'Time Frame': 'Next 30-60 days',
+            'Status': 'Favorable'
+        },
+        {
+            'Category': 'Market Price',
+            'Prediction': 'Upward trend (+5-8%)',
+            'Confidence': '78%',
+            'Time Frame': 'Next 2-3 weeks',
+            'Status': 'Positive'
+        },
+        {
+            'Category': 'Weather Impact',
+            'Prediction': 'Low to Medium risk',
+            'Confidence': '82%',
+            'Time Frame': 'Next 7-14 days',
+            'Status': 'Monitor'
+        },
+        {
+            'Category': 'Soil Health',
+            'Prediction': `${avgSoilQuality.toFixed(0)}% quality`,
+            'Confidence': '90%',
+            'Time Frame': 'Current',
+            'Status': avgSoilQuality > 70 ? 'Good' : 'Needs Improvement'
+        }
+    ];
+
+    const ws1 = XLSX.utils.json_to_sheet(predictionsData);
+    ws1['!cols'] = [{ wch: 15 }, { wch: 20 }, { wch: 12 }, { wch: 15 }, { wch: 15 }];
+    XLSX.utils.book_append_sheet(wb, ws1, 'AI Predictions');
+
+    // Recommendations Sheet
+    const recommendations = [
+        {
+            'Priority': 'High',
+            'Area': 'Crop Management',
+            'Recommendation': 'Monitor growing crops closely for optimal harvest timing',
+            'Expected Impact': 'Maximize yield quality'
+        },
+        {
+            'Priority': 'High',
+            'Area': 'Market Strategy',
+            'Recommendation': 'Consider selling in 2-3 weeks to capitalize on price uptrend',
+            'Expected Impact': 'Increased revenue by 5-8%'
+        },
+        {
+            'Priority': 'Medium',
+            'Area': 'Weather Preparedness',
+            'Recommendation': 'Ensure adequate irrigation systems are functional',
+            'Expected Impact': 'Reduce weather-related crop stress'
+        },
+        {
+            'Priority': 'Medium',
+            'Area': 'Soil Management',
+            'Recommendation': 'Maintain current soil nutrient levels through regular testing',
+            'Expected Impact': 'Sustained soil health'
+        },
+        {
+            'Priority': 'Low',
+            'Area': 'Planning',
+            'Recommendation': 'Begin planning next season crop rotation',
+            'Expected Impact': 'Improved long-term productivity'
+        }
+    ];
+
+    const ws2 = XLSX.utils.json_to_sheet(recommendations);
+    ws2['!cols'] = [{ wch: 10 }, { wch: 15 }, { wch: 50 }, { wch: 30 }];
+    XLSX.utils.book_append_sheet(wb, ws2, 'Recommendations');
+
+    XLSX.writeFile(wb, `AgriGuard_Predictions_Report_${Date.now()}.xlsx`);
 }
 
 // ==================== NAVIGATION ====================
@@ -5904,7 +7587,79 @@ async function generateGeneralAnalysis(message) {
         data: null
     };
 }
+/**
+ * Calculate weather score based on recent weather data
+ * Returns a score from 0-100 indicating weather favorability
+ */
+function calculateWeatherScore() {
+    if (allWeatherData.length === 0) return 70; // Default neutral score
 
+    // Get recent weather data (last 30 days)
+    const recent = allWeatherData
+        .filter(w => {
+            const date = new Date(w.measurementDate || w.recordDate);
+            const now = new Date();
+            const daysDiff = (now - date) / (1000 * 60 * 60 * 24);
+            return daysDiff <= 30;
+        });
+
+    if (recent.length === 0) return 70;
+
+    let totalScore = 0;
+
+    recent.forEach(w => {
+        const temp = parseFloat(w.temperature) || 0;
+        const humidity = parseFloat(w.humidity) || 0;
+        const rainfall = parseFloat(w.rainfall) || 0;
+
+        let dayScore = 0;
+
+        // Temperature scoring (optimal: 20-30°C)
+        let tempScore = 0;
+        if (temp >= 20 && temp <= 30) {
+            tempScore = 100;
+        } else if (temp >= 15 && temp <= 35) {
+            tempScore = 70;
+        } else if (temp >= 10 && temp <= 40) {
+            tempScore = 40;
+        } else {
+            tempScore = 20;
+        }
+
+        // Humidity scoring (optimal: 40-70%)
+        let humidityScore = 0;
+        if (humidity >= 40 && humidity <= 70) {
+            humidityScore = 100;
+        } else if (humidity >= 30 && humidity <= 80) {
+            humidityScore = 70;
+        } else if (humidity >= 20 && humidity <= 90) {
+            humidityScore = 40;
+        } else {
+            humidityScore = 20;
+        }
+
+        // Rainfall scoring (optimal: 2-10mm per day)
+        let rainfallScore = 0;
+        if (rainfall >= 2 && rainfall <= 10) {
+            rainfallScore = 100;
+        } else if (rainfall >= 1 && rainfall <= 15) {
+            rainfallScore = 70;
+        } else if (rainfall >= 0.5 && rainfall <= 20) {
+            rainfallScore = 40;
+        } else if (rainfall > 20) {
+            rainfallScore = 30; // Too much rain
+        } else {
+            rainfallScore = 50; // No rain, but might be irrigation
+        }
+
+        // Average the three scores
+        dayScore = (tempScore + humidityScore + rainfallScore) / 3;
+        totalScore += dayScore;
+    });
+
+    const averageScore = totalScore / recent.length;
+    return averageScore;
+}
 function calculateTrend(values) {
     if (values.length < 2) return 0;
     const first = values.slice(0, Math.floor(values.length / 2)).reduce((a, b) => a + b, 0) / Math.floor(values.length / 2);

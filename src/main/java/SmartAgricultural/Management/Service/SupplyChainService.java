@@ -19,6 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import SmartAgricultural.Management.Model.CropProduction;
 import SmartAgricultural.Management.Repository.CropProductionRepository;
+
+import java.time.Duration;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
 import java.math.BigDecimal;
@@ -230,29 +232,235 @@ public class SupplyChainService {
     }
 
     // Stage management operations
-    public SupplyChain completeStage(String id, BigDecimal quantityOut, String handlingNotes, QualityStatus qualityStatus) {
+
+
+    // ==================== REMPLACER DANS SupplyChainService.java ====================
+// Remplace la méthode completeStage par celle-ci:
+
+
+
+
+    // ==================== FINAL FIX ====================
+// Replace the completeStage method in SupplyChainService.java with this:
+
+    public SupplyChain completeStage(String id, BigDecimal quantityOut,
+                                     String handlingNotes, QualityStatus qualityStatus) {
+        System.out.println("🔍 Service: completeStage called");
+        System.out.println("  - id: " + id);
+        System.out.println("  - quantityOut: " + quantityOut);
+        System.out.println("  - handlingNotes: " + handlingNotes);
+        System.out.println("  - qualityStatus: " + qualityStatus);
+
         SupplyChain stage = findById(id);
 
-        if (stage.getStageEndDate() != null) {
+        System.out.println("🔍 Current stage state:");
+        System.out.println("  - quantityIn: " + stage.getQuantityIn());
+        System.out.println("  - existing quantityOut: " + stage.getQuantityOut());
+        System.out.println("  - existing lossQuantity: " + stage.getLossQuantity());
+        System.out.println("  - existing lossPercentage: " + stage.getLossPercentage());
+
+        // Check if already completed
+        if (stage.isStageCompleted()) {
             throw new ValidationException("Stage is already completed");
         }
 
-        stage.setStageEndDate(LocalDateTime.now());
-
+        // Validate quantityOut if provided
         if (quantityOut != null) {
+            if (quantityOut.compareTo(BigDecimal.ZERO) <= 0) {
+                throw new ValidationException("Quantity out must be greater than 0");
+            }
+
+            if (quantityOut.compareTo(stage.getQuantityIn()) > 0) {
+                throw new ValidationException(
+                        String.format("Quantity out (%.2f) cannot exceed quantity in (%.2f)",
+                                quantityOut, stage.getQuantityIn())
+                );
+            }
+
+            // ✅ CRITICAL FIX: Reset loss values BEFORE setting quantityOut
+            // This prevents the validation error when calculateLossMetrics runs
+            stage.setLossQuantity(BigDecimal.ZERO);
+            stage.setLossPercentage(BigDecimal.ZERO);
+
+            System.out.println("✅ Reset loss values to ZERO before setting quantityOut");
+
+            // Now set quantityOut (this will trigger calculateLossMetrics in @PreUpdate)
             stage.setQuantityOut(quantityOut);
+
+            System.out.println("✅ Set quantityOut to: " + quantityOut);
         }
 
-        if (StringUtils.hasText(handlingNotes)) {
+        // Set handling notes if provided
+        if (handlingNotes != null && !handlingNotes.trim().isEmpty()) {
             stage.setHandlingNotes(handlingNotes);
         }
 
+        // Set quality status if provided
         if (qualityStatus != null) {
             stage.setQualityStatus(qualityStatus);
         }
 
-        return save(stage);
+        // Mark stage as completed
+        stage.setStageEndDate(LocalDateTime.now());
+
+        System.out.println("🔍 Service: About to save stage");
+        System.out.println("  - Final quantityOut: " + stage.getQuantityOut());
+        System.out.println("  - Final lossQuantity: " + stage.getLossQuantity());
+        System.out.println("  - Final lossPercentage: " + stage.getLossPercentage());
+
+        try {
+            SupplyChain saved = supplyChainRepository.save(stage);
+            System.out.println("✅ Service: Stage saved successfully");
+            return saved;
+        } catch (Exception e) {
+            System.out.println("❌ Service: Error saving stage: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
     }
+
+
+
+
+
+    public Map<String, Object> getCompleteTrackingInfo(String trackingCode) {
+        SupplyChain stage = supplyChainRepository.findByTrackingCode(trackingCode)
+                .orElseThrow(() -> new ResourceNotFoundException("Tracking code not found: " + trackingCode));
+
+        Map<String, Object> trackingInfo = new HashMap<>();
+
+        // Current stage info
+        trackingInfo.put("currentStage", buildStageInfo(stage));
+
+        // Complete journey
+        List<SupplyChain> allStages = supplyChainRepository
+                .findByCropProductionIdOrderByStageOrder(stage.getCropProductionId());
+
+        List<Map<String, Object>> journey = allStages.stream()
+                .map(this::buildStageInfo)
+                .collect(Collectors.toList());
+
+        trackingInfo.put("completeJourney", journey);
+        trackingInfo.put("totalStages", allStages.size());
+        trackingInfo.put("completedStages", allStages.stream().filter(SupplyChain::isStageCompleted).count());
+        trackingInfo.put("currentStageNumber", stage.getStageOrder());
+        trackingInfo.put("cropProductionId", stage.getCropProductionId());
+
+        // Progress percentage
+        long completed = allStages.stream().filter(SupplyChain::isStageCompleted).count();
+        double progress = (completed * 100.0) / allStages.size();
+        trackingInfo.put("progressPercentage", Math.round(progress * 10) / 10.0);
+
+        // Next stage prediction
+        if (!stage.isLastStage() && stage.isStageCompleted()) {
+            SupplyChain.Stage nextStage = stage.getStage().getNextStage();
+            trackingInfo.put("nextStage", nextStage != null ? nextStage.getDisplayName() : "Final stage");
+        }
+
+        return trackingInfo;
+    }
+
+    public Map<String, Object> getCompleteJourney(String cropProductionId) {
+        List<SupplyChain> stages = supplyChainRepository
+                .findByCropProductionIdOrderByStageOrderAsc(cropProductionId);
+
+        if (stages.isEmpty()) {
+            throw new ResourceNotFoundException("No supply chain found for crop production: " + cropProductionId);
+        }
+
+        Map<String, Object> journey = new HashMap<>();
+
+        List<Map<String, Object>> timeline = stages.stream()
+                .map(this::buildDetailedStageInfo)
+                .collect(Collectors.toList());
+
+        journey.put("timeline", timeline);
+        journey.put("totalStages", stages.size());
+        journey.put("completedStages", stages.stream().filter(SupplyChain::isStageCompleted).count());
+        journey.put("inProgressStages", stages.stream().filter(SupplyChain::isStageInProgress).count());
+
+        // Calculate total duration
+        LocalDateTime firstStart = stages.get(0).getStageStartDate();
+        LocalDateTime lastEnd = stages.stream()
+                .filter(s -> s.getStageEndDate() != null)
+                .map(SupplyChain::getStageEndDate)
+                .max(LocalDateTime::compareTo)
+                .orElse(null);
+
+        if (lastEnd != null) {
+            long totalDays = Duration.between(firstStart, lastEnd).toDays();
+            journey.put("totalDurationDays", totalDays);
+        }
+
+        // Quality summary
+        Map<String, Long> qualityDistribution = stages.stream()
+                .collect(Collectors.groupingBy(
+                        s -> s.getQualityStatus().name(),
+                        Collectors.counting()
+                ));
+        journey.put("qualityDistribution", qualityDistribution);
+
+        // Loss summary
+        BigDecimal totalLoss = stages.stream()
+                .map(s -> s.getLossQuantity() != null ? s.getLossQuantity() : BigDecimal.ZERO)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        journey.put("totalLoss", totalLoss);
+
+        // Current stage
+        stages.stream()
+                .filter(SupplyChain::isStageInProgress)
+                .findFirst()
+                .ifPresent(current -> journey.put("currentStage", buildStageInfo(current)));
+
+        return journey;
+    }
+
+    private Map<String, Object> buildStageInfo(SupplyChain stage) {
+        Map<String, Object> info = new HashMap<>();
+        info.put("id", stage.getId());
+        info.put("trackingCode", stage.getTrackingCode());
+        info.put("stage", stage.getStage().getDisplayName());
+        info.put("stageOrder", stage.getStageOrder());
+        info.put("location", stage.getLocation());
+        info.put("facilityName", stage.getFacilityName());
+        info.put("status", stage.isStageCompleted() ? "Completed" : "In Progress");
+        info.put("qualityStatus", stage.getQualityStatus().getDisplayName());
+        info.put("responsibleParty", stage.getResponsibleParty());
+        info.put("startDate", stage.getStageStartDateFormatted());
+        info.put("endDate", stage.getStageEndDateFormatted());
+
+        if (stage.isStageCompleted()) {
+            info.put("duration", stage.getStageDurationDays() + " days");
+        }
+
+        return info;
+    }
+
+    private Map<String, Object> buildDetailedStageInfo(SupplyChain stage) {
+        Map<String, Object> info = buildStageInfo(stage);
+
+        info.put("quantityIn", stage.getQuantityIn());
+        info.put("quantityOut", stage.getQuantityOut());
+        info.put("unit", stage.getUnit());
+        info.put("lossQuantity", stage.getLossQuantity());
+        info.put("lossPercentage", stage.getLossPercentage());
+        info.put("costIncurred", stage.getCostIncurred());
+        info.put("handlingNotes", stage.getHandlingNotes());
+        info.put("transportMethod", stage.getTransportMethod());
+        info.put("storageConditions", stage.getStorageConditions());
+
+        if (stage.getQuantityIn() != null && stage.getQuantityOut() != null) {
+            BigDecimal efficiency = stage.getEfficiencyRate();
+            if (efficiency != null) {
+                info.put("efficiencyRate", efficiency + "%");
+            }
+        }
+
+        return info;
+    }
+
+
+
 
     public SupplyChain createNextStage(String cropProductionId, String location, String responsibleParty, String facilityName) {
         // Find the current last stage
