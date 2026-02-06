@@ -65,6 +65,10 @@ public class User implements UserDetails {
     @Column(name = "profile_image_url")
     private String profileImageUrl;
 
+    @Lob
+    @Column(name = "profile_image_data")
+    private byte[] profileImageData;
+
     // Password reset fields - THIS WAS MISSING!
     @Column(name = "reset_token", length = 100)
     private String resetToken;
@@ -269,6 +273,14 @@ public class User implements UserDetails {
 
     public void setProfileImageUrl(String profileImageUrl) {
         this.profileImageUrl = profileImageUrl;
+    }
+
+    public byte[] getProfileImageData() {
+        return profileImageData;
+    }
+
+    public void setProfileImageData(byte[] profileImageData) {
+        this.profileImageData = profileImageData;
     }
 
     public String getResetToken() {

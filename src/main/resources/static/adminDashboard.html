@@ -1074,6 +1074,10 @@
             animation: slideUp 0.3s ease;
         }
 
+        .modal-content.modal-error {
+            border-left: 6px solid var(--error-color);
+        }
+
         @keyframes slideUp {
             from {
                 opacity: 0;
@@ -1161,6 +1165,20 @@
             outline: none;
             border-color: var(--primary-green);
             box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
+        }
+
+        .form-input.error,
+        .form-select.error {
+            border-color: var(--error-color);
+            background: var(--error-light);
+        }
+
+        .error-list {
+            margin: 12px 0 0;
+            padding-left: 20px;
+            color: var(--error-color);
+            font-size: 14px;
+            line-height: 1.5;
         }
 
         .loading-spinner {
@@ -2536,6 +2554,26 @@
 
 
 
+<!-- Error Modal -->
+<div class="modal" id="errorModal">
+    <div class="modal-content modal-error">
+        <div class="modal-header">
+            <h2 class="modal-title">Please fix the following</h2>
+            <button class="modal-close" onclick="closeErrorModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div id="errorModalBody">
+            <ul class="error-list" id="errorList"></ul>
+        </div>
+        <div style="display: flex; justify-content: flex-end; margin-top: 16px;">
+            <button class="btn btn-secondary" onclick="closeErrorModal()">Close</button>
+        </div>
+    </div>
+</div>
+
+
+
 <!-- Ajoutez ces scripts AVANT vos scripts existants -->
 <script src="js/SessionTracker.js"></script>
 <script src="js/user_session_handler.js"></script>
@@ -2547,7 +2585,8 @@
     let currentEditingUserId = null;
 
     let selectedProfileImage = null;
-let currentUserProfileImageUrl = null;
+    let currentUserProfileImageUrl = null;
+    let profileImageRemoved = false;
 
     // NOUVEAU CODE À AJOUTER ICI
     let sessionHandler = null;
@@ -2616,7 +2655,7 @@ function updateUIWithCurrentUser() {
 
     // Si une photo existe, l'afficher
     if (currentLoggedInUser.photo || currentLoggedInUser.profileImageUrl) {
-        const photoUrl = currentLoggedInUser.photo || currentLoggedInUser.profileImageUrl;
+        const photoUrl = currentLoggedInUser.photo || getUserProfileImageUrl(currentLoggedInUser);
         if (profileAvatar) {
             profileAvatar.style.backgroundImage = `url(${photoUrl})`;
             profileAvatar.style.backgroundSize = 'cover';
@@ -2938,9 +2977,7 @@ function renderUsersTable(users, tableBodyId, includeRole) {
         // Handle profile image
         let avatarHtml;
         if (user.profileImageUrl) {
-            const imageUrl = user.profileImageUrl.startsWith('http')
-                ? user.profileImageUrl
-                : `http://localhost:1010/${user.profileImageUrl}`;
+            const imageUrl = getUserProfileImageUrl(user);
             avatarHtml = `<div class="user-avatar" style="background-image: url('${imageUrl}'); background-size: cover; background-position: center;"></div>`;
         } else {
             avatarHtml = `<div class="user-avatar">${initials}</div>`;
@@ -2982,6 +3019,21 @@ function renderUsersTable(users, tableBodyId, includeRole) {
             </tr>
         `;
     }).join('');
+}
+
+function getUserProfileImageUrl(user) {
+    if (!user || !user.profileImageUrl) return '';
+    if (user.profileImageUrl.startsWith('http')) return user.profileImageUrl;
+    if (user.profileImageUrl.startsWith('api/users/')) {
+        return `http://localhost:1010/${user.profileImageUrl}`;
+    }
+    if (user.profileImageUrl.startsWith('/api/users/')) {
+        return `http://localhost:1010${user.profileImageUrl}`;
+    }
+    if (user.id) {
+        return `http://localhost:1010/api/users/${user.id}/profile-image`;
+    }
+    return `http://localhost:1010/${user.profileImageUrl}`;
 }
 
             function initializeCharts() {
@@ -3112,6 +3164,7 @@ function renderUsersTable(users, tableBodyId, includeRole) {
                 document.getElementById('userId').value = '';
                 document.getElementById('passwordGroup').style.display = 'block';
                 document.getElementById('password').required = true;
+                resetUserFormState();
 
                 if (defaultRole) {
                     document.getElementById('role').value = defaultRole;
@@ -3124,19 +3177,36 @@ function closeUserModal() {
     document.getElementById('userModal').classList.remove('show');
     document.getElementById('userForm').reset();
     currentEditingUserId = null;
-    selectedProfileImage = null;
-    currentUserProfileImageUrl = null;
+    resetUserFormState();
     document.getElementById('profileImageInput').value = '';
     document.getElementById('profileImagePreview').src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect fill='%23e5e7eb' width='120' height='120'/%3E%3Ctext fill='%236b7280' font-family='Arial' font-size='48' x='50%25' y='50%25' text-anchor='middle' dy='.3em'%3EU%3C/text%3E%3C/svg%3E";
     document.getElementById('removeImageBtn').style.display = 'none';
 }
 
-// Preview profile image
+function resetUserFormState() {
+    selectedProfileImage = null;
+    currentUserProfileImageUrl = null;
+    profileImageRemoved = false;
+    clearFieldErrors();
+}
+
+// ============================================
+// FONCTION POUR PRÉVISUALISER L'IMAGE
+// ============================================
 function previewProfileImage(event) {
+    console.log('=== PREVIEW PROFILE IMAGE ===');
     const file = event.target.files[0];
+
     if (file) {
+        console.log('File selected:', {
+            name: file.name,
+            size: file.size,
+            type: file.type
+        });
+
         // Validate file size (5MB max)
         if (file.size > 5 * 1024 * 1024) {
+            console.error('File too large:', file.size);
             showToast('File size must be less than 5MB', 'error');
             event.target.value = '';
             return;
@@ -3144,24 +3214,32 @@ function previewProfileImage(event) {
 
         // Validate file type
         if (!file.type.startsWith('image/')) {
+            console.error('Invalid file type:', file.type);
             showToast('Only image files are allowed', 'error');
             event.target.value = '';
             return;
         }
 
         selectedProfileImage = file;
+        console.log('Image selected successfully:', file.name);
 
         const reader = new FileReader();
         reader.onload = function(e) {
+            console.log('Image loaded for preview');
             document.getElementById('profileImagePreview').src = e.target.result;
             document.getElementById('removeImageBtn').style.display = 'inline-block';
         };
         reader.readAsDataURL(file);
+    } else {
+        console.log('No file selected');
     }
 }
 
-// Remove profile image
+// ============================================
+// FONCTION POUR SUPPRIMER L'IMAGE
+// ============================================
 function removeProfileImage() {
+    console.log('=== REMOVE PROFILE IMAGE ===');
     selectedProfileImage = null;
     document.getElementById('profileImageInput').value = '';
     document.getElementById('profileImagePreview').src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect fill='%23e5e7eb' width='120' height='120'/%3E%3Ctext fill='%236b7280' font-family='Arial' font-size='48' x='50%25' y='50%25' text-anchor='middle' dy='.3em'%3EU%3C/text%3E%3C/svg%3E";
@@ -3169,46 +3247,145 @@ function removeProfileImage() {
 
     // If editing existing user with image, mark for deletion
     if (currentEditingUserId && currentUserProfileImageUrl) {
-        // We'll delete it on save
+        profileImageRemoved = true;
+        console.log('Marked image for deletion');
     }
 }
 
-// Upload profile image
+function showErrorModal(messages) {
+    const errorList = document.getElementById('errorList');
+    if (!errorList) return;
+    errorList.innerHTML = messages.map(msg => `<li>${escapeHtml(msg)}</li>`).join('');
+    document.getElementById('errorModal').classList.add('show');
+}
+
+function closeErrorModal() {
+    document.getElementById('errorModal').classList.remove('show');
+}
+
+function clearFieldErrors() {
+    document.querySelectorAll('.form-input.error, .form-select.error').forEach(el => {
+        el.classList.remove('error');
+    });
+}
+
+function setFieldError(fieldId) {
+    const field = document.getElementById(fieldId);
+    if (field) {
+        field.classList.add('error');
+    }
+}
+
+function validateUserForm() {
+    const errors = [];
+
+    const fullName = document.getElementById('fullName').value.trim();
+    const username = document.getElementById('username').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const phoneNumber = document.getElementById('phoneNumber').value.trim();
+    const role = document.getElementById('role').value;
+    const password = document.getElementById('password').value;
+
+    if (fullName.length < 3) {
+        errors.push('Full Name must be at least 3 characters.');
+        setFieldError('fullName');
+    }
+
+    if (!/^[a-zA-Z0-9._-]{3,}$/.test(username)) {
+        errors.push('Username must be at least 3 characters and contain only letters, numbers, dots, underscores, or dashes.');
+        setFieldError('username');
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        errors.push('Please enter a valid email address.');
+        setFieldError('email');
+    }
+
+    if (!/^\+?\d{8,15}$/.test(phoneNumber)) {
+        errors.push('Phone Number must contain 8-15 digits.');
+        setFieldError('phoneNumber');
+    }
+
+    if (!role) {
+        errors.push('Please select a role.');
+        setFieldError('role');
+    }
+
+    if (!currentEditingUserId && password.length < 6) {
+        errors.push('Password must be at least 6 characters.');
+        setFieldError('password');
+    }
+
+    return errors;
+}
+
+
+
+
+
+
+
+
+// ============================================
+// FONCTION POUR UPLOADER L'IMAGE
+// ============================================
 async function uploadProfileImage(userId) {
+    console.log('=== UPLOAD PROFILE IMAGE ===');
+    console.log('User ID:', userId);
+    console.log('Selected image:', selectedProfileImage);
+
     if (!selectedProfileImage) {
+        console.log('No image to upload');
         return null;
     }
 
     const formData = new FormData();
     formData.append('file', selectedProfileImage);
 
+    console.log('FormData created with file:', selectedProfileImage.name);
+    console.log('Sending to:', `http://localhost:1010/api/users/upload-profile-image/${userId}`);
+
     try {
-        const response = await fetch(`${API_BASE_URL}/upload-profile-image/${userId}`, {
+        const response = await fetch(`http://localhost:1010/api/users/upload-profile-image/${userId}`, {
             method: 'POST',
             body: formData
         });
 
+        console.log('Response status:', response.status);
+        console.log('Response ok:', response.ok);
+
         const result = await response.json();
+        console.log('Upload result:', result);
 
         if (result.success) {
+            console.log('✅ Image uploaded successfully:', result.imageUrl);
             return result.imageUrl;
         } else {
+            console.error('❌ Upload failed:', result.message);
             throw new Error(result.message || 'Failed to upload image');
         }
     } catch (error) {
-        console.error('Error uploading profile image:', error);
+        console.error('❌ Error uploading profile image:', error);
         throw error;
     }
 }
-
-// Delete profile image
+// ============================================
+// FONCTION POUR SUPPRIMER L'IMAGE DU SERVEUR
+// ============================================
 async function deleteProfileImageFromServer(userId) {
+    console.log('=== DELETE PROFILE IMAGE FROM SERVER ===');
+    console.log('User ID:', userId);
+
     try {
-        const response = await fetch(`${API_BASE_URL}/${userId}/profile-image`, {
+        const response = await fetch(`http://localhost:1010/api/users/${userId}/profile-image`, {
             method: 'DELETE'
         });
 
+        console.log('Delete response status:', response.status);
+
         const result = await response.json();
+        console.log('Delete result:', result);
+
         return result.success;
     } catch (error) {
         console.error('Error deleting profile image:', error);
@@ -3216,8 +3393,25 @@ async function deleteProfileImageFromServer(userId) {
     }
 }
 
+
+
+
+// ============================================
+// FONCTION POUR SOUMETTRE LE FORMULAIRE
+// ============================================
 async function submitUserForm(event) {
     event.preventDefault();
+
+    console.log('=== SUBMIT USER FORM ===');
+    console.log('Current editing user ID:', currentEditingUserId);
+    console.log('Selected profile image:', selectedProfileImage);
+
+    clearFieldErrors();
+    const validationErrors = validateUserForm();
+    if (validationErrors.length > 0) {
+        showErrorModal(validationErrors);
+        return;
+    }
 
     const formData = {
         fullName: document.getElementById('fullName').value,
@@ -3227,6 +3421,8 @@ async function submitUserForm(event) {
         role: document.getElementById('role').value,
         active: document.getElementById('isActive').value === 'true'
     };
+
+    console.log('Form data:', formData);
 
     if (!currentEditingUserId) {
         formData.password = document.getElementById('password').value;
@@ -3241,54 +3437,65 @@ async function submitUserForm(event) {
         if (currentEditingUserId) {
             // Update existing user
             userId = currentEditingUserId;
+            console.log('📝 Updating existing user:', userId);
+
             response = await fetch(`${API_BASE_URL}/${currentEditingUserId}`, {
                 method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
             });
 
-            // Read response once
             result = await response.json();
+            console.log('Update response:', result);
         } else {
             // Create new user
+            console.log('➕ Creating new user');
+
             response = await fetch(`${API_BASE_URL}/register`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
             });
 
-            // Read response once and extract userId
             result = await response.json();
+            console.log('Create response:', result);
+
             if (result.success && result.user && result.user.id) {
                 userId = result.user.id;
+                console.log('✅ New user created with ID:', userId);
             }
         }
 
         // Check if operation was successful
         if (result.success || response.ok) {
-            // Handle profile image upload if there's a selected image
+            console.log('✅ User saved successfully');
+            console.log('User ID for image upload:', userId);
+            console.log('Has selected image?', !!selectedProfileImage);
+
+            // Handle profile image upload
             if (selectedProfileImage && userId) {
+                console.log('🖼️ Starting image upload...');
                 try {
-                    await uploadProfileImage(userId);
+                    const imageUrl = await uploadProfileImage(userId);
+                    console.log('✅ Image upload complete:', imageUrl);
                     showToast('User and profile image saved successfully', 'success');
                 } catch (error) {
-                    console.error('Image upload error:', error);
-                    showToast('User saved but image upload failed: ' + error.message, 'warning');
+                    console.error('❌ Image upload error:', error);
+                    showErrorModal([`User saved but image upload failed: ${error.message}`]);
                 }
-            } else if (!selectedProfileImage && currentEditingUserId && currentUserProfileImageUrl) {
+            } else if (profileImageRemoved && currentEditingUserId) {
                 // User removed the image during edit
+                console.log('🗑️ Deleting profile image...');
                 try {
                     await deleteProfileImageFromServer(userId);
+                    console.log('✅ Image deleted successfully');
                     showToast(currentEditingUserId ? 'User updated successfully' : 'User created successfully', 'success');
                 } catch (error) {
-                    console.error('Image deletion error:', error);
-                    showToast('User saved but image deletion failed', 'warning');
+                    console.error('❌ Image deletion error:', error);
+                    showErrorModal(['User saved but image deletion failed.']);
                 }
             } else {
+                console.log('ℹ️ No image operations needed');
                 showToast(currentEditingUserId ? 'User updated successfully' : 'User created successfully', 'success');
             }
 
@@ -3296,27 +3503,39 @@ async function submitUserForm(event) {
             await loadStatistics();
             await loadAllUsers();
         } else {
-            showToast(result.message || 'Error saving user', 'error');
+            console.error('❌ Save failed:', result.message);
+            showErrorModal([result.message || 'Error saving user.']);
         }
     } catch (error) {
-        console.error('Error saving user:', error);
-        showToast('Error saving user: ' + error.message, 'error');
+        console.error('❌ Error saving user:', error);
+        showErrorModal([`Error saving user: ${error.message}`]);
     } finally {
         showLoading(false);
+        console.log('=== END SUBMIT USER FORM ===');
     }
 }
 
-// Updated editUser function
+// ============================================
+// FONCTION POUR ÉDITER UN UTILISATEUR
+// ============================================
 async function editUser(userId) {
+    console.log('=== EDIT USER ===');
+    console.log('User ID:', userId);
+
     try {
+        resetUserFormState();
         showLoading(true);
         const response = await fetch(`${API_BASE_URL}/${userId}`);
         const result = await response.json();
+
+        console.log('User data loaded:', result);
 
         if (result.success && result.data) {
             const user = result.data;
             currentEditingUserId = userId;
             currentUserProfileImageUrl = user.profileImageUrl;
+
+            console.log('Current user image URL:', currentUserProfileImageUrl);
 
             document.getElementById('userModalTitle').textContent = 'Edit User';
             document.getElementById('userId').value = user.id;
@@ -3329,12 +3548,13 @@ async function editUser(userId) {
 
             // Set profile image if exists
             if (user.profileImageUrl) {
-                const imageUrl = user.profileImageUrl.startsWith('http')
-                    ? user.profileImageUrl
-                    : `http://localhost:1010/${user.profileImageUrl}`;
+                const imageUrl = getUserProfileImageUrl(user);
+
+                console.log('Loading image from:', imageUrl);
                 document.getElementById('profileImagePreview').src = imageUrl;
                 document.getElementById('removeImageBtn').style.display = 'inline-block';
             } else {
+                console.log('No profile image found, showing initials');
                 const initials = user.fullName ? user.fullName.split(' ').map(n => n[0]).join('').toUpperCase() : 'U';
                 document.getElementById('profileImagePreview').src = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect fill='%23e5e7eb' width='120' height='120'/%3E%3Ctext fill='%236b7280' font-family='Arial' font-size='48' x='50%25' y='50%25' text-anchor='middle' dy='.3em'%3E${initials}%3C/text%3E%3C/svg%3E`;
             }
@@ -3344,11 +3564,11 @@ async function editUser(userId) {
 
             document.getElementById('userModal').classList.add('show');
         } else {
-            showToast('Error loading user data', 'error');
+            showErrorModal(['Error loading user data.']);
         }
     } catch (error) {
         console.error('Error loading user:', error);
-        showToast('Error loading user data', 'error');
+        showErrorModal(['Error loading user data.']);
     } finally {
         showLoading(false);
     }

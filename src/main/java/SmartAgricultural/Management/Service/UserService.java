@@ -201,6 +201,39 @@ public class UserService {
         }
     }
 
+    public UserDTO updateUserProfileImage(String id, String profileImageUrl, byte[] profileImageData) {
+        try {
+            User existingUser = userRepository.findById(id)
+                    .orElseThrow(() -> ResourceNotFoundException.userNotFoundById(id));
+
+            existingUser.setProfileImageUrl(profileImageUrl);
+            existingUser.setProfileImageData(profileImageData);
+
+            User updatedUser = userRepository.save(existingUser);
+            logger.info("Profile image updated for user ID: {}", updatedUser.getId());
+
+            return convertToDTO(updatedUser);
+        } catch (ResourceNotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            logger.error("Error updating profile image for user {}: {}", id, e.getMessage(), e);
+            throw new RuntimeException("Error updating profile image", e);
+        }
+    }
+
+    public byte[] getProfileImageData(String id) {
+        try {
+            User existingUser = userRepository.findById(id)
+                    .orElseThrow(() -> ResourceNotFoundException.userNotFoundById(id));
+            return existingUser.getProfileImageData();
+        } catch (ResourceNotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            logger.error("Error retrieving profile image for user {}: {}", id, e.getMessage(), e);
+            throw new RuntimeException("Error retrieving profile image", e);
+        }
+    }
+
     public void updateUserPassword(String id, String newPasswordHash) {
         try {
             User user = userRepository.findById(id)

@@ -2646,6 +2646,55 @@
     ============================================================================ */
 
 
+
+        /* ============================================================================
+   MODAL BODY - FIXED SCROLL
+   ============================================================================ */
+
+.modal-body {
+    padding: 32px;
+    max-height: 60vh !important; /* LIMITE la hauteur */
+    overflow-y: auto !important; /* Active le défilement */
+    position: relative;
+}
+
+.modal-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+    border-radius: 10px;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+    background: var(--primary-green);
+    border-radius: 10px;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-dark);
+}
+
+/* Assure que le modal-container a une hauteur maximale */
+.modal-container {
+    max-height: 85vh !important; /* Ajuste selon vos besoins */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Assure que le modal-body prend tout l'espace disponible */
+.modal-body {
+    flex: 1;
+    overflow-y: auto;
+}
+
+/* Assure que le footer reste en bas */
+.modal-footer {
+    flex-shrink: 0;
+    margin-top: auto;
+}
+
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -2813,584 +2862,584 @@
 
         <!-- Content Sections -->
         <main class="content">
-        <!-- Overview Section -->
-        <section class="content-section active" id="overview">
-            <div class="section-header">
-                <h1>Buyer Dashboard</h1>
-                <div class="header-actions">
-                    <button class="btn btn-secondary">
-                        <i class="fas fa-download"></i>
-                        Export Report
-                    </button>
-                </div>
-            </div>
-
-            <!-- Stats Cards -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon blue">
-                        <i class="fas fa-shopping-cart"></i>
-                    </div>
-                    <div class="stat-details">
-                        <p class="stat-label">Total Orders</p>
-                        <h2 class="stat-value" id="totalOrders">0</h2>
-                        <p class="stat-change positive">
-                            <i class="fas fa-arrow-up"></i>
-                            <span id="ordersChange">0%</span> from last month
-                        </p>
-                    </div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-icon green">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <div class="stat-details">
-                        <p class="stat-label">Completed Orders</p>
-                        <h2 class="stat-value" id="completedOrders">0</h2>
-                        <p class="stat-change positive">
-                            <i class="fas fa-arrow-up"></i>
-                            <span id="completedChange">0%</span> from last month
-                        </p>
-                    </div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-icon orange">
-                        <i class="fas fa-clock"></i>
-                    </div>
-                    <div class="stat-details">
-                        <p class="stat-label">Pending Orders</p>
-                        <h2 class="stat-value" id="pendingOrders">0</h2>
-                        <p class="stat-change">
-                            <span id="pendingChange">0</span> awaiting confirmation
-                        </p>
-                    </div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-icon purple">
-                        <i class="fas fa-dollar-sign"></i>
-                    </div>
-                    <div class="stat-details">
-                        <p class="stat-label">Total Spent</p>
-                        <h2 class="stat-value" id="totalSpent">$0</h2>
-                        <p class="stat-change positive">
-                            <i class="fas fa-arrow-up"></i>
-                            <span id="spentChange">0%</span> from last month
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Charts Section -->
-            <div class="charts-grid">
-                <div class="chart-card">
-                    <div class="chart-header">
-                        <h3><i class="fas fa-chart-line"></i> Purchasing Trends</h3>
-                        <select class="chart-filter" id="purchasingChartFilter">
-                            <option value="week">Last 7 Days</option>
-                            <option value="month" selected>Last 30 Days</option>
-                            <option value="year">Last Year</option>
-                        </select>
-                    </div>
-                    <div class="chart-container chart-container-line" id="purchasingChart">
-                        <canvas id="purchasingChartCanvas"></canvas>
-                    </div>
-                </div>
-
-                <div class="chart-card">
-                    <div class="chart-header">
-                        <h3><i class="fas fa-pie-chart"></i> Order Status Distribution</h3>
-                    </div>
-                    <div class="chart-container chart-container-doughnut" id="orderStatusChart">
-                        <canvas id="orderStatusChartCanvas"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Recent Orders -->
-            <div class="data-card">
-                <div class="card-header">
-                    <h3>Recent Orders</h3>
-                    <a href="#orders" class="link-btn">View All</a>
-                </div>
-                <div class="table-container">
-                    <table class="data-table">
-                        <thead>
-                        <tr>
-                            <th>Order ID</th>
-                            <th>Date</th>
-                            <th>Farmer</th>
-                            <th>Products</th>
-                            <th>Amount</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                        </thead>
-                        <tbody id="recentOrdersTable">
-                        <!-- Orders will be loaded from backend -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <!-- Marketplace Section -->
-        <section class="content-section" id="marketplace">
-            <div class="section-header">
-                <h1>Marketplace</h1>
-                <div class="header-actions">
-                    <div class="filter-group">
-                        <select class="filter-select" id="categoryFilter">
-                            <option value="">All Categories</option>
-                            <!-- Categories will be loaded from backend -->
-                        </select>
-                        <select class="filter-select" id="sortFilter">
-                            <option value="newest">Newest First</option>
-                            <option value="price-low">Price: Low to High</option>
-                            <option value="price-high">Price: High to Low</option>
-                            <option value="rating">Highest Rated</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <div class="products-grid" id="productsGrid">
-                <!-- Products will be loaded from backend -->
-            </div>
-        </section>
-
-        <!-- Orders Section -->
-        <section class="content-section" id="orders">
-            <div class="section-header">
-                <h1>My Orders</h1>
-                <div class="header-actions">
-                    <div class="filter-tabs">
-                        <button class="tab-btn active" data-status="all">All</button>
-                        <button class="tab-btn" data-status="pending">Pending</button>
-                        <button class="tab-btn" data-status="confirmed">Confirmed</button>
-                        <button class="tab-btn" data-status="shipped">Shipped</button>
-                        <button class="tab-btn" data-status="delivered">Delivered</button>
-                        <button class="tab-btn" data-status="cancelled">Cancelled</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="orders-list" id="ordersList">
-                <!-- Orders will be loaded from backend -->
-            </div>
-        </section>
-
-        <!-- Shopping Cart Section -->
-        <section class="content-section" id="cart">
-            <div class="section-header">
-                <h1>Shopping Cart</h1>
-            </div>
-
-            <div class="cart-container">
-                <div class="cart-items" id="cartItems">
-                    <!-- Cart items will be loaded from backend -->
-                </div>
-
-                <div class="cart-summary">
-                    <h3>Order Summary</h3>
-                    <div class="summary-row">
-                        <span>Subtotal:</span>
-                        <span id="cartSubtotal">$0.00</span>
-                    </div>
-                    <div class="summary-row">
-                        <span>Shipping:</span>
-                        <span id="cartShipping">$0.00</span>
-                    </div>
-                    <div class="summary-row">
-                        <span>Tax:</span>
-                        <span id="cartTax">$0.00</span>
-                    </div>
-                    <div class="summary-row total">
-                        <span>Total:</span>
-                        <span id="cartTotal">$0.00</span>
-                    </div>
-                    <button class="btn btn-primary btn-block" id="checkoutBtn">
-                        <i class="fas fa-lock"></i>
-                        Proceed to Checkout
-                    </button>
-                </div>
-            </div>
-        </section>
-
-        <!-- Transactions Section -->
-        <section class="content-section" id="transactions">
-            <div class="section-header">
-                <h1><i class="fas fa-exchange-alt"></i> Transactions</h1>
-                <div class="header-actions">
-                    <div class="filter-group" style="display: flex; gap: 0.5rem; align-items: center;">
-                        <select class="filter-select" id="transactionStatusFilter" style="min-width: 150px;">
-                            <option value="">All Status</option>
-                            <option value="COMPLETED">Completed</option>
-                            <option value="PENDING">Pending</option>
-                            <option value="FAILED">Failed</option>
-                        </select>
-                        <input type="date" class="date-input" id="transactionDateFilter">
+            <!-- Overview Section -->
+            <section class="content-section active" id="overview">
+                <div class="section-header">
+                    <h1>Buyer Dashboard</h1>
+                    <div class="header-actions">
                         <button class="btn btn-secondary">
+                            <i class="fas fa-download"></i>
+                            Export Report
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon blue">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <div class="stat-details">
+                            <p class="stat-label">Total Orders</p>
+                            <h2 class="stat-value" id="totalOrders">0</h2>
+                            <p class="stat-change positive">
+                                <i class="fas fa-arrow-up"></i>
+                                <span id="ordersChange">0%</span> from last month
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon green">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-details">
+                            <p class="stat-label">Completed Orders</p>
+                            <h2 class="stat-value" id="completedOrders">0</h2>
+                            <p class="stat-change positive">
+                                <i class="fas fa-arrow-up"></i>
+                                <span id="completedChange">0%</span> from last month
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon orange">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-details">
+                            <p class="stat-label">Pending Orders</p>
+                            <h2 class="stat-value" id="pendingOrders">0</h2>
+                            <p class="stat-change">
+                                <span id="pendingChange">0</span> awaiting confirmation
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon purple">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="stat-details">
+                            <p class="stat-label">Total Spent</p>
+                            <h2 class="stat-value" id="totalSpent">$0</h2>
+                            <p class="stat-change positive">
+                                <i class="fas fa-arrow-up"></i>
+                                <span id="spentChange">0%</span> from last month
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Section -->
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3><i class="fas fa-chart-line"></i> Purchasing Trends</h3>
+                            <select class="chart-filter" id="purchasingChartFilter">
+                                <option value="week">Last 7 Days</option>
+                                <option value="month" selected>Last 30 Days</option>
+                                <option value="year">Last Year</option>
+                            </select>
+                        </div>
+                        <div class="chart-container chart-container-line" id="purchasingChart">
+                            <canvas id="purchasingChartCanvas"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3><i class="fas fa-pie-chart"></i> Order Status Distribution</h3>
+                        </div>
+                        <div class="chart-container chart-container-doughnut" id="orderStatusChart">
+                            <canvas id="orderStatusChartCanvas"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Orders -->
+                <div class="data-card">
+                    <div class="card-header">
+                        <h3>Recent Orders</h3>
+                        <a href="#orders" class="link-btn">View All</a>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Date</th>
+                                <th>Farmer</th>
+                                <th>Products</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody id="recentOrdersTable">
+                            <!-- Orders will be loaded from backend -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Marketplace Section -->
+            <section class="content-section" id="marketplace">
+                <div class="section-header">
+                    <h1>Marketplace</h1>
+                    <div class="header-actions">
+                        <div class="filter-group">
+                            <select class="filter-select" id="categoryFilter">
+                                <option value="">All Categories</option>
+                                <!-- Categories will be loaded from backend -->
+                            </select>
+                            <select class="filter-select" id="sortFilter">
+                                <option value="newest">Newest First</option>
+                                <option value="price-low">Price: Low to High</option>
+                                <option value="price-high">Price: High to Low</option>
+                                <option value="rating">Highest Rated</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="products-grid" id="productsGrid">
+                    <!-- Products will be loaded from backend -->
+                </div>
+            </section>
+
+            <!-- Orders Section -->
+            <section class="content-section" id="orders">
+                <div class="section-header">
+                    <h1>My Orders</h1>
+                    <div class="header-actions">
+                        <div class="filter-tabs">
+                            <button class="tab-btn active" data-status="all">All</button>
+                            <button class="tab-btn" data-status="pending">Pending</button>
+                            <button class="tab-btn" data-status="confirmed">Confirmed</button>
+                            <button class="tab-btn" data-status="shipped">Shipped</button>
+                            <button class="tab-btn" data-status="delivered">Delivered</button>
+                            <button class="tab-btn" data-status="cancelled">Cancelled</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="orders-list" id="ordersList">
+                    <!-- Orders will be loaded from backend -->
+                </div>
+            </section>
+
+            <!-- Shopping Cart Section -->
+            <section class="content-section" id="cart">
+                <div class="section-header">
+                    <h1>Shopping Cart</h1>
+                </div>
+
+                <div class="cart-container">
+                    <div class="cart-items" id="cartItems">
+                        <!-- Cart items will be loaded from backend -->
+                    </div>
+
+                    <div class="cart-summary">
+                        <h3>Order Summary</h3>
+                        <div class="summary-row">
+                            <span>Subtotal:</span>
+                            <span id="cartSubtotal">$0.00</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Shipping:</span>
+                            <span id="cartShipping">$0.00</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Tax:</span>
+                            <span id="cartTax">$0.00</span>
+                        </div>
+                        <div class="summary-row total">
+                            <span>Total:</span>
+                            <span id="cartTotal">$0.00</span>
+                        </div>
+                        <button class="btn btn-primary btn-block" id="checkoutBtn">
+                            <i class="fas fa-lock"></i>
+                            Proceed to Checkout
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Transactions Section -->
+            <section class="content-section" id="transactions">
+                <div class="section-header">
+                    <h1><i class="fas fa-exchange-alt"></i> Transactions</h1>
+                    <div class="header-actions">
+                        <div class="filter-group" style="display: flex; gap: 0.5rem; align-items: center;">
+                            <select class="filter-select" id="transactionStatusFilter" style="min-width: 150px;">
+                                <option value="">All Status</option>
+                                <option value="COMPLETED">Completed</option>
+                                <option value="PENDING">Pending</option>
+                                <option value="FAILED">Failed</option>
+                            </select>
+                            <input type="date" class="date-input" id="transactionDateFilter">
+                            <button class="btn btn-secondary">
+                                <i class="fas fa-download"></i>
+                                Export
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Statistics Cards -->
+                <div class="stats-grid" style="margin-bottom: 2rem;">
+                    <div class="stat-card">
+                        <div class="stat-icon green">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-details">
+                            <p class="stat-label">Completed</p>
+                            <h2 class="stat-value" id="completedTransactions">0</h2>
+                            <p class="stat-change positive">This month</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon orange">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-details">
+                            <p class="stat-label">Pending</p>
+                            <h2 class="stat-value" id="pendingTransactions">0</h2>
+                            <p class="stat-change">Awaiting processing</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon blue">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="stat-details">
+                            <p class="stat-label">Total Volume</p>
+                            <h2 class="stat-value" id="totalTransactionVolume">RF 0</h2>
+                            <p class="stat-change positive">All time</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Transactions List -->
+                <div class="transactions-list" id="transactionsList">
+                    <!-- Transactions will be loaded here -->
+                </div>
+            </section>
+
+
+            <!-- Farmers Section -->
+            <section class="content-section" id="farmers">
+                <div class="section-header">
+                    <h1>Farmers</h1>
+                    <div class="header-actions">
+                        <input type="text" class="search-input" placeholder="Search farmers..." id="farmerSearch" onkeyup="handleFarmerSearch(event)" oninput="handleFarmerSearch(event)">
+                    </div>
+                </div>
+
+                <div class="farmers-grid" id="farmersGrid">
+                    <!-- Farmers will be loaded from backend -->
+                </div>
+            </section>
+
+            <!-- Delivery Tracking Section -->
+            <section class="content-section" id="tracking">
+                <div class="section-header">
+                    <h1>Delivery Tracking</h1>
+                    <div class="header-actions">
+                        <input type="text" class="search-input" placeholder="Enter order ID or tracking number..." id="trackingSearch" onkeyup="if(event.key==='Enter') searchTrackingOrder()">
+                        <button class="btn btn-primary" onclick="searchTrackingOrder()">
+                            <i class="fas fa-search"></i>
+                            Track
+                        </button>
+                    </div>
+                </div>
+
+                <div class="tracking-list" id="trackingList">
+                    <!-- Tracking information will be loaded from backend -->
+                </div>
+            </section>
+
+
+
+            <!-- Quality Assurance Section -->
+            <section class="content-section" id="quality">
+                <div class="section-header">
+                    <h1>Quality Assurance</h1>
+                </div>
+
+                <!-- KEEP ORIGINAL DESIGN FOR THESE CARDS -->
+                <div class="quality-cards">
+                    <div class="info-card">
+                        <div class="info-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h3>Quality Certifications</h3>
+                        <p>All products are certified and meet quality standards</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-icon">
+                            <i class="fas fa-leaf"></i>
+                        </div>
+                        <h3>Organic Verification</h3>
+                        <p>Verified organic products with certifications</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-icon">
+                            <i class="fas fa-microscope"></i>
+                        </div>
+                        <h3>Lab Testing</h3>
+                        <p>Regular lab testing for quality assurance</p>
+                    </div>
+                </div>
+
+                <!-- Quality Reports Section -->
+                <div class="quality-reports-block">
+                    <div class="quality-reports-header">
+                        <h3><i class="fas fa-clipboard-check"></i> Quality Reports</h3>
+                        <button class="btn btn-secondary" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3);">
+                            <i class="fas fa-filter"></i> Filter Reports
+                        </button>
+                    </div>
+                    <div class="quality-reports-list" id="qualityReportsList">
+                        <!-- Quality reports will be loaded here -->
+                    </div>
+                </div>
+            </section>
+
+
+
+
+
+            <!-- Messages Section -->
+            <section class="content-section" id="messages">
+                <div class="section-header">
+                    <h1>Messages</h1>
+                    <div class="header-actions">
+                        <button class="btn btn-primary">
+                            <i class="fas fa-plus"></i>
+                            New Message
+                        </button>
+                    </div>
+                </div>
+
+                <div class="messages-container">
+                    <div class="conversations-list">
+                        <div class="conversations-header">
+                            <input type="text" class="search-input" placeholder="Search conversations...">
+                        </div>
+                        <div class="conversations" id="conversationsList">
+                            <!-- Conversations will be loaded from backend -->
+                        </div>
+                    </div>
+
+                    <div class="chat-area">
+                        <div class="chat-header">
+                            <div class="chat-user-info">
+                                <img src="" alt="" class="chat-avatar">
+                                <div>
+                                    <h4 class="chat-user-name">Select a conversation</h4>
+                                    <p class="chat-user-status">...</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chat-messages" id="chatMessages">
+                            <!-- Messages will be loaded from backend -->
+                        </div>
+                        <div class="chat-input-area">
+                            <input type="text" class="chat-input" placeholder="Type a message..." id="messageInput">
+                            <button class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+
+
+
+            <!-- Reports Section -->
+            <section class="content-section" id="reports">
+                <div class="section-header">
+                    <h1><i class="fas fa-chart-line"></i> Reports & Analytics</h1>
+                    <div class="header-actions">
+                        <select class="filter-select" id="reportsPeriodFilter" style="min-width: 150px;" onchange="handleReportsPeriodChange()">
+                            <option value="week">Last 7 Days</option>
+                            <option value="month">Last 30 Days</option>
+                            <option value="quarter">Last Quarter</option>
+                            <option value="year">Last Year</option>
+                            <option value="all">All Time</option>
+                        </select>
+                        <button class="btn btn-secondary" onclick="exportReportsToPDF()">
                             <i class="fas fa-download"></i>
                             Export
                         </button>
                     </div>
                 </div>
-            </div>
 
-            <!-- Statistics Cards -->
-            <div class="stats-grid" style="margin-bottom: 2rem;">
-                <div class="stat-card">
-                    <div class="stat-icon green">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <div class="stat-details">
-                        <p class="stat-label">Completed</p>
-                        <h2 class="stat-value" id="completedTransactions">0</h2>
-                        <p class="stat-change positive">This month</p>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon orange">
-                        <i class="fas fa-clock"></i>
-                    </div>
-                    <div class="stat-details">
-                        <p class="stat-label">Pending</p>
-                        <h2 class="stat-value" id="pendingTransactions">0</h2>
-                        <p class="stat-change">Awaiting processing</p>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon blue">
-                        <i class="fas fa-dollar-sign"></i>
-                    </div>
-                    <div class="stat-details">
-                        <p class="stat-label">Total Volume</p>
-                        <h2 class="stat-value" id="totalTransactionVolume">RF 0</h2>
-                        <p class="stat-change positive">All time</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Transactions List -->
-            <div class="transactions-list" id="transactionsList">
-                <!-- Transactions will be loaded here -->
-            </div>
-        </section>
-
-
-        <!-- Farmers Section -->
-        <section class="content-section" id="farmers">
-            <div class="section-header">
-                <h1>Farmers</h1>
-                <div class="header-actions">
-                    <input type="text" class="search-input" placeholder="Search farmers..." id="farmerSearch" onkeyup="handleFarmerSearch(event)" oninput="handleFarmerSearch(event)">
-                </div>
-            </div>
-
-            <div class="farmers-grid" id="farmersGrid">
-                <!-- Farmers will be loaded from backend -->
-            </div>
-        </section>
-
-        <!-- Delivery Tracking Section -->
-        <section class="content-section" id="tracking">
-            <div class="section-header">
-                <h1>Delivery Tracking</h1>
-                <div class="header-actions">
-                    <input type="text" class="search-input" placeholder="Enter order ID or tracking number..." id="trackingSearch" onkeyup="if(event.key==='Enter') searchTrackingOrder()">
-                    <button class="btn btn-primary" onclick="searchTrackingOrder()">
-                        <i class="fas fa-search"></i>
-                        Track
-                    </button>
-                </div>
-            </div>
-
-            <div class="tracking-list" id="trackingList">
-                <!-- Tracking information will be loaded from backend -->
-            </div>
-        </section>
-
-
-
-        <!-- Quality Assurance Section -->
-        <section class="content-section" id="quality">
-            <div class="section-header">
-                <h1>Quality Assurance</h1>
-            </div>
-
-            <!-- KEEP ORIGINAL DESIGN FOR THESE CARDS -->
-            <div class="quality-cards">
-                <div class="info-card">
-                    <div class="info-icon">
-                        <i class="fas fa-shield-alt"></i>
-                    </div>
-                    <h3>Quality Certifications</h3>
-                    <p>All products are certified and meet quality standards</p>
-                </div>
-                <div class="info-card">
-                    <div class="info-icon">
-                        <i class="fas fa-leaf"></i>
-                    </div>
-                    <h3>Organic Verification</h3>
-                    <p>Verified organic products with certifications</p>
-                </div>
-                <div class="info-card">
-                    <div class="info-icon">
-                        <i class="fas fa-microscope"></i>
-                    </div>
-                    <h3>Lab Testing</h3>
-                    <p>Regular lab testing for quality assurance</p>
-                </div>
-            </div>
-
-            <!-- Quality Reports Section -->
-            <div class="quality-reports-block">
-                <div class="quality-reports-header">
-                    <h3><i class="fas fa-clipboard-check"></i> Quality Reports</h3>
-                    <button class="btn btn-secondary" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3);">
-                        <i class="fas fa-filter"></i> Filter Reports
-                    </button>
-                </div>
-                <div class="quality-reports-list" id="qualityReportsList">
-                    <!-- Quality reports will be loaded here -->
-                </div>
-            </div>
-        </section>
-
-
-
-
-
-        <!-- Messages Section -->
-        <section class="content-section" id="messages">
-            <div class="section-header">
-                <h1>Messages</h1>
-                <div class="header-actions">
-                    <button class="btn btn-primary">
-                        <i class="fas fa-plus"></i>
-                        New Message
-                    </button>
-                </div>
-            </div>
-
-            <div class="messages-container">
-                <div class="conversations-list">
-                    <div class="conversations-header">
-                        <input type="text" class="search-input" placeholder="Search conversations...">
-                    </div>
-                    <div class="conversations" id="conversationsList">
-                        <!-- Conversations will be loaded from backend -->
-                    </div>
-                </div>
-
-                <div class="chat-area">
-                    <div class="chat-header">
-                        <div class="chat-user-info">
-                            <img src="" alt="" class="chat-avatar">
-                            <div>
-                                <h4 class="chat-user-name">Select a conversation</h4>
-                                <p class="chat-user-status">...</p>
-                            </div>
+                <!-- Key Metrics Summary -->
+                <div class="stats-grid" style="margin-bottom: 2rem;">
+                    <div class="stat-card" style="background: white; border-left: 4px solid var(--primary-color);">
+                        <div class="stat-icon green">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="stat-details">
+                            <p class="stat-label">Total Spending</p>
+                            <h2 class="stat-value" style="color: var(--primary-color);" id="reportTotalSpending">RF 0</h2>
+                            <p class="stat-change positive">
+                                <i class="fas fa-arrow-up"></i>
+                                <span id="reportSpendingChange">0%</span> vs last period
+                            </p>
                         </div>
                     </div>
-                    <div class="chat-messages" id="chatMessages">
-                        <!-- Messages will be loaded from backend -->
+
+                    <div class="stat-card" style="background: white; border-left: 4px solid var(--primary-color);">
+                        <div class="stat-icon green">
+                            <i class="fas fa-shopping-bag"></i>
+                        </div>
+                        <div class="stat-details">
+                            <p class="stat-label">Total Orders</p>
+                            <h2 class="stat-value" style="color: var(--primary-color);" id="reportTotalOrders">0</h2>
+                            <p class="stat-change positive">
+                                <i class="fas fa-arrow-up"></i>
+                                <span id="reportOrdersChange">0%</span> vs last period
+                            </p>
+                        </div>
                     </div>
-                    <div class="chat-input-area">
-                        <input type="text" class="chat-input" placeholder="Type a message..." id="messageInput">
-                        <button class="btn btn-primary">
-                            <i class="fas fa-paper-plane"></i>
-                        </button>
+
+                    <div class="stat-card" style="background: white; border-left: 4px solid var(--primary-color);">
+                        <div class="stat-icon green">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <div class="stat-details">
+                            <p class="stat-label">Avg Order Value</p>
+                            <h2 class="stat-value" style="color: var(--primary-color);" id="reportAvgOrder">RF 0</h2>
+                            <p class="stat-change positive">
+                                <i class="fas fa-arrow-up"></i>
+                                <span id="reportAvgChange">0%</span> vs last period
+                            </p>
+                        </div>
                     </div>
-                </div>
-            </div>
-        </section>
 
-
-
-
-
-        <!-- Reports Section -->
-        <section class="content-section" id="reports">
-            <div class="section-header">
-                <h1><i class="fas fa-chart-line"></i> Reports & Analytics</h1>
-                <div class="header-actions">
-                    <select class="filter-select" id="reportsPeriodFilter" style="min-width: 150px;" onchange="handleReportsPeriodChange()">
-                        <option value="week">Last 7 Days</option>
-                        <option value="month">Last 30 Days</option>
-                        <option value="quarter">Last Quarter</option>
-                        <option value="year">Last Year</option>
-                        <option value="all">All Time</option>
-                    </select>
-                    <button class="btn btn-secondary" onclick="exportReportsToPDF()">
-                        <i class="fas fa-download"></i>
-                        Export
-                    </button>
-                </div>
-            </div>
-
-            <!-- Key Metrics Summary -->
-            <div class="stats-grid" style="margin-bottom: 2rem;">
-                <div class="stat-card" style="background: white; border-left: 4px solid var(--primary-color);">
-                    <div class="stat-icon green">
-                        <i class="fas fa-dollar-sign"></i>
-                    </div>
-                    <div class="stat-details">
-                        <p class="stat-label">Total Spending</p>
-                        <h2 class="stat-value" style="color: var(--primary-color);" id="reportTotalSpending">RF 0</h2>
-                        <p class="stat-change positive">
-                            <i class="fas fa-arrow-up"></i>
-                            <span id="reportSpendingChange">0%</span> vs last period
-                        </p>
+                    <div class="stat-card" style="background: white; border-left: 4px solid var(--primary-color);">
+                        <div class="stat-icon green">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-details">
+                            <p class="stat-label">Active Farmers</p>
+                            <h2 class="stat-value" style="color: var(--primary-color);" id="reportActiveFarmers">0</h2>
+                            <p class="stat-change">
+                                <span id="reportFarmersCount">0</span> suppliers
+                            </p>
+                        </div>
                     </div>
                 </div>
 
-                <div class="stat-card" style="background: white; border-left: 4px solid var(--primary-color);">
-                    <div class="stat-icon green">
-                        <i class="fas fa-shopping-bag"></i>
+                <!-- Charts Grid - First Row -->
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: var(--spacing-lg); margin-bottom: var(--spacing-lg);">
+                    <!-- Spending Analysis Chart -->
+                    <div class="report-card" style="background: white; border-radius: var(--radius-lg); padding: 0; box-shadow: var(--shadow-sm); overflow: hidden;">
+                        <div style="background: var(--primary-color); color: white; padding: 1.25rem 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+                            <h3 style="margin: 0; font-size: 1.2rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <i class="fas fa-chart-line"></i> Spending Analysis
+                            </h3>
+                            <select class="filter-select" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 0.4rem 0.8rem; font-size: 0.85rem;">
+                                <option value="daily">Daily</option>
+                                <option value="weekly" selected>Weekly</option>
+                                <option value="monthly">Monthly</option>
+                            </select>
+                        </div>
+                        <div class="chart-container" id="spendingChart" style="padding: 1.5rem; min-height: 350px;">
+                            <canvas id="spendingChartCanvas"></canvas>
+                        </div>
                     </div>
-                    <div class="stat-details">
-                        <p class="stat-label">Total Orders</p>
-                        <h2 class="stat-value" style="color: var(--primary-color);" id="reportTotalOrders">0</h2>
-                        <p class="stat-change positive">
-                            <i class="fas fa-arrow-up"></i>
-                            <span id="reportOrdersChange">0%</span> vs last period
-                        </p>
+
+                    <!-- Product Categories Pie Chart -->
+                    <div class="report-card" style="background: white; border-radius: var(--radius-lg); padding: 0; box-shadow: var(--shadow-sm); overflow: hidden;">
+                        <div style="background: var(--primary-color); color: white; padding: 1.25rem 1.5rem;">
+                            <h3 style="margin: 0; font-size: 1.2rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <i class="fas fa-chart-pie"></i> Product Categories
+                            </h3>
+                        </div>
+                        <div class="chart-container" id="categoriesChart" style="padding: 1.5rem; min-height: 350px; display: flex; align-items: center; justify-content: center;">
+                            <canvas id="categoriesChartCanvas"></canvas>
+                        </div>
                     </div>
                 </div>
 
-                <div class="stat-card" style="background: white; border-left: 4px solid var(--primary-color);">
-                    <div class="stat-icon green">
-                        <i class="fas fa-chart-bar"></i>
+                <!-- Charts Grid - Second Row -->
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--spacing-lg); margin-bottom: var(--spacing-lg);">
+                    <!-- Top Farmers -->
+                    <div class="report-card" style="background: white; border-radius: var(--radius-lg); padding: 0; box-shadow: var(--shadow-sm); overflow: hidden;">
+                        <div style="background: var(--primary-color); color: white; padding: 1.25rem 1.5rem;">
+                            <h3 style="margin: 0; font-size: 1.2rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <i class="fas fa-trophy"></i> Top Farmers
+                            </h3>
+                        </div>
+                        <div id="topFarmersChart" style="padding: 1.5rem;">
+                            <!-- Top farmers list will be rendered here -->
+                        </div>
                     </div>
-                    <div class="stat-details">
-                        <p class="stat-label">Avg Order Value</p>
-                        <h2 class="stat-value" style="color: var(--primary-color);" id="reportAvgOrder">RF 0</h2>
-                        <p class="stat-change positive">
-                            <i class="fas fa-arrow-up"></i>
-                            <span id="reportAvgChange">0%</span> vs last period
-                        </p>
+
+                    <!-- Order Status Distribution -->
+                    <div class="report-card" style="background: white; border-radius: var(--radius-lg); padding: 0; box-shadow: var(--shadow-sm); overflow: hidden;">
+                        <div style="background: var(--primary-color); color: white; padding: 1.25rem 1.5rem;">
+                            <h3 style="margin: 0; font-size: 1.2rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <i class="fas fa-tasks"></i> Order Status
+                            </h3>
+                        </div>
+                        <div class="chart-container" id="orderStatusChartReport" style="padding: 1.5rem; min-height: 300px; display: flex; align-items: center; justify-content: center;">
+                            <canvas id="orderStatusChartCanvas"></canvas>
+                        </div>
                     </div>
                 </div>
 
-                <div class="stat-card" style="background: white; border-left: 4px solid var(--primary-color);">
-                    <div class="stat-icon green">
-                        <i class="fas fa-users"></i>
+                <!-- Charts Grid - Third Row -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-lg); margin-bottom: var(--spacing-lg);">
+                    <!-- Monthly Trends -->
+                    <div class="report-card" style="background: white; border-radius: var(--radius-lg); padding: 0; box-shadow: var(--shadow-sm); overflow: hidden;">
+                        <div style="background: var(--primary-color); color: white; padding: 1.25rem 1.5rem;">
+                            <h3 style="margin: 0; font-size: 1.2rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <i class="fas fa-calendar-alt"></i> Monthly Trends
+                            </h3>
+                        </div>
+                        <div class="chart-container" id="trendsChart" style="padding: 1.5rem; min-height: 300px;">
+                            <canvas id="trendsChartCanvas"></canvas>
+                        </div>
                     </div>
-                    <div class="stat-details">
-                        <p class="stat-label">Active Farmers</p>
-                        <h2 class="stat-value" style="color: var(--primary-color);" id="reportActiveFarmers">0</h2>
-                        <p class="stat-change">
-                            <span id="reportFarmersCount">0</span> suppliers
-                        </p>
+
+                    <!-- Payment Methods -->
+                    <div class="report-card" style="background: white; border-radius: var(--radius-lg); padding: 0; box-shadow: var(--shadow-sm); overflow: hidden;">
+                        <div style="background: var(--primary-color); color: white; padding: 1.25rem 1.5rem;">
+                            <h3 style="margin: 0; font-size: 1.2rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <i class="fas fa-credit-card"></i> Payment Methods
+                            </h3>
+                        </div>
+                        <div class="chart-container" id="paymentMethodsChart" style="padding: 1.5rem; min-height: 300px; display: flex; align-items: center; justify-content: center;">
+                            <canvas id="paymentMethodsChartCanvas"></canvas>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Charts Grid - First Row -->
-            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: var(--spacing-lg); margin-bottom: var(--spacing-lg);">
-                <!-- Spending Analysis Chart -->
+                <!-- Recent Activity Table -->
                 <div class="report-card" style="background: white; border-radius: var(--radius-lg); padding: 0; box-shadow: var(--shadow-sm); overflow: hidden;">
                     <div style="background: var(--primary-color); color: white; padding: 1.25rem 1.5rem; display: flex; justify-content: space-between; align-items: center;">
                         <h3 style="margin: 0; font-size: 1.2rem; display: flex; align-items: center; gap: 0.5rem;">
-                            <i class="fas fa-chart-line"></i> Spending Analysis
+                            <i class="fas fa-history"></i> Recent Activity
                         </h3>
-                        <select class="filter-select" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 0.4rem 0.8rem; font-size: 0.85rem;">
-                            <option value="daily">Daily</option>
-                            <option value="weekly" selected>Weekly</option>
-                            <option value="monthly">Monthly</option>
-                        </select>
+                        <button class="btn btn-secondary" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 0.5rem 1rem;">
+                            <i class="fas fa-eye"></i> View All
+                        </button>
                     </div>
-                    <div class="chart-container" id="spendingChart" style="padding: 1.5rem; min-height: 350px;">
-                        <canvas id="spendingChartCanvas"></canvas>
+                    <div id="recentActivityTable" style="padding: 1.5rem;">
+                        <!-- Recent activity will be rendered here -->
                     </div>
                 </div>
-
-                <!-- Product Categories Pie Chart -->
-                <div class="report-card" style="background: white; border-radius: var(--radius-lg); padding: 0; box-shadow: var(--shadow-sm); overflow: hidden;">
-                    <div style="background: var(--primary-color); color: white; padding: 1.25rem 1.5rem;">
-                        <h3 style="margin: 0; font-size: 1.2rem; display: flex; align-items: center; gap: 0.5rem;">
-                            <i class="fas fa-chart-pie"></i> Product Categories
-                        </h3>
-                    </div>
-                    <div class="chart-container" id="categoriesChart" style="padding: 1.5rem; min-height: 350px; display: flex; align-items: center; justify-content: center;">
-                        <canvas id="categoriesChartCanvas"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Charts Grid - Second Row -->
-            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--spacing-lg); margin-bottom: var(--spacing-lg);">
-                <!-- Top Farmers -->
-                <div class="report-card" style="background: white; border-radius: var(--radius-lg); padding: 0; box-shadow: var(--shadow-sm); overflow: hidden;">
-                    <div style="background: var(--primary-color); color: white; padding: 1.25rem 1.5rem;">
-                        <h3 style="margin: 0; font-size: 1.2rem; display: flex; align-items: center; gap: 0.5rem;">
-                            <i class="fas fa-trophy"></i> Top Farmers
-                        </h3>
-                    </div>
-                    <div id="topFarmersChart" style="padding: 1.5rem;">
-                        <!-- Top farmers list will be rendered here -->
-                    </div>
-                </div>
-
-                <!-- Order Status Distribution -->
-                <div class="report-card" style="background: white; border-radius: var(--radius-lg); padding: 0; box-shadow: var(--shadow-sm); overflow: hidden;">
-                    <div style="background: var(--primary-color); color: white; padding: 1.25rem 1.5rem;">
-                        <h3 style="margin: 0; font-size: 1.2rem; display: flex; align-items: center; gap: 0.5rem;">
-                            <i class="fas fa-tasks"></i> Order Status
-                        </h3>
-                    </div>
-                    <div class="chart-container" id="orderStatusChartReport" style="padding: 1.5rem; min-height: 300px; display: flex; align-items: center; justify-content: center;">
-                        <canvas id="orderStatusChartCanvas"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Charts Grid - Third Row -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-lg); margin-bottom: var(--spacing-lg);">
-                <!-- Monthly Trends -->
-                <div class="report-card" style="background: white; border-radius: var(--radius-lg); padding: 0; box-shadow: var(--shadow-sm); overflow: hidden;">
-                    <div style="background: var(--primary-color); color: white; padding: 1.25rem 1.5rem;">
-                        <h3 style="margin: 0; font-size: 1.2rem; display: flex; align-items: center; gap: 0.5rem;">
-                            <i class="fas fa-calendar-alt"></i> Monthly Trends
-                        </h3>
-                    </div>
-                    <div class="chart-container" id="trendsChart" style="padding: 1.5rem; min-height: 300px;">
-                        <canvas id="trendsChartCanvas"></canvas>
-                    </div>
-                </div>
-
-                <!-- Payment Methods -->
-                <div class="report-card" style="background: white; border-radius: var(--radius-lg); padding: 0; box-shadow: var(--shadow-sm); overflow: hidden;">
-                    <div style="background: var(--primary-color); color: white; padding: 1.25rem 1.5rem;">
-                        <h3 style="margin: 0; font-size: 1.2rem; display: flex; align-items: center; gap: 0.5rem;">
-                            <i class="fas fa-credit-card"></i> Payment Methods
-                        </h3>
-                    </div>
-                    <div class="chart-container" id="paymentMethodsChart" style="padding: 1.5rem; min-height: 300px; display: flex; align-items: center; justify-content: center;">
-                        <canvas id="paymentMethodsChartCanvas"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Recent Activity Table -->
-            <div class="report-card" style="background: white; border-radius: var(--radius-lg); padding: 0; box-shadow: var(--shadow-sm); overflow: hidden;">
-                <div style="background: var(--primary-color); color: white; padding: 1.25rem 1.5rem; display: flex; justify-content: space-between; align-items: center;">
-                    <h3 style="margin: 0; font-size: 1.2rem; display: flex; align-items: center; gap: 0.5rem;">
-                        <i class="fas fa-history"></i> Recent Activity
-                    </h3>
-                    <button class="btn btn-secondary" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 0.5rem 1rem;">
-                        <i class="fas fa-eye"></i> View All
-                    </button>
-                </div>
-                <div id="recentActivityTable" style="padding: 1.5rem;">
-                    <!-- Recent activity will be rendered here -->
-                </div>
-            </div>
-        </section>
+            </section>
         </main>
     </div>
 </div>
@@ -4044,43 +4093,58 @@ async function handleSearch(e) {
 
 
 
+async function loadSectionData(sectionName) {
+    console.log('=== LOAD SECTION DATA ===');
+    console.log('Section:', sectionName);
+
+    switch (sectionName) {
+        case 'overview':
+            await loadOverviewData();
+            break;
+        case 'marketplace':
+            // ⭐ FIX: Vérifier si on a déjà du contenu AVANT de recharger
+            const productsGrid = document.getElementById('productsGrid');
+            const hasMarketplaceHeader = productsGrid?.querySelector('.marketplace-header');
+
+            // ⭐ RECHARGER SEULEMENT SI:
+            // - Pas de contenu OU
+            // - On vient de quitter la vue d'un farmer spécifique (pas d'en-tête "Tous les produits")
+            if (!productsGrid || !productsGrid.innerHTML || !hasMarketplaceHeader) {
+                console.log('Loading marketplace data (empty or from farmer view)');
+                await loadMarketplaceData();
+            } else {
+                console.log('Marketplace already has content, skipping reload');
+            }
+            break;
+        case 'orders':
+            await loadOrdersData();
+            break;
+        case 'cart':
+            updateCartDisplay();
+            break;
+        case 'transactions':
+            await loadTransactionsData();
+            break;
+        case 'farmers':
+            await loadFarmersData();
+            break;
+        case 'tracking':
+            await loadTrackingData();
+            break;
+        case 'quality':
+            await loadQualityData();
+            break;
+        case 'messages':
+            await loadMessagesData();
+            break;
+        case 'reports':
+            await loadReportsData();
+            break;
+    }
+}
 
 
 
-  async function loadSectionData(sectionName) {
-      switch (sectionName) {
-          case 'overview':
-              await loadOverviewData();
-              break;
-          case 'marketplace':
-              await loadMarketplaceData();
-              break;
-          case 'orders':
-              await loadOrdersData();
-              break;
-          case 'cart':
-              updateCartDisplay();
-              break;
-          case 'transactions':
-              await loadTransactionsData();
-              break;
-          case 'farmers':
-              await loadFarmersData();
-              break;
-          case 'tracking':
-              await loadTrackingData();
-              break;
-          case 'quality':
-              await loadQualityData();
-              break;
-          case 'messages':
-              await loadMessagesData();
-              break;
-          case 'reports':
-              await loadReportsData();
-              break;
-      }
-  }
 
   // ==================== DASHBOARD DATA LOADING ====================
 
@@ -4170,6 +4234,9 @@ async function handleSearch(e) {
           spentChange.textContent = `${changes.spent}%`;
       }
   }
+
+
+
 
 // ==================== MESSAGES NAVIGATION ====================
 
@@ -4568,12 +4635,11 @@ function getStatusIcon(status) {
 
 
 
-
 async function loadMarketplaceData() {
     try {
         console.log('=== LOADING MARKETPLACE ===');
 
-        // 1. Load active productions
+        // ⭐ CHARGER TOUTES LES PRODUCTIONS ACTIVES (PAS DE FILTRE PAR FARMER)
         const productionsResponse = await apiCall(`${API_BASE_URL}/v1/crop-productions/active`);
         const productions = extractDataFromResponse(productionsResponse);
 
@@ -4587,18 +4653,18 @@ async function loadMarketplaceData() {
             return;
         }
 
-        // 2. Load crops
+        // Load crops data
         const cropsResponse = await apiCall(`${API_BASE_URL}/v1/crops/all`);
         const crops = extractDataFromResponse(cropsResponse);
 
-        // 3. ⭐ Load all farmers
+        // Load all farmers
         const farmersResponse = await apiCall(`${API_BASE_URL}/users/farmers`);
         const farmers = extractDataFromResponse(farmersResponse);
 
         console.log('=== FARMERS LOADED ===');
         console.log('Farmers Count:', farmers.length);
 
-        // 4. Create maps
+        // Create maps
         const cropsMap = {};
         crops.forEach(crop => {
             if (crop.id) cropsMap[crop.id] = crop;
@@ -4612,7 +4678,7 @@ async function loadMarketplaceData() {
             }
         });
 
-        // 5. ⭐ Enrich productions with crop AND farmer details
+        // ⭐ ENRICHIR TOUTES LES PRODUCTIONS (PAS DE FILTRE)
         const enrichedProductions = productions.map(prod => {
             const crop = cropsMap[prod.cropId];
             const farmer = farmersMap[prod.farmerId];
@@ -4629,7 +4695,7 @@ async function loadMarketplaceData() {
                 cropDescription: crop?.description || prod.notes,
                 cropVariety: crop?.variety || prod.seedVariety,
 
-                // ⭐ FARMER INFORMATION
+                // FARMER INFORMATION
                 farmerId: prod.farmerId,
                 farmerName: farmerName,
                 farmerFullName: farmer?.fullName || farmerName,
@@ -4639,8 +4705,8 @@ async function loadMarketplaceData() {
 
                 // Availability
                 availableQuantity: prod.expectedYield || prod.actualYield || 0,
-                price: prod.estimatedPrice || prod.marketPrice || 0,
-                pricePerKg: prod.estimatedPrice || prod.marketPrice || 0,
+                price: prod.estimatedPrice || prod.marketPrice || prod.pricePerKg || 0,
+                pricePerKg: prod.pricePerKg || prod.estimatedPrice || prod.marketPrice || 0,
 
                 // Dates
                 expectedHarvestDate: prod.expectedHarvestDate,
@@ -4667,17 +4733,10 @@ async function loadMarketplaceData() {
 
         console.log('=== ENRICHED PRODUCTIONS ===');
         console.log('Count:', enrichedProductions.length);
-        if (enrichedProductions.length > 0) {
-            console.log('First product:', enrichedProductions[0]);
-        }
 
         populateCategoryFilter(crops);
         displayMarketplaceProducts(enrichedProductions);
         showNotification(`${enrichedProductions.length} products loaded`, 'success');
-        if (enrichedProductions.length > 0 && !window._marketplaceNotifiedThisSession && typeof pushBuyerNotification === 'function') {
-            window._marketplaceNotifiedThisSession = true;
-            pushBuyerNotification('New products in Marketplace', `${enrichedProductions.length} products available to browse`, 'info');
-        }
 
     } catch (error) {
         console.error('=== ERROR LOADING MARKETPLACE ===', error);
@@ -4927,6 +4986,7 @@ function mergeMarketPricesWithProductions(marketPrices, productions) {
 
 
 
+
 function displayMarketplaceProducts(products) {
     const productsGrid = document.getElementById('productsGrid');
     if (!productsGrid) return;
@@ -4935,92 +4995,219 @@ function displayMarketplaceProducts(products) {
 
     if (!products || products.length === 0) {
         productsGrid.innerHTML = `
-            <div class="empty-state" style="grid-column: 1 / -1;">
-                <i class="fas fa-inbox"></i>
-                <h3>No Products Available</h3>
-                <p>There are no products available in the marketplace at the moment.</p>
+            <div class="empty-state" style="grid-column: 1 / -1; text-align: center; padding: 4rem;">
+                <div style="width: 120px; height: 120px; margin: 0 auto 2rem; background: linear-gradient(135deg, #f0f9ff, #dbeafe); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(59, 130, 246, 0.15);">
+                    <i class="fas fa-shopping-basket" style="font-size: 3.5rem; color: var(--primary-color);"></i>
+                </div>
+                <h3 style="font-size: 1.8rem; color: var(--text-dark); margin-bottom: 1rem;">No Products Available</h3>
+                <p style="font-size: 1.1rem; color: var(--text-light); margin-bottom: 2rem;">The marketplace is currently empty. Check back soon for new products!</p>
+                <button class="btn btn-primary" onclick="loadMarketplaceData()" style="padding: 1rem 2rem; font-size: 1.1rem;">
+                    <i class="fas fa-sync"></i> Refresh Marketplace
+                </button>
             </div>
         `;
         return;
     }
 
-    productsGrid.innerHTML = products.map((product, index) => {
-        console.log(`Product ${index}:`, {
-            id: product.id,
-            cropName: product.cropName,
-            price: product.pricePerKg,
-            type: product.id.startsWith('MP') ? 'market_price' : 'crop_production'
-        });
+    // ⭐ EN-TÊTE MODERNE ET ÉLÉGANT
+    const headerHTML = `
+        <div class="marketplace-header" style="grid-column: 1 / -1; background: linear-gradient(135deg, #10b981, #059669); border-radius: var(--radius-xl); padding: 2.5rem; margin-bottom: 2rem; box-shadow: 0 10px 30px rgba(16, 185, 129, 0.2); position: relative; overflow: hidden;">
+            <!-- Décorations de fond -->
+            <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: rgba(255, 255, 255, 0.1); border-radius: 50%; filter: blur(40px);"></div>
+            <div style="position: absolute; bottom: -30px; left: -30px; width: 150px; height: 150px; background: rgba(255, 255, 255, 0.08); border-radius: 50%; filter: blur(30px);"></div>
 
-        return `
-            <div class="product-card">
-                <div class="product-image" onclick="viewProductDetails('${product.id}')">
-                    ${product.cropImageUrl ?
-                        `<img src="${product.cropImageUrl}" alt="${product.cropName}">` :
-                        `<div class="product-placeholder">
-                            <i class="fas fa-seedling"></i>
-                            <span>No Image</span>
-                         </div>`
-                    }
-                    ${product.priceTrend === 'INCREASING' ?
-                        '<span class="product-badge organic" style="background: var(--danger-color);">Price Rising ↗</span>' :
-                        product.priceTrend === 'DECREASING' ?
-                        '<span class="product-badge ready" style="background: var(--success-color);">Price Falling ↘</span>' :
-                        '<span class="product-badge" style="background: var(--info-color);">Price Stable →</span>'
-                    }
-                    ${product.id.startsWith('MP') ?
-                        '<span class="product-badge" style="background: var(--primary-color); top: 40px;">Market Price</span>' :
-                        '<span class="product-badge" style="background: var(--secondary-color); top: 40px;">Direct Sale</span>'
-                    }
+            <!-- Contenu principal -->
+            <div style="position: relative; z-index: 1;">
+                <div style="display: flex; align-items: center; justify-content: center; gap: 1rem; margin-bottom: 1rem;">
+                    <div style="width: 60px; height: 60px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
+                        <i class="fas fa-store" style="font-size: 1.8rem; color: #10b981;"></i>
+                    </div>
+                    <h2 style="margin: 0; color: white; font-size: 2rem; font-weight: 800; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+                        🌾 AgriGuard Marketplace
+                    </h2>
                 </div>
-                <div class="product-info">
-                    <div class="product-category">${product.cropType || 'Agriculture'}</div>
-                    <h3 class="product-name">${product.cropName}</h3>
 
-                    <div class="product-details">
-                        <div class="detail-item">
-                            <i class="fas fa-weight"></i>
-                            <span>${product.availableQuantity || 0} kg available</span>
-                        </div>
-                        <div class="detail-item">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <span>${product.location || 'N/A'}</span>
-                        </div>
-                        <div class="detail-item">
-                            <i class="fas fa-store"></i>
-                            <span>${product.marketName || 'Market'}</span>
+                <div style="text-align: center; color: white;">
+                    <p style="margin: 0; font-size: 1.2rem; opacity: 0.95; font-weight: 500;">
+                        Discover fresh, quality agricultural products from verified farmers
+                    </p>
+                </div>
+
+                <!-- Statistiques -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
+                    <div style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); border-radius: var(--radius-lg); padding: 1.5rem; border: 1px solid rgba(255, 255, 255, 0.2);">
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <div style="width: 50px; height: 50px; background: white; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-box" style="font-size: 1.5rem; color: #10b981;"></i>
+                            </div>
+                            <div>
+                                <div style="font-size: 2rem; font-weight: 800; color: white;">${products.length}</div>
+                                <div style="font-size: 0.9rem; color: rgba(255, 255, 255, 0.9);">Products Available</div>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="product-footer">
-                        <div class="product-price">
-                            <span class="price-value">${formatCurrency(product.pricePerKg || product.price || 0)}</span>
-                            <span class="price-unit">/kg</span>
+                    <div style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); border-radius: var(--radius-lg); padding: 1.5rem; border: 1px solid rgba(255, 255, 255, 0.2);">
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <div style="width: 50px; height: 50px; background: white; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-users" style="font-size: 1.5rem; color: #10b981;"></i>
+                            </div>
+                            <div>
+                                <div style="font-size: 2rem; font-weight: 800; color: white;">${new Set(products.map(p => p.farmerId)).size}</div>
+                                <div style="font-size: 0.9rem; color: rgba(255, 255, 255, 0.9);">Active Farmers</div>
+                            </div>
                         </div>
-                        <div class="product-actions" style="display: flex; gap: 0.5rem;">
-                            <button class="btn btn-secondary btn-sm"
-                                    onclick="viewProductDetails('${product.id}')"
-                                    style="flex: 1; padding: 0.5rem; font-size: 0.85rem;">
-                                <i class="fas fa-info-circle"></i> Details
-                            </button>
-                            ${(product.availableQuantity || 0) > 0 || product.id.startsWith('MP') ? `
-                                <button class="btn btn-primary btn-sm"
-                                        onclick="addToCart('${product.id}')"
-                                        style="flex: 1; padding: 0.5rem; font-size: 0.85rem;">
-                                    <i class="fas fa-shopping-cart"></i> Add
-                                </button>
-                            ` : `
-                                <button class="btn btn-secondary btn-sm" disabled
-                                        style="flex: 1; padding: 0.5rem; font-size: 0.85rem;">
-                                    <i class="fas fa-ban"></i> Out of Stock
-                                </button>
-                            `}
+                    </div>
+
+                    <div style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); border-radius: var(--radius-lg); padding: 1.5rem; border: 1px solid rgba(255, 255, 255, 0.2);">
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <div style="width: 50px; height: 50px; background: white; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-leaf" style="font-size: 1.5rem; color: #10b981;"></i>
+                            </div>
+                            <div>
+                                <div style="font-size: 2rem; font-weight: 800; color: white;">${products.filter(p => p.isOrganic).length}</div>
+                                <div style="font-size: 0.9rem; color: rgba(255, 255, 255, 0.9);">Organic Products</div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
+    `;
+
+    // ⭐ CARTES DE PRODUITS AVEC DESIGN MODERNE
+    const productsHTML = products.map((product) => {
+        const harvestDate = product.actualHarvestDate || product.expectedHarvestDate;
+        const harvestLabel = product.actualHarvestDate ? 'Harvested' : 'Expected Harvest';
+        const timeAgo = harvestDate ? getTimeAgo(new Date(harvestDate)) : 'Date not set';
+
+        return `
+            <div class="product-card" style="background: white; border-radius: var(--radius-xl); overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); transition: all 0.3s ease; cursor: pointer; border: 2px solid transparent; position: relative;"
+                 onmouseover="this.style.transform='translateY(-8px)'; this.style.boxShadow='0 12px 24px rgba(16, 185, 129, 0.15)'; this.style.borderColor='var(--primary-color)';"
+                 onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(0, 0, 0, 0.08)'; this.style.borderColor='transparent';"
+                 onclick="viewProductDetails('${product.id}')">
+
+                <!-- Badge de statut en haut à gauche -->
+                <div style="position: absolute; top: 1rem; left: 1rem; z-index: 10; display: flex; flex-direction: column; gap: 0.5rem;">
+                    ${product.isOrganic ?
+                        '<div style="background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); display: flex; align-items: center; gap: 0.5rem;"><i class="fas fa-leaf"></i> ORGANIC</div>' : ''
+                    }
+                    ${product.certification ?
+                        '<div style="background: linear-gradient(135deg, #3b82f6, #1e40af); color: white; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); display: flex; align-items: center; gap: 0.5rem;"><i class="fas fa-certificate"></i> CERTIFIED</div>' : ''
+                    }
+                </div>
+
+                <!-- Image du produit -->
+                <div style="position: relative; width: 100%; height: 250px; background: linear-gradient(135deg, #f0fdf4, #dcfce7); overflow: hidden;">
+                    ${product.cropImageUrl ?
+                        `<img src="${product.cropImageUrl}" alt="${product.cropName}"
+                             style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s;"
+                             onmouseover="this.style.transform='scale(1.05)'"
+                             onmouseout="this.style.transform='scale(1)'"
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                         <div style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center; flex-direction: column; background: linear-gradient(135deg, #f0fdf4, #dcfce7);">
+                             <i class="fas fa-seedling" style="font-size: 4rem; color: var(--primary-color); margin-bottom: 1rem;"></i>
+                             <span style="color: var(--text-light); font-weight: 600;">No Image</span>
+                         </div>` :
+                        `<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; flex-direction: column;">
+                             <i class="fas fa-seedling" style="font-size: 4rem; color: var(--primary-color); margin-bottom: 1rem;"></i>
+                             <span style="color: var(--text-light); font-weight: 600;">No Image Available</span>
+                         </div>`
+                    }
+
+                    <!-- Prix en overlay -->
+                    <div style="position: absolute; bottom: 1rem; right: 1rem; background: rgba(16, 185, 129, 0.95); backdrop-filter: blur(10px); color: white; padding: 0.75rem 1.25rem; border-radius: 30px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);">
+                        <div style="font-size: 1.5rem; font-weight: 800;">${formatCurrency(product.pricePerKg || product.price || 0)}</div>
+                        <div style="font-size: 0.75rem; opacity: 0.9;">/kg</div>
+                    </div>
+                </div>
+
+                <!-- Informations du produit -->
+                <div style="padding: 1.5rem;">
+                    <!-- Catégorie -->
+                    <div style="display: inline-block; background: var(--primary-light); color: var(--primary-dark); padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.75rem;">
+                        ${product.cropType || 'Agriculture'}
+                    </div>
+
+                    <!-- Nom du produit -->
+                    <h3 style="margin: 0 0 1rem 0; font-size: 1.3rem; font-weight: 700; color: var(--text-dark); line-height: 1.3;">
+                        ${product.cropName}
+                    </h3>
+
+                    <!-- Informations du fermier -->
+                    <div style="background: linear-gradient(135deg, #f0fdf4, #dcfce7); border-radius: var(--radius-md); padding: 1rem; margin-bottom: 1rem; border-left: 4px solid var(--success-color);">
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <div style="width: 45px; height: 45px; border-radius: 50%; background: var(--success-color); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 1.2rem; box-shadow: 0 4px 8px rgba(16, 185, 129, 0.2);">
+                                ${(product.farmerName || 'F').charAt(0).toUpperCase()}
+                            </div>
+                            <div style="flex: 1; min-width: 0;">
+                                <div style="font-size: 0.7rem; color: var(--success-color); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; margin-bottom: 0.25rem;">
+                                    <i class="fas fa-user"></i> Farmer
+                                </div>
+                                <div style="font-weight: 700; color: var(--text-dark); font-size: 0.95rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                    ${product.farmerName || 'Contact Support'}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Détails du produit -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem;">
+                        <div style="background: var(--light-gray); border-radius: var(--radius-md); padding: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <div style="width: 35px; height: 35px; background: white; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-weight" style="color: var(--primary-color); font-size: 1.1rem;"></i>
+                            </div>
+                            <div style="flex: 1; min-width: 0;">
+                                <div style="font-size: 0.7rem; color: var(--text-light); text-transform: uppercase;">Available</div>
+                                <div style="font-weight: 700; color: var(--text-dark); font-size: 0.95rem;">${product.availableQuantity} kg</div>
+                            </div>
+                        </div>
+
+                        <div style="background: var(--light-gray); border-radius: var(--radius-md); padding: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <div style="width: 35px; height: 35px; background: white; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-calendar" style="color: var(--info-color); font-size: 1.1rem;"></i>
+                            </div>
+                            <div style="flex: 1; min-width: 0;">
+                                <div style="font-size: 0.7rem; color: var(--text-light); text-transform: uppercase;">${harvestLabel}</div>
+                                <div style="font-weight: 700; color: var(--text-dark); font-size: 0.85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${timeAgo}</div>
+                            </div>
+                        </div>
+
+                        <div style="background: var(--light-gray); border-radius: var(--radius-md); padding: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <div style="width: 35px; height: 35px; background: white; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-map-marker-alt" style="color: var(--danger-color); font-size: 1.1rem;"></i>
+                            </div>
+                            <div style="flex: 1; min-width: 0;">
+                                <div style="font-size: 0.7rem; color: var(--text-light); text-transform: uppercase;">Location</div>
+                                <div style="font-weight: 700; color: var(--text-dark); font-size: 0.85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${product.location}</div>
+                            </div>
+                        </div>
+
+                        <div style="background: var(--light-gray); border-radius: var(--radius-md); padding: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <div style="width: 35px; height: 35px; background: white; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-leaf" style="color: var(--warning-color); font-size: 1.1rem;"></i>
+                            </div>
+                            <div style="flex: 1; min-width: 0;">
+                                <div style="font-size: 0.7rem; color: var(--text-light); text-transform: uppercase;">Method</div>
+                                <div style="font-weight: 700; color: var(--text-dark); font-size: 0.85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${product.productionMethod || 'CONVENTIONAL'}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bouton Add to Cart -->
+                    <button onclick="event.stopPropagation(); addToCart('${product.id}')"
+                            style="width: 100%; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; border-radius: var(--radius-lg); padding: 1rem; font-weight: 700; font-size: 1rem; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2); display: flex; align-items: center; justify-content: center; gap: 0.5rem;"
+                            onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(16, 185, 129, 0.3)';"
+                            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(16, 185, 129, 0.2)';">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span>Add to Cart</span>
+                    </button>
+                </div>
+            </div>
         `;
     }).join('');
+
+    productsGrid.innerHTML = headerHTML + productsHTML;
 }
 
 
@@ -5481,24 +5668,65 @@ function saveCartToStorage() {
 
 
 
+// ==================== PRODUCT VALIDATION FUNCTION ====================
 
+/**
+ * Validates if a product meets the criteria to be sold
+ * ✅ Active production status: PLANTED, GROWING, HARVESTED
+ * ✅ Available quantity > 0: expectedYield > 0 OR actualYield > 0
+ * ❌ Excluded statuses: PLANNED, SOLD, DAMAGED, CANCELLED
+ */
+function validateProductCriteria(product) {
+    const validStatuses = ['PLANTED', 'GROWING', 'HARVESTED'];
+    const invalidStatuses = ['PLANNED', 'SOLD', 'DAMAGED', 'CANCELLED'];
+
+    const currentStatus = product.productionStatus?.toUpperCase();
+
+    // Check status
+    if (!currentStatus || invalidStatuses.includes(currentStatus) || !validStatuses.includes(currentStatus)) {
+        return {
+            isValid: false,
+            message: 'This product does not meet the purchase criteria',
+            reason: 'INVALID_STATUS'
+        };
+    }
+
+    // Check quantity
+    const expectedYield = parseFloat(product.expectedYield) || 0;
+    const actualYield = parseFloat(product.actualYield) || 0;
+    const availableQuantity = expectedYield > 0 ? expectedYield : actualYield;
+
+    if (availableQuantity <= 0) {
+        return {
+            isValid: false,
+            message: 'This product has no available quantity',
+            reason: 'NO_QUANTITY'
+        };
+    }
+
+    return {
+        isValid: true,
+        availableQuantity: availableQuantity,
+        price: product.pricePerKg || product.estimatedPrice || product.price || 0
+    };
+}
+
+// ==================== FONCTION ADD TO CART AVEC VALIDATION ====================
 
 async function addToCart(productId) {
-    console.log('=== ADD TO CART CALLED ===');
+    console.log('=== ADD TO CART WITH VALIDATION ===');
     console.log('Product ID:', productId);
 
     try {
-        showNotification('Adding to cart...', 'info');
+        showNotification('Checking product availability...', 'info');
 
         let productData = null;
         let productType = null;
 
-        // STRATEGY 1: Market Price
+        // STRATEGY 1: Market Price (ne pas utiliser pour l'instant)
         if (productId.startsWith('MP')) {
-            console.log('Detected Market Price ID');
             try {
                 const marketPriceResponse = await apiCall(`${API_BASE_URL}/market-prices/${productId}`);
-                // ⭐ UNWRAP ApiResponse if needed
                 productData = marketPriceResponse.data || marketPriceResponse;
                 productType = 'market_price';
                 console.log('✓ Market Price found:', productData);
@@ -5513,39 +5741,51 @@ async function addToCart(productId) {
             try {
                 const productionResponse = await apiCall(`${API_BASE_URL}/v1/crop-productions/${productId}`);
 
-                // ⭐ CRITICAL FIX: Unwrap ApiResponse wrapper
-                console.log('Raw API Response:', productionResponse);
-
-                // Check if response has a 'data' property (ApiResponse wrapper)
+                // ⭐ CRITICAL: Unwrap ApiResponse wrapper
                 if (productionResponse.data) {
                     productData = productionResponse.data;
                 } else if (productionResponse.success && productionResponse.data) {
                     productData = productionResponse.data;
                 } else {
-                    // Response is the data itself
                     productData = productionResponse;
                 }
 
                 productType = 'crop_production';
 
                 console.log('✓ Crop Production found:', productData);
-                console.log('✓ Crop Name:', productData.cropName);
-                console.log('✓ Farmer Name:', productData.farmerName);
-                console.log('✓ Available quantity:', productData.expectedYield || productData.actualYield);
 
-                // ⭐ VALIDATION: Check if enrichment succeeded
+                // ⭐ ENRICHIR les données manquantes
                 if (!productData.cropName || productData.cropName === 'Unknown Crop') {
-                    console.error('❌ Crop name is missing after API call!');
-                    throw new Error('Product information incomplete - crop name missing');
+                    try {
+                        if (productData.cropId) {
+                            const cropResponse = await apiCall(`${API_BASE_URL}/v1/crops/${productData.cropId}`);
+                            const crop = cropResponse.data || cropResponse;
+                            productData.cropName = crop.cropName || 'Unknown Crop';
+                            productData.cropImageUrl = crop.imageUrl;
+                            productData.cropType = crop.cropType;
+                        }
+                    } catch (error) {
+                        console.warn('Could not load crop details:', error);
+                        productData.cropName = 'Unknown Crop';
+                    }
                 }
 
-                if (!productData.farmerName || productData.farmerName === 'Unknown Farmer') {
-                    console.warn('⚠️ Farmer name is missing');
+                // ⭐ VALIDATION DES CRITERES
+                console.log('Validating product criteria...');
+                const validation = validateProductCriteria(productData);
+
+                if (!validation.isValid) {
+                    console.error('❌ Product validation failed:', validation.message);
+                    showNotification(validation.message, 'error');
+                    return;
                 }
+
+                console.log('✅ Product validation passed!');
 
             } catch (error) {
                 console.error('Crop Production not found:', error);
-                throw error;
+                showNotification('Product not found or unavailable', 'error');
+                return;
             }
         }
 
@@ -5568,51 +5808,21 @@ async function addToCart(productId) {
 }
 
 
-
-
 async function addCropProductionToCart(production) {
-    console.log('=== ADDING CROP PRODUCTION TO CART ===');
+    console.log('=== ADDING CROP PRODUCTION TO CART WITH VALIDATION ===');
     console.log('Production data:', production);
 
-    const availableQty = parseFloat(production.expectedYield || production.actualYield || 0);
+    // ⭐ VALIDATION FINALE AVANT AJOUT AU PANIER
+    const validation = validateProductCriteria(production);
 
-    if (availableQty <= 0 || isNaN(availableQty)) {
-        console.warn('Product out of stock. Quantity:', availableQty);
-        showNotification('This product is out of stock', 'warning');
+    if (!validation.isValid) {
+        console.error('❌ Final validation failed:', validation.message);
+        showNotification(validation.message, 'error');
         return;
     }
 
-    // ⭐ CRITICAL: Get enriched information
-    const cropName = production.cropName;
-    const farmerName = production.farmerName;
-    const location = production.location || production.deliveryLocation || 'Location not specified';
-
-    // ⭐ UTILISER pricePerKg avec fallback sur estimatedPrice
-    let pricePerKg = parseFloat(production.pricePerKg || 0);
-
-    // Si pricePerKg est 0, essayer d'utiliser estimatedPrice
-    if (pricePerKg === 0 && production.estimatedPrice) {
-        pricePerKg = parseFloat(production.estimatedPrice);
-    }
-
-    // Si toujours 0, utiliser un prix par défaut
-    if (pricePerKg === 0) {
-        pricePerKg = 1000; // Prix par défaut
-        console.warn('⚠️ No price found, using default: 1000 RWF/kg');
-    }
-
-    // ⭐ VALIDATION
-    if (!cropName || cropName === 'Unknown Crop') {
-        console.error('❌ Crop name is missing!');
-        showNotification('Product information incomplete - crop name missing', 'error');
-        return;
-    }
-
-    if (!farmerName || farmerName === 'Unknown Farmer' || farmerName === 'Farmer Info Unavailable') {
-        console.error('❌ Farmer name is missing!');
-        showNotification('Product information incomplete - farmer information missing', 'error');
-        return;
-    }
+    const availableQty = validation.availableQuantity;
+    const pricePerKg = validation.price || 1000; // Prix par défaut si nécessaire
 
     // Check if already in cart
     const existingItemIndex = shoppingCart.findIndex(item =>
@@ -5628,7 +5838,7 @@ async function addCropProductionToCart(production) {
         existingItem.quantity += 1;
         showNotification('Quantity updated in cart', 'success');
         if (typeof pushBuyerNotification === 'function') {
-            pushBuyerNotification('Cart updated', `Quantity updated for ${cropName}`, 'success');
+            pushBuyerNotification('Cart updated', `Quantity updated for ${production.cropName}`, 'success');
         }
     } else {
         // ⭐ Add new item with complete information
@@ -5637,24 +5847,30 @@ async function addCropProductionToCart(production) {
             cropId: production.cropId,
 
             // ⭐ CROP INFO
-            cropName: cropName,
+            cropName: production.cropName || 'Unknown Crop',
             cropImageUrl: production.cropImageUrl,
             cropType: production.cropType,
 
             // ⭐ FARMER INFO
             farmerId: production.farmId,
-            farmerName: farmerName,
+            farmerName: production.farmerName || 'Unknown Farmer',
             farmerEmail: production.farmerEmail,
             farmerPhone: production.farmerPhone,
 
-            // ⭐ PRICING & QUANTITY - UTILISER pricePerKg
+            // ⭐ PRICING & QUANTITY
             pricePerKg: pricePerKg,
-            price: pricePerKg, // Pour compatibilité
+            price: pricePerKg,
             quantity: 1,
             availableQuantity: availableQty,
 
+            // ⭐ VALIDATION INFO
+            productionStatus: production.productionStatus,
+            expectedYield: production.expectedYield,
+            actualYield: production.actualYield,
+            isValidated: true,
+
             // ⭐ LOCATION
-            location: location,
+            location: production.location || 'Rwanda',
             unit: 'kg',
             type: 'crop_production',
 
@@ -5666,16 +5882,14 @@ async function addCropProductionToCart(production) {
         };
 
         console.log('✓ Cart item to add:', cartItem);
-        console.log('✓ Crop name:', cartItem.cropName);
-        console.log('✓ Farmer name:', cartItem.farmerName);
-        console.log('✓ Location:', cartItem.location);
-        console.log('✓ Price per kg:', cartItem.pricePerKg, 'RWF');
-        console.log('✓ Total for 1kg:', cartItem.pricePerKg * 1, 'RWF');
+        console.log('✓ Validation status: PASSED');
+        console.log(`✓ Available: ${availableQty} kg`);
+        console.log(`✓ Price: ${pricePerKg} RWF/kg`);
 
         shoppingCart.push(cartItem);
-        showNotification(`Added ${cropName} to cart at ${pricePerKg} RWF/kg`, 'success');
+        showNotification(`Added ${production.cropName} to cart at ${pricePerKg} RWF/kg`, 'success');
         if (typeof pushBuyerNotification === 'function') {
-            pushBuyerNotification('Product added to cart', `${cropName} added (1 kg)`, 'success');
+            pushBuyerNotification('Product added to cart', `${production.cropName} added (1 kg)`, 'success');
         }
     }
 
@@ -6036,7 +6250,7 @@ function showOrderConfirmationModal(cartItems) {
                         <i class="fas fa-list"></i> Order Items (${cartItems.length})
                     </h3>
 
-                   // Dans la section où vous affichez les items dans showOrderConfirmationModal
+
 ${cartItems.map((item, index) => `
     <div class="order-item-summary" style="...">
         <div class="item-info" style="flex: 1;">
@@ -6700,7 +6914,7 @@ function getStatusIcon(status) {
   async function viewOrderDetails(orderId) {
       try {
           const order = await apiCall(ENDPOINTS.transactionById(orderId));
-          
+
           // ⭐ Enrich order with farmer and crop details
           try {
               // Fetch farmer details if we have farmerId
@@ -7125,7 +7339,7 @@ function displayTransactions(transactions) {
   async function downloadInvoice(transactionId) {
       try {
           showNotification('Generating invoice...', 'info');
-          
+
           // Fetch transaction details
           const response = await apiCall(ENDPOINTS.transactionById(transactionId));
           const transaction = response.data || response;
@@ -7166,7 +7380,7 @@ function displayTransactions(transactions) {
           try {
               const img = new Image();
               img.crossOrigin = 'anonymous';
-              
+
               // Use a promise to handle logo loading
               await new Promise((resolve, reject) => {
                   img.onload = function() {
@@ -7176,7 +7390,7 @@ function displayTransactions(transactions) {
                           canvas.height = Math.min(img.height, 100);
                           const ctx = canvas.getContext('2d');
                           ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                          
+
                           const imgData = canvas.toDataURL('image/jpeg');
                           doc.addImage(imgData, 'JPEG', 15, 8, 30, 30);
                           logoAdded = true;
@@ -7185,13 +7399,13 @@ function displayTransactions(transactions) {
                           reject(e);
                       }
                   };
-                  
+
                   img.onerror = function() {
                       reject(new Error('Failed to load logo'));
                   };
-                  
+
                   img.src = 'images/logo.jpeg';
-                  
+
                   // Timeout after 2 seconds
                   setTimeout(() => {
                       if (!logoAdded) {
@@ -7209,18 +7423,18 @@ function displayTransactions(transactions) {
           doc.setFontSize(24);
           doc.setFont(undefined, 'bold');
           doc.text('AgriGuard AI', logoAdded ? 50 : 15, 20);
-          
+
           doc.setFontSize(12);
           doc.setFont(undefined, 'normal');
           doc.text('Smart Agriculture System', logoAdded ? 50 : 15, 28);
           doc.text('Invoice', logoAdded ? 50 : 15, 35);
 
           generateInvoiceContent(doc, transaction, primaryColor, darkColor, textColor, lightGray);
-          
+
           // Save PDF
           const fileName = `Invoice_${transaction.transactionCode || transaction.id}.pdf`;
           doc.save(fileName);
-          
+
           showNotification('Invoice downloaded successfully!', 'success');
       } catch (error) {
           console.error('Error generating invoice:', error);
@@ -7234,19 +7448,19 @@ function displayTransactions(transactions) {
       // Invoice details section
       doc.setTextColor(textColor[0], textColor[1], textColor[2]);
       doc.setFontSize(10);
-      
+
       // Invoice number and date
       doc.setFont(undefined, 'bold');
       doc.text('Invoice Number:', 15, yPos);
       doc.setFont(undefined, 'normal');
       doc.text(transaction.transactionCode || 'N/A', 60, yPos);
-      
+
       yPos += 7;
       doc.setFont(undefined, 'bold');
       doc.text('Invoice Date:', 15, yPos);
       doc.setFont(undefined, 'normal');
       doc.text(formatDate(transaction.createdAt) || 'N/A', 60, yPos);
-      
+
       yPos += 7;
       doc.setFont(undefined, 'bold');
       doc.text('Transaction ID:', 15, yPos);
@@ -7265,19 +7479,19 @@ function displayTransactions(transactions) {
       doc.setFontSize(12);
       doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
       doc.text('Bill To:', 15, yPos);
-      
+
       yPos += 7;
       doc.setFontSize(10);
       doc.setTextColor(textColor[0], textColor[1], textColor[2]);
       doc.setFont(undefined, 'normal');
       const buyerName = currentUser?.fullName || currentUser?.username || 'Buyer';
       doc.text(buyerName, 15, yPos);
-      
+
       if (currentUser?.email) {
           yPos += 6;
           doc.text(`Email: ${currentUser.email}`, 15, yPos);
       }
-      
+
       if (currentUser?.phoneNumber) {
           yPos += 6;
           doc.text(`Phone: ${currentUser.phoneNumber}`, 15, yPos);
@@ -7290,7 +7504,7 @@ function displayTransactions(transactions) {
       doc.setFontSize(12);
       doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
       doc.text('Sold By:', 15, yPos);
-      
+
       yPos += 7;
       doc.setFontSize(10);
       doc.setTextColor(textColor[0], textColor[1], textColor[2]);
@@ -7307,7 +7521,7 @@ function displayTransactions(transactions) {
       // Items table header
       doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
       doc.rect(15, yPos, 180, 8, 'F');
-      
+
       doc.setTextColor(255, 255, 255);
       doc.setFont(undefined, 'bold');
       doc.setFontSize(10);
@@ -7315,7 +7529,7 @@ function displayTransactions(transactions) {
       doc.text('Quantity', 120, yPos + 5.5);
       doc.text('Price/Unit', 150, yPos + 5.5);
       doc.text('Amount', 175, yPos + 5.5);
-      
+
       yPos += 8;
 
       // Item row
@@ -7325,12 +7539,12 @@ function displayTransactions(transactions) {
       const quantity = transaction.quantity || 0;
       const pricePerUnit = transaction.pricePerUnit || 0;
       const totalAmount = transaction.totalAmount || 0;
-      
+
       doc.text(productName, 18, yPos + 5.5);
       doc.text(`${quantity} kg`, 120, yPos + 5.5);
       doc.text(`RF ${pricePerUnit.toFixed(2)}`, 150, yPos + 5.5);
       doc.text(`RF ${totalAmount.toFixed(2)}`, 175, yPos + 5.5);
-      
+
       yPos += 8;
 
       // Line separator
@@ -7343,19 +7557,19 @@ function displayTransactions(transactions) {
       doc.setFontSize(12);
       doc.text('Subtotal:', 150, yPos);
       doc.text(`RF ${totalAmount.toFixed(2)}`, 175, yPos);
-      
+
       yPos += 7;
-      
+
       const paymentMethod = transaction.paymentMethod || 'CASH';
       doc.setFontSize(10);
       doc.setFont(undefined, 'normal');
       doc.text(`Payment Method: ${paymentMethod}`, 150, yPos);
-      
+
       yPos += 7;
-      
+
       doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
       doc.rect(150, yPos - 5, 45, 8, 'F');
-      
+
       doc.setTextColor(255, 255, 255);
       doc.setFont(undefined, 'bold');
       doc.setFontSize(12);
@@ -7458,10 +7672,10 @@ async function loadTrackingData() {
                         const dateB = new Date(b.stageStartDate || b.createdAt || 0);
                         return dateA - dateB;
                     });
-                    
+
                     // Get the latest/active stage
                     const latestStage = allStages[allStages.length - 1];
-                    
+
                     return { order, supplyChain: latestStage, allStages: allStages };
                 }
 
@@ -7506,7 +7720,7 @@ function displayTrackingInfo(trackingData) {
         // Determine current stage and progress based on supply chain data or transaction status
         let currentStage = null;
         let currentStageIndex = -1;
-        
+
         const stages = [
             { key: 'ORDERED', label: 'Order Placed', icon: 'fa-shopping-cart', description: 'Your order has been received' },
             { key: 'CONFIRMED', label: 'Order Confirmed', icon: 'fa-check-circle', description: 'Order confirmed by farmer' },
@@ -7516,7 +7730,7 @@ function displayTrackingInfo(trackingData) {
             { key: 'OUT_FOR_DELIVERY', label: 'Out for Delivery', icon: 'fa-truck-fast', description: 'Out for delivery' },
             { key: 'DELIVERED', label: 'Delivered', icon: 'fa-check-double', description: 'Successfully delivered' }
         ];
-        
+
         // If we have supply chain stages, use them
         if (allStages && allStages.length > 0) {
             // Find the highest completed stage
@@ -7526,7 +7740,7 @@ function displayTrackingInfo(trackingData) {
                 const lastCompletedStage = completedStages[completedStages.length - 1];
                 currentStage = lastCompletedStage;
                 currentStageIndex = stages.findIndex(s => s.key === lastCompletedStage);
-                
+
                 // If exact match not found, use the latest supply chain stage
                 if (currentStageIndex === -1 && supplyChain) {
                     currentStage = supplyChain.stage;
@@ -7534,7 +7748,7 @@ function displayTrackingInfo(trackingData) {
                 }
             }
         }
-        
+
         // Fallback to transaction status mapping if no supply chain data
         if (currentStageIndex === -1) {
             const statusToStage = {
@@ -7545,7 +7759,7 @@ function displayTrackingInfo(trackingData) {
                 'OUT_FOR_DELIVERY': 'OUT_FOR_DELIVERY',
                 'DELIVERED': 'DELIVERED'
             };
-            
+
             const mappedStage = statusToStage[order.transactionStatus] || 'ORDERED';
             currentStage = mappedStage;
             currentStageIndex = stages.findIndex(s => s.key === mappedStage);
@@ -7562,7 +7776,7 @@ function displayTrackingInfo(trackingData) {
             if (stageData && stageData.stageStartDate) {
                 return formatDateTime(stageData.stageStartDate);
             }
-            
+
             // Fallback to estimated time
             if (index > currentStageIndex) return null;
             if (index === currentStageIndex) return 'In Progress';
@@ -7577,7 +7791,7 @@ function displayTrackingInfo(trackingData) {
                 <div class="tracking-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); padding-bottom: var(--spacing-md); border-bottom: 2px solid var(--border-color);">
                     <div>
                         <h3 style="margin: 0; color: var(--text-dark); font-size: 1.2rem; display: flex; align-items: center; gap: 0.75rem;">
-                            <i class="fas fa-box" style="color: var(--primary-color);"></i> 
+                            <i class="fas fa-box" style="color: var(--primary-color);"></i>
                             <span>${order.transactionCode || order.id}</span>
                         </h3>
                         <p style="margin: 0.5rem 0 0 0; color: var(--text-light); font-size: 0.9rem;">
@@ -7593,7 +7807,7 @@ function displayTrackingInfo(trackingData) {
                     <!-- Order Information -->
                     <div class="tracking-info" style="background: linear-gradient(135deg, #f8f9fa, #ffffff); padding: var(--spacing-md); border-radius: var(--radius-md); border: 1px solid var(--border-color);">
                         <h4 style="margin: 0 0 1rem 0; color: var(--text-dark); font-size: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                            <i class="fas fa-info-circle" style="color: var(--primary-color);"></i> 
+                            <i class="fas fa-info-circle" style="color: var(--primary-color);"></i>
                             Order Details
                         </h4>
                         <div style="display: flex; flex-direction: column; gap: 0.75rem;">
@@ -7655,9 +7869,9 @@ function displayTrackingInfo(trackingData) {
                                     const isCurrent = index === currentStageIndex;
                                     const stageTime = generateStageTime(index, stage.key);
                                     const stageData = allStages.find(sc => sc.stage === stage.key);
-                                    const stageDate = stageData && stageData.stageStartDate 
+                                    const stageDate = stageData && stageData.stageStartDate
                                         ? formatDateTime(stageData.stageStartDate)
-                                        : (index <= currentStageIndex && order.createdAt 
+                                        : (index <= currentStageIndex && order.createdAt
                                             ? (() => {
                                                 const date = new Date(order.createdAt);
                                                 date.setDate(date.getDate() + (currentStageIndex - index));
@@ -7793,7 +8007,7 @@ async function showTrackingDetails(trackingCode) {
 async function trackOrder(orderId) {
     try {
         showNotification('Loading tracking information...', 'info');
-        
+
         const orderResponse = await apiCall(ENDPOINTS.transactionById(orderId));
         const order = orderResponse.data || orderResponse;
 
@@ -7855,7 +8069,7 @@ async function trackOrder(orderId) {
 
         displayTrackingInfo([{ order, supplyChain, allStages }]);
         setActiveSection('tracking');
-        
+
         showNotification('Tracking information loaded', 'success');
 
     } catch (error) {
@@ -7897,36 +8111,36 @@ document.head.appendChild(trackingStyleElement);
 async function searchTrackingOrder() {
     const searchInput = document.getElementById('trackingSearch');
     if (!searchInput) return;
-    
+
     const searchValue = searchInput.value.trim();
     if (!searchValue) {
         showNotification('Please enter an order ID or tracking number', 'warning');
         return;
     }
-    
+
     try {
         showNotification('Searching for order...', 'info');
-        
+
         // Try to find order by transaction code or ID
         const response = await apiCall(
             `${ENDPOINTS.transactionsByBuyer(currentUser.id)}?page=0&size=100&sortBy=createdAt&sortDir=desc`
         );
-        
+
         const allOrders = response.content || response;
         let foundOrder = null;
-        
+
         // Search by transaction code or ID
-        foundOrder = allOrders.find(order => 
-            order.transactionCode === searchValue || 
+        foundOrder = allOrders.find(order =>
+            order.transactionCode === searchValue ||
             order.id === searchValue ||
             order.transactionCode?.toUpperCase().includes(searchValue.toUpperCase())
         );
-        
+
         if (!foundOrder) {
             showNotification('Order not found. Please check the order ID.', 'error');
             return;
         }
-        
+
         // Enrich order with crop details
         try {
             if (foundOrder.cropId && !foundOrder.cropName) {
@@ -7937,11 +8151,11 @@ async function searchTrackingOrder() {
         } catch (error) {
             console.warn('Error enriching order:', error);
         }
-        
+
         // Get supply chain information
         let supplyChain = null;
         let allStages = [];
-        
+
         // Method 1: Try transaction ID
         try {
             const transactionSupplyChain = await apiCall(
@@ -7961,7 +8175,7 @@ async function searchTrackingOrder() {
         } catch (error) {
             console.warn('No supply chain found by transaction ID');
         }
-        
+
         // Method 2: Try crop production ID
         if (!supplyChain && foundOrder.cropProductionId) {
             try {
@@ -7983,15 +8197,15 @@ async function searchTrackingOrder() {
                 console.warn('No supply chain found for production');
             }
         }
-        
+
         // Display tracking info
         displayTrackingInfo([{ order: foundOrder, supplyChain, allStages }]);
-        
+
         // Navigate to tracking section
         setActiveSection('tracking');
-        
+
         showNotification('Order found and tracking displayed', 'success');
-        
+
     } catch (error) {
         console.error('Error searching order:', error);
         showNotification('Failed to search order: ' + error.message, 'error');
@@ -8020,7 +8234,7 @@ async function loadFarmersData() {
 
         // Store farmers globally for search
         window.allFarmers = farmers;
-        
+
         displayFarmers(farmers);
 
     } catch (error) {
@@ -8132,9 +8346,9 @@ async function searchFarmers(query) {
             farmer.email?.toLowerCase().includes(searchTerm) ||
             farmer.phoneNumber?.toLowerCase().includes(searchTerm)
         );
-        
+
         displayFarmers(filtered);
-        
+
         if (filtered.length === 0) {
             showNotification('No farmers found matching your search', 'info');
         }
@@ -8148,157 +8362,242 @@ async function searchFarmers(query) {
 
 
 
-
-
-
 async function viewFarmerProducts(farmerId) {
     try {
-        console.log('Loading products for farmer:', farmerId);
+        console.log('=== VIEW FARMER PRODUCTS CALLED ===');
+        console.log('Farmer ID:', farmerId);
+        console.log('Farmer ID Type:', typeof farmerId);
 
-        // Utiliser le nouvel endpoint pour récupérer les productions du farmer
-        const response = await apiCall(`${ENDPOINTS.cropProductions}/farmer/${farmerId}`);
+        showNotification('Chargement des produits du fermier...', 'info');
 
-        console.log('Farmer products response:', response);
+        // ✅ UTILISER LE BON ENDPOINT
+        const endpoint = `${API_BASE_URL}/v1/crop-productions/farmer/${farmerId}`;
+        console.log('📡 Calling endpoint:', endpoint);
 
-        // Vérifier si la réponse contient des données
+        const response = await apiCall(endpoint);
+
+        console.log('📦 Raw API Response:', response);
+
+        // ✅ EXTRACTION DES DONNÉES
         let productions = [];
+
         if (response && response.data) {
-            productions = response.data; // Si la réponse a une structure {success, message, data}
+            productions = response.data;
+            console.log('✓ Data extracted from response.data');
         } else if (Array.isArray(response)) {
-            productions = response; // Si la réponse est directement un tableau
+            productions = response;
+            console.log('✓ Response is already an array');
         } else if (response && response.content) {
-            productions = response.content; // Si pagination
+            productions = response.content;
+            console.log('✓ Data extracted from response.content');
         }
 
-        console.log('Processed productions:', productions);
+        console.log('=== PRODUCTIONS EXTRACTED ===');
+        console.log('Productions count:', productions.length);
 
-        if (!productions || productions.length === 0) {
-            showNotification('This farmer has no products available at the moment', 'info');
+        // ✅ DOUBLE VÉRIFICATION: FILTRER CÔTÉ CLIENT PAR SÉCURITÉ
+        const filteredProductions = productions.filter(prod => {
+            const matches = prod.farmId === farmerId || prod.farmerId === farmerId;
+            return matches;
+        });
+
+        console.log('=== AFTER CLIENT-SIDE FILTERING ===');
+        console.log('Original count:', productions.length);
+        console.log('Filtered count:', filteredProductions.length);
+
+        // ✅ GESTION DU CAS VIDE
+        if (!filteredProductions || filteredProductions.length === 0) {
+            console.warn('❌ NO PRODUCTS FOUND FOR FARMER:', farmerId);
+
+            showNotification('Ce fermier n\'a pas de produits disponibles pour le moment', 'info');
+
+            const productsGrid = document.getElementById('productsGrid');
+            if (productsGrid) {
+                productsGrid.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1 / -1; text-align: center; padding: 4rem;">
+                        <i class="fas fa-inbox" style="font-size: 4rem; color: var(--text-light); margin-bottom: 1rem;"></i>
+                        <h3>Aucun produit disponible</h3>
+                        <p style="color: var(--text-light); margin-bottom: 2rem;">
+                            Ce fermier n'a pas de produits disponibles pour le moment.
+                        </p>
+                        <button class="btn btn-primary" onclick="loadMarketplaceData()">
+                            <i class="fas fa-store"></i> Retour au Marketplace
+                        </button>
+                    </div>
+                `;
+            }
             return;
         }
 
-        // Afficher les produits dans le marketplace
-        displayFarmerProducts(productions, farmerId);
+        // ✅ AFFICHER LES PRODUITS DU FERMIER
+        console.log('✅ DISPLAYING FARMER PRODUCTS');
+        console.log('Calling displayFarmerProducts with:', filteredProductions.length, 'products');
 
-        // Aller à la section marketplace
-        setActiveSection('marketplace');
+        displayFarmerProducts(filteredProductions, farmerId);
 
-        showNotification(`Showing ${productions.length} products from this farmer`, 'success');
+        // ❌ NE PAS APPELER setActiveSection('marketplace') CAR CELA DÉCLENCHE loadMarketplaceData()
+        // À LA PLACE, JUSTE MONTRER LA SECTION MARKETPLACE SANS RECHARGER
+        document.querySelectorAll('.content-section').forEach(section => {
+            section.classList.remove('active');
+        });
+        const marketplaceSection = document.getElementById('marketplace');
+        if (marketplaceSection) {
+            marketplaceSection.classList.add('active');
+        }
+
+        // Mettre à jour la navigation active
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.classList.remove('active');
+            if (item.dataset.section === 'marketplace') {
+                item.classList.add('active');
+            }
+        });
+
+        showNotification(`${filteredProductions.length} produit(s) de ${filteredProductions[0]?.farmerName || 'ce fermier'}`, 'success');
 
     } catch (error) {
-        console.error('Error loading farmer products:', error);
-        showNotification('Failed to load farmer products. Please try again.', 'error');
+        console.error('=== ERROR IN viewFarmerProducts ===');
+        console.error('Error:', error);
+        showNotification('Erreur lors du chargement des produits: ' + error.message, 'error');
     }
 }
 
-// Nouvelle fonction pour afficher les produits d'un farmer spécifique
 function displayFarmerProducts(productions, farmerId) {
+    console.log('=== DISPLAY FARMER PRODUCTS CALLED ===');
+    console.log('Productions to display:', productions.length);
+    console.log('Farmer ID:', farmerId);
+
     const productsGrid = document.getElementById('productsGrid');
-    if (!productsGrid) return;
+    if (!productsGrid) {
+        console.error('❌ productsGrid element not found!');
+        return;
+    }
 
     if (!productions || productions.length === 0) {
+        console.warn('⚠️ No productions to display');
         productsGrid.innerHTML = `
-            <div class="empty-state">
+            <div class="empty-state" style="grid-column: 1 / -1;">
                 <i class="fas fa-inbox"></i>
-                <p>No products available from this farmer</p>
-                <button class="btn btn-primary" onclick="loadMarketplaceData()">
-                    Browse All Products
+                <p>Aucun produit disponible pour ce fermier</p>
+                <button class="btn btn-primary" onclick="console.log('Loading all marketplace'); loadMarketplaceData()">
+                    Parcourir tous les produits
                 </button>
             </div>
         `;
         return;
     }
 
-    // Ajouter un en-tête pour indiquer qu'on voit les produits d'un farmer spécifique
-    const farmerHeader = document.createElement('div');
-    farmerHeader.className = 'farmer-products-header';
-    farmerHeader.style.gridColumn = '1 / -1';
-    farmerHeader.style.textAlign = 'center';
-    farmerHeader.style.padding = 'var(--spacing-lg)';
-    farmerHeader.style.backgroundColor = 'var(--primary-light)';
-    farmerHeader.style.borderRadius = 'var(--radius-lg)';
-    farmerHeader.style.marginBottom = 'var(--spacing-lg)';
+    // ✅ OBTENIR LE NOM DU FERMIER
+    const farmerName = productions[0]?.farmerName || 'ce fermier';
+    console.log('Farmer name:', farmerName);
 
-    farmerHeader.innerHTML = `
-        <h3>Products from ${productions[0]?.farmerName || 'This Farmer'}</h3>
-        <p>Showing ${productions.length} available products</p>
-        <button class="btn btn-secondary btn-sm" onclick="loadMarketplaceData()">
-            <i class="fas fa-store"></i>
-            View All Products
-        </button>
-    `;
-
-    productsGrid.innerHTML = '';
-    productsGrid.appendChild(farmerHeader);
-
-    // Afficher les produits
-    productsGrid.innerHTML += productions.map(production => `
-        <div class="product-card">
-            <div class="product-image">
-                ${production.cropImageUrl ?
-                    `<img src="${production.cropImageUrl}" alt="${production.cropName}"
-                         onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjZWNmMGYxIi8+CjxwYXRoIGQ9Ik03NSA1MEgxMjVWMTUwSDc1VjUwWiIgZmlsbD0iIzJlY2M3MSIvPgo8Y2lyY2xlIGN4PSIxMDAiIGN5PSI3NSIgcj0iMTUiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPg=='">` :
-                    `<div class="product-placeholder">
-                        <i class="fas fa-seedling"></i>
-                        <span>No Image</span>
-                     </div>`
-                }
-                ${production.isOrganic ? '<span class="product-badge organic">Organic</span>' : ''}
-                ${production.productionStatus === 'HARVESTED' ? '<span class="product-badge ready">Ready</span>' : ''}
+    // ✅ CRÉER L'EN-TÊTE
+    const headerHTML = `
+        <div class="farmer-products-header" style="grid-column: 1 / -1; text-align: center; padding: var(--spacing-lg); background: linear-gradient(135deg, #dcfce7, #bbf7d0); border-radius: var(--radius-lg); margin-bottom: var(--spacing-lg); border: 2px solid var(--success-color);">
+            <div style="display: inline-flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                <div style="width: 60px; height: 60px; background: var(--success-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem; font-weight: 700; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
+                    ${farmerName.charAt(0).toUpperCase()}
+                </div>
+                <div style="text-align: left;">
+                    <h3 style="margin: 0; color: var(--success-color); font-size: 1.5rem;">
+                        <i class="fas fa-user-circle"></i> Produits de ${farmerName}
+                    </h3>
+                    <p style="margin: 0.25rem 0 0 0; color: var(--text-dark); font-size: 0.95rem;">
+                        <i class="fas fa-box"></i> ${productions.length} produit(s) disponible(s)
+                    </p>
+                </div>
             </div>
-            <div class="product-info">
-                <div class="product-category">${production.cropType || 'Agriculture'}</div>
-                <h3 class="product-name">${production.cropName || 'Unknown Crop'}</h3>
-                <p class="product-farmer">
-                    <i class="fas fa-user"></i>
-                    ${production.farmerName || 'Unknown Farmer'}
-                </p>
-
-                <div class="product-details">
-                    <div class="detail-item">
-                        <i class="fas fa-weight"></i>
-                        <span>${production.expectedYield || 0} kg available</span>
-                    </div>
-                    <div class="detail-item">
-                        <i class="fas fa-map-marker-alt"></i>
-                        <span>${production.location || 'Location not specified'}</span>
-                    </div>
-                    <div class="detail-item">
-                        <i class="fas fa-calendar"></i>
-                        <span>Harvest: ${formatDate(production.expectedHarvestDate)}</span>
-                    </div>
-                </div>
-
-                <div class="product-quality">
-                    <span class="quality-badge ${getQualityClass(production)}">
-                        ${getQualityText(production)}
-                    </span>
-                    <span class="production-method">
-                        ${production.productionMethod || 'Traditional'}
-                    </span>
-                </div>
-
-                <div class="product-footer">
-                    <div class="product-price">
-                        <span class="price-value">${formatCurrency(production.estimatedPrice || 0)}</span>
-                        <span class="price-unit">/kg</span>
-                    </div>
-                    <div class="product-actions">
-                        <button class="btn btn-secondary btn-sm" onclick="viewProductDetails('${production.id}')">
-                            <i class="fas fa-info-circle"></i>
-                            Details
-                        </button>
-                        <button class="btn btn-primary btn-sm" onclick="addToCart('${production.id}')"
-                                ${(production.expectedYield || 0) <= 0 ? 'disabled' : ''}>
-                            <i class="fas fa-shopping-cart"></i>
-                            ${(production.expectedYield || 0) <= 0 ? 'Out of Stock' : 'Add to Cart'}
-                        </button>
-                    </div>
-                </div>
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                <button class="btn btn-primary btn-sm" onclick="console.log('Contacting farmer'); contactFarmer('${farmerId}')" style="padding: 0.75rem 1.5rem;">
+                    <i class="fas fa-envelope"></i> Contacter ce fermier
+                </button>
+                <button class="btn btn-secondary btn-sm" onclick="console.log('Loading all marketplace'); loadMarketplaceData();" style="padding: 0.75rem 1.5rem;">
+                    <i class="fas fa-store"></i> Voir tous les produits
+                </button>
             </div>
         </div>
-    `).join('');
+    `;
+
+    // ✅ CRÉER LES CARTES DE PRODUITS
+    const productsHTML = productions.map((production, index) => {
+        console.log(`Creating card for product ${index}:`, {
+            id: production.id,
+            cropName: production.cropName,
+            farmerName: production.farmerName,
+            farmId: production.farmId
+        });
+
+        return `
+            <div class="product-card" style="border: 2px solid var(--success-color); position: relative; overflow: visible;">
+                <!-- Badge "Produit du fermier" -->
+                <div style="position: absolute; top: -10px; right: -10px; z-index: 10; background: linear-gradient(135deg, var(--success-color), var(--primary-dark)); color: white; padding: 0.5rem 1rem; border-radius: 20px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
+                    <i class="fas fa-check-circle"></i> ${farmerName}
+                </div>
+
+                <div class="product-image">
+                    ${production.cropImageUrl ?
+                        `<img src="${production.cropImageUrl}" alt="${production.cropName}"
+                             onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjZWNmMGYxIi8+CjxwYXRoIGQ9Ik03NSA1MEgxMjVWMTUwSDc1VjUwWiIgZmlsbD0iIzJlY2M3MSIvPgo8Y2lyY2xlIGN4PSIxMDAiIGN5PSI3NSIgcj0iMTUiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPg==';">` :
+                        `<div class="product-placeholder">
+                            <i class="fas fa-seedling"></i>
+                            <span>Pas d'image</span>
+                         </div>`
+                    }
+                    ${production.isOrganic ? '<span class="product-badge organic">Bio</span>' : ''}
+                    ${production.productionStatus === 'HARVESTED' ? '<span class="product-badge ready">Prêt</span>' : ''}
+                </div>
+                <div class="product-info">
+                    <div class="product-category">${production.cropType || 'Agriculture'}</div>
+                    <h3 class="product-name">${production.cropName || 'Culture inconnue'}</h3>
+
+                    <div class="product-details">
+                        <div class="detail-item">
+                            <i class="fas fa-weight"></i>
+                            <span>${production.expectedYield || production.actualYield || 0} kg disponible</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>${production.location || 'Lieu non spécifié'}</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-calendar"></i>
+                            <span>Récolte: ${formatDate(production.expectedHarvestDate || production.actualHarvestDate)}</span>
+                        </div>
+                    </div>
+
+                    <div class="product-footer">
+                        <div class="product-price">
+                            <span class="price-value">${formatCurrency(production.estimatedPrice || production.pricePerKg || 0)}</span>
+                            <span class="price-unit">/kg</span>
+                        </div>
+                        <div class="product-actions">
+                            <button class="btn btn-secondary btn-sm" onclick="viewProductDetails('${production.id}')">
+                                <i class="fas fa-info-circle"></i>
+                                Détails
+                            </button>
+                            <button class="btn btn-primary btn-sm" onclick="addToCart('${production.id}')"
+                                    ${(production.expectedYield || production.actualYield || 0) <= 0 ? 'disabled' : ''}>
+                                <i class="fas fa-shopping-cart"></i>
+                                ${(production.expectedYield || production.actualYield || 0) <= 0 ? 'Épuisé' : 'Ajouter'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    // ✅ INJECTER LE HTML
+    console.log('Setting productsGrid.innerHTML');
+    productsGrid.innerHTML = headerHTML + productsHTML;
+    console.log('✅ Products displayed successfully');
 }
+
+
+
+
+
+
 
 // Fonctions utilitaires pour la qualité
 function getQualityClass(production) {
@@ -8327,7 +8626,7 @@ function getQualityText(production) {
               sessionStorage.setItem('selectedFarmerId', farmerId);
               sessionStorage.setItem('selectedBuyerId', currentUser?.id || currentUser?.userId);
           }
-          
+
           // Navigate to WhatsApp messaging page
           window.location.href = 'WhatsAppFarmerBuyer.html';
       } catch (error) {
@@ -8335,17 +8634,17 @@ function getQualityText(production) {
           showNotification('Failed to open messaging', 'error');
       }
   }
-  
+
   // Handle farmer search input
   function handleFarmerSearch(event) {
       const query = event.target.value.trim();
-      
+
       if (query.length === 0) {
           // If search is empty, reload all farmers
           loadFarmersData();
           return;
       }
-      
+
       // Debounce search
       clearTimeout(window.farmerSearchTimeout);
       window.farmerSearchTimeout = setTimeout(() => {
@@ -9095,7 +9394,7 @@ function getWeekKey(date) {
 // Handle reports period filter change
 async function handleReportsPeriodChange() {
     const periodFilter = document.getElementById('reportsPeriodFilter')?.value || 'all';
-    
+
     if (!window.allTransactions) {
         await loadReportsData();
         return;
@@ -9153,7 +9452,7 @@ async function exportReportsToPDF() {
         try {
             const img = new Image();
             img.crossOrigin = 'anonymous';
-            
+
             await new Promise((resolve, reject) => {
                 img.onload = function() {
                     try {
@@ -9162,7 +9461,7 @@ async function exportReportsToPDF() {
                         canvas.height = Math.min(img.height, 100);
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                        
+
                         const imgData = canvas.toDataURL('image/jpeg');
                         doc.addImage(imgData, 'JPEG', 15, 8, 30, 30);
                         logoAdded = true;
@@ -9171,13 +9470,13 @@ async function exportReportsToPDF() {
                         reject(e);
                     }
                 };
-                
+
                 img.onerror = function() {
                     reject(new Error('Failed to load logo'));
                 };
-                
+
                 img.src = 'images/logo.jpeg';
-                
+
                 setTimeout(() => {
                     if (!logoAdded) {
                         reject(new Error('Logo loading timeout'));
@@ -9194,11 +9493,11 @@ async function exportReportsToPDF() {
         doc.setFontSize(24);
         doc.setFont(undefined, 'bold');
         doc.text('AgriGuard AI', logoAdded ? 50 : 15, 20);
-        
+
         doc.setFontSize(12);
         doc.setFont(undefined, 'normal');
         doc.text('Smart Agriculture System', logoAdded ? 50 : 15, 28);
-        
+
         const periodLabels = {
             'week': 'Last 7 Days',
             'month': 'Last 30 Days',
@@ -9209,11 +9508,11 @@ async function exportReportsToPDF() {
         doc.text(`Transaction Report - ${periodLabels[periodFilter]}`, logoAdded ? 50 : 15, 35);
 
         generateReportsPDFContent(doc, transactions, periodFilter, primaryColor, darkColor, textColor, lightGray);
-        
+
         // Save PDF
         const fileName = `Transaction_Report_${periodFilter}_${formatDate(new Date()).replace(/\//g, '-')}.pdf`;
         doc.save(fileName);
-        
+
         showNotification('PDF report downloaded successfully!', 'success');
     } catch (error) {
         console.error('Error generating PDF report:', error);
@@ -9227,13 +9526,13 @@ function generateReportsPDFContent(doc, transactions, periodFilter, primaryColor
     // Report summary section
     doc.setTextColor(textColor[0], textColor[1], textColor[2]);
     doc.setFontSize(10);
-    
+
     // Report date and period
     doc.setFont(undefined, 'bold');
     doc.text('Report Generated:', 15, yPos);
     doc.setFont(undefined, 'normal');
     doc.text(formatDate(new Date()), 60, yPos);
-    
+
     yPos += 7;
     doc.setFont(undefined, 'bold');
     doc.text('Period:', 15, yPos);
@@ -9246,13 +9545,13 @@ function generateReportsPDFContent(doc, transactions, periodFilter, primaryColor
         'all': 'All Time'
     };
     doc.text(periodLabels[periodFilter] || 'All Time', 60, yPos);
-    
+
     yPos += 7;
     doc.setFont(undefined, 'bold');
     doc.text('Total Transactions:', 15, yPos);
     doc.setFont(undefined, 'normal');
     doc.text(transactions.length.toString(), 60, yPos);
-    
+
     yPos += 7;
     doc.setFont(undefined, 'bold');
     doc.text('Total Amount:', 15, yPos);
@@ -9272,13 +9571,13 @@ function generateReportsPDFContent(doc, transactions, periodFilter, primaryColor
     doc.setFontSize(12);
     doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
     doc.text('Transaction Details', 15, yPos);
-    
+
     yPos += 10;
 
     // Table header background
     doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
     doc.rect(15, yPos - 5, 180, 8, 'F');
-    
+
     // Table headers
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(9);
@@ -9306,7 +9605,7 @@ function generateReportsPDFContent(doc, transactions, periodFilter, primaryColor
         if (rowCount >= maxRowsPerPage) {
             doc.addPage();
             yPos = 20;
-            
+
             // Redraw header on new page
             doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
             doc.rect(15, yPos - 5, 180, 8, 'F');
@@ -9367,16 +9666,16 @@ function generateReportsPDFContent(doc, transactions, periodFilter, primaryColor
     doc.setFontSize(10);
     doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
     doc.text('Summary', 15, yPos);
-    
+
     yPos += 7;
     doc.setFontSize(9);
     doc.setTextColor(textColor[0], textColor[1], textColor[2]);
     doc.setFont(undefined, 'normal');
-    
+
     const totalSpending = transactions.reduce((sum, t) => sum + (t.totalAmount || 0), 0);
     const avgOrder = transactions.length > 0 ? totalSpending / transactions.length : 0;
     const uniqueFarmers = new Set(transactions.map(t => t.farmerId).filter(Boolean)).size;
-    
+
     doc.text(`Total Spending: ${formatCurrency(totalSpending)}`, 15, yPos);
     yPos += 6;
     doc.text(`Average Order Value: ${formatCurrency(avgOrder)}`, 15, yPos);
@@ -9763,122 +10062,349 @@ function generateQualityReportContent(doc, order, qualityScore, scorePercentage,
 }
 
 
+
+// ⭐ COMPLETELY REDESIGNED viewProductDetails FUNCTION
 async function viewProductDetails(productId) {
-    console.log('=== VIEW PRODUCT DETAILS CALLED ===');
-    console.log('Input value:', productId);
-    console.log('Input type:', typeof productId);
+    console.log('=== VIEW PRODUCT DETAILS ===');
+    console.log('Product ID:', productId);
 
     try {
         showNotification('Loading product details...', 'info');
 
-        let productData = null;
-        let searchStrategy = '';
+        // Fetch product/production details
+        let product = null;
+        let productType = null;
 
-        // STRATEGY 1: Check if it's a Market Price (starts with MP)
+        // Try as Market Price first
         if (productId.startsWith('MP')) {
             try {
-                console.log('Strategy 1: Searching in market prices...');
-                const marketPricesResponse = await apiCall(`${API_BASE_URL}/market-prices`);
-                const marketPrices = extractDataFromResponse(marketPricesResponse);
-
-                productData = marketPrices.find(mp => mp.id === productId);
-
-                if (productData) {
-                    searchStrategy = 'market_price';
-                    console.log('✓ Found in market prices');
-
-                    // Enrich with crop data
-                    if (productData.cropId) {
-                        try {
-                            const cropResponse = await apiCall(`${ENDPOINTS.crops}/${productData.cropId}`);
-                            const crop = cropResponse.data || cropResponse;
-                            productData.cropDetails = crop;
-                            console.log('✓ Crop details loaded');
-                        } catch (error) {
-                            console.warn('Could not load crop details:', error);
-                        }
-                    }
-
-                    // Show market price details
-                    showMarketPriceDetailsModal(productData);
-                    return;
-                }
+                const marketPriceResponse = await apiCall(`${API_BASE_URL}/market-prices/${productId}`);
+                product = marketPriceResponse.data || marketPriceResponse;
+                productType = 'market_price';
             } catch (error) {
-                console.error('Strategy 1 failed:', error);
+                console.warn('Not a market price:', error);
             }
         }
 
-        // STRATEGY 2: Search in active crop productions
-        try {
-            console.log('Strategy 2: Searching in active productions...');
-            const allProductionsResponse = await apiCall(ENDPOINTS.cropProductionsActive);
-            const allProductions = extractDataFromResponse(allProductionsResponse);
-
-            productData = allProductions.find(p =>
-                p.id === productId ||
-                p.productionCode === productId
-            );
-
-            if (productData) {
-                searchStrategy = 'crop_production';
-                console.log('✓ Found in crop productions');
-
-                // Fetch crop details
-                let crop = null;
-                if (productData.cropId) {
-                    try {
-                        const cropResponse = await apiCall(`${ENDPOINTS.crops}/${productData.cropId}`);
-                        crop = cropResponse.data || cropResponse;
-                    } catch (error) {
-                        console.warn('Could not load crop details:', error);
-                    }
-                }
-
-                showProductDetailsModal(productData, crop);
+        // Try as Crop Production
+        if (!product) {
+            try {
+                const productionResponse = await apiCall(`${API_BASE_URL}/v1/crop-productions/${productId}`);
+                product = productionResponse.data || productionResponse;
+                productType = 'crop_production';
+            } catch (error) {
+                console.error('Product not found:', error);
+                showNotification('Product not found', 'error');
                 return;
             }
-        } catch (error) {
-            console.error('Strategy 2 failed:', error);
         }
 
-        // STRATEGY 3: Try direct crop production lookup
-        try {
-            console.log('Strategy 3: Direct crop production lookup...');
-            const response = await apiCall(`${ENDPOINTS.cropProductions}/${productId}`);
-            productData = response.data || response;
-
-            if (productData) {
-                searchStrategy = 'direct_crop_production';
-                console.log('✓ Direct crop production lookup successful');
-
-                // Fetch crop details
-                let crop = null;
-                if (productData.cropId) {
-                    try {
-                        const cropResponse = await apiCall(`${ENDPOINTS.crops}/${productData.cropId}`);
-                        crop = cropResponse.data || cropResponse;
-                    } catch (error) {
-                        console.warn('Could not load crop details:', error);
-                    }
-                }
-
-                showProductDetailsModal(productData, crop);
-                return;
+        // Enrich with crop details if needed
+        if (product.cropId && !product.cropName) {
+            try {
+                const cropResponse = await apiCall(`${API_BASE_URL}/v1/crops/${product.cropId}`);
+                const crop = cropResponse.data || cropResponse;
+                product.cropName = crop.cropName || crop.name || 'Unknown Crop';
+                product.cropImageUrl = crop.imageUrl || product.cropImageUrl;
+                product.cropType = crop.cropType || product.cropType;
+                product.cropDescription = crop.description || product.notes;
+            } catch (error) {
+                console.warn('Could not load crop details:', error);
             }
-        } catch (error) {
-            console.log('✗ Direct crop production lookup failed:', error.message);
         }
 
-        // If still not found
-        console.error('=== PRODUCT NOT FOUND ===');
-        console.error('Search value:', productId);
-        showNotification('Product not found. It may have been removed or is no longer available.', 'error');
+        // Enrich with farmer details if needed
+        if (product.farmerId && !product.farmerName) {
+            try {
+                const farmerResponse = await apiCall(`${API_BASE_URL}/users/${product.farmerId}`);
+                const farmer = farmerResponse.data || farmerResponse;
+                product.farmerName = farmer.fullName || farmer.username || 'Unknown Farmer';
+                product.farmerPhone = farmer.phoneNumber;
+                product.farmerEmail = farmer.email;
+            } catch (error) {
+                console.warn('Could not load farmer details:', error);
+            }
+        }
+
+        showProductDetailsModal(product, productType);
 
     } catch (error) {
-        console.error('=== CRITICAL ERROR ===', error);
-        showNotification('Failed to load product details. Please try again.', 'error');
+        console.error('Error viewing product details:', error);
+        showNotification('Failed to load product details: ' + error.message, 'error');
     }
 }
+
+
+
+
+
+
+// ⭐ BEAUTIFUL PRODUCT DETAILS MODAL - FIXED DESIGN
+function showProductDetailsModal(product, productType) {
+    // Remove existing modals
+    document.querySelectorAll('.modal').forEach(m => m.remove());
+
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+
+    const harvestDate = product.actualHarvestDate || product.expectedHarvestDate;
+    const harvestLabel = product.actualHarvestDate ? 'Harvested' : 'Expected Harvest';
+    const availableQty = product.expectedYield || product.actualYield || product.availableQuantity || 0;
+    const price = product.pricePerKg || product.estimatedPrice || product.price || 0;
+    const statusBadge = getProductStatusBadge(product.productionStatus || product.status);
+
+    modal.innerHTML = `
+        <div class="modal-content" style="max-width: 1000px; max-height: 95vh; overflow: hidden; border-radius: var(--radius-xl); box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);">
+
+            <!-- MODAL HEADER -->
+            <div style="background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 2rem; position: relative; overflow: hidden;">
+                <!-- Background decorations -->
+                <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: rgba(255, 255, 255, 0.1); border-radius: 50%; filter: blur(40px);"></div>
+                <div style="position: absolute; bottom: -30px; left: -30px; width: 150px; height: 150px; background: rgba(255, 255, 255, 0.08); border-radius: 50%; filter: blur(30px);"></div>
+
+                <div style="position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div style="flex: 1;">
+                        <div style="display: inline-block; background: rgba(255, 255, 255, 0.25); backdrop-filter: blur(10px); padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.75rem;">
+                            ${product.cropType || 'Agricultural Product'}
+                        </div>
+                        <h2 style="margin: 0; font-size: 2rem; font-weight: 800; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); line-height: 1.2;">
+                            ${product.cropName || 'Product Details'}
+                        </h2>
+                        ${product.cropVariety ? `
+                            <p style="margin: 0.5rem 0 0 0; opacity: 0.95; font-size: 1rem;">
+                                Variety: ${product.cropVariety}
+                            </p>
+                        ` : ''}
+                    </div>
+                    <button onclick="this.closest('.modal').remove()"
+                            style="background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; transition: all 0.2s; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); flex-shrink: 0; margin-left: 1rem;"
+                            onmouseover="this.style.background='rgba(255, 255, 255, 0.3)'"
+                            onmouseout="this.style.background='rgba(255, 255, 255, 0.2)'">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- MODAL BODY -->
+            <div style="max-height: calc(95vh - 200px); overflow-y: auto; padding: 0;">
+
+                <!-- MAIN CONTENT GRID -->
+                <div style="display: grid; grid-template-columns: 400px 1fr; gap: 0; min-height: 500px;">
+
+                    <!-- LEFT COLUMN - IMAGE & DESCRIPTION -->
+                    <div style="background: linear-gradient(135deg, #f9fafb, #f3f4f6); padding: 2rem; border-right: 1px solid #e5e7eb;">
+                        <!-- Product Image -->
+                        <div style="position: relative; width: 100%; height: 300px; background: white; border-radius: var(--radius-lg); overflow: hidden; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08); margin-bottom: 1.5rem;">
+                            ${product.cropImageUrl ? `
+                                <img src="${product.cropImageUrl}"
+                                     alt="${product.cropName}"
+                                     style="width: 100%; height: 100%; object-fit: cover;"
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center; flex-direction: column; background: linear-gradient(135deg, #f0fdf4, #dcfce7);">
+                                    <i class="fas fa-seedling" style="font-size: 4rem; color: var(--primary-color); margin-bottom: 1rem; opacity: 0.3;"></i>
+                                    <span style="color: var(--text-light); font-weight: 600; font-size: 0.95rem;">No Image Available</span>
+                                </div>
+                            ` : `
+                                <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; flex-direction: column; background: linear-gradient(135deg, #f0fdf4, #dcfce7);">
+                                    <i class="fas fa-seedling" style="font-size: 4rem; color: var(--primary-color); margin-bottom: 1rem; opacity: 0.3;"></i>
+                                    <span style="color: var(--text-light); font-weight: 600; font-size: 0.95rem;">No Image Available</span>
+                                </div>
+                            `}
+
+                            <!-- Status Badges -->
+                            <div style="position: absolute; top: 1rem; left: 1rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                                ${statusBadge}
+                                ${product.isOrganic || product.productionMethod?.includes('ORGANIC') ? `
+                                    <div style="background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 0.4rem 0.8rem; border-radius: 15px; font-size: 0.7rem; font-weight: 700; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3); display: flex; align-items: center; gap: 0.4rem;">
+                                        <i class="fas fa-leaf"></i> ORGANIC
+                                    </div>
+                                ` : ''}
+                                ${product.certification ? `
+                                    <div style="background: linear-gradient(135deg, #3b82f6, #1e40af); color: white; padding: 0.4rem 0.8rem; border-radius: 15px; font-size: 0.7rem; font-weight: 700; box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3); display: flex; align-items: center; gap: 0.4rem;">
+                                        <i class="fas fa-certificate"></i> CERTIFIED
+                                    </div>
+                                ` : ''}
+                                ${product.qualityGrade && product.qualityGrade !== 'STANDARD' ? `
+                                    <div style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 0.4rem 0.8rem; border-radius: 15px; font-size: 0.7rem; font-weight: 700; box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3); display: flex; align-items: center; gap: 0.4rem;">
+                                        <i class="fas fa-award"></i> ${product.qualityGrade}
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        ${product.cropDescription || product.notes ? `
+                            <div style="background: white; border-radius: var(--radius-lg); padding: 1.25rem; border-left: 4px solid var(--primary-color); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
+                                <h4 style="margin: 0 0 0.75rem 0; color: var(--text-dark); font-size: 1rem; display: flex; align-items: center; gap: 0.5rem; font-weight: 700;">
+                                    <i class="fas fa-info-circle" style="color: var(--primary-color);"></i>
+                                    Description
+                                </h4>
+                                <p style="margin: 0; color: var(--text-dark); line-height: 1.6; font-size: 0.9rem;">
+                                    ${product.cropDescription || product.notes || 'No description available'}
+                                </p>
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    <!-- RIGHT COLUMN - DETAILS -->
+                    <div style="padding: 2rem; background: white;">
+
+                        <!-- Price Card -->
+                        <div style="background: linear-gradient(135deg, #10b981, #059669); border-radius: var(--radius-lg); padding: 1.75rem; margin-bottom: 1.5rem; box-shadow: 0 8px 24px rgba(16, 185, 129, 0.25); position: relative; overflow: hidden;">
+                            <div style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(255, 255, 255, 0.1); border-radius: 50%; filter: blur(25px);"></div>
+                            <div style="position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <div style="color: rgba(255, 255, 255, 0.9); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; font-weight: 600;">
+                                        Price per Kilogram
+                                    </div>
+                                    <div style="color: white; font-size: 2.5rem; font-weight: 900; line-height: 1;">
+                                        ${formatCurrency(price)}
+                                    </div>
+                                    <div style="color: rgba(255, 255, 255, 0.9); font-size: 0.85rem; margin-top: 0.25rem;">
+                                        per kg
+                                    </div>
+                                </div>
+                                <div style="width: 70px; height: 70px; background: rgba(255, 255, 255, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px);">
+                                    <i class="fas fa-tag" style="font-size: 2rem; color: white;"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Farmer Information -->
+                        <div style="background: linear-gradient(135deg, #f0fdf4, #dcfce7); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1.5rem; border: 2px solid #10b981;">
+                            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                                <div style="width: 50px; height: 50px; border-radius: 50%; background: var(--success-color); display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 1.3rem; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); flex-shrink: 0;">
+                                    ${(product.farmerName || 'F').charAt(0).toUpperCase()}
+                                </div>
+                                <div style="flex: 1; min-width: 0;">
+                                    <div style="font-size: 0.7rem; color: var(--success-color); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; margin-bottom: 0.25rem;">
+                                        <i class="fas fa-user"></i> Farmer
+                                    </div>
+                                    <div style="font-weight: 800; color: var(--text-dark); font-size: 1.1rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                        ${product.farmerName || 'Contact Support'}
+                                    </div>
+                                </div>
+                            </div>
+                            ${product.farmerPhone || product.farmerEmail ? `
+                                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                    ${product.farmerPhone ? `
+                                        <div style="display: flex; align-items: center; gap: 0.75rem; padding: 0.65rem 1rem; background: white; border-radius: var(--radius-md); font-size: 0.85rem;">
+                                            <i class="fas fa-phone" style="color: var(--success-color); width: 16px;"></i>
+                                            <span style="color: var(--text-dark); font-weight: 600;">${product.farmerPhone}</span>
+                                        </div>
+                                    ` : ''}
+                                    ${product.farmerEmail ? `
+                                        <div style="display: flex; align-items: center; gap: 0.75rem; padding: 0.65rem 1rem; background: white; border-radius: var(--radius-md); font-size: 0.85rem;">
+                                            <i class="fas fa-envelope" style="color: var(--success-color); width: 16px;"></i>
+                                            <span style="color: var(--text-dark); font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${product.farmerEmail}</span>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            ` : ''}
+                        </div>
+
+                        <!-- Product Details Grid -->
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+                            ${[
+                                { icon: 'weight', color: '#10b981', label: 'Available', value: `${availableQty} kg` },
+                                { icon: 'map-marker-alt', color: '#f59e0b', label: 'Location', value: product.location || 'Rwanda' },
+                                { icon: 'calendar', color: '#3b82f6', label: harvestLabel, value: harvestDate ? formatDate(harvestDate) : 'Not set' },
+                                { icon: 'leaf', color: '#10b981', label: 'Method', value: product.productionMethod || 'CONVENTIONAL' }
+                            ].map(item => `
+                                <div style="background: #f9fafb; border-radius: var(--radius-md); padding: 1.15rem; border: 1px solid #e5e7eb; transition: all 0.2s;" onmouseover="this.style.borderColor='${item.color}'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.08)'" onmouseout="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none'">
+                                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                        <div style="width: 40px; height: 40px; background: white; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                                            <i class="fas fa-${item.icon}" style="color: ${item.color}; font-size: 1.2rem;"></i>
+                                        </div>
+                                        <div style="flex: 1; min-width: 0;">
+                                            <div style="font-size: 0.7rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.25rem; font-weight: 600;">${item.label}</div>
+                                            <div style="font-weight: 700; color: var(--text-dark); font-size: 0.95rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${item.value}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- MODAL FOOTER -->
+            <div style="background: linear-gradient(to top, #f9fafb, #ffffff); padding: 1.5rem 2rem; border-top: 1px solid #e5e7eb; display: flex; gap: 1rem; justify-content: flex-end; align-items: center;">
+                <button onclick="this.closest('.modal').remove()"
+                        style="background: white; color: var(--text-dark); border: 2px solid #e5e7eb; padding: 0.85rem 1.75rem; border-radius: var(--radius-md); font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 0.5rem;"
+                        onmouseover="this.style.borderColor='var(--text-dark)'; this.style.background='#f9fafb'"
+                        onmouseout="this.style.borderColor='#e5e7eb'; this.style.background='white'">
+                    <i class="fas fa-times"></i>
+                    <span>Close</span>
+                </button>
+                ${availableQty > 0 ? `
+                    <button onclick="addToCart('${product.id}'); this.closest('.modal').remove();"
+                            style="background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 0.85rem 2.25rem; border-radius: var(--radius-md); font-weight: 700; font-size: 1rem; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); display: flex; align-items: center; gap: 0.65rem;"
+                            onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(16, 185, 129, 0.4)'"
+                            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(16, 185, 129, 0.3)'">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span>Add to Cart</span>
+                    </button>
+                ` : `
+                    <button disabled
+                            style="background: #9ca3af; color: white; border: none; padding: 0.85rem 2.25rem; border-radius: var(--radius-md); font-weight: 700; font-size: 1rem; cursor: not-allowed; opacity: 0.6; display: flex; align-items: center; gap: 0.65rem;">
+                        <i class="fas fa-times-circle"></i>
+                        <span>Out of Stock</span>
+                    </button>
+                `}
+            </div>
+
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+    setTimeout(() => modal.classList.add('show'), 10);
+
+    // Close handlers
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.remove();
+    });
+
+    const handleEscape = (e) => {
+        if (e.key === 'Escape') {
+            modal.remove();
+            document.removeEventListener('keydown', handleEscape);
+        }
+    };
+    document.addEventListener('keydown', handleEscape);
+}
+
+// Helper function for product status badge
+function getProductStatusBadge(status) {
+    const statusConfig = {
+        'GROWING': { color: '#3b82f6', icon: 'seedling', label: 'GROWING' },
+        'PLANNED': { color: '#6366f1', icon: 'calendar', label: 'PLANNED' },
+        'HARVESTED': { color: '#10b981', icon: 'check-circle', label: 'HARVESTED' },
+        'READY': { color: '#10b981', icon: 'check-circle', label: 'READY' },
+        'SOLD': { color: '#8b5cf6', icon: 'handshake', label: 'SOLD' }
+    };
+
+    const config = statusConfig[status] || statusConfig['GROWING'];
+
+    return `
+        <div style="background: ${config.color}; color: white; padding: 0.4rem 0.8rem; border-radius: 15px; font-size: 0.7rem; font-weight: 700; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); display: flex; align-items: center; gap: 0.4rem;">
+            <i class="fas fa-${config.icon}"></i> ${config.label}
+        </div>
+    `;
+}
+
+// Make function globally available
+window.viewProductDetails = viewProductDetails;
+window.showProductDetailsModal = showProductDetailsModal;
+window.getProductStatusBadge = getProductStatusBadge;
+
+console.log('✅ Beautiful product details modal loaded with fixed design');
+
+
+
+
 
 
 
@@ -9944,239 +10470,6 @@ async function getCurrentMarketplaceProducts() {
     }
 }
 
-function showMarketPriceDetailsModal(marketPrice) {
-    const modal = document.createElement('div');
-    modal.className = 'modal';
-
-    // Extract data safely with fallbacks
-    const cropName = marketPrice.cropDetails?.cropName || marketPrice.cropName || 'Unknown Crop';
-    const cropDescription = marketPrice.cropDetails?.description || marketPrice.notes || 'Market price information';
-    const cropImageUrl = marketPrice.cropDetails?.imageUrl || marketPrice.cropImageUrl || null;
-    const cropType = marketPrice.cropDetails?.cropType || marketPrice.cropType || 'N/A';
-    const price = marketPrice.pricePerKg || marketPrice.price || 0;
-    const location = marketPrice.location || 'Location not specified';
-    const marketName = marketPrice.marketName || 'Local Market';
-    const marketType = marketPrice.marketType || 'RETAIL';
-    const priceDate = marketPrice.priceDate || new Date();
-    const demandLevel = marketPrice.demandLevel || 'MEDIUM';
-    const supplyLevel = marketPrice.supplyLevel || 'MEDIUM';
-    const priceTrend = marketPrice.priceTrend || 'STABLE';
-    const availableQuantity = marketPrice.availableQuantity || 0;
-    const reliabilityScore = marketPrice.reliabilityScore || 3;
-
-    // Determine trend badge
-    let trendBadge = '';
-    let trendClass = '';
-    if (priceTrend === 'INCREASING') {
-        trendBadge = 'Price Rising ↗';
-        trendClass = 'status-organic';
-    } else if (priceTrend === 'DECREASING') {
-        trendBadge = 'Price Falling ↘';
-        trendClass = 'status-certified';
-    } else {
-        trendBadge = 'Price Stable →';
-        trendClass = 'status-growing';
-    }
-
-    // Determine reliability badge
-    let reliabilityBadge = '';
-    if (reliabilityScore >= 4) {
-        reliabilityBadge = 'High Reliability ★★★★★';
-    } else if (reliabilityScore >= 3) {
-        reliabilityBadge = 'Good Reliability ★★★★';
-    } else {
-        reliabilityBadge = 'Fair Reliability ★★★';
-    }
-
-    modal.innerHTML = `
-        <div class="modal-content large">
-            <div class="modal-header">
-                <h2>${cropName} - Market Price</h2>
-                <button class="modal-close" onclick="this.closest('.modal').remove()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-
-            <div class="modal-body">
-                <div class="product-details-grid">
-                    <!-- Image Section -->
-                    <div class="product-image-section">
-                        ${cropImageUrl ?
-                            `<img src="${cropImageUrl}" alt="${cropName}"
-                                  onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjZWNmMGYxIi8+CjxwYXRoIGQ9Ik03NSA1MEgxMjVWMTUwSDc1VjUwWiIgZmlsbD0iIzJlY2M3MSIvPgo8Y2lyY2xlIGN4PSIxMDAiIGN5PSI3NSIgcj0iMTUiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPg==';">` :
-                            `<div class="product-placeholder-large">
-                                <i class="fas fa-chart-line"></i>
-                                <span>Market Price Data</span>
-                             </div>`
-                        }
-                        <div style="margin-top: 1rem; text-align: center;">
-                            <span class="status-badge ${trendClass}">${trendBadge}</span>
-                            <span class="status-badge status-harvested" style="margin-left: 0.5rem;">${reliabilityBadge}</span>
-                        </div>
-                    </div>
-
-                    <!-- Info Section -->
-                    <div class="product-info-section">
-                        <h3 style="margin-bottom: 1rem; color: var(--text-dark);">Market Information</h3>
-                        <p class="product-description" style="color: var(--text-light); margin-bottom: 1.5rem; line-height: 1.6;">
-                            Current market pricing information for ${cropName} based on recent market data.
-                        </p>
-
-                        <div class="info-grid">
-                            <!-- Price Information -->
-                            <div class="info-item">
-                                <span class="label">
-                                    <i class="fas fa-dollar-sign"></i> Current Price:
-                                </span>
-                                <span class="value price-highlight">${formatCurrency(price)}/kg</span>
-                            </div>
-
-                            <div class="info-item">
-                                <span class="label">
-                                    <i class="fas fa-store"></i> Market:
-                                </span>
-                                <span class="value">${marketName}</span>
-                            </div>
-
-                            <!-- Location & Availability -->
-                            <div class="info-item">
-                                <span class="label">
-                                    <i class="fas fa-map-marker-alt"></i> Location:
-                                </span>
-                                <span class="value">${location}</span>
-                            </div>
-
-                            <div class="info-item">
-                                <span class="label">
-                                    <i class="fas fa-box"></i> Estimated Supply:
-                                </span>
-                                <span class="value">${availableQuantity} kg</span>
-                            </div>
-
-                            <!-- Market Conditions -->
-                            <div class="info-item">
-                                <span class="label">
-                                    <i class="fas fa-chart-line"></i> Market Type:
-                                </span>
-                                <span class="value">${marketType}</span>
-                            </div>
-
-                            <div class="info-item">
-                                <span class="label">
-                                    <i class="fas fa-tag"></i> Category:
-                                </span>
-                                <span class="value">${cropType}</span>
-                            </div>
-
-                            <div class="info-item">
-                                <span class="label">
-                                    <i class="fas fa-fire"></i> Demand Level:
-                                </span>
-                                <span class="value" style="color: ${
-                                    demandLevel === 'HIGH' ? 'var(--danger-color)' :
-                                    demandLevel === 'MEDIUM' ? 'var(--warning-color)' : 'var(--success-color)'
-                                }">${demandLevel}</span>
-                            </div>
-
-                            <div class="info-item">
-                                <span class="label">
-                                    <i class="fas fa-warehouse"></i> Supply Level:
-                                </span>
-                                <span class="value" style="color: ${
-                                    supplyLevel === 'HIGH' ? 'var(--success-color)' :
-                                    supplyLevel === 'MEDIUM' ? 'var(--warning-color)' : 'var(--danger-color)'
-                                }">${supplyLevel}</span>
-                            </div>
-
-                            <!-- Additional Info -->
-                            <div class="info-item">
-                                <span class="label">
-                                    <i class="fas fa-calendar"></i> Price Date:
-                                </span>
-                                <span class="value">${formatDate(priceDate)}</span>
-                            </div>
-
-                            <div class="info-item">
-                                <span class="label">
-                                    <i class="fas fa-database"></i> Data Source:
-                                </span>
-                                <span class="value">${marketPrice.dataSource || 'Market Data'}</span>
-                            </div>
-                        </div>
-
-                        <!-- Market Insights -->
-                        <div class="nutritional-info">
-                            <h4>
-                                <i class="fas fa-lightbulb"></i> Market Insights
-                            </h4>
-                            <p style="color: var(--text-dark); line-height: 1.6; margin: 0;">
-                                ${getMarketInsights(demandLevel, supplyLevel, priceTrend)}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">
-                    <i class="fas fa-times"></i> Close
-                </button>
-                ${availableQuantity > 0 ? `
-                    <button class="btn btn-primary" onclick="addMarketPriceToCart('${marketPrice.id}', ${price}); this.closest('.modal').remove(); showNotification('Product added to cart!', 'success');">
-                        <i class="fas fa-shopping-cart"></i> Add to Cart - ${formatCurrency(price)}
-                    </button>
-                ` : `
-                    <button class="btn btn-secondary" disabled>
-                        <i class="fas fa-ban"></i> Limited Availability
-                    </button>
-                `}
-            </div>
-        </div>
-    `;
-
-    // Add modal to page
-    document.body.appendChild(modal);
-
-    // Show modal with animation
-    setTimeout(() => modal.classList.add('show'), 10);
-
-    // Close modal when clicking outside
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            modal.remove();
-        }
-    });
-
-    // Close modal with Escape key
-    const closeModal = (e) => {
-        if (e.key === 'Escape') {
-            modal.remove();
-            document.removeEventListener('keydown', closeModal);
-        }
-    };
-    document.addEventListener('keydown', closeModal);
-}
-
-// Helper function for market insights
-function getMarketInsights(demandLevel, supplyLevel, priceTrend) {
-    const insights = [];
-
-    if (demandLevel === 'HIGH' && supplyLevel === 'LOW') {
-        insights.push('High demand with limited supply suggests favorable selling conditions.');
-    } else if (demandLevel === 'LOW' && supplyLevel === 'HIGH') {
-        insights.push('Low demand with abundant supply may indicate buying opportunities.');
-    }
-
-    if (priceTrend === 'INCREASING') {
-        insights.push('Prices are trending upward, consider purchasing soon.');
-    } else if (priceTrend === 'DECREASING') {
-        insights.push('Prices are trending downward, you may get better deals.');
-    } else {
-        insights.push('Prices are stable, good time for planned purchases.');
-    }
-
-    return insights.join(' ');
-}
 
 
 
@@ -10187,223 +10480,13 @@ function getMarketInsights(demandLevel, supplyLevel, priceTrend) {
 
 
 
-function showProductDetailsModal(production, crop) {
-    // Create modal element
-    const modal = document.createElement('div');
-    modal.className = 'modal';
 
-    // Extract data safely with fallbacks
-    const cropName = crop?.cropName || production.cropName || 'Unknown Crop';
-    const cropDescription = crop?.description || production.notes || 'No description available';
-    const cropImageUrl = crop?.imageUrl || production.cropImageUrl || null;
-    const cropType = crop?.cropType || production.cropType || 'N/A';
-    const variety = crop?.variety || production.seedVariety || 'N/A';
-    const availableQuantity = production.expectedYield || production.actualYield || 0;
-    const price = production.estimatedPrice || production.marketPrice || 0;
-    const harvestDate = production.expectedHarvestDate || production.actualHarvestDate || new Date();
-    const location = production.location || 'Location not specified';
-    const farmerName = production.farmerName || 'Unknown Farmer';
-    const productionMethod = production.productionMethod || 'N/A';
-    const productionStatus = production.productionStatus || 'N/A';
-    const certification = production.certification || 'None';
-    const areaPlanted = production.areaPlanted || 0;
-    const isOrganic = production.isOrganic || productionMethod?.includes('ORGANIC');
-    const isCertified = production.certification && production.certification !== 'None';
 
-    // Determine status badge
-    let statusBadge = '';
-    let statusClass = '';
-    if (isOrganic) {
-        statusBadge = 'Organic';
-        statusClass = 'status-organic';
-    } else if (isCertified) {
-        statusBadge = 'Certified';
-        statusClass = 'status-certified';
-    } else if (productionStatus === 'HARVESTED') {
-        statusBadge = 'Harvested';
-        statusClass = 'status-harvested';
-    } else {
-        statusBadge = 'Growing';
-        statusClass = 'status-growing';
-    }
 
-    modal.innerHTML = `
-        <div class="modal-content large">
-            <div class="modal-header">
-                <h2>${cropName}</h2>
-                <button class="modal-close" onclick="this.closest('.modal').remove()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
 
-            <div class="modal-body">
-                <div class="product-details-grid">
-                    <!-- Image Section -->
-                    <div class="product-image-section">
-                        ${cropImageUrl ?
-                            `<img src="${cropImageUrl}" alt="${cropName}"
-                                  onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjZWNmMGYxIi8+CjxwYXRoIGQ9Ik03NSA1MEgxMjVWMTUwSDc1VjUwWiIgZmlsbD0iIzJlY2M3MSIvPgo8Y2lyY2xlIGN4PSIxMDAiIGN5PSI3NSIgcj0iMTUiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPg==';">` :
-                            `<div class="product-placeholder-large">
-                                <i class="fas fa-seedling"></i>
-                                <span>No Image Available</span>
-                             </div>`
-                        }
-                        <div style="margin-top: 1rem; text-align: center;">
-                            <span class="status-badge ${statusClass}">${statusBadge}</span>
-                        </div>
-                    </div>
 
-                    <!-- Info Section -->
-                    <div class="product-info-section">
-                        <h3 style="margin-bottom: 1rem; color: var(--text-dark);">Product Details</h3>
-                        <p class="product-description" style="color: var(--text-light); margin-bottom: 1.5rem; line-height: 1.6;">
-                            ${cropDescription}
-                        </p>
 
-                        <div class="info-grid">
-                            <!-- Basic Information -->
-                            <div class="info-item">
-                                <span class="label">
-                                    <i class="fas fa-tag"></i> Category:
-                                </span>
-                                <span class="value">${cropType}</span>
-                            </div>
 
-                            <div class="info-item">
-                                <span class="label">
-                                    <i class="fas fa-seedling"></i> Variety:
-                                </span>
-                                <span class="value">${variety}</span>
-                            </div>
-
-                            <!-- Availability & Pricing -->
-                            <div class="info-item">
-                                <span class="label">
-                                    <i class="fas fa-box"></i> Available:
-                                </span>
-                                <span class="value" style="color: ${availableQuantity > 0 ? 'var(--success-color)' : 'var(--danger-color)'}">
-                                    ${availableQuantity} kg
-                                </span>
-                            </div>
-
-                            <div class="info-item">
-                                <span class="label">
-                                    <i class="fas fa-dollar-sign"></i> Price:
-                                </span>
-                                <span class="value price-highlight">${formatCurrency(price)}/kg</span>
-                            </div>
-
-                            <!-- Dates -->
-                            <div class="info-item">
-                                <span class="label">
-                                    <i class="fas fa-calendar"></i> Harvest Date:
-                                </span>
-                                <span class="value">${formatDate(harvestDate)}</span>
-                            </div>
-
-                            <!-- Location & Farmer -->
-                            <div class="info-item">
-                                <span class="label">
-                                    <i class="fas fa-map-marker-alt"></i> Location:
-                                </span>
-                                <span class="value">${location}</span>
-                            </div>
-
-                            <div class="info-item">
-                                <span class="label">
-                                    <i class="fas fa-user"></i> Farmer:
-                                </span>
-                                <span class="value">${farmerName}</span>
-                            </div>
-
-                            <!-- Production Details -->
-                            <div class="info-item">
-                                <span class="label">
-                                    <i class="fas fa-cogs"></i> Method:
-                                </span>
-                                <span class="value">${productionMethod}</span>
-                            </div>
-
-                            <div class="info-item">
-                                <span class="label">
-                                    <i class="fas fa-certificate"></i> Certification:
-                                </span>
-                                <span class="value">${certification}</span>
-                            </div>
-
-                            <!-- Additional Info -->
-                            <div class="info-item">
-                                <span class="label">
-                                    <i class="fas fa-chart-area"></i> Area Planted:
-                                </span>
-                                <span class="value">${areaPlanted} hectares</span>
-                            </div>
-
-                            <div class="info-item">
-                                <span class="label">
-                                    <i class="fas fa-info-circle"></i> Status:
-                                </span>
-                                <span class="value">${productionStatus}</span>
-                            </div>
-                        </div>
-
-                        <!-- Nutritional Information -->
-                        ${crop?.nutritionalInfo ? `
-                            <div class="nutritional-info">
-                                <h4>
-                                    <i class="fas fa-heartbeat"></i> Nutritional Information
-                                </h4>
-                                <p style="color: var(--text-dark); line-height: 1.6; margin: 0;">
-                                    ${crop.nutritionalInfo}
-                                </p>
-                            </div>
-                        ` : ''}
-                    </div>
-                </div>
-            </div>
-
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">
-                    <i class="fas fa-times"></i> Close
-                </button>
-                ${availableQuantity > 0 ? `
-                    <button class="btn btn-primary" onclick="addToCart('${production.id}'); this.closest('.modal').remove(); showNotification('Product added to cart!', 'success');">
-                        <i class="fas fa-shopping-cart"></i> Add to Cart - ${formatCurrency(price)}
-                    </button>
-                ` : `
-                    <button class="btn btn-secondary" disabled>
-                        <i class="fas fa-ban"></i> Out of Stock
-                    </button>
-                `}
-            </div>
-        </div>
-    `;
-
-    // Add modal to page
-    document.body.appendChild(modal);
-
-    // Show modal with animation
-    setTimeout(() => modal.classList.add('show'), 10);
-
-    // Close modal when clicking outside
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            modal.remove();
-        }
-    });
-
-    // Close modal with Escape key
-    const closeModal = (e) => {
-        if (e.key === 'Escape') {
-            modal.remove();
-            document.removeEventListener('keydown', closeModal);
-        }
-    };
-    document.addEventListener('keydown', closeModal);
-}
-
-// Make function globally available
-window.viewProductDetails = viewProductDetails;
 
 
 // Add this CSS to your <style> section

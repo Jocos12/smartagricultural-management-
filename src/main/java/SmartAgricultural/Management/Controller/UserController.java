@@ -204,30 +204,50 @@ public class UserController {
 
 
 
-
-
     @PostMapping(value = "/upload-profile-image/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Map<String, Object>> uploadProfileImage(
             @PathVariable String userId,
             @RequestParam("file") MultipartFile file) {
+
+        logger.info("=== UPLOAD PROFILE IMAGE ===");
+        logger.info("User ID: {}", userId);
+        logger.info("File name: {}", file.getOriginalFilename());
+        logger.info("File size: {}", file.getSize());
+        logger.info("File type: {}", file.getContentType());
+
         try {
             // Validate user exists
             UserDTO user = userService.getUserById(userId);
+            logger.info("User found: {}", user.getEmail());
 
-            // Delete old profile image if exists
+            // Delete old profile image file if exists
             if (user.getProfileImageUrl() != null && !user.getProfileImageUrl().isEmpty()) {
-                fileStorageService.deleteFile(user.getProfileImageUrl());
+                if (user.getProfileImageUrl().startsWith("uploads/")) {
+                    logger.info("Deleting old profile image: {}", user.getProfileImageUrl());
+                    fileStorageService.deleteFile(user.getProfileImageUrl());
+                }
             }
 
             // Store new file
+            logger.info("Storing new file...");
             String filePath = fileStorageService.storeFile(file, userId);
+            logger.info("File stored at: {}", filePath);
 
-            // Update user profile image URL
-            user.setProfileImageUrl(filePath);
-            userService.updateUser(userId, user);
+            // Update user profile image URL + data (store in DB)
+            byte[] imageBytes = file.getBytes();
+            String originalFilename = file.getOriginalFilename();
+            String ext = "";
+            if (originalFilename != null && originalFilename.contains(".")) {
+                ext = originalFilename.substring(originalFilename.lastIndexOf('.')).toLowerCase();
+            }
+            // FIX: Use userId in the path instead of complex naming
+            String dbImageUrl = "api/users/" + userId + "/profile-image" + ext;
+            userService.updateUserProfileImage(userId, dbImageUrl, imageBytes);
+            logger.info("User profile image URL and data updated in database");
 
-            // Create response with full URL
-            String imageUrl = "http://localhost:1010/" + filePath;
+            // FIX: Return the correct image URL
+            String imageUrl = "http://localhost:1010/" + dbImageUrl;
+            logger.info("✅ Upload successful, image URL: {}", imageUrl);
 
             return ResponseEntity.ok(Map.of(
                     "success", true,
@@ -236,18 +256,21 @@ public class UserController {
                     "filePath", filePath
             ));
         } catch (ResourceNotFoundException e) {
+            logger.error("❌ User not found: {}", userId);
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("success", false, "message", "User not found"));
         } catch (IOException e) {
-            logger.error("Error uploading file for user {}: {}", userId, e.getMessage());
+            logger.error("❌ Error uploading file for user {}: {}", userId, e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("success", false, "message", "Error uploading file: " + e.getMessage()));
         } catch (Exception e) {
-            logger.error("Unexpected error uploading file for user {}", userId, e);
+            logger.error("❌ Unexpected error uploading file for user {}", userId, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("success", false, "message", "Error uploading file"));
         }
     }
+
+
 
     @DeleteMapping("/{userId}/profile-image")
     public ResponseEntity<Map<String, Object>> deleteProfileImage(@PathVariable String userId) {
@@ -255,10 +278,12 @@ public class UserController {
             UserDTO user = userService.getUserById(userId);
 
             if (user.getProfileImageUrl() != null && !user.getProfileImageUrl().isEmpty()) {
-                fileStorageService.deleteFile(user.getProfileImageUrl());
-                user.setProfileImageUrl(null);
-                userService.updateUser(userId, user);
+                if (user.getProfileImageUrl().startsWith("uploads/")) {
+                    fileStorageService.deleteFile(user.getProfileImageUrl());
+                }
             }
+
+            userService.updateUserProfileImage(userId, null, null);
 
             return ResponseEntity.ok(Map.of(
                     "success", true,
@@ -271,6 +296,45 @@ public class UserController {
             logger.error("Error deleting profile image for user {}", userId, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("success", false, "message", "Error deleting profile image"));
+        }
+    }
+
+    @GetMapping(value = {"/{userId}/profile-image", "/{userId}/profile-image.{ext}"})
+    public ResponseEntity<byte[]> getProfileImage(@PathVariable String userId,
+                                                   @PathVariable(name = "ext", required = false) String ext) {
+        try {
+            UserDTO user = userService.getUserById(userId);
+            if (user == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+
+            byte[] imageData = userService.getProfileImageData(userId);
+            if (imageData == null || imageData.length == 0) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+
+            String url = user.getProfileImageUrl();
+            MediaType mediaType = MediaType.APPLICATION_OCTET_STREAM;
+            String lower = null;
+            if (ext != null && !ext.isEmpty()) {
+                lower = "." + ext.toLowerCase();
+            } else if (url != null) {
+                lower = url.toLowerCase();
+            }
+            if (lower != null) {
+                if (lower.endsWith(".png")) mediaType = MediaType.IMAGE_PNG;
+                else if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) mediaType = MediaType.IMAGE_JPEG;
+                else if (lower.endsWith(".gif")) mediaType = MediaType.IMAGE_GIF;
+            }
+
+            return ResponseEntity.ok()
+                    .contentType(mediaType)
+                    .body(imageData);
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            logger.error("Error serving profile image for user {}", userId, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 

@@ -6995,6 +6995,16 @@
                             <span>AI Recommendations</span>
                         </a>
                     </li>
+
+
+
+                    <!-- Dans la sidebar, section "Information" -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="http://localhost:1010/WhatsAppFarmerBuyer.html" target="_blank" id="whatsappChatLink">
+                            <i class="fas fa-comments"></i>
+                            <span>Chat</span>
+                        </a>
+                    </li>
                 </ul>
             </div>
 
@@ -11697,6 +11707,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Initialize farms-specific action buttons
   initializeFarmsNavigation();
+
+  // Initialize WhatsApp Chat link
+  if (typeof initWhatsAppChat === 'function') {
+    initWhatsAppChat();
+  }
 
   // Only load dashboard on initial page load
   const dashboardSection = document.getElementById('dashboardSection');
@@ -25550,6 +25565,115 @@ async function downloadTransactionPDF(transactionId) {
 }
 
 
+
+/**
+ * Initialize WhatsApp Chat functionality
+ */
+function initWhatsAppChat() {
+    const whatsappLink = document.getElementById('whatsappChatLink');
+
+    if (whatsappLink) {
+        whatsappLink.addEventListener('click', async function(e) {
+            e.preventDefault(); // Empêcher l'ouverture directe
+
+            try {
+                showLoading();
+                showToast('Opening WhatsApp Chat...', 'info');
+
+                // Vérifier si l'utilisateur est connecté
+                if (!currentUser || !currentUser.email) {
+                    showToast('Please log in to use WhatsApp Chat', 'warning');
+                    return;
+                }
+
+                // Préparer les données utilisateur pour passer à WhatsApp
+                const userData = {
+                    farmerId: currentUser.id || currentUser.userId,
+                    farmerName: currentUser.fullName,
+                    farmerEmail: currentUser.email,
+                    phone: currentUser.phone || '',
+                    timestamp: new Date().toISOString()
+                };
+
+                // Option 1: Ouvrir dans un nouvel onglet avec données
+                const url = `http://localhost:1010/WhatsAppFarmerBuyer.html?farmerId=${encodeURIComponent(userData.farmerId)}&farmerName=${encodeURIComponent(userData.farmerName)}&farmerEmail=${encodeURIComponent(userData.farmerEmail)}`;
+
+                // Ouvrir dans un nouvel onglet
+                window.open(url, '_blank');
+
+                // Option 2: Charger dans un iframe modal (si préféré)
+                // openWhatsAppModal(userData);
+
+                showToast('WhatsApp Chat opened successfully', 'success');
+
+            } catch (error) {
+                console.error('Error opening WhatsApp Chat:', error);
+                showToast('Error opening WhatsApp Chat', 'error');
+                // Fallback: ouvrir le lien directement
+                window.open(this.href, '_blank');
+            } finally {
+                hideLoading();
+            }
+        });
+    }
+}
+
+/**
+ * Optionnel: Ouvrir WhatsApp dans une modal
+ */
+function openWhatsAppModal(userData) {
+    // Créer la modal
+    const modal = document.createElement('div');
+    modal.className = 'whatsapp-modal';
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.8);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    `;
+
+    // Créer l'iframe
+    const iframe = document.createElement('iframe');
+    iframe.src = `http://localhost:1010/WhatsAppFarmerBuyer.html?farmerId=${encodeURIComponent(userData.farmerId)}&farmerName=${encodeURIComponent(userData.farmerName)}`;
+    iframe.style.cssText = `
+        width: 90%;
+        height: 90%;
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    `;
+
+    // Bouton de fermeture
+    const closeBtn = document.createElement('button');
+    closeBtn.innerHTML = '&times;';
+    closeBtn.style.cssText = `
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: #ff4444;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        font-size: 24px;
+        cursor: pointer;
+        z-index: 10000;
+    `;
+    closeBtn.onclick = () => {
+        document.body.removeChild(modal);
+    };
+
+    modal.appendChild(iframe);
+    modal.appendChild(closeBtn);
+    document.body.appendChild(modal);
+}
 
 
 /**

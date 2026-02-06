@@ -320,38 +320,301 @@
             border-color: var(--primary-green);
         }
 
-        .notification-btn {
-            background: none;
-            border: none;
-            color: var(--text-primary);
-            font-size: 20px;
-            cursor: pointer;
-            position: relative;
-            padding: 12px;
-            border-radius: 12px;
-            transition: all 0.3s ease;
-        }
 
-        .notification-btn:hover {
-            background: var(--hover-bg);
-            color: var(--primary-green);
-        }
 
-        .notification-badge {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            background: var(--error-color);
-            color: white;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            font-size: 11px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-        }
+
+
+/* Notification Dropdown Styles - REMPLACER COMPLÈTEMENT */
+.notification-btn {
+    position: relative;
+    cursor: pointer;
+}
+
+.header-right {
+    position: relative;
+}
+
+.notification-dropdown {
+    position: fixed;
+    top: 70px;
+    right: 20px;
+    width: 400px;
+    max-height: 600px;
+    background: var(--card-bg);
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    z-index: 10000;
+    display: none;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+}
+
+.notification-dropdown.show {
+    display: block;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.notification-dropdown-header {
+    padding: 18px 20px;
+    border-bottom: 2px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+    color: white;
+}
+
+.notification-dropdown-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.notification-dropdown-header h3 i {
+    font-size: 16px;
+}
+
+.mark-all-read-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 6px 12px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.mark-all-read-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+}
+
+.notification-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.notification-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.notification-list::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+}
+
+.notification-list::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 3px;
+}
+
+.notification-list::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
+}
+
+.notification-empty {
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--text-secondary);
+}
+
+.notification-empty i {
+    font-size: 48px;
+    margin-bottom: 12px;
+    opacity: 0.3;
+}
+
+.notification-empty p {
+    margin: 0;
+    font-size: 14px;
+}
+
+.notification-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    background: var(--card-bg);
+}
+
+.notification-item:hover {
+    background: var(--hover-bg);
+    transform: translateX(4px);
+}
+
+.notification-item:active {
+    transform: translateX(2px);
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.notification-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+
+.notification-success .notification-icon {
+    background: rgba(34, 197, 94, 0.1);
+    color: var(--success-color);
+}
+
+.notification-info .notification-icon {
+    background: rgba(59, 130, 246, 0.1);
+    color: var(--info-color);
+}
+
+.notification-danger .notification-icon {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--error-color);
+}
+
+.notification-warning .notification-icon {
+    background: rgba(245, 158, 11, 0.1);
+    color: var(--warning-color);
+}
+
+.notification-default .notification-icon {
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+}
+
+.notification-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.notification-message {
+    margin: 0 0 4px 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1.4;
+    word-wrap: break-word;
+}
+
+.notification-time {
+    font-size: 12px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 4px;
+}
+
+.notification-time i {
+    font-size: 10px;
+}
+
+.notification-mark-read {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    opacity: 0;
+    margin-left: 8px;
+}
+
+.notification-item:hover .notification-mark-read {
+    opacity: 1;
+}
+
+.notification-mark-read:hover {
+    background: var(--hover-bg);
+    color: var(--primary-green);
+}
+
+.notification-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #ef4444;
+    color: white;
+    border-radius: 12px;
+    padding: 3px 7px;
+    font-size: 11px;
+    font-weight: 700;
+    min-width: 22px;
+    height: 22px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--card-bg);
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+}
+
+.dark-mode .notification-dropdown {
+    background: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+.dark-mode .notification-dropdown-header {
+    background: var(--bg-secondary);
+}
+
+.dark-mode .notification-item:hover {
+    background: var(--hover-bg);
+}
+
+@media (max-width: 768px) {
+    .notification-dropdown {
+        width: calc(100vw - 40px);
+        right: 20px;
+        left: 20px;
+        max-width: 400px;
+    }
+}
+
+/* Animation for new notifications */
+@keyframes notificationSlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.notification-item {
+    animation: notificationSlideIn 0.3s ease;
+}
+
+
 
         .profile-section {
             display: flex;
@@ -366,20 +629,31 @@
         .profile-section:hover {
             background: var(--hover-bg);
         }
+.profile-avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    flex-shrink: 0;
+    background: var(--gradient-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
-        .profile-avatar {
-            width: 45px;
-            height: 45px;
-            background: var(--gradient-primary);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 16px;
-            box-shadow: var(--shadow);
-        }
+.profile-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.profile-avatar-fallback {
+    color: white;
+    font-weight: 700;
+    font-size: 16px;
+}
 
         .profile-name {
             font-size: 14px;
@@ -752,20 +1026,48 @@
                 <i class="fas fa-search search-icon"></i>
             </div>
 
+
+
             <div class="header-right">
                 <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">
                     <i class="fas fa-moon"></i>
                     <span>Dark Mode</span>
                 </button>
-                <button class="notification-btn">
-                    <i class="fas fa-bell"></i>
-                    <span class="notification-badge">0</span>
-                </button>
+
+                <!-- Notification Icon avec dropdown -->
+                <div class="notification-container" style="position: relative;">
+                    <button class="notification-btn" onclick="toggleNotifications()" style="background: none; border: none; cursor: pointer; position: relative; padding: 10px;">
+                        <i class="fas fa-bell" style="font-size: 20px; color: var(--text-primary);"></i>
+                        <span class="notification-badge" id="notificationBadge">0</span>
+                    </button>
+
+                    <!-- Dropdown de notifications -->
+                    <div class="notification-dropdown" id="notificationDropdown">
+                        <div class="notification-dropdown-header">
+                            <h3><i class="fas fa-bell"></i> Notifications</h3>
+                            <button class="mark-all-read-btn" onclick="markAllAsRead()">
+                                <i class="fas fa-check-double"></i> Mark all read
+                            </button>
+                        </div>
+                        <div class="notification-list" id="notificationList">
+                            <div class="notification-empty">
+                                <i class="fas fa-bell-slash"></i>
+                                <p>No notifications yet</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
                 <div class="profile-section">
-                    <div class="profile-avatar">A</div>
+                    <div class="profile-avatar" id="profileAvatar">
+                        <img class="profile-image" id="profileImage" alt="Profile" style="display: none;">
+                        <span class="profile-avatar-fallback" id="profileInitial">A</span>
+                    </div>
                     <div class="profile-info">
-                        <div class="profile-name">Administrator</div>
-                        <div class="profile-role">System Admin</div>
+                        <div class="profile-name" id="profileName">Administrator</div>
+                        <div class="profile-role" id="profileRole">System Admin</div>
                     </div>
                 </div>
             </div>
@@ -1278,6 +1580,10 @@
     </div>
 </div>
 
+
+<script src="js/SessionTracker.js"></script>
+<script src="js/user_session_handler.js"></script>
+<script src="js/Notification.js"></script>
 <script>
     const BASE_URL = 'http://localhost:1010/api';
     
@@ -1339,53 +1645,130 @@
         }
     });
 
-    function loadUserProfile() {
-        try {
-            // Try to get user info from localStorage or sessionStorage
-            const userStr = localStorage.getItem('user') || sessionStorage.getItem('user');
-            
-            if (userStr) {
-                const user = JSON.parse(userStr);
-                
-                // Update profile display
-                const profileName = document.querySelector('.profile-name');
-                const profileRole = document.querySelector('.profile-role');
-                const profileAvatar = document.querySelector('.profile-avatar');
-                const greetingText = document.getElementById('greetingText');
-                
-                if (user.fullName && profileName) {
-                    profileName.textContent = user.fullName;
-                }
-                
-                if (user.role && profileRole) {
-                    // Format role for display
-                    const roleDisplay = {
-                        'ADMIN': 'System Admin',
-                        'FARMER': 'Farmer',
-                        'BUYER': 'Buyer',
-                        'ANALYST': 'Analyst',
-                        'GOVERNMENT': 'Government Official'
-                    };
-                    profileRole.textContent = roleDisplay[user.role] || user.role;
-                }
-                
-                // Update avatar with first letter of name
-                if (user.fullName && profileAvatar) {
-                    profileAvatar.textContent = user.fullName.charAt(0).toUpperCase();
-                }
-                
-                // Update greeting
-                if (user.fullName && greetingText) {
-                    const hour = new Date().getHours();
-                    let greeting = hour < 12 ? 'Good Morning' : hour < 18 ? 'Good Afternoon' : 'Good Evening';
-                    greetingText.textContent = `${greeting}, ${user.fullName.split(' ')[0]}!`;
-                }
-            }
-        } catch (error) {
-            console.error('Error loading user profile:', error);
-            // Keep default values if error occurs
+
+
+function loadUserProfile() {
+    try {
+        console.log('=== LOADING USER PROFILE ===');
+
+        // Get user from localStorage
+        const userStr = localStorage.getItem('agriguard_user_info') ||
+                       localStorage.getItem('agriguard_userSession') ||
+                       sessionStorage.getItem('agriguard_user_info');
+
+        if (!userStr) {
+            console.warn('No user session found');
+            return;
         }
+
+        const user = JSON.parse(userStr);
+        console.log('User data:', {
+            id: user.id,
+            fullName: user.fullName,
+            email: user.email,
+            role: user.role,
+            hasPhoto: !!(user.photo || user.photoBase64 || user.profileImageUrl)
+        });
+
+        // Update profile elements
+        const profileName = document.getElementById('profileName');
+        const profileRole = document.getElementById('profileRole');
+        const profileImage = document.getElementById('profileImage');
+        const profileInitial = document.getElementById('profileInitial');
+        const greetingText = document.getElementById('greetingText');
+
+        // Update name
+        if (user.fullName && profileName) {
+            profileName.textContent = user.fullName;
+            console.log('Profile name updated:', user.fullName);
+        }
+
+        // Update role
+        if (user.role && profileRole) {
+            const roleDisplay = {
+                'ADMIN': 'System Admin',
+                'FARMER': 'Farmer',
+                'BUYER': 'Buyer',
+                'ANALYST': 'Analyst',
+                'GOVERNMENT': 'Government Official'
+            };
+            profileRole.textContent = roleDisplay[user.role] || user.role;
+            console.log('Profile role updated:', user.role);
+        }
+
+        // Update profile image
+        if (profileImage && profileInitial) {
+            const photoData = user.photo || user.photoBase64 || user.profileImageUrl;
+
+            if (photoData) {
+                console.log('Photo data found, attempting to load...');
+
+                let imageUrl;
+
+                // Check if it's a URL path
+                if (photoData.startsWith('api/') || photoData.startsWith('/api/')) {
+                    imageUrl = `http://localhost:1010/${photoData.replace(/^\//, '')}`;
+                    console.log('Using API URL:', imageUrl);
+                }
+                // Check if it's already a complete URL
+                else if (photoData.startsWith('http://') || photoData.startsWith('https://')) {
+                    imageUrl = photoData;
+                    console.log('Using direct URL:', imageUrl);
+                }
+                // Check if it's a data URL
+                else if (photoData.startsWith('data:image/')) {
+                    imageUrl = photoData;
+                    console.log('Using data URL');
+                }
+                // Assume it's base64
+                else {
+                    imageUrl = `data:image/jpeg;base64,${photoData}`;
+                    console.log('Using base64 data');
+                }
+
+                // Load image
+                profileImage.onload = () => {
+                    console.log('✅ Profile image loaded successfully');
+                    profileImage.style.display = 'block';
+                    profileInitial.style.display = 'none';
+                };
+
+                profileImage.onerror = (error) => {
+                    console.warn('❌ Failed to load profile image:', error);
+                    console.log('Showing initials instead');
+                    profileImage.style.display = 'none';
+                    profileInitial.style.display = 'flex';
+                    profileInitial.textContent = user.fullName ? user.fullName.charAt(0).toUpperCase() : 'U';
+                };
+
+                profileImage.src = imageUrl;
+
+            } else {
+                // No photo, show initial
+                console.log('No photo data, showing initial');
+                profileImage.style.display = 'none';
+                profileInitial.style.display = 'flex';
+                profileInitial.textContent = user.fullName ? user.fullName.charAt(0).toUpperCase() : 'U';
+            }
+        }
+
+        // Update greeting
+        if (user.fullName && greetingText) {
+            const hour = new Date().getHours();
+            let greeting = hour < 12 ? 'Good Morning' : hour < 18 ? 'Good Afternoon' : 'Good Evening';
+            greetingText.textContent = `${greeting}, ${user.fullName.split(' ')[0]}!`;
+            console.log('Greeting updated');
+        }
+
+        console.log('=== PROFILE UPDATE COMPLETE ===');
+
+    } catch (error) {
+        console.error('Error loading user profile:', error);
     }
+}
+
+
+
 
     function updateDateTime() {
         const now = new Date();

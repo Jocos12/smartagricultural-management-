@@ -1808,60 +1808,85 @@
         }
     }
 
-    // Update UI with current user
-    function updateUIWithCurrentUser() {
-        if (!currentLoggedInUser) return;
 
-        const greetingText = document.getElementById('greetingText');
-        if (greetingText) {
-            const hour = new Date().getHours();
-            let greeting = 'Good Morning';
-            if (hour >= 12 && hour < 18) greeting = 'Good Afternoon';
-            else if (hour >= 18) greeting = 'Good Evening';
 
-            greetingText.textContent = `${greeting}, ${currentLoggedInUser.fullName}!`;
-        }
+function updateUIWithCurrentUser() {
+    if (!currentLoggedInUser) return;
 
-        const profileName = document.getElementById('profileName');
-        if (profileName) {
-            profileName.textContent = currentLoggedInUser.fullName;
-        }
+    const greetingText = document.getElementById('greetingText');
+    if (greetingText) {
+        const hour = new Date().getHours();
+        let greeting = 'Good Morning';
+        if (hour >= 12 && hour < 18) greeting = 'Good Afternoon';
+        else if (hour >= 18) greeting = 'Good Evening';
 
-        const profileRole = document.getElementById('profileRole');
-        if (profileRole) {
-            profileRole.textContent = formatRole(currentLoggedInUser.role);
-        }
+        greetingText.textContent = `${greeting}, ${currentLoggedInUser.fullName}!`;
+    }
 
-        const profileAvatar = document.getElementById('profileAvatar');
-        if (profileAvatar && currentLoggedInUser.fullName) {
-            const initials = currentLoggedInUser.fullName
-                .split(' ')
-                .map(n => n[0])
-                .join('')
-                .toUpperCase();
-            profileAvatar.textContent = initials;
+    const profileName = document.getElementById('profileName');
+    if (profileName) {
+        profileName.textContent = currentLoggedInUser.fullName;
+    }
 
-            if (currentLoggedInUser.photo || currentLoggedInUser.profileImageUrl) {
-                const photoUrl = currentLoggedInUser.photo || currentLoggedInUser.profileImageUrl;
-                if (photoUrl.startsWith('http') || photoUrl.startsWith('data:')) {
-                    profileAvatar.style.backgroundImage = `url(${photoUrl})`;
-                    profileAvatar.style.backgroundSize = 'cover';
-                    profileAvatar.textContent = '';
-                } else {
-                    const fullUrl = `http://localhost:1010/${photoUrl}`;
+    const profileRole = document.getElementById('profileRole');
+    if (profileRole) {
+        profileRole.textContent = formatRole(currentLoggedInUser.role);
+    }
+
+    const profileAvatar = document.getElementById('profileAvatar');
+    if (profileAvatar && currentLoggedInUser.fullName) {
+        const initials = currentLoggedInUser.fullName
+            .split(' ')
+            .map(n => n[0])
+            .join('')
+            .toUpperCase();
+        profileAvatar.textContent = initials;
+
+        if (currentLoggedInUser.photo || currentLoggedInUser.profileImageUrl) {
+            const photoUrl = currentLoggedInUser.photo || currentLoggedInUser.profileImageUrl;
+
+            // FIX: Better handling of image URLs
+            if (photoUrl.startsWith('http') || photoUrl.startsWith('data:')) {
+                profileAvatar.style.backgroundImage = `url(${photoUrl})`;
+                profileAvatar.style.backgroundSize = 'cover';
+                profileAvatar.textContent = '';
+            } else if (photoUrl.startsWith('api/users/')) {
+                // If it's already in the correct format
+                const fullUrl = `http://localhost:1010/${photoUrl}`;
+                const img = new Image();
+                img.onload = function() {
                     profileAvatar.style.backgroundImage = `url(${fullUrl})`;
                     profileAvatar.style.backgroundSize = 'cover';
                     profileAvatar.textContent = '';
-                }
+                };
+                img.onerror = function() {
+                    console.warn('Failed to load profile image:', fullUrl);
+                    // Keep the initials if image fails to load
+                };
+                img.src = fullUrl;
+            } else {
+                // Legacy format
+                const fullUrl = `http://localhost:1010/${photoUrl}`;
+                const img = new Image();
+                img.onload = function() {
+                    profileAvatar.style.backgroundImage = `url(${fullUrl})`;
+                    profileAvatar.style.backgroundSize = 'cover';
+                    profileAvatar.textContent = '';
+                };
+                img.onerror = function() {
+                    console.warn('Failed to load profile image:', fullUrl);
+                };
+                img.src = fullUrl;
             }
         }
-
-        console.log('UI updated with user info:', {
-            name: currentLoggedInUser.fullName,
-            role: currentLoggedInUser.role,
-            email: currentLoggedInUser.email
-        });
     }
+
+    console.log('UI updated with user info:', {
+        name: currentLoggedInUser.fullName,
+        role: currentLoggedInUser.role,
+        email: currentLoggedInUser.email
+    });
+}
 
     function formatRole(role) {
         if (!role) return 'User';
@@ -1960,20 +1985,40 @@
         }
     }
 
-    function updateStatistics() {
-        document.getElementById('totalFarms').textContent = allFarms.length;
 
-        const totalArea = allFarms.reduce((sum, farm) => sum + (parseFloat(farm.farmSize) || 0), 0);
-        document.getElementById('totalArea').textContent = totalArea.toFixed(2);
 
-        const avgSize = allFarms.length > 0 ? totalArea / allFarms.length : 0;
-        document.getElementById('avgSize').textContent = avgSize.toFixed(2);
+function updateStatistics() {
+    const totalFarmsElement = document.getElementById('totalFarms');
+    const totalAreaElement = document.getElementById('totalArea');
+    const avgSizeElement = document.getElementById('avgSize');
+    const largeFarmsElement = document.getElementById('largeFarms');
 
-        const largeFarms = allFarms.filter(farm => parseFloat(farm.farmSize) > 10).length;
-        document.getElementById('largeFarms').textContent = largeFarms;
-
-        document.getElementById('notificationCount').textContent = allFarms.length;
+    // Check if elements exist before updating
+    if (totalFarmsElement) {
+        totalFarmsElement.textContent = allFarms.length;
     }
+
+    const totalArea = allFarms.reduce((sum, farm) => sum + (parseFloat(farm.farmSize) || 0), 0);
+    if (totalAreaElement) {
+        totalAreaElement.textContent = totalArea.toFixed(2);
+    }
+
+    const avgSize = allFarms.length > 0 ? totalArea / allFarms.length : 0;
+    if (avgSizeElement) {
+        avgSizeElement.textContent = avgSize.toFixed(2);
+    }
+
+    const largeFarms = allFarms.filter(farm => parseFloat(farm.farmSize) > 10).length;
+    if (largeFarmsElement) {
+        largeFarmsElement.textContent = largeFarms;
+    }
+
+    // Fix: Check if element exists before updating
+    const notificationBadge = document.getElementById('notificationBadge');
+    if (notificationBadge) {
+        notificationBadge.textContent = allFarms.length;
+    }
+}
 
     function renderFarmsTable(farms) {
         const tbody = document.getElementById('farmsTableBody');

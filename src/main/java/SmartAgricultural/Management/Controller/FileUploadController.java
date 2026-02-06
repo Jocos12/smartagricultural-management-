@@ -20,11 +20,23 @@ import java.util.UUID;
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class FileUploadController {
 
-    private static final String UPLOAD_DIR = "uploads/crops";
+    private static final String UPLOAD_DIR_CROPS = "uploads/crops";
+    private static final String UPLOAD_DIR_PROFILES = "uploads/profiles";
 
     @PostMapping("/crop-image")
     public ResponseEntity<Map<String, String>> uploadCropImage(
             @RequestParam("file") MultipartFile file) {
+        return uploadImage(file, UPLOAD_DIR_CROPS, "/uploads/crops/");
+    }
+
+    @PostMapping("/profile-image")
+    public ResponseEntity<Map<String, String>> uploadProfileImage(
+            @RequestParam("file") MultipartFile file) {
+        return uploadImage(file, UPLOAD_DIR_PROFILES, "/uploads/profiles/");
+    }
+
+    private ResponseEntity<Map<String, String>> uploadImage(
+            MultipartFile file, String uploadDir, String urlPrefix) {
 
         Map<String, String> response = new HashMap<>();
 
@@ -52,7 +64,7 @@ public class FileUploadController {
             }
 
             // Créer le répertoire s'il n'existe pas
-            File uploadDirFile = new File(UPLOAD_DIR);
+            File uploadDirFile = new File(uploadDir);
             if (!uploadDirFile.exists()) {
                 uploadDirFile.mkdirs();
                 System.out.println("✅ Created directory: " + uploadDirFile.getAbsolutePath());
@@ -65,14 +77,14 @@ public class FileUploadController {
             String uniqueFilename = UUID.randomUUID().toString() + fileExtension;
 
             // Sauvegarder le fichier
-            Path filePath = Paths.get(UPLOAD_DIR, uniqueFilename);
+            Path filePath = Paths.get(uploadDir, uniqueFilename);
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
             // Log de confirmation
             System.out.println("✅ File saved: " + filePath.toAbsolutePath());
 
             // Construire l'URL accessible
-            String fileUrl = "/uploads/crops/" + uniqueFilename;
+            String fileUrl = urlPrefix + uniqueFilename;
 
             response.put("success", "true");
             response.put("message", "File uploaded successfully");
@@ -92,11 +104,22 @@ public class FileUploadController {
     @DeleteMapping("/crop-image")
     public ResponseEntity<Map<String, String>> deleteCropImage(
             @RequestParam("filename") String filename) {
+        return deleteImage(filename, UPLOAD_DIR_CROPS);
+    }
+
+    @DeleteMapping("/profile-image")
+    public ResponseEntity<Map<String, String>> deleteProfileImage(
+            @RequestParam("filename") String filename) {
+        return deleteImage(filename, UPLOAD_DIR_PROFILES);
+    }
+
+    private ResponseEntity<Map<String, String>> deleteImage(
+            String filename, String uploadDir) {
 
         Map<String, String> response = new HashMap<>();
 
         try {
-            Path filePath = Paths.get(UPLOAD_DIR, filename);
+            Path filePath = Paths.get(uploadDir, filename);
 
             if (Files.exists(filePath)) {
                 Files.delete(filePath);
